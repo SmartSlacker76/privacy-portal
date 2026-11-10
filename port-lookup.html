@@ -1,0 +1,199 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>포트 번호 조회 · 혼디지킴이</title>
+<meta name="description" content="포트 번호나 서비스 이름을 입력하면 프로토콜·기능과 연관 CVE·공격 취약점을 한눈에 보여주고, IANA·NVD·CVE·MITRE ATT&CK·SpeedGuide·Criminal IP로 바로 연결합니다.">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+KR:wght@400;600;700&family=JetBrains+Mono:wght@400;700&family=Nanum+Myeongjo:wght@700;800&display=swap">
+<link rel="stylesheet" href="assets/css/style.css">
+<style>
+  .sp-wrap.wide { max-width: 1000px; }
+  .search-bar { display:flex; gap:8px; margin:12px 0 8px; }
+  .search-bar input { flex:1; font:inherit; font-size:16px; padding:12px 15px; border:1px solid var(--line); border-radius:10px; background:var(--surface-2); color:var(--ink); }
+  .quick { display:flex; flex-wrap:wrap; gap:6px; margin-bottom:6px; }
+  .quick b { font-size:12px; color:var(--muted); align-self:center; margin-right:3px; }
+  .qp { border:1px solid var(--line); background:var(--surface-2); border-radius:14px; padding:3px 10px; cursor:pointer; font:inherit; font-size:12px; color:var(--ink); }
+  .qp:hover { border-color:#c4321b; color:#c4321b; }
+  .stat { font-size:13px; color:var(--muted); margin:8px 0; }
+  .res { display:grid; gap:12px; }
+  .p { border:1px solid var(--line); border-radius:12px; overflow:hidden; background:var(--surface); }
+  .p-head { display:flex; flex-wrap:wrap; align-items:center; gap:9px; padding:12px 15px; border-bottom:1px solid var(--line); }
+  .p-num { font-family:var(--f-display); font-size:22px; font-weight:800; color:var(--cipher); }
+  .p-proto { font-family:var(--f-mono); font-size:11px; font-weight:700; color:#fff; background:#334155; padding:2px 8px; border-radius:6px; }
+  .p-svc { font-family:var(--f-display); font-size:16px; font-weight:700; }
+  .p-risk { margin-left:auto; font-size:11px; font-weight:700; padding:3px 10px; border-radius:12px; color:#fff; }
+  .rk3{ background:#c4321b; } .rk2{ background:#d9731f; } .rk1{ background:#1d8f5b; }
+  .p-body { padding:12px 15px; display:grid; gap:7px; font-size:13px; line-height:1.6; }
+  .p-body .row b { color:var(--cipher); }
+  .p-cve { background:var(--surface-2); border-radius:8px; padding:8px 11px; font-size:12.5px; }
+  .p-cve .cid { font-family:var(--f-mono); font-weight:700; color:#c4321b; }
+  .p-links { display:flex; flex-wrap:wrap; gap:7px; padding:0 15px 13px; }
+  .p-links a { font-size:11.5px; font-weight:600; text-decoration:none; color:#1e3a8a; border:1px solid #c7d4ef; border-radius:8px; padding:4px 10px; }
+  .p-links a:hover { background:#eef2fb; }
+  .note { font-size:12px; color:var(--muted); }
+  .empty { text-align:center; color:var(--muted); padding:34px 10px; font-size:14px; }
+</style>
+</head>
+<body>
+<div class="sp-wrap wide">
+  <div class="sp-top"><a class="back" href="index.html">← 혼디지킴이 포털</a><span class="brand">포트 번호 조회</span></div>
+  <div class="sp-head">
+    <h1>🔌 포트 번호 조회</h1>
+    <p class="lead"><b>포트 번호(예: 445)</b>나 <b>서비스 이름(예: rdp, smb)</b>을 입력하면 <b>프로토콜·기능</b>과 <b>대표 취약점·공격(CVE)</b>을 한눈에 보여줘요. 모든 포트는 <b>IANA·NVD·CVE·MITRE ATT&amp;CK·SpeedGuide·Criminal IP</b> 공식 자료로 바로 연결돼요. (방어·점검용 정보)</p>
+  </div>
+
+  <div class="sp-card">
+    <div class="search-bar"><input id="q" type="search" placeholder="포트 번호 또는 서비스 이름 (예: 3389, rdp, 23, telnet, redis)" autocomplete="off" autofocus></div>
+    <div class="quick"><b>자주 노출되는 위험 포트</b>
+      <button class="qp" data-q="23">23 Telnet</button><button class="qp" data-q="445">445 SMB</button>
+      <button class="qp" data-q="3389">3389 RDP</button><button class="qp" data-q="6379">6379 Redis</button>
+      <button class="qp" data-q="9200">9200 Elasticsearch</button><button class="qp" data-q="27017">27017 MongoDB</button>
+      <button class="qp" data-q="2375">2375 Docker</button><button class="qp" data-q="5900">5900 VNC</button>
+      <button class="qp" data-q="161">161 SNMP</button>
+    </div>
+    <div class="stat" id="stat">포트 번호나 서비스 이름을 입력하세요.</div>
+    <div class="res" id="res"></div>
+  </div>
+
+  <p class="notice" style="margin-top:14px;font-size:12px;color:var(--muted)">주요·고위험 포트는 교육용으로 정리한 요약이며, 대표 CVE는 ‘예시’예요. 전체 등록 서비스·최신 취약점은 각 결과의 <b>IANA·NVD·CVE·MITRE·SpeedGuide·Criminal IP</b> 링크에서 확인하세요. 이 도구는 <b>방어·점검</b> 목적의 정보 제공이며 공격 수단을 제공하지 않아요.</p>
+</div>
+
+<script>
+(function(){
+  var $ = s => document.querySelector(s);
+  var esc = s => (s||'').replace(/[&<>]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;'}[c]));
+  // 큐레이션 포트 DB (p:포트, pr:프로토콜, s:서비스, a:별칭, f:기능, r:위험, k:위험도3/2/1, c:대표취약점/공격, m:[MITRE명,URL], d:방어)
+  var DB = [
+    {p:20,pr:'TCP',s:'FTP-DATA',a:'ftp',f:'파일전송 데이터 채널',r:'평문 전송(도청)',k:2,c:'평문 자격증명 노출',d:'SFTP/FTPS로 대체'},
+    {p:21,pr:'TCP',s:'FTP',a:'ftp',f:'파일전송 제어',r:'평문·익명 로그인·백도어',k:3,c:'vsftpd 2.3.4 백도어 <span class="cid">CVE-2011-2523</span>, 익명 접근',m:['T1071','https://attack.mitre.org/techniques/T1071/'],d:'SFTP/FTPS, 익명 비활성, 접근제어'},
+    {p:22,pr:'TCP',s:'SSH',a:'ssh',f:'원격 셸·파일전송',r:'무차별 대입·약한 키',k:2,c:'libssh 인증우회 <span class="cid">CVE-2018-10933</span>, 자격증명 무차별 대입',m:['T1021.004','https://attack.mitre.org/techniques/T1021/004/'],d:'키 인증·2FA, 비번로그인 차단, 접속 IP 제한'},
+    {p:23,pr:'TCP',s:'Telnet',a:'telnet',f:'원격 셸(평문)',r:'평문·기본계정·봇넷',k:3,c:'평문 전송, Mirai 봇넷 대량 감염',m:['T1021','https://attack.mitre.org/techniques/T1021/'],d:'즉시 폐쇄, SSH로 대체'},
+    {p:25,pr:'TCP',s:'SMTP',a:'mail smtp',f:'메일 전송',r:'오픈릴레이·스팸·정보노출',k:2,c:'오픈릴레이 악용, 사용자 열거',d:'인증·릴레이 제한, TLS(587/465)'},
+    {p:53,pr:'TCP/UDP',s:'DNS',a:'dns',f:'도메인 이름 해석',r:'증폭 DDoS·캐시 포이즈닝',k:2,c:'DNS 증폭 반사 공격, 캐시 포이즈닝',m:['T1498','https://attack.mitre.org/techniques/T1498/'],d:'재귀질의 제한, DNSSEC, 응답률 제한'},
+    {p:69,pr:'UDP',s:'TFTP',a:'tftp',f:'간이 파일전송',r:'인증 없음',k:2,c:'무인증 파일 읽기/쓰기',d:'외부 노출 금지'},
+    {p:80,pr:'TCP',s:'HTTP',a:'http web',f:'웹 서비스(평문)',r:'웹 취약점 전반·평문',k:2,c:'SQLi·XSS·업로드 등 웹 취약점, 평문 전송',m:['T1190','https://attack.mitre.org/techniques/T1190/'],d:'HTTPS 전환, WAF, 시큐어코딩'},
+    {p:110,pr:'TCP',s:'POP3',a:'pop3 mail',f:'메일 수신(평문)',r:'평문 자격증명',k:2,c:'평문 로그인 도청',d:'POP3S(995)/IMAPS'},
+    {p:111,pr:'TCP/UDP',s:'RPCbind',a:'rpc portmapper',f:'RPC 포트 매핑',r:'정보노출·증폭',k:2,c:'서비스 열거, 반사 증폭',d:'외부 차단'},
+    {p:123,pr:'UDP',s:'NTP',a:'ntp',f:'시간 동기화',r:'증폭 DDoS',k:2,c:'monlist 증폭 반사 <span class="cid">CVE-2013-5211</span>',m:['T1498','https://attack.mitre.org/techniques/T1498/'],d:'monlist 비활성, 최신 ntpd'},
+    {p:135,pr:'TCP',s:'MSRPC',a:'rpc dcom',f:'Windows RPC',r:'원격 코드 실행',k:3,c:'DCOM RPC 과거 Blaster(MS03-026) 계열',d:'외부 차단, 패치'},
+    {p:137,pr:'UDP',s:'NetBIOS-NS',a:'netbios',f:'Windows 이름 서비스',r:'정보노출·스푸핑',k:2,c:'이름/공유 열거, LLMNR/NBT-NS 스푸핑',m:['T1557','https://attack.mitre.org/techniques/T1557/'],d:'외부 차단, NBT-NS 비활성'},
+    {p:139,pr:'TCP',s:'NetBIOS-SSN',a:'netbios smb',f:'SMB over NetBIOS',r:'공유 노출',k:2,c:'무인증 공유 열거',d:'외부 차단'},
+    {p:143,pr:'TCP',s:'IMAP',a:'imap mail',f:'메일 수신(평문)',r:'평문 자격증명',k:2,c:'평문 로그인 도청',d:'IMAPS(993)'},
+    {p:161,pr:'UDP',s:'SNMP',a:'snmp',f:'장비 관리/모니터링',r:'기본 community·증폭',k:3,c:'public/private 커뮤니티 정보노출, 증폭 DDoS',m:['T1119','https://attack.mitre.org/techniques/T1119/'],d:'SNMPv3, community 변경, 외부 차단'},
+    {p:389,pr:'TCP/UDP',s:'LDAP',a:'ldap',f:'디렉터리 서비스',r:'익명 바인드·증폭·주입',k:2,c:'익명 조회 정보노출, LDAP 증폭, LDAP 인젝션',d:'익명 바인드 금지, LDAPS(636)'},
+    {p:443,pr:'TCP',s:'HTTPS',a:'https ssl tls web',f:'웹 서비스(암호화)',r:'TLS/라이브러리 취약점',k:2,c:'Heartbleed <span class="cid">CVE-2014-0160</span>(OpenSSL), 웹 취약점',m:['T1190','https://attack.mitre.org/techniques/T1190/'],d:'최신 TLS·라이브러리, 인증서 관리'},
+    {p:445,pr:'TCP',s:'SMB',a:'smb cifs microsoft-ds',f:'Windows 파일공유',r:'웜·랜섬웨어 원격 코드 실행',k:3,c:'EternalBlue <span class="cid">CVE-2017-0144</span>(WannaCry·NotPetya), SMBGhost <span class="cid">CVE-2020-0796</span>',m:['T1021.002','https://attack.mitre.org/techniques/T1021/002/'],d:'외부 차단, SMBv1 비활성, 패치, 서명'},
+    {p:465,pr:'TCP',s:'SMTPS',a:'smtp mail',f:'메일 전송(암호화)',r:'약한 인증',k:1,c:'자격증명 무차별 대입',d:'강한 인증·TLS'},
+    {p:500,pr:'UDP',s:'IKE/IPsec',a:'vpn ipsec',f:'VPN 키 교환',r:'구현 취약점',k:1,c:'IKE 구현 취약점',d:'최신 펌웨어'},
+    {p:512,pr:'TCP',s:'rexec',a:'r-services',f:'원격 실행(평문)',r:'평문 신뢰기반',k:3,c:'평문·신뢰기반 우회',d:'폐쇄, SSH 대체'},
+    {p:513,pr:'TCP',s:'rlogin',a:'r-services',f:'원격 로그인(평문)',r:'평문 신뢰기반',k:3,c:'rhosts 신뢰 악용',d:'폐쇄, SSH 대체'},
+    {p:514,pr:'TCP/UDP',s:'rsh/syslog',a:'r-services syslog',f:'원격 셸/로그',r:'평문·위조',k:2,c:'평문 명령, 로그 위조',d:'폐쇄/TLS syslog'},
+    {p:515,pr:'TCP',s:'LPD',a:'printer',f:'프린터 서비스',r:'구형 RCE',k:1,c:'구형 LPD 취약점',d:'외부 차단'},
+    {p:548,pr:'TCP',s:'AFP',a:'apple',f:'Apple 파일공유',r:'정보노출·RCE',k:2,c:'무인증 공유, 과거 RCE',d:'외부 차단, 패치'},
+    {p:554,pr:'TCP',s:'RTSP',a:'rtsp camera',f:'영상 스트리밍',r:'CCTV 무인증 노출',k:3,c:'기본계정 CCTV 영상 노출(개인영상정보 유출)',d:'기본 비번 변경, 외부 차단'},
+    {p:587,pr:'TCP',s:'Submission',a:'smtp mail',f:'메일 제출(STARTTLS)',r:'약한 인증',k:1,c:'자격증명 무차별 대입',d:'강한 인증'},
+    {p:623,pr:'UDP',s:'IPMI/BMC',a:'ipmi bmc',f:'서버 원격관리',r:'인증우회',k:3,c:'IPMI 2.0 인증우회·해시 노출',d:'관리망 분리, 외부 차단'},
+    {p:636,pr:'TCP',s:'LDAPS',a:'ldap',f:'디렉터리(암호화)',r:'익명 바인드',k:1,c:'익명 조회',d:'익명 금지'},
+    {p:873,pr:'TCP',s:'rsync',a:'rsync',f:'파일 동기화',r:'무인증 모듈 노출',k:3,c:'무인증 모듈로 데이터 유출/변조',d:'인증 설정, 외부 차단'},
+    {p:993,pr:'TCP',s:'IMAPS',a:'imap mail',f:'메일 수신(암호화)',r:'약한 인증',k:1,c:'무차별 대입',d:'강한 인증·2FA'},
+    {p:995,pr:'TCP',s:'POP3S',a:'pop3 mail',f:'메일 수신(암호화)',r:'약한 인증',k:1,c:'무차별 대입',d:'강한 인증·2FA'},
+    {p:1080,pr:'TCP',s:'SOCKS',a:'proxy',f:'프록시',r:'오픈 프록시 악용',k:2,c:'익명 경유·우회 통로',d:'인증, 외부 차단'},
+    {p:1099,pr:'TCP',s:'Java RMI',a:'rmi',f:'자바 원격 호출',r:'역직렬화 RCE',k:3,c:'RMI 역직렬화 원격 코드 실행',m:['T1190','https://attack.mitre.org/techniques/T1190/'],d:'외부 차단, 역직렬화 필터'},
+    {p:1433,pr:'TCP',s:'MSSQL',a:'sql server mssql',f:'MS SQL Server',r:'무차별 대입·xp_cmdshell',k:3,c:'약한 sa 계정, xp_cmdshell 악용',m:['T1210','https://attack.mitre.org/techniques/T1210/'],d:'강한 계정, 외부 차단, 최소권한'},
+    {p:1521,pr:'TCP',s:'Oracle DB',a:'oracle tns',f:'Oracle 데이터베이스',r:'TNS·계정 취약점',k:2,c:'TNS poison, 기본계정',d:'외부 차단, 패치'},
+    {p:1723,pr:'TCP',s:'PPTP',a:'vpn',f:'구형 VPN',r:'약한 암호화',k:2,c:'MS-CHAPv2 크랙',d:'IKEv2/OpenVPN/WireGuard로 대체'},
+    {p:1883,pr:'TCP',s:'MQTT',a:'iot mqtt',f:'IoT 메시징',r:'무인증 노출',k:2,c:'무인증 브로커 데이터 노출',d:'인증·TLS'},
+    {p:1900,pr:'UDP',s:'SSDP/UPnP',a:'upnp ssdp',f:'장치 자동검색',r:'증폭 DDoS·노출',k:2,c:'SSDP 반사 증폭, UPnP 포트개방 악용',m:['T1498','https://attack.mitre.org/techniques/T1498/'],d:'UPnP 비활성, 외부 차단'},
+    {p:2049,pr:'TCP',s:'NFS',a:'nfs',f:'유닉스 파일공유',r:'무인증 export 노출',k:3,c:'world-readable export 데이터 유출',d:'export 제한, 외부 차단'},
+    {p:2375,pr:'TCP',s:'Docker API',a:'docker',f:'컨테이너 원격 API',r:'무인증→호스트 장악',k:3,c:'무인증 Docker API로 호스트 RCE/채굴',m:['T1610','https://attack.mitre.org/techniques/T1610/'],d:'TLS·인증(2376), 외부 차단'},
+    {p:2379,pr:'TCP',s:'etcd',a:'etcd kubernetes',f:'분산 키-값 저장',r:'무인증 비밀 노출',k:3,c:'무인증 etcd에서 K8s 비밀·토큰 유출',d:'인증·TLS, 외부 차단'},
+    {p:3000,pr:'TCP',s:'Grafana/Dev',a:'grafana node',f:'대시보드/개발 서버',r:'관리콘솔 노출',k:2,c:'Grafana 경로조작 <span class="cid">CVE-2021-43798</span>',d:'인증, 최신화, 외부 차단'},
+    {p:3306,pr:'TCP',s:'MySQL',a:'mysql mariadb',f:'MySQL 데이터베이스',r:'무차별 대입·노출',k:3,c:'약한 계정, 무인증 노출로 데이터 유출',m:['T1210','https://attack.mitre.org/techniques/T1210/'],d:'강한 계정, 외부 차단, 최소권한'},
+    {p:3389,pr:'TCP',s:'RDP',a:'rdp remote desktop',f:'Windows 원격데스크톱',r:'랜섬웨어 초기침투',k:3,c:'BlueKeep <span class="cid">CVE-2019-0708</span>, 무차별 대입·랜섬 진입',m:['T1021.001','https://attack.mitre.org/techniques/T1021/001/'],d:'외부 차단·VPN+2FA, NLA, 패치'},
+    {p:3690,pr:'TCP',s:'SVN',a:'subversion',f:'버전관리',r:'소스 노출',k:2,c:'무인증 저장소 노출',d:'인증, 외부 차단'},
+    {p:4444,pr:'TCP',s:'Metasploit 등',a:'meterpreter',f:'원격접속(악성 흔히 사용)',r:'C2/백도어 흔적',k:3,c:'악성코드 리버스 셸이 흔히 사용',m:['T1571','https://attack.mitre.org/techniques/T1571/'],d:'비정상 아웃바운드 탐지·차단'},
+    {p:4786,pr:'TCP',s:'Cisco Smart Install',a:'cisco',f:'스위치 자동설정',r:'구성 탈취·장악',k:3,c:'Smart Install 악용 구성 탈취 <span class="cid">CVE-2018-0171</span>',d:'비활성, 외부 차단'},
+    {p:5000,pr:'TCP',s:'UPnP/Flask/Docker Reg',a:'flask',f:'앱/레지스트리',r:'관리/노출',k:2,c:'개발 서버·레지스트리 노출',d:'인증, 외부 차단'},
+    {p:5432,pr:'TCP',s:'PostgreSQL',a:'postgres postgresql',f:'PostgreSQL DB',r:'무차별 대입·노출',k:3,c:'약한 계정, 무인증 노출, COPY 명령 악용',m:['T1210','https://attack.mitre.org/techniques/T1210/'],d:'강한 계정, 외부 차단'},
+    {p:5555,pr:'TCP',s:'Android ADB',a:'adb android',f:'안드로이드 디버그',r:'무인증 원격 장악',k:3,c:'무인증 ADB로 기기 장악·채굴 웜',d:'ADB over TCP 비활성'},
+    {p:5601,pr:'TCP',s:'Kibana',a:'kibana elastic',f:'Elastic 대시보드',r:'노출·RCE',k:3,c:'Kibana 프로토타입 오염 RCE <span class="cid">CVE-2019-7609</span>',d:'인증, 외부 차단, 최신화'},
+    {p:5672,pr:'TCP',s:'AMQP/RabbitMQ',a:'rabbitmq amqp',f:'메시지 큐',r:'기본계정 노출',k:2,c:'guest/guest 기본계정',d:'계정 변경, 외부 차단'},
+    {p:5900,pr:'TCP',s:'VNC',a:'vnc',f:'원격 화면제어',r:'무인증/약한 비번',k:3,c:'무인증·약한 비번 원격 장악',m:['T1021.005','https://attack.mitre.org/techniques/T1021/005/'],d:'강한 비번·터널링, 외부 차단'},
+    {p:5984,pr:'TCP',s:'CouchDB',a:'couchdb',f:'문서 DB',r:'무인증→RCE',k:3,c:'권한상승 RCE <span class="cid">CVE-2017-12635</span>',d:'인증, 외부 차단, 패치'},
+    {p:5985,pr:'TCP',s:'WinRM',a:'winrm',f:'Windows 원격관리',r:'원격 실행',k:2,c:'자격증명 탈취 후 원격 명령',m:['T1021.006','https://attack.mitre.org/techniques/T1021/006/'],d:'HTTPS(5986), 접근제어'},
+    {p:6379,pr:'TCP',s:'Redis',a:'redis',f:'인메모리 캐시/DB',r:'무인증→RCE',k:3,c:'무인증 노출로 키 탈취·크론/SSH키 주입 RCE',m:['T1190','https://attack.mitre.org/techniques/T1190/'],d:'requirepass·bind, 보호모드, 외부 차단'},
+    {p:6443,pr:'TCP',s:'Kubernetes API',a:'kubernetes k8s',f:'K8s API 서버',r:'무인증→클러스터 장악',k:3,c:'익명 접근 허용 시 클러스터 전체 장악',m:['T1610','https://attack.mitre.org/techniques/T1610/'],d:'익명 비활성·RBAC, 외부 차단'},
+    {p:6667,pr:'TCP',s:'IRC',a:'irc',f:'채팅',r:'봇넷 C2',k:2,c:'봇넷 명령·제어 채널',m:['T1071','https://attack.mitre.org/techniques/T1071/'],d:'비정상 트래픽 탐지'},
+    {p:7001,pr:'TCP',s:'WebLogic',a:'weblogic oracle',f:'WAS 관리',r:'역직렬화 RCE',k:3,c:'WebLogic 역직렬화 RCE <span class="cid">CVE-2017-10271</span>·<span class="cid">CVE-2019-2725</span>',m:['T1190','https://attack.mitre.org/techniques/T1190/'],d:'패치, 관리콘솔 외부 차단'},
+    {p:8080,pr:'TCP',s:'HTTP-alt',a:'http proxy tomcat',f:'대체 웹/프록시',r:'관리콘솔 노출',k:2,c:'Tomcat Manager 약한 계정, 프록시 악용',d:'인증, 외부 차단'},
+    {p:8443,pr:'TCP',s:'HTTPS-alt',a:'https',f:'대체 HTTPS/관리',r:'관리콘솔 노출',k:2,c:'관리 인터페이스 노출',d:'인증, 외부 차단'},
+    {p:8888,pr:'TCP',s:'Jupyter 등',a:'jupyter',f:'노트북/관리',r:'무인증 코드실행',k:3,c:'무인증 Jupyter에서 코드 실행',d:'토큰·비번, 외부 차단'},
+    {p:9000,pr:'TCP',s:'SonarQube/PHP-FPM',a:'php-fpm',f:'앱/분석 서버',r:'노출·RCE',k:2,c:'PHP-FPM 노출, 관리 노출',d:'외부 차단'},
+    {p:9042,pr:'TCP',s:'Cassandra',a:'cassandra',f:'분산 DB',r:'무인증 노출',k:2,c:'기본 무인증 데이터 노출',d:'인증, 외부 차단'},
+    {p:9092,pr:'TCP',s:'Kafka',a:'kafka',f:'스트리밍 메시지',r:'무인증 노출',k:2,c:'무인증 토픽 노출',d:'SASL/TLS, 외부 차단'},
+    {p:9200,pr:'TCP',s:'Elasticsearch',a:'elasticsearch elk',f:'검색/분석 DB',r:'무인증 데이터 유출',k:3,c:'무인증 노출로 대량 개인정보 유출·삭제·몸값',d:'인증(보안 플러그인), 외부 차단'},
+    {p:10000,pr:'TCP',s:'Webmin',a:'webmin',f:'서버 관리 UI',r:'원격 코드 실행',k:3,c:'Webmin 백도어 RCE <span class="cid">CVE-2019-15107</span>',d:'최신화, 외부 차단'},
+    {p:11211,pr:'TCP/UDP',s:'Memcached',a:'memcached',f:'인메모리 캐시',r:'무인증·대규모 증폭',k:3,c:'무인증 데이터 노출, 2018 대규모 증폭 DDoS',m:['T1498','https://attack.mitre.org/techniques/T1498/'],d:'UDP 비활성·bind, 외부 차단'},
+    {p:15672,pr:'TCP',s:'RabbitMQ 관리',a:'rabbitmq',f:'메시지 큐 관리 UI',r:'기본계정 노출',k:2,c:'guest 기본계정 관리 접근',d:'계정 변경, 외부 차단'},
+    {p:27017,pr:'TCP',s:'MongoDB',a:'mongodb mongo',f:'문서 DB',r:'무인증 데이터 유출',k:3,c:'무인증 노출로 대량 유출·몸값(2017 대량 사고)',d:'인증·bind, 외부 차단'},
+    {p:50070,pr:'TCP',s:'Hadoop NameNode',a:'hadoop hdfs',f:'빅데이터 관리',r:'무인증 데이터 노출',k:3,c:'무인증 HDFS 데이터 노출·삭제',d:'Kerberos, 외부 차단'}
+  ];
+  DB.forEach(e=> e._idx = (e.p+' '+e.s+' '+(e.a||'')+' '+e.f).toLowerCase());
+  var RK = {3:['고위험','rk3'],2:['주의','rk2'],1:['낮음','rk1']};
+
+  function links(e, query){
+    var p = e ? e.p : (parseInt(query,10)||'');
+    var kw = e ? (e.s) : query;
+    var ek = encodeURIComponent(kw);
+    var L = [];
+    if(p) L.push(['SpeedGuide','https://www.speedguide.net/port.php?port='+p]);
+    L.push(['IANA 등록','https://www.iana.org/assignments/service-names-port-numbers/service-names-port-numbers.xhtml']);
+    L.push(['NVD 검색','https://nvd.nist.gov/vuln/search/results?form_type=Basic&query='+ek]);
+    L.push(['CVE.org','https://www.cve.org/CVERecord/SearchResults?query='+ek]);
+    L.push(['MITRE ATT&CK', (e&&e.m)?e.m[1]:'https://attack.mitre.org/']);
+    L.push(['Criminal IP','https://www.criminalip.io/']);
+    return L.map(x=>'<a href="'+x[1]+'" target="_blank" rel="noopener">'+x[0]+' ↗</a>').join('');
+  }
+  function card(e){
+    var rk = RK[e.k]||RK[1];
+    return '<div class="p"><div class="p-head"><span class="p-num">'+e.p+'</span>'+
+      '<span class="p-proto">'+esc(e.pr)+'</span><span class="p-svc">'+esc(e.s)+'</span>'+
+      '<span class="p-risk '+rk[1]+'">위험도 '+rk[0]+'</span></div>'+
+      '<div class="p-body">'+
+        '<div class="row"><b>기능</b> · '+esc(e.f)+'</div>'+
+        '<div class="row"><b>위험</b> · '+esc(e.r)+'</div>'+
+        (e.c?'<div class="p-cve">⚠ <b>대표 취약점·공격</b>: '+e.c+'</div>':'')+
+        (e.m?'<div class="row note">🎯 MITRE ATT&CK: '+esc(e.m[0])+'</div>':'')+
+        (e.d?'<div class="row"><b>방어</b> · '+esc(e.d)+'</div>':'')+
+      '</div><div class="p-links">'+links(e)+'</div></div>';
+  }
+  function unknownCard(q){
+    var isNum = /^\d+$/.test(q.trim());
+    return '<div class="p"><div class="p-head">'+(isNum?'<span class="p-num">'+esc(q.trim())+'</span>':'')+
+      '<span class="p-svc">'+(isNum?'큐레이션 DB에 없는 포트':'“'+esc(q)+'” 검색')+'</span></div>'+
+      '<div class="p-body"><div class="row note">교육용 요약 DB에는 없지만, 아래 공식 자료에서 '+(isNum?'이 포트의 등록 서비스와 ':'')+'취약점 정보를 바로 확인할 수 있어요.</div></div>'+
+      '<div class="p-links">'+links(null, q.trim())+'</div></div>';
+  }
+
+  function run(){
+    var q = $('#q').value.trim(); var low=q.toLowerCase();
+    if(!q){ $('#stat').textContent='포트 번호나 서비스 이름을 입력하세요.'; $('#res').innerHTML=''; return; }
+    var hits;
+    if(/^\d+$/.test(q)) hits = DB.filter(e=> String(e.p)===q || (e.pr&&String(e.p)===q));
+    else hits = DB.filter(e=> e._idx.indexOf(low)>=0);
+    if(hits.length){
+      $('#stat').innerHTML = '<b>'+hits.length+'</b>건';
+      $('#res').innerHTML = hits.map(card).join('');
+    } else {
+      $('#stat').innerHTML = '큐레이션 DB에 없음 — 공식 자료 링크로 안내';
+      $('#res').innerHTML = unknownCard(q);
+    }
+  }
+  var deb; $('#q').addEventListener('input', ()=>{ clearTimeout(deb); deb=setTimeout(run,150); });
+  document.querySelectorAll('.qp').forEach(b=> b.addEventListener('click', ()=>{ $('#q').value=b.dataset.q; run(); }));
+})();
+</script>
+</body>
+</html>

@@ -1,0 +1,358 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>개인정보 보호 업무 길라잡이 · 혼디지킴이</title>
+<meta name="description" content="개인정보 영향평가를 단계별로 따라 하며 실무 스킬을 익혀요. 업무흐름표·흐름도·시스템 현황도·위험도 분석·평가항목 자가진단을 각 규정·유의사항과 함께.">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+KR:wght@400;600;700&family=JetBrains+Mono:wght@400;700&family=Nanum+Myeongjo:wght@700;800&display=swap">
+<link rel="stylesheet" href="assets/css/style.css">
+<style>
+  .sp-wrap.wide { max-width: 1000px; }
+  .stepper { display:flex; gap:4px; margin:10px 0 14px; flex-wrap:wrap; }
+  .stx { flex:1; min-width:120px; text-align:center; font-size:11.5px; color:var(--muted); border-top:3px solid var(--line); padding-top:6px; cursor:pointer; }
+  .stx b { display:block; font-size:12.5px; color:var(--ink); }
+  .stx.on { border-top-color:var(--cipher); } .stx.on b { color:var(--cipher); }
+  .stx.done { border-top-color:#1d8f5b; }
+  .step { display:none; } .step.on { display:block; }
+  .teach { background:var(--cipher-soft); border:1px solid var(--line); border-left:4px solid var(--cipher); border-radius:10px; padding:12px 15px; margin:10px 0; font-size:13px; line-height:1.7; }
+  .teach h3 { margin:0 0 5px; font-family:var(--f-display); font-size:14.5px; color:var(--cipher); }
+  .reg { font-size:11.5px; color:var(--muted); } .reg b { color:var(--ink); }
+  .cards3 { display:grid; grid-template-columns:repeat(3,1fr); gap:9px; }
+  @media(max-width:640px){ .cards3 { grid-template-columns:1fr; } }
+  .mini { border:1px solid var(--line); border-radius:10px; padding:11px 13px; background:var(--surface); }
+  .mini .big { font-family:var(--f-display); font-size:20px; font-weight:800; color:var(--cipher); }
+  .mini .lbl { font-size:12px; color:var(--muted); }
+  table.ed { width:100%; border-collapse:collapse; font-size:12.5px; }
+  table.ed th, table.ed td { border:1px solid var(--line); padding:5px 7px; text-align:left; vertical-align:top; }
+  table.ed th { background:var(--surface-2); font-size:11.5px; }
+  table.ed td input, table.ed td textarea { width:100%; border:0; background:transparent; font:inherit; font-size:12.5px; color:var(--ink); resize:vertical; }
+  table.ed td input:focus, table.ed td textarea:focus { outline:1px solid var(--cipher); border-radius:4px; }
+  .rowbtns { display:flex; gap:8px; margin:8px 0; }
+  .flowdia { display:flex; align-items:center; gap:4px; flex-wrap:wrap; justify-content:center; margin:10px 0; }
+  .fl { border:1px solid var(--line); border-radius:9px; padding:8px 11px; background:var(--surface-2); text-align:center; font-size:12px; min-width:84px; }
+  .fl b { display:block; font-size:13px; color:var(--cipher); }
+  .fl-ar { color:var(--muted); font-weight:700; }
+  .calc { display:grid; grid-template-columns:repeat(3,1fr) auto; gap:10px; align-items:end; }
+  @media(max-width:640px){ .calc { grid-template-columns:1fr; } }
+  .calc label { font-size:12.5px; } .calc select { width:100%; font:inherit; padding:7px; border:1px solid var(--line); border-radius:8px; background:var(--surface-2); color:var(--ink); }
+  .risk-out { border-radius:10px; padding:12px; text-align:center; color:#fff; font-weight:700; }
+  .dg { border:1px solid var(--line); border-radius:10px; margin:8px 0; overflow:hidden; }
+  .dg summary { padding:10px 13px; cursor:pointer; font-weight:600; font-size:13.5px; display:flex; align-items:center; gap:9px; list-style:none; }
+  .dg summary::-webkit-details-marker { display:none; }
+  .dg summary .chk { width:20px; height:20px; border:2px solid var(--line); border-radius:6px; flex:none; display:inline-flex; align-items:center; justify-content:center; font-size:13px; }
+  .dg.ok summary .chk { background:#1d8f5b; border-color:#1d8f5b; color:#fff; }
+  .dg .dgb { padding:0 13px 11px 42px; font-size:12.5px; color:var(--muted); line-height:1.65; }
+  .areahead { font-family:var(--f-display); font-weight:800; font-size:14.5px; margin:14px 0 6px; color:var(--cipher); }
+  .navbtns { display:flex; justify-content:space-between; margin-top:16px; }
+  .scorebox { display:flex; gap:14px; align-items:center; flex-wrap:wrap; }
+  .scorebox .big { font-family:var(--f-display); font-size:34px; font-weight:800; }
+  .result-list li { margin-bottom:4px; }
+  /* 항목별 상세 시각 카드 */
+  .ex2 { display:grid; grid-template-columns:1fr 1fr; gap:7px; margin:7px 0; }
+  @media(max-width:600px){ .ex2 { grid-template-columns:1fr; } }
+  .ex { border-radius:8px; padding:7px 10px; font-size:12px; line-height:1.55; border-left:3px solid var(--line); background:var(--surface); }
+  .ex b { display:block; font-size:11.5px; margin-bottom:2px; }
+  .ex.good { border-left-color:#1d8f5b; background:color-mix(in srgb,#1d8f5b 7%,var(--surface)); } .ex.good b { color:#1d8f5b; }
+  .ex.bad { border-left-color:#c4321b; background:color-mix(in srgb,#c4321b 7%,var(--surface)); } .ex.bad b { color:#c4321b; }
+  .ex.tmpl { border-left-color:#1d5bc0; background:var(--surface-2); font-family:var(--f-mono); font-size:11.5px; } .ex.tmpl b { color:#1d5bc0; font-family:var(--f-display); }
+  .exrow { display:grid; grid-template-columns:1fr 1fr 1fr; gap:7px; margin-top:7px; }
+  @media(max-width:600px){ .exrow { grid-template-columns:1fr; } }
+  .ex.note { border-left-color:#d9731f; } .ex.note b { color:#d9731f; }
+  .ex.pen { border-left-color:#7c3aed; } .ex.pen b { color:#7c3aed; }
+  .ex.risk { border-left-color:#c4321b; } .ex.risk b { color:#c4321b; }
+  .metbar { margin-top:9px; padding-top:8px; border-top:1px dashed var(--line); }
+</style>
+</head>
+<body>
+<div class="sp-wrap wide">
+  <div class="sp-top"><a class="back" href="index.html">← 혼디지킴이 포털</a><span class="brand">개인정보 보호 업무 길라잡이</span></div>
+  <div class="sp-head">
+    <h1>🧭 개인정보 보호 업무 길라잡이</h1>
+    <p class="lead"><b>개인정보 영향평가(PIA)</b>를 6단계로 따라 하며 실무 스킬을 익혀요. 업무흐름표·흐름도·시스템 현황도·위험도 분석·평가항목 자가진단을 <b>각 단계의 규정·유의사항·작성법</b>과 함께 배워요. 입력은 브라우저 안에서만 쓰이고 저장되지 않아요.</p>
+  </div>
+
+  <div class="sp-card">
+    <div class="stepper" id="stepper"></div>
+
+    <!-- STEP 1 -->
+    <section class="step on" data-s="0">
+      <h2 style="font-family:var(--f-display);font-size:18px;margin:0 0 4px">1. 영향평가란? — 대상·절차 익히기</h2>
+      <div class="teach"><h3>개인정보 영향평가(PIA)란</h3>
+        개인정보파일을 구축·운영·변경할 때 <b>침해 위험을 미리 분석·개선</b>하는 절차예요. 공공기관은 일정 규모 이상이면 <b>의무</b>, 그 외는 권장돼요.
+        <div class="reg" style="margin-top:6px">근거: <b>개인정보 보호법 제33조</b>, 시행령 제35조·제38조, 「개인정보 영향평가에 관한 고시」</div></div>
+      <h3 style="font-size:14px;margin:12px 0 6px">의무 대상(공공기관) — 구축·운영하는 개인정보파일</h3>
+      <div class="cards3">
+        <div class="mini"><div class="big">5만+</div><div class="lbl"><b>민감정보·고유식별정보</b>를 처리하는 개인정보파일(정보주체 5만 명 이상)</div></div>
+        <div class="mini"><div class="big">50만+</div><div class="lbl">내부·외부 시스템과 <b>연계</b>, 연계 결과 50만 명 이상</div></div>
+        <div class="mini"><div class="big">100만+</div><div class="lbl">정보주체 수 <b>100만 명 이상</b>인 개인정보파일</div></div>
+      </div>
+      <div class="teach" style="border-left-color:#d9731f;background:var(--surface-2)"><h3 style="color:#d9731f">📣 적용 확대 방향 — 참고</h3>
+        원칙적으로 영향평가 의무는 위 <b>5만/50만/100만 명</b> 및 <b>운용 체계(시스템) 변경</b> 시에 한정돼요. 다만 최근에는 <b>개인정보를 처리하는 경우 폭넓게 영향평가를 실시</b>하는 방향으로 확대 적용되는 추세예요. 그러니 의무 대상이 아니더라도 <b>새 업무로 개인정보를 처리한다면 이 길라잡이로 미리 점검</b>하는 것을 권장해요.</div>
+      <h3 style="font-size:14px;margin:14px 0 6px">수행 절차 3단계</h3>
+      <div class="flowdia">
+        <div class="fl"><b>① 사전준비</b>사업계획·제안요청·평가기관 선정</div><span class="fl-ar">→</span>
+        <div class="fl"><b>② 영향평가 수행</b>자료수집·흐름분석·침해요인(위험)분석·개선계획</div><span class="fl-ar">→</span>
+        <div class="fl"><b>③ 이행</b>개선사항 반영·이행점검</div>
+      </div>
+      <div class="teach reg">💡 유의: 영향평가서는 사업 <b>착수 전</b>(설계 단계)에 작성·제출하는 것이 원칙이에요. 이 길라잡이는 ②단계(흐름분석→위험분석→자가진단)를 연습해요.</div>
+    </section>
+
+    <!-- STEP 2 -->
+    <section class="step" data-s="1">
+      <h2 style="font-family:var(--f-display);font-size:18px;margin:0 0 4px">2. 처리 업무 파악 — 업무 흐름표</h2>
+      <div class="teach"><h3>무엇을 하나요</h3>
+        평가 대상 시스템이 <b>어떤 업무로 개인정보를 처리</b>하는지 목록화해요. 업무별로 목적·항목·부서·시스템을 적으면 흐름 분석의 토대가 돼요.
+        <div class="reg" style="margin-top:5px">작성법: 업무 단위로 1행. 뒤의 흐름표·흐름도가 이 업무들을 따라가요. · 참고: 영향평가 수행안내서(개인정보 흐름분석)</div></div>
+      <table class="ed" id="tWork"><thead><tr><th style="width:22%">업무명</th><th style="width:24%">처리 목적</th><th style="width:26%">개인정보 항목</th><th style="width:14%">처리 부서</th><th style="width:14%">처리 시스템</th></tr></thead><tbody></tbody></table>
+      <div class="rowbtns"><button class="btn" data-add="tWork" type="button">＋ 행 추가</button><button class="btn" data-sample="work" type="button">예시 넣기</button></div>
+    </section>
+
+    <!-- STEP 3 -->
+    <section class="step" data-s="2">
+      <h2 style="font-family:var(--f-display);font-size:18px;margin:0 0 4px">3. 개인정보 흐름표 — 수집·이용·제공·파기</h2>
+      <div class="teach"><h3>생애주기 단계별로 정리</h3>
+        개인정보가 <b>수집 → 보유·이용 → 제공(위탁) → 파기</b>로 흐르는 전 과정을 단계별로 적어요. 각 단계의 항목·방법·근거·보유기간을 명확히.
+        <div class="reg" style="margin-top:5px">근거: 법 제15·17·18·21·26조 · 유의: 목적 외 이용·제공, 보유기간 경과 미파기는 대표 위반이에요.</div></div>
+      <table class="ed" id="tFlow"><thead><tr><th style="width:14%">단계</th><th style="width:28%">개인정보 항목</th><th style="width:30%">방법·경로/제공받는 자</th><th style="width:28%">근거·보유기간</th></tr></thead><tbody></tbody></table>
+      <div class="rowbtns"><button class="btn" data-add="tFlow" type="button">＋ 행 추가</button><button class="btn" data-sample="flow" type="button">예시 넣기</button></div>
+    </section>
+
+    <!-- STEP 4 -->
+    <section class="step" data-s="3">
+      <h2 style="font-family:var(--f-display);font-size:18px;margin:0 0 4px">4. 흐름도 · 시스템 현황도</h2>
+      <div class="teach"><h3>그림으로 한눈에</h3>
+        글로 적은 흐름을 <b>그림(흐름도)</b>으로, 시스템 구성을 <b>현황도</b>로 그려요. 어디로 들어와(수집) 어디에 쌓이고(보유) 어디로 나가는지(이용·제공) 보이게 해요.</div>
+      <h3 style="font-size:14px;margin:10px 0 4px">개인정보 흐름도 (기본 틀)</h3>
+      <div class="flowdia">
+        <div class="fl"><b>정보주체</b>수집 경로</div><span class="fl-ar">→</span>
+        <div class="fl"><b>수집</b>홈페이지·서면·연계</div><span class="fl-ar">→</span>
+        <div class="fl"><b>보유·저장</b>DB·문서</div><span class="fl-ar">→</span>
+        <div class="fl"><b>이용·연계</b>업무처리</div><span class="fl-ar">→</span>
+        <div class="fl"><b>제공·위탁</b>제3자·수탁사</div><span class="fl-ar">→</span>
+        <div class="fl"><b>파기</b>기간 경과</div>
+      </div>
+      <h3 style="font-size:14px;margin:12px 0 4px">시스템 현황도에 꼭 담을 것</h3>
+      <ul style="font-size:13px;line-height:1.7">
+        <li>수집 경로(웹/앱/서면/연계)와 <b>접속 지점</b></li>
+        <li>개인정보가 저장되는 <b>DB·서버·백업</b> 위치</li>
+        <li>내·외부 <b>연계 시스템</b>과 전송 구간(암호화 여부)</li>
+        <li>접근하는 <b>취급자·부서·권한</b>, 관리자 페이지</li>
+      </ul>
+      <div class="teach reg">💡 유의: 흐름도·현황도는 <b>개인정보가 지나는 모든 지점</b>을 빠짐없이. 빠진 경로가 곧 사각지대(위험)예요.</div>
+    </section>
+
+    <!-- STEP 5 -->
+    <section class="step" data-s="4">
+      <h2 style="font-family:var(--f-display);font-size:18px;margin:0 0 4px">5. 영향 및 위험도 분석</h2>
+      <div class="teach"><h3>위험을 숫자로</h3>
+        각 흐름 지점의 <b>자산가치(개인정보 민감도·규모) × 위협 × 취약점</b>으로 위험도를 매겨, 높은 곳부터 개선해요.
+        <div class="reg" style="margin-top:5px">참고: 영향평가 수행안내서(침해요인 분석·위험도 산정). 값은 1(낮음)~3(높음).</div></div>
+      <div class="calc">
+        <label>자산가치<br><select id="rv"><option value="1">1 · 낮음(일반)</option><option value="2">2 · 보통</option><option value="3" selected>3 · 높음(민감·고유식별·대규모)</option></select></label>
+        <label>위협<br><select id="rt"><option value="1">1 · 낮음</option><option value="2" selected>2 · 보통</option><option value="3">3 · 높음(외부 노출·접근 많음)</option></select></label>
+        <label>취약점<br><select id="rk"><option value="1">1 · 낮음(통제 충분)</option><option value="2" selected>2 · 보통</option><option value="3">3 · 높음(무통제)</option></select></label>
+        <div class="risk-out" id="rout">위험도 —</div>
+      </div>
+      <div class="teach reg" style="margin-top:10px">해석: 1~6 <b>낮음</b> → 모니터링 / 8~12 <b>보통</b> → 개선계획 수립 / 18~27 <b>높음</b> → 우선 개선. 위험도가 높은 지점의 취약점을 <b>안전조치(6단계 평가항목)</b>로 낮춰요.</div>
+    </section>
+
+    <!-- STEP 6 -->
+    <section class="step" data-s="5">
+      <h2 style="font-family:var(--f-display);font-size:18px;margin:0 0 4px">6. 평가항목 자가진단</h2>
+      <div class="teach"><h3>지킴이 체크리스트</h3>
+        영역별 핵심 평가항목을 <b>지키고 있으면 체크</b>하세요. 각 항목을 펼치면 <b>관련 규정·유의사항·방법</b>이 나와요. 아래 점수가 실시간으로 바뀌어요.
+        <div class="reg" style="margin-top:5px">기반: 2026 개인정보 보호수준 평가 편람 지표, 개인정보의 안전성 확보조치 기준 해설서.</div></div>
+      <div id="diag"></div>
+    </section>
+
+    <!-- RESULT -->
+    <section class="step" data-s="6">
+      <h2 style="font-family:var(--f-display);font-size:18px;margin:0 0 6px">진단 결과</h2>
+      <div class="sp-card" style="margin:0">
+        <div class="scorebox"><div class="big" id="rScore" style="color:var(--cipher)">0</div>
+          <div><div id="rGrade" style="font-weight:800;font-size:16px">—</div><div class="reg">평가항목 <span id="rDone">0</span>/<span id="rTot">0</span> 충족</div></div>
+          <div class="risk-out" id="rRisk" style="margin-left:auto;background:#64748b">위험도 —</div>
+        </div>
+        <h3 style="font-size:14px;margin:14px 0 5px">보완이 필요한 항목</h3>
+        <ul class="result-list" id="rMiss" style="font-size:13px;color:var(--muted)"></ul>
+        <h3 style="font-size:14px;margin:12px 0 5px">다음 단계</h3>
+        <ul style="font-size:13px;line-height:1.7">
+          <li>미흡 항목별 <b>개선계획</b>(담당·기한) 수립 → 설계·구축에 반영</li>
+          <li>구축 후 <b>이행점검</b>으로 개선 여부 확인</li>
+          <li>고유식별정보 수집 근거는 <a href="law-search.html" style="color:var(--cipher);font-weight:700">🔎 법령 검색</a>으로, 처리방침은 <a href="policy.html" style="color:var(--cipher);font-weight:700">적정성 진단</a>으로 점검</li>
+        </ul>
+      </div>
+    </section>
+
+    <div class="navbtns">
+      <button class="btn" id="prev" type="button">← 이전</button>
+      <button class="btn primary" id="next" type="button">다음 →</button>
+    </div>
+  </div>
+
+  <p class="notice" style="margin-top:14px;font-size:12px;color:var(--muted)">각 평가항목의 법령 근거는 <b>법제처 현행본(최신)</b> 기준이에요 — 정확한 조문은 <a href="law-search.html" style="color:var(--cipher);font-weight:600">🔎 법령 검색</a>(법제처 API 최신 연동)에서 확인하세요. 교육·실무 보조용 자가진단이며 법적 영향평가서를 대체하지 않아요. 기반: 개인정보 영향평가에 관한 고시·수행안내서, 2026 개인정보 보호수준 평가 편람, 개인정보의 안전성 확보조치 기준 해설서. 실제 영향평가는 지정 평가기관 수행이 필요할 수 있어요.</p>
+</div>
+
+<script>
+(function(){
+  var $=s=>document.querySelector(s), $$=s=>[].slice.call(document.querySelectorAll(s));
+  var STEPS=['영향평가 개요','업무 흐름표','개인정보 흐름표','흐름도·현황도','위험도 분석','자가진단','결과'];
+  var cur=0;
+  // stepper
+  $('#stepper').innerHTML = STEPS.map((s,i)=>'<div class="stx" data-i="'+i+'"><span>STEP '+(i+1)+'</span><b>'+s+'</b></div>').join('');
+  function show(i){
+    cur=Math.max(0,Math.min(STEPS.length-1,i));
+    $$('.step').forEach(el=>el.classList.toggle('on', +el.dataset.s===cur));
+    $$('.stx').forEach(el=>{ var k=+el.dataset.i; el.classList.toggle('on',k===cur); el.classList.toggle('done',k<cur); });
+    $('#prev').style.visibility = cur===0?'hidden':'visible';
+    $('#next').textContent = cur>=STEPS.length-1?'처음으로 ↺':(cur===5?'결과 보기 →':'다음 →');
+    if(cur===6) renderResult();
+    window.scrollTo({top:0,behavior:'smooth'});
+  }
+  $('#prev').onclick=()=>show(cur-1);
+  $('#next').onclick=()=>{ if(cur>=STEPS.length-1) show(0); else show(cur+1); };
+  $$('.stx').forEach(el=>el.onclick=()=>show(+el.dataset.i));
+
+  // editable tables
+  function addRow(id, vals){
+    var tb=document.querySelector('#'+id+' tbody'); var tr=document.createElement('tr');
+    var cols=document.querySelectorAll('#'+id+' thead th').length;
+    var html='';
+    for(var c=0;c<cols;c++){ html+='<td><textarea rows="1">'+((vals&&vals[c])||'')+'</textarea></td>'; }
+    tr.innerHTML=html; tb.appendChild(tr);
+  }
+  $$('[data-add]').forEach(b=>b.onclick=()=>addRow(b.dataset.add));
+  var SAMPLE={
+    work:[['민원 접수·처리','민원 처리 및 회신','성명, 연락처, 주소, 민원내용','민원실','민원시스템'],
+          ['회원 관리','서비스 제공·본인확인','성명, 아이디, 연락처, 생년월일','정보화과','홈페이지']],
+    flow:[['수집','성명, 연락처, 주소','홈페이지 입력/서면','법 제15조 동의 / 3년'],
+          ['이용','민원 처리 내역','내부 업무 처리','처리 목적 범위 내'],
+          ['제공','성명, 연락처','유관기관 회신(해당 시)','법 제17·18조 근거'],
+          ['파기','전체','목적 달성·기간 경과','법 제21조 / 지체 없이 파기']]
+  };
+  $$('[data-sample]').forEach(b=>b.onclick=()=>{
+    var id=b.dataset.sample==='work'?'tWork':'tFlow';
+    document.querySelector('#'+id+' tbody').innerHTML='';
+    SAMPLE[b.dataset.sample].forEach(r=>addRow(id,r));
+  });
+  addRow('tWork'); addRow('tFlow');
+
+  // risk calc
+  function riskLabel(v){ return v<=6?['낮음','#1d8f5b']:v<=12?['보통','#d9731f']:['높음','#c4321b']; }
+  function calcRisk(){
+    var v=+$('#rv').value*+$('#rt').value*+$('#rk').value; var L=riskLabel(v);
+    var o=$('#rout'); o.textContent='위험도 '+v+' · '+L[0]; o.style.background=L[1]; return {v:v,L:L};
+  }
+  ['rv','rt','rk'].forEach(id=>$('#'+id).onchange=calcRisk); calcRisk();
+
+  // self-diagnosis
+  var DIAG=[
+    {area:'① 관리체계', items:[
+      {q:'개인정보 보호책임자(CPO)를 지정하고 역할을 수행한다', reg:'법 제31조',
+       good:'자격요건 충족자를 CPO로 지정하고 처리방침에 공개, 독립적 보고라인 운영', bad:'형식상 겸임만 두고 실제 권한·점검 없음',
+       tmpl:'개인정보 보호책임자: ○○과장 / 연락처 ○○-○○○○ (처리방침에 공개)',
+       note:'자격요건·독립성 확보, 업무 총괄·점검 책임', pen:'미지정 등 과태료(법 제75조)', risk:'책임 공백으로 사고 인지·대응 지연'},
+      {q:'내부관리계획을 수립·시행하고 연 1회 이상 교육한다', reg:'안전성 확보조치 기준 제4조',
+       good:'계획을 매년 갱신하고 전직원 교육 이수율 100% 관리', bad:'계획 문서만 있고 교육 미실시',
+       tmpl:'내부관리계획: 역할·접근권한·교육·점검·사고대응 / 연1회 교육',
+       note:'계획에 역할·교육·점검·사고대응 포함', pen:'안전조치의무 위반 과태료·과징금(제64조의2·제75조)', risk:'취급자 부주의로 유출'},
+    ]},
+    {area:'② 처리단계별 보호조치', items:[
+      {q:'필요한 최소한만 수집하고 수집 출처·목적을 고지한다', reg:'법 제16조·제20조',
+       good:'서비스 필수 항목만 수집, 선택 항목은 분리 동의', bad:'불필요 항목까지 필수로, 출처 미고지',
+       tmpl:'수집 항목 [필수] 성명·연락처 / [선택] 관심분야 — 각 동의 분리',
+       note:'선택항목 강제 금지, 과다수집 지양', pen:'과다수집·동의 위반 과태료(제75조)', risk:'불필요 정보 보관이 유출 피해를 키움'},
+      {q:'목적 외 이용·제공을 하지 않는다', reg:'법 제18조',
+       good:'수집 목적 범위에서만 이용, 제공 시 근거·대상 기록', bad:'담당자가 사적·타 목적으로 조회·제공',
+       tmpl:'이용·제공 대장: 일시·목적·근거·대상·처리자',
+       note:'별도 동의 또는 법적 근거 없이는 금지', pen:'목적 외 이용·제공 5년↓ 징역/5천만원↓ 벌금(법 제71조)', risk:'수원시·서귀포 사례처럼 범죄에 악용'},
+      {q:'위탁 시 문서로 정하고 수탁자를 공개·감독한다', reg:'법 제26조',
+       good:'계약서에 안전조치·재위탁 제한 명시, 수탁자 공개·정기 점검', bad:'구두 위탁, 재위탁 방치, 감독 없음',
+       tmpl:'위탁사무·수탁자 홈페이지 공개 / 재위탁 시 사전 동의',
+       note:'재위탁은 위탁자 동의, 교육·점검 필수', pen:'위탁 고지·관리 위반 과태료(제75조)', risk:'수탁사 유출이 곧 우리 기관 책임'},
+      {q:'보유기간 경과·목적 달성 시 지체 없이 파기한다', reg:'법 제21조, 기준 제13조',
+       good:'보유기간표 운영, 경과분 정기 파기(복구 불가능 방식)', bad:'목적 달성 후 방치·백업에 잔존',
+       tmpl:'보유기간: 처리완료 후 3년 → 경과 시 분기별 파기(파기대장)',
+       note:'복구 불가능한 방법, 분리보관 시 접근통제', pen:'미파기 과태료(제75조)', risk:'장기 보관 정보가 유출 표적'},
+    ]},
+    {area:'③ 안전성 확보조치', items:[
+      {q:'접근 권한을 최소·차등 부여하고 인사이동 시 즉시 말소, 3년 보관한다', reg:'기준 제5조',
+       good:'최소권한 차등, 전보·퇴직 즉시 말소, 권한기록 3년 보관', bad:'공용계정 사용, 전보자 권한 잔존(수원시형)',
+       tmpl:'권한 부여·변경·말소 대장(보관 3년) / 개인별 계정',
+       note:'계정 개인별, 공용 금지', pen:'안전조치 위반 과징금·과태료', risk:'과도·잔존 권한이 내부 유출 통로'},
+      {q:'외부 접속은 안전한 인증(2FA·VPN)·IP 제한·세션 타임아웃을 적용한다', reg:'기준 제6조',
+       good:'외부접속 VPN+2FA, 접속 IP 화이트리스트, 세션 타임아웃', bad:'관리페이지 인터넷 노출, 무제한 접속',
+       tmpl:'외부접속 VPN+OTP / 허용 IP 목록 / 10분 미입력 자동 차단',
+       note:'침입차단·탐지, 다운로드 사유 확인', pen:'안전조치 위반 과징금·과태료', risk:'외부 침입·대량 조회'},
+      {q:'고유식별정보·비밀번호를 암호화하고 전송구간을 암호화한다', reg:'기준 제7조',
+       good:'주민번호·비밀번호·바이오 암호화, 전송 TLS 적용', bad:'평문 저장·전송',
+       tmpl:'암호화 대상: 고유식별정보·비밀번호 / 전송구간 TLS',
+       note:'주민등록번호 등 저장·전송 암호화', pen:'암호화 등 안전조치 위반 과징금·과태료', risk:'유출 시 그대로 명의도용에 악용'},
+      {q:'접속기록을 보관(최소 1~2년)하고 정기 점검한다', reg:'기준 제8조',
+       good:'1~2년 보관, 다운로드·대량조회 월 1회 점검', bad:'기록 미보관·미점검',
+       tmpl:'접속기록: 계정·일시·행위·대상(1년 이상) / 월1회 점검',
+       note:'위·변조 방지, 다운로드·대량조회 점검', pen:'접속기록 관련 위반 과태료', risk:'부산 무단열람처럼 사후 적발 불가'},
+      {q:'악성프로그램 방지(백신 최신)·물리적 보호(출입통제)를 한다', reg:'기준 제9·10조',
+       good:'백신 실시간+주기 점검, 전산실 출입통제·클린데스크', bad:'미패치·출력물 방치',
+       tmpl:'백신 실시간 감시 / 전산실 출입통제 / 자리비움 화면잠금',
+       note:'보안 업데이트, 문서·보조저장매체 보관', pen:'안전조치 위반 과태료', risk:'랜섬웨어 감염·문서 분실 유출'},
+    ]},
+    {area:'④ 정보주체 권리보장', items:[
+      {q:'열람·정정·삭제·처리정지·동의철회 절차를 마련한다', reg:'법 제35~37조',
+       good:'접수 부서·방법 안내, 10일 내 처리·거절 사유 통지', bad:'요구 무응답·거절 사유 미통지',
+       tmpl:'열람 등 요구: 민원실 접수 → 10일 내 처리(결과·사유 통지)',
+       note:'요구 접수·처리 부서와 방법 안내', pen:'권리 미보장 과태료', risk:'분쟁·신뢰 저하'},
+      {q:'개인정보 처리방침을 공개하고 현행화한다', reg:'법 제30조',
+       good:'홈페이지 상시 공개, 변경 시 갱신·고지', bad:'미공개·구버전 방치',
+       tmpl:'처리방침: 홈페이지 하단 상시 공개 / 변경 시 사전 고지',
+       note:'변경 시 갱신, 쉬운 열람 위치', pen:'처리방침 미공개 과태료', risk:'정보주체 통제권 약화 — 적정성 진단 메뉴로 점검'},
+    ]},
+    {area:'⑤ 대응·영상정보', items:[
+      {q:'유출 시 통지·신고 절차(지체 없이, 72시간)를 갖춘다', reg:'법 제34조',
+       good:'인지→정보주체 통지→보호위/KISA 신고(72시간) 절차·창구 운영', bad:'은폐·지연',
+       tmpl:'유출 대응: 인지 → 통지(정보주체) → 신고(72시간 내)',
+       note:'1천 명 이상 등 신고 대상·방법 숙지', pen:'미신고·미통지 과태료(안전조치 위반 병과)', risk:'피해 확산·2차 피해'},
+      {q:'영상정보처리기기 안내판·운영방침·관리대장을 운영한다', reg:'법 제25조·제25조의2',
+       good:'안내판·운영방침 공개, 관리대장 기록, 보관기간 준수', bad:'무단 설치·열람·목적 외 제공',
+       tmpl:'CCTV: 안내판 / 보관 30일 / 영상 관리대장(열람 기록)',
+       note:'보관기간·열람절차 기록, 이동형은 촬영표시', pen:'영상기기 운영 위반 과태료', risk:'영상 유출·사생활 침해'},
+    ]},
+  ];
+  var total=0; DIAG.forEach(a=>total+=a.items.length);
+  (function renderDiag(){
+    var h=''; var n=0;
+    DIAG.forEach(a=>{ h+='<div class="areahead">'+a.area+'</div>';
+      a.items.forEach(it=>{ var id='d'+(n++);
+        h+='<details class="dg" id="'+id+'"><summary><span class="chk">✓</span><span>'+it.q+'</span></summary>'+
+           '<div class="dgb"><div class="reg" style="margin-bottom:5px"><b>관련 규정</b>: '+it.reg+'</div>'+
+           '<div class="ex2"><div class="ex good"><b>✅ 잘된 사례</b>'+it.good+'</div><div class="ex bad"><b>❌ 잘못된 사례</b>'+it.bad+'</div></div>'+
+           '<div class="ex tmpl"><b>📝 작성 예시</b>'+it.tmpl+'</div>'+
+           '<div class="exrow"><div class="ex note"><b>⚠ 유의</b>'+it.note+'</div><div class="ex pen"><b>⚖ 위반 시</b>'+it.pen+'</div><div class="ex risk"><b>🔓 유출 위험</b>'+it.risk+'</div></div>'+
+           '<div class="metbar"><label style="display:inline-flex;gap:6px;cursor:pointer"><input type="checkbox" class="met" data-id="'+id+'"> 우리 기관은 이 항목을 지키고 있어요</label></div></div></details>';
+      });
+    });
+    $('#diag').innerHTML=h;
+  })();
+  $('#diag').addEventListener('change', e=>{
+    if(e.target.classList.contains('met')){ document.getElementById(e.target.dataset.id).classList.toggle('ok', e.target.checked); }
+  });
+
+  function renderResult(){
+    var met=$$('#diag .met:checked').length;
+    var pct=Math.round(met/total*100);
+    $('#rScore').textContent=pct; $('#rDone').textContent=met; $('#rTot').textContent=total;
+    var g = pct>=85?['우수 — 영향평가 준비 양호','#1d8f5b'] : pct>=60?['보통 — 일부 보완 필요','#1d5bc0'] : pct>=35?['미흡 — 개선계획 필요','#d9731f'] : ['취약 — 전면 점검 필요','#c4321b'];
+    $('#rGrade').textContent=g[0]; $('#rGrade').style.color=g[1];
+    var r=calcRisk(); $('#rRisk').textContent='최고 위험도 '+r.v+' · '+r.L[0]; $('#rRisk').style.background=r.L[1];
+    var miss=[];
+    DIAG.forEach((a,ai)=>a.items.forEach((it,ii)=>{}));
+    var idx=0, missList=[];
+    DIAG.forEach(a=>a.items.forEach(it=>{ var id='d'+idx; var el=document.querySelector('#'+id+' .met'); if(el && !el.checked) missList.push(it.q+' <span style="color:var(--muted)">('+it.reg+')</span>'); idx++; }));
+    $('#rMiss').innerHTML = missList.length? missList.map(m=>'<li>'+m+'</li>').join('') : '<li style="color:#1d8f5b">모든 평가항목을 충족했어요! 🎉</li>';
+  }
+})();
+</script>
+</body>
+</html>

@@ -1,0 +1,201 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>개인정보 수집 동의서 자동 생성 · 혼디지킴이</title>
+<meta name="description" content="단계별로 업무·항목·근거·고지사항을 입력하면 법정 요건을 갖춘 개인정보 수집·이용 동의서를 자동으로 작성하고 적정성을 점검합니다.">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+KR:wght@400;600;700&family=JetBrains+Mono:wght@400;700&family=Nanum+Myeongjo:wght@700;800&display=swap">
+<link rel="stylesheet" href="assets/css/style.css">
+<style>
+  .wiz-steps { display: flex; gap: 6px; margin: 4px 0 18px; flex-wrap: wrap; }
+  .wiz-steps .st { flex: 1; min-width: 90px; font-size: 11.5px; text-align: center; padding: 8px 4px; border-radius: 8px; background: var(--surface-2); border: 1px solid var(--line); color: var(--muted); }
+  .wiz-steps .st b { display: block; font-family: var(--f-mono); font-size: 13px; }
+  .wiz-steps .st.on { background: var(--cipher); border-color: var(--cipher); color: #fff; }
+  .wiz-steps .st.done { border-color: var(--ok); color: var(--ok); }
+  .wiz-steps .st.done b::after { content: ' ✓'; }
+  .step h2 { font-family: var(--f-display); font-size: 19px; margin: 0 0 4px; }
+  .step .hint { font-size: 13px; color: var(--muted); margin: 0 0 14px; line-height: 1.6; }
+  .seg { display: flex; flex-direction: column; gap: 7px; }
+  .seg label.opt { display: flex; gap: 9px; align-items: flex-start; padding: 10px 12px; border: 1px solid var(--line); border-radius: 9px; background: var(--surface-2); cursor: pointer; font-size: 13.5px; }
+  .seg label.opt.on { border-color: var(--cipher); background: var(--cipher-soft); }
+  .seg label.opt small { display: block; color: var(--muted); font-size: 12px; margin-top: 2px; }
+  .seg input { margin-top: 3px; accent-color: var(--cipher); }
+  .navbtns { display: flex; justify-content: space-between; margin-top: 18px; gap: 8px; }
+  .warnline { font-size: 12.5px; color: var(--plain); background: var(--plain-soft); border-radius: 8px; padding: 8px 11px; margin-top: 8px; }
+  .okline { font-size: 12.5px; color: var(--ok); background: var(--ok-soft); border-radius: 8px; padding: 8px 11px; margin-top: 8px; }
+  .chk-res { font-size: 13px; }
+  .chk-res .area { font-weight: 700; margin: 10px 0 4px; font-family: var(--f-display); }
+  .chk-res .item { display: flex; gap: 8px; padding: 3px 0; }
+  .chk-res .mark { flex: 0 0 auto; font-weight: 700; }
+  .chk-res .ok { color: var(--ok); } .chk-res .chk { color: var(--warn); }
+</style>
+</head>
+<body>
+<div class="sp-wrap">
+  <div class="sp-top"><a class="back" href="index.html">← 혼디지킴이 포털</a><span class="brand">개인정보 수집 동의서 자동 생성</span></div>
+  <div class="sp-head">
+    <h1>개인정보 수집·이용 동의서 자동 생성</h1>
+    <p class="lead">「개인정보 수집·이용 동의서 실무 가이드」와 「자체 점검표(43항목)」 기준에 맞춰, <b>단계별로 체크·입력</b>하면 법정 요건을 갖춘 동의서를 만들고 적정성을 점검해요. 입력값은 서버로 전송되지 않아요.</p>
+  </div>
+
+  <div class="wiz-steps" id="steps"></div>
+  <div class="sp-card"><div class="step" id="step" aria-live="polite"></div>
+    <div class="navbtns"><button class="btn" id="prev" type="button">← 이전</button><button class="btn primary" id="next" type="button">다음 →</button></div>
+  </div>
+
+  <p class="notice law-cite" style="margin-top:16px">근거: 개인정보 보호법 제15조·제16조·제17조·제18조·제22조·제22조의2·제23조·제24조·제24조의2, 시행령 제17조, 「개인정보 처리 방법에 관한 고시」 제4조. 교육·실무 보조용 서식이며 공개 전 소관 부서 검토를 거치세요.</p>
+</div>
+
+<script src="assets/config.js"></script>
+<script src="assets/js/law.js"></script>
+<script>
+(function () {
+  const S = { org: '', biz: '', pub: 'public', media: ['paper'], items: {}, basis: 'consent', purpose: '', period: '', refuse: '', rrnLaw: '', thirdParty: false, tpWho: '', tpWhat: '', minor: false, promo: false };
+  const ITEMS = {
+    general: [['이름', '이름'], ['연락처', '휴대전화번호'], ['이메일', '이메일'], ['주소', '주소'], ['생년월일', '생년월일'], ['소속', '소속·직장']],
+    uid: [['여권번호', '여권번호'], ['운전면허번호', '운전면허번호'], ['외국인등록번호', '외국인등록번호']],
+    rrn: [['주민등록번호', '주민등록번호']],
+    sens: [['건강정보', '건강·질병 정보'], ['범죄경력', '범죄경력자료'], ['생체인식정보', '생체인식정보(특징정보)'], ['사상신념', '사상·신념·정치성향']]
+  };
+  const STEPS = ['사업 정보', '수집 항목', '처리 근거', '법정 고지', '추가 동의', '생성·점검'];
+  let cur = 0;
+  const $ = s => document.querySelector(s);
+  const esc = s => String(s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+
+  function selItems(cat) { return Object.keys(S.items).filter(k => S.items[k] && ITEMS[cat].some(x => x[0] === k)); }
+  function hasSens() { return selItems('sens').length > 0; }
+  function hasUid() { return selItems('uid').length > 0; }
+  function hasRrn() { return !!S.items['주민등록번호']; }
+  const label = k => { for (const c in ITEMS) { const f = ITEMS[c].find(x => x[0] === k); if (f) return f[1]; } return k; };
+
+  function renderSteps() {
+    $('#steps').innerHTML = STEPS.map((s, i) => `<div class="st ${i === cur ? 'on' : i < cur ? 'done' : ''}"><b>${i + 1}</b>${s}</div>`).join('');
+  }
+
+  function render() {
+    renderSteps();
+    const el = $('#step');
+    if (cur === 0) {
+      el.innerHTML = `<h2>1. 사업(업무) 정보</h2><p class="hint">“무슨 업무 때문에, 누구의, 어떤 정보가 필요한가”를 한 문장으로 적어요. “업무 수행·서비스 제공” 같은 포괄 표현은 피해요.</p>
+        <div class="sp-field"><label>기관·사업자명</label><input type="text" id="f_org" value="${esc(S.org)}" placeholder="예: ○○시청 / △△주식회사"></div>
+        <div class="sp-field"><label>사업(업무)명 — 한 문장</label><input type="text" id="f_biz" value="${esc(S.biz)}" placeholder="예: ○○시 청년 월세 지원 신청 접수 및 선정 결과 안내"></div>
+        <div class="sp-field"><label>기관 유형</label><div class="seg">
+          <label class="opt ${S.pub === 'public' ? 'on' : ''}"><input type="radio" name="pub" value="public" ${S.pub === 'public' ? 'checked' : ''}><span>공공기관 <small>법령상 의무·소관 사무 근거로 동의 없이 받을 수 있는 항목이 있어요</small></span></label>
+          <label class="opt ${S.pub === 'private' ? 'on' : ''}"><input type="radio" name="pub" value="private" ${S.pub === 'private' ? 'checked' : ''}><span>민간 사업자 <small>계약 체결·이행에 필수인 정보는 동의 없이 받을 수 있어요(온·오프라인 구분 폐지)</small></span></label>
+        </div></div>`;
+    } else if (cur === 1) {
+      const cat = (name, key, note) => `<div class="sp-field"><label>${name}</label>${note ? `<p class="hint" style="margin:-2px 0 6px">${note}</p>` : ''}<div class="sp-checks">${ITEMS[key].map(it => `<label class="sp-chk ${key === 'sens' || key === 'rrn' ? 'sens' : ''} ${S.items[it[0]] ? 'on' : ''}"><input type="checkbox" data-k="${it[0]}" ${S.items[it[0]] ? 'checked' : ''}> ${esc(it[1])}</label>`).join('')}</div></div>`;
+      el.innerHTML = `<h2>2. 수집 항목</h2><p class="hint">목적 달성에 <b>필요한 최소한</b>의 항목만 골라요(법 제16조). 한 가지 연락 수단이면 충분하면 둘 다 받지 않아요.</p>
+        ${cat('일반 개인정보', 'general')}
+        ${cat('고유식별정보 (별도 동의 대상)', 'uid', '여권·운전면허·외국인등록번호. 법령의 구체적 처리 근거를 확인해요(법 제24조).')}
+        ${cat('주민등록번호', 'rrn', '동의만으로는 수집 불가. 법률·대통령령 등 구체적 근거가 있을 때만(법 제24조의2).')}
+        ${cat('민감정보 (별도 동의 대상)', 'sens', '건강·범죄경력·생체인식·사상 등. 법령이 요구·허용하는 경우 별도 동의(법 제23조).')}`;
+    } else if (cur === 2) {
+      el.innerHTML = `<h2>3. 처리 근거</h2><p class="hint">이 정보를 받는 주된 근거를 골라요. 동의가 필요 없는 근거인데 ‘필수 동의란’으로 받으면 안 돼요.</p>
+        <div class="seg">
+          <label class="opt ${S.basis === 'consent' ? 'on' : ''}"><input type="radio" name="basis" value="consent" ${S.basis === 'consent' ? 'checked' : ''}><span>정보주체의 동의로 처리 <small>법 제15조①1 — 목적·항목·기간·거부권을 알리고 동의를 받아요</small></span></label>
+          <label class="opt ${S.basis === 'contract' ? 'on' : ''}"><input type="radio" name="basis" value="contract" ${S.basis === 'contract' ? 'checked' : ''}><span>계약 체결·이행에 필요(동의 불요) <small>법 제15조①4 — 필수 정보는 동의 없이. 동의란과 구분해 고지</small></span></label>
+          <label class="opt ${S.basis === 'law' ? 'on' : ''}"><input type="radio" name="basis" value="law" ${S.basis === 'law' ? 'checked' : ''}><span>법령상 의무·공공기관 소관 사무(동의 불요) <small>법 제15조①2·3 — 근거 조문을 확인하고 처리방침에 공개</small></span></label>
+        </div>
+        ${S.basis !== 'consent' ? `<div class="okline">동의가 필요 없는 항목은 <b>동의란과 구분</b>해 처리방침에 공개하거나 법정 방법으로 알려야 해요(법 제22조③). 필수 동의란에 넣어 거부하면 접수 못 하는 방식으로 운영하지 않아요.</div>` : ''}
+        ${hasRrn() ? `<div class="sp-field" style="margin-top:12px"><label>주민등록번호 처리의 법령 근거 (필수)</label><input type="text" id="f_rrnLaw" value="${esc(S.rrnLaw)}" placeholder="예: ○○법 시행령 제00조"><div class="warnline">주민등록번호는 동의로 처리할 수 없어요. 구체적 법령 근거를 적고 안내문·내부 검토에 기록하세요(법 제24조의2).</div></div>` : ''}`;
+    } else if (cur === 3) {
+      el.innerHTML = `<h2>4. 법정 고지 4가지</h2><p class="hint">동의 전에 ①목적 ②항목 ③기간 ④거부권·불이익을 분명히 알려요(법 제15조②). 포괄 표현을 피하고 실제 업무를 적어요.</p>
+        <div class="sp-field"><label>① 수집·이용 목적</label><textarea id="f_purpose" placeholder="예: ○○ 지원 신청 접수, 자격 심사, 선정 결과 안내">${esc(S.purpose)}</textarea></div>
+        <div class="sp-field"><label>② 수집 항목 (2단계에서 자동)</label><input type="text" value="${esc(selItems('general').concat(selItems('uid'), selItems('rrn'), selItems('sens')).map(label).join(', ') || '(항목 미선택)')}" disabled></div>
+        <div class="sp-field"><label>③ 보유·이용 기간</label><input type="text" id="f_period" value="${esc(S.period)}" placeholder="예: 사업 종료 후 5년(공공기록물) / 동의 철회 시까지"><p class="hint" style="margin:4px 0 0">“관계 법령에 따름”만 적지 말고 적용 법령·보존기간을 확인해요.</p></div>
+        <div class="sp-field"><label>④ 동의 거부 권리와 불이익</label><input type="text" id="f_refuse" value="${esc(S.refuse)}" placeholder="예: 신청 접수가 제한됨 / 불이익 없음"><p class="hint" style="margin:4px 0 0">불이익이 없으면 ‘없음’으로 명시해요. 선택 항목 거부로 본래 서비스를 거절하지 않아요.</p></div>`;
+    } else if (cur === 4) {
+      el.innerHTML = `<h2>5. 추가·별도 동의</h2><p class="hint">민감정보·고유식별정보·제3자 제공·홍보는 <b>하나로 묶지 않고 각각 별도 동의</b>로 받아요(법 제22조①).</p>
+        ${hasSens() || hasUid() ? `<div class="okline">선택한 ${hasSens() ? '민감정보' : ''}${hasSens() && hasUid() ? '·' : ''}${hasUid() ? '고유식별정보' : ''}는 동의서에 <b>별도 동의 항목</b>으로 자동 분리돼요.</div>` : ''}
+        <label class="sp-chk ${S.thirdParty ? 'on' : ''}" style="margin:10px 0 6px"><input type="checkbox" id="f_tp" ${S.thirdParty ? 'checked' : ''}> 제3자에게 제공해요 (법 제17조)</label>
+        <div id="tpBox" ${S.thirdParty ? '' : 'hidden'}>
+          <div class="sp-field"><label>제공받는 자</label><input type="text" id="f_tpWho" value="${esc(S.tpWho)}" placeholder="예: ○○은행, □□배송"></div>
+          <div class="sp-field"><label>제공 목적·항목</label><input type="text" id="f_tpWhat" value="${esc(S.tpWhat)}" placeholder="예: 급여 이체(이름·계좌번호)"></div>
+        </div>
+        <label class="sp-chk ${S.minor ? 'on' : ''}" style="margin:6px 0"><input type="checkbox" id="f_minor" ${S.minor ? 'checked' : ''}> 만 14세 미만 아동의 개인정보예요 (법정대리인 동의, 법 제22조의2)</label>
+        <label class="sp-chk ${S.promo ? 'on' : ''}"><input type="checkbox" id="f_promo" ${S.promo ? 'checked' : ''}> 홍보·마케팅 목적으로도 이용해요 (선택 동의, 별도)</label>`;
+    } else {
+      el.innerHTML = `<h2>6. 생성·적정성 점검</h2><p class="hint">동의서와 자체 점검 요약을 만들었어요. 복사·인쇄해서 쓰고, 공개 전 소관 부서 검토를 거치세요.</p>
+        <div class="sp-btns"><button class="btn primary" id="copy" type="button">동의서 복사</button><button class="btn" id="print" type="button">인쇄</button></div>
+        <div class="sp-out" id="out"></div>
+        <h2 style="font-size:16px;margin-top:18px">자체 점검 요약</h2>
+        <div class="chk-res" id="chk"></div>`;
+      $('#out').textContent = buildDoc();
+      $('#chk').innerHTML = buildCheck();
+      if (window.PI && window.PI.linkifyLaws) window.PI.linkifyLaws($('#chk'));
+      $('#copy').addEventListener('click', async () => { try { await navigator.clipboard.writeText($('#out').textContent); const b = $('#copy'); b.textContent = '복사됨!'; setTimeout(() => b.textContent = '동의서 복사', 1400); } catch (e) { alert('내용을 직접 선택해 복사하세요.'); } });
+      $('#print').addEventListener('click', () => { const w = window.open('', '_blank'); if (!w) return; w.document.write('<pre style="font-family:sans-serif;white-space:pre-wrap;font-size:13px;line-height:1.8;padding:24px">' + esc($('#out').textContent) + '</pre>'); w.document.close(); w.print(); });
+    }
+    $('#prev').disabled = cur === 0;
+    $('#next').textContent = cur === STEPS.length - 1 ? '처음부터' : '다음 →';
+    bind();
+  }
+
+  function bind() {
+    const el = $('#step');
+    el.querySelectorAll('input, textarea').forEach(inp => {
+      inp.addEventListener('input', collect); inp.addEventListener('change', () => { collect(); if (['pub', 'basis'].includes(inp.name) || ['f_tp', 'f_minor', 'f_promo'].includes(inp.id) || inp.dataset.k) render(); });
+    });
+  }
+  function collect() {
+    const v = id => { const e = document.getElementById(id); return e ? e.value.trim() : undefined; };
+    if (cur === 0) { S.org = v('f_org') ?? S.org; S.biz = v('f_biz') ?? S.biz; const r = document.querySelector('input[name=pub]:checked'); if (r) S.pub = r.value; }
+    if (cur === 1) document.querySelectorAll('#step input[data-k]').forEach(c => S.items[c.dataset.k] = c.checked);
+    if (cur === 2) { const r = document.querySelector('input[name=basis]:checked'); if (r) S.basis = r.value; S.rrnLaw = v('f_rrnLaw') ?? S.rrnLaw; }
+    if (cur === 3) { S.purpose = v('f_purpose') ?? S.purpose; S.period = v('f_period') ?? S.period; S.refuse = v('f_refuse') ?? S.refuse; }
+    if (cur === 4) { const tp = document.getElementById('f_tp'); if (tp) { S.thirdParty = tp.checked; const box = document.getElementById('tpBox'); if (box) box.hidden = !tp.checked; } S.tpWho = v('f_tpWho') ?? S.tpWho; S.tpWhat = v('f_tpWhat') ?? S.tpWhat; const m = document.getElementById('f_minor'); if (m) S.minor = m.checked; const p = document.getElementById('f_promo'); if (p) S.promo = p.checked; }
+  }
+
+  function buildDoc() {
+    const org = S.org || '(기관명)', biz = S.biz || '(사업명)';
+    const gen = selItems('general').map(label), uid = selItems('uid').map(label), sens = selItems('sens').map(label);
+    let s = `개인정보 수집·이용 동의서\n\n[${biz}]\n${org}은(는) 「개인정보 보호법」 제15조에 따라 아래와 같이 개인정보를 수집·이용합니다.\n\n`;
+    if (S.basis !== 'consent') s += `※ 아래 항목 중 일부는 ${S.basis === 'contract' ? '계약 체결·이행에 필요하여' : '법령상 의무·소관 사무 수행을 위하여'} 동의 없이 수집·이용하며, 그 법적 근거를 처리방침에 공개합니다.\n\n`;
+    s += `■ 수집·이용 동의 (필수)\n`;
+    s += `① 수집·이용 목적: ${S.purpose || '(목적)'}\n`;
+    s += `② 수집 항목: ${gen.length ? gen.join(', ') : '(항목 선택)'}\n`;
+    s += `③ 보유·이용 기간: ${S.period || '(기간)'}\n`;
+    s += `④ 귀하는 동의를 거부할 권리가 있습니다. 거부 시: ${S.refuse || '(불이익 또는 ‘없음’)'}\n`;
+    s += `   [ ] 동의함    [ ] 동의하지 않음\n`;
+    if (hasRrn()) s += `\n■ 주민등록번호 처리 (법령 근거: ${S.rrnLaw || '(근거 법령)'} / 법 제24조의2)\n   ※ 동의 대상이 아니며, 위 법령 근거에 따라 처리합니다.\n`;
+    if (uid.length) s += `\n■ 고유식별정보 수집·이용 별도 동의 (법 제24조)\n· 항목: ${uid.join(', ')} / 목적: ${S.purpose || '(목적)'} / 기간: ${S.period || '(기간)'}\n   [ ] 동의함    [ ] 동의하지 않음\n`;
+    if (sens.length) s += `\n■ 민감정보 수집·이용 별도 동의 (법 제23조)\n· 항목: ${sens.join(', ')} / 목적: ${S.purpose || '(목적)'} / 기간: ${S.period || '(기간)'}\n   [ ] 동의함    [ ] 동의하지 않음\n`;
+    if (S.thirdParty) s += `\n■ 개인정보 제3자 제공 별도 동의 (법 제17조)\n· 제공받는 자: ${S.tpWho || '(제공받는 자)'} / 목적·항목: ${S.tpWhat || '(목적·항목)'} / 기간: ${S.period || '(기간)'}\n   [ ] 동의함    [ ] 동의하지 않음\n`;
+    if (S.promo) s += `\n■ 홍보·마케팅 활용 동의 (선택)\n· 목적: 행사·서비스 안내 등 / 거부해도 본래 서비스 이용에는 영향이 없습니다.\n   [ ] 동의함    [ ] 동의하지 않음\n`;
+    if (S.minor) s += `\n■ 법정대리인 동의 (만 14세 미만, 법 제22조의2)\n   법정대리인 성명: ____________ (서명/인)   아동과의 관계: ________\n`;
+    s += `\n\n동의일자:  20     년     월     일\n${S.minor ? '아동 성명' : '성명'}: ____________ (서명 또는 인)\n`;
+    return s;
+  }
+
+  function buildCheck() {
+    const R = [];
+    const ok = (t, law) => R.push(['ok', t, law]), chk = (t, law) => R.push(['chk', t, law]);
+    R.push(['area', '영역 1 · 동의의 적법성', '']);
+    (S.purpose && selItems('general').length) ? ok('수집 목적·항목을 특정했어요', '법 제15조①·제16조①') : chk('목적과 수집 항목을 구체적으로 적으세요', '법 제15조①·제16조①');
+    (S.basis !== 'consent') ? ok('동의 외 처리 근거를 구분했어요(처리방침 공개 필요)', '법 제15조①2~4·제22조③') : chk('동의 외 근거(계약·법령)가 있는지 확인하세요', '법 제15조①');
+    R.push(['area', '영역 2 · 법정 고지 사항', '']);
+    S.period ? ok('보유·이용 기간을 명시했어요', '법 제15조②3·제21조') : chk('보유·이용 기간을 객관적으로 명시하세요', '법 제15조②3');
+    S.refuse ? ok('거부 권리·불이익을 안내했어요', '법 제15조②4') : chk('동의 거부 권리와 불이익(없으면 ‘없음’)을 적으세요', '법 제15조②4');
+    R.push(['area', '영역 3 · 구분·별도 동의', '']);
+    (hasSens() ? ok('민감정보를 별도 동의로 분리했어요', '법 제23조①·제22조①5') : null);
+    (hasUid() ? ok('고유식별정보를 별도 동의로 분리했어요', '법 제24조·제22조①6') : null);
+    hasRrn() ? (S.rrnLaw ? ok('주민등록번호 법령 근거를 적었어요', '법 제24조의2') : chk('주민등록번호 처리의 구체적 법령 근거가 필요해요', '법 제24조의2')) : null;
+    (S.thirdParty ? ok('제3자 제공을 별도 동의로 받았어요', '법 제17조②') : null);
+    ok('필수 동의와 선택(홍보) 동의를 묶지 않았어요', '법 제22조①·⑤');
+    if (S.minor) ok('만 14세 미만 법정대리인 동의를 반영했어요', '법 제22조의2');
+    R.push(['area', '영역 4 · 서식 표시 (수동 확인)', '']);
+    chk('중요 내용(목적·민감/주민번호 외 고유식별·기간·제공받는 자)을 20% 이상 크게·굵게 강조', '고시 제4조');
+    chk('‘동의함’을 미리 체크하거나 침묵을 동의로 간주하지 않기', '영 제17조①·④');
+    return R.map(r => r[0] === 'area' ? `<div class="area">${esc(r[1])}</div>` : `<div class="item"><span class="mark ${r[0]}">${r[0] === 'ok' ? '✓' : '확인'}</span><span><span class="law-cite" data-x>${esc(r[1])} <small style="color:var(--muted)">(${esc(r[2])})</small></span></span></div>`).filter(Boolean).join('');
+  }
+
+  $('#next').addEventListener('click', () => { collect(); if (cur === STEPS.length - 1) { cur = 0; } else cur++; render(); window.scrollTo(0, 0); });
+  $('#prev').addEventListener('click', () => { collect(); if (cur > 0) cur--; render(); window.scrollTo(0, 0); });
+  render();
+})();
+</script>
+</body>
+</html>

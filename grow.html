@@ -1,0 +1,470 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>내 보안수준 측정·성장 · 혼디지킴이</title>
+<meta name="description" content="개인정보 보호·넛지·CTF를 한 장으로 매핑해 내 수준을 스스로 측정하고, 레이더차트와 맞춤 성장 로드맵으로 한 단계씩 올려요. 실생활 사례·최근 사고·직원 실수 유형까지.">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+KR:wght@400;600;700&family=JetBrains+Mono:wght@400;700&family=Nanum+Myeongjo:wght@700;800&display=swap">
+<link rel="stylesheet" href="assets/css/style.css">
+<style>
+  .sp-wrap.wide{ max-width: 1000px; }
+  /* 매핑 설명 */
+  .map3{ display:grid; grid-template-columns:1fr auto 1fr auto 1fr; gap:10px; align-items:stretch; }
+  .map3 .mcol{ border:1px solid var(--line); border-radius:12px; padding:12px 13px; background:var(--surface-2); }
+  .map3 .mcol h3{ font-family:var(--f-display); font-size:14.5px; margin:0 0 6px; }
+  .map3 .mcol ul{ margin:0; padding-left:16px; font-size:12.5px; color:var(--muted); line-height:1.65; }
+  .map3 .arrow{ display:grid; place-items:center; font-size:20px; color:var(--cipher); }
+  .map3 .mcol.c1{ border-top:3px solid #1d8f5b; } .map3 .mcol.c2{ border-top:3px solid #d9731f; } .map3 .mcol.c3{ border-top:3px solid #7c3aed; }
+  @media(max-width:720px){ .map3{ grid-template-columns:1fr; } .map3 .arrow{ transform:rotate(90deg); } }
+  /* 측정 */
+  .qcard{ border:1px solid var(--line); border-radius:12px; padding:14px 16px; margin:10px 0; background:var(--surface); }
+  .qcard .qh{ display:flex; gap:9px; align-items:flex-start; margin-bottom:9px; }
+  .qcard .qn{ flex:none; width:24px; height:24px; border-radius:50%; background:var(--cipher); color:#fff; font-size:12px; font-weight:700; display:grid; place-items:center; }
+  .qcard .qdom{ font-size:11px; color:var(--muted); font-weight:600; display:block; }
+  .qcard .qt{ font-size:14.5px; font-weight:600; line-height:1.5; }
+  .opts{ display:grid; gap:7px; }
+  .opt{ text-align:left; border:1px solid var(--line); background:var(--surface-2); border-radius:9px; padding:9px 12px; cursor:pointer; font:inherit; font-size:13.5px; color:var(--ink); display:flex; gap:9px; align-items:center; }
+  .opt:hover{ border-color:var(--cipher); }
+  .opt .mk{ flex:none; width:18px; height:18px; border-radius:50%; border:2px solid var(--line); }
+  .opt.on{ border-color:var(--cipher); background:var(--cipher-soft); font-weight:600; }
+  .opt.on .mk{ border-color:var(--cipher); background:var(--cipher); box-shadow:inset 0 0 0 3px var(--surface); }
+  .qprog{ position:sticky; top:0; z-index:5; background:var(--surface); border:1px solid var(--line); border-radius:10px; padding:9px 13px; display:flex; align-items:center; gap:12px; font-size:13px; }
+  .qprog .bar{ flex:1; height:8px; background:var(--surface-2); border-radius:5px; overflow:hidden; }
+  .qprog .bar i{ display:block; height:100%; width:0; background:linear-gradient(90deg,#1d8f5b,#1d5bc0); transition:width .3s; }
+  /* 결과 */
+  .result-grid{ display:grid; grid-template-columns:minmax(0,340px) 1fr; gap:18px; align-items:start; }
+  @media(max-width:720px){ .result-grid{ grid-template-columns:1fr; } }
+  .radar-wrap{ text-align:center; }
+  canvas#radar{ width:100%; max-width:340px; height:auto; }
+  .grade{ text-align:center; margin-top:6px; }
+  .grade .big{ font-family:var(--f-display); font-size:30px; font-weight:800; line-height:1.1; }
+  .grade .score{ font-size:14px; color:var(--muted); }
+  .grade .badge{ display:inline-block; margin-top:6px; padding:5px 14px; border-radius:20px; font-weight:700; font-size:13px; color:#fff; }
+  .meters{ display:grid; gap:9px; }
+  .meter{ }
+  .meter .ml{ display:flex; justify-content:space-between; font-size:12.5px; margin-bottom:3px; }
+  .meter .mt{ font-weight:600; } .meter .mv{ color:var(--muted); font-family:var(--f-mono); }
+  .meter .mb{ height:10px; background:var(--surface-2); border-radius:6px; overflow:hidden; }
+  .meter .mb i{ display:block; height:100%; border-radius:6px; transition:width .5s; }
+  /* 로드맵(넛지) */
+  .road{ display:grid; gap:11px; }
+  .step{ border:1px solid var(--line); border-left:4px solid var(--cipher); border-radius:10px; padding:12px 14px; background:var(--surface); }
+  .step .sh{ display:flex; align-items:center; gap:8px; margin-bottom:5px; }
+  .step .pri{ font-size:11px; font-weight:700; color:#fff; background:var(--plain); padding:2px 8px; border-radius:10px; }
+  .step .pri.ok{ background:#1d8f5b; }
+  .step h4{ margin:0; font-size:14.5px; font-family:var(--f-display); }
+  .step .acts{ margin:6px 0 0; padding-left:18px; font-size:13px; line-height:1.6; }
+  .step .acts a{ font-weight:600; }
+  .nudge-tag{ display:inline-block; font-size:10.5px; color:var(--cipher); background:var(--cipher-soft); border-radius:8px; padding:1px 7px; margin-left:4px; }
+  /* 만화 */
+  .toon{ border:1px solid var(--line); border-radius:12px; overflow:hidden; margin:12px 0; background:var(--surface); }
+  .toon .th{ padding:10px 14px; border-bottom:1px solid var(--line); display:flex; align-items:center; gap:8px; }
+  .toon .th .emo{ font-size:18px; } .toon .th b{ font-family:var(--f-display); font-size:15px; }
+  .toon .th .tag{ margin-left:auto; font-size:11px; color:#fff; background:var(--plain); padding:2px 9px; border-radius:10px; }
+  .panels{ display:grid; grid-template-columns:repeat(4,1fr); gap:0; }
+  @media(max-width:720px){ .panels{ grid-template-columns:repeat(2,1fr); } }
+  .pan{ border-right:1px solid var(--line); border-top:1px solid var(--line); padding:0; position:relative; }
+  .pan:nth-child(4n){ border-right:0; }
+  .pan .scene{ height:128px; display:grid; place-items:center; position:relative; overflow:hidden; }
+  .pan .pn{ position:absolute; top:5px; left:7px; font-size:10px; font-weight:700; color:var(--muted); z-index:2; }
+  .pan .cast{ font-size:40px; line-height:1; }
+  .pan .bub{ position:absolute; max-width:84%; background:#fff; color:#14202b; border:1.5px solid #14202b; border-radius:10px; padding:4px 7px; font-size:10.5px; line-height:1.35; }
+  .pan .bub.tl{ top:8px; left:8px; } .pan .bub.tr{ top:8px; right:8px; } .pan .bub.bl{ bottom:30px; left:8px; }
+  .pan .cap{ font-size:11px; color:var(--muted); padding:6px 8px; border-top:1px dashed var(--line); min-height:34px; }
+  .toon .toon-les{ padding:9px 14px; background:var(--cipher-soft); font-size:12.5px; line-height:1.6; }
+  .toon .toon-les b{ color:var(--cipher); }
+  /* 케이스 카드 */
+  .cards{ display:grid; grid-template-columns:repeat(auto-fill,minmax(230px,1fr)); gap:12px; }
+  .case{ border:1px solid var(--line); border-radius:11px; padding:13px 14px; background:var(--surface); }
+  .case .yr{ font-family:var(--f-mono); font-size:11px; color:var(--plain); font-weight:700; }
+  .case h4{ margin:3px 0 6px; font-size:14.5px; font-family:var(--f-display); }
+  .case p{ font-size:12.5px; color:var(--muted); margin:0 0 7px; line-height:1.6; }
+  .case .les{ font-size:12px; background:var(--surface-2); border-radius:8px; padding:7px 9px; }
+  .case .les b{ color:var(--cipher); }
+  /* 직원 실수 */
+  .mis{ display:grid; gap:9px; }
+  .misrow{ display:grid; grid-template-columns:30px 1fr; gap:10px; border:1px solid var(--line); border-radius:10px; padding:11px 13px; background:var(--surface); }
+  .misrow .rk{ font-family:var(--f-display); font-size:19px; font-weight:800; color:var(--cipher); text-align:center; }
+  .misrow .mt{ font-weight:700; font-size:13.5px; } .misrow .md{ font-size:12.5px; color:var(--muted); margin:2px 0 5px; }
+  .misrow .nd{ font-size:12px; background:var(--cipher-soft); border-radius:8px; padding:5px 9px; }
+  .misrow .nd b{ color:var(--cipher); }
+  .statbar{ display:grid; grid-template-columns:repeat(3,1fr); gap:10px; margin:4px 0 2px; }
+  .statbar .s{ border:1px solid var(--line); border-radius:11px; padding:12px; text-align:center; background:var(--surface-2); }
+  .statbar .s b{ display:block; font-family:var(--f-display); font-size:26px; color:var(--cipher); }
+  .statbar .s span{ font-size:11.5px; color:var(--muted); }
+  @media(max-width:600px){ .statbar{ grid-template-columns:1fr; } }
+</style>
+</head>
+<body>
+<div class="sp-wrap wide">
+  <div class="sp-top"><a class="back" href="index.html">← 혼디지킴이 포털</a><span class="brand">내 보안수준 측정·성장</span></div>
+  <div class="sp-head">
+    <h1>🧭 내 보안수준 측정 · 성장</h1>
+    <p class="lead"><b>개인정보 보호 · 넛지 · CTF</b>를 한 장으로 매핑했어요. 12개 상황 질문에 답하면 <b>6개 영역 레이더차트</b>로 내 수준이 보이고, 가장 약한 곳부터 <b>작은 한 걸음(넛지)</b>으로 올릴 수 있는 맞춤 로드맵을 드려요. 점수는 저장하지 않고 이 브라우저에서만 계산돼요.</p>
+  </div>
+
+  <!-- 매핑 -->
+  <div class="sp-card">
+    <h2>어떻게 매핑했나요?</h2>
+    <div class="map3">
+      <div class="mcol c1"><h3>🛡 개인정보 보호</h3><ul><li>수집·동의 / 안전조치</li><li>유출대응 / 파기</li><li>법 제15·30·34조 등</li></ul></div>
+      <div class="arrow">✕</div>
+      <div class="mcol c2"><h3>🧠 넛지</h3><ul><li>기본값·피드백</li><li>작은 실천·손실 회피</li><li>사회적 증거</li></ul></div>
+      <div class="arrow">✕</div>
+      <div class="mcol c3"><h3>🚩 CTF</h3><ul><li>초·중·고 난이도</li><li>오름·심화·AI·인간중심</li><li>풀며 실력 확인</li></ul></div>
+    </div>
+    <p class="hint" style="font-size:12.5px;color:var(--muted);margin:10px 0 0">→ 세 가지를 <b>6개 역량 영역</b>으로 묶어 <b>측정(레이더차트)</b>하고, 약한 영역을 <b>넛지로 성장</b>시키며, 그 연습을 <b>CTF 챌린지</b>로 연결해요.</p>
+  </div>
+
+  <!-- 측정 시작 -->
+  <div class="sp-card" id="startCard">
+    <h2>1. 자가측정 시작</h2>
+    <p class="hint" style="font-size:13px;color:var(--muted);margin:0 0 10px">상황마다 <b>가장 바람직한 것</b>을 고르면 돼요. 정답을 몰라도 지금 습관대로 고르세요 — 그래야 정확히 측정돼요. (약 2분)</p>
+    <div class="sp-btns"><button class="btn primary" id="begin" type="button">측정 시작하기</button>
+      <button class="btn" id="ctfLink" type="button" onclick="location.href='learn.html'">CTF로 바로 연습 →</button></div>
+  </div>
+
+  <!-- 질문 영역 -->
+  <div id="quizArea" hidden>
+    <div class="qprog"><span id="qpc">0 / 12</span><div class="bar"><i id="qpi"></i></div><span style="color:var(--muted)">응답</span></div>
+    <div id="quizWrap"></div>
+    <div class="sp-btns"><button class="btn primary" id="see" type="button" disabled>결과 보기</button></div>
+  </div>
+
+  <!-- 결과 -->
+  <div id="resultArea" hidden>
+    <div class="sp-card">
+      <h2>2. 내 수준 — 한눈에</h2>
+      <div class="result-grid">
+        <div>
+          <div class="radar-wrap"><canvas id="radar" width="680" height="680" aria-label="영역별 보안수준 레이더차트"></canvas></div>
+          <div class="grade">
+            <div class="big" id="gName">—</div>
+            <div class="score">종합 <b id="gScore">0</b>점 / 100 · 상위 <span id="gPct">—</span></div>
+            <div class="badge" id="gBadge">—</div>
+          </div>
+        </div>
+        <div class="meters" id="meters"></div>
+      </div>
+      <div class="sp-btns" style="margin-top:14px"><button class="btn" id="again" type="button">다시 측정</button>
+        <button class="btn" id="goCtf" type="button" onclick="location.href='learn.html'">학습·CTF 하러 가기 →</button></div>
+    </div>
+
+    <div class="sp-card">
+      <h2>3. 맞춤 성장 로드맵 <span class="nudge-tag">넛지 설계</span></h2>
+      <p class="hint" style="font-size:12.5px;color:var(--muted);margin:0 0 10px">가장 약한 영역부터 <b>작은 한 걸음</b>을 추천해요. 하나만 해도 수준이 올라가요.</p>
+      <div class="road" id="road"></div>
+    </div>
+  </div>
+
+  <!-- 만화 -->
+  <div class="sp-card">
+    <h2>4. 실생활 4컷 — 이렇게 샙니다 🖼</h2>
+    <p class="hint" style="font-size:12.5px;color:var(--muted);margin:0 0 6px">가장 자주 일어나는 상황을 4컷으로. 마지막 칸의 <b>작은 습관</b>이 사고를 막아요.</p>
+    <div id="toons"></div>
+  </div>
+
+  <!-- 최근 사고 -->
+  <div class="sp-card">
+    <h2>5. 최근 국내 사고에서 배우기 <span class="nudge-tag">손실 회피</span></h2>
+    <p class="hint" style="font-size:12.5px;color:var(--muted);margin:0 0 10px">언론 보도 기준(일부 조사·수사 진행 중). 수치는 보도마다 다를 수 있어요. ‘원인이 주는 교훈’에 주목하세요.</p>
+    <div class="cards" id="cases"></div>
+  </div>
+
+  <!-- 공공분야·위수탁 -->
+  <div class="sp-card">
+    <h2>6. 공공분야·공무원·위수탁 사건에서 배우기 <span class="nudge-tag" style="background:#1e3a8a;color:#fff">공공 특례</span></h2>
+    <p class="hint" style="font-size:12.5px;color:var(--muted);margin:0 0 10px">공공기관은 국민의 정보를 다뤄 <b>더 엄격한 책임</b>이 따라요. 최근 공공 침해사고는 대부분 <b>기본 보안수칙 미준수</b>에서 비롯됐어요.</p>
+    <div class="statbar" style="grid-template-columns:repeat(4,1fr)">
+      <div class="s"><b>247건</b><span>공공 유출사고 (’21.1~’26.5)</span></div>
+      <div class="s"><b>50억</b><span>공공 정액 과징금 상한</span></div>
+      <div class="s"><b>4.11억</b><span>건당 과징금(’26.1~5) — 매년 ↑</span></div>
+      <div class="s"><b>파면</b><span>고의 유출 시 공직 퇴출 가능</span></div>
+    </div>
+    <div class="cards" id="pubcases" style="margin-top:12px"></div>
+  </div>
+
+  <!-- 직원 실수 -->
+  <div class="sp-card">
+    <h2>7. 직원이 가장 많이 하는 실수 Top <span class="nudge-tag">작은 실천</span></h2>
+    <div class="statbar">
+      <div class="s"><b>68%</b><span>데이터 유출에 ‘사람 요인’이 관여 (Verizon)</span></div>
+      <div class="s"><b>74%</b><span>가장 우려하는 유출 요인 = ‘관리 실수’ (2019 조사)</span></div>
+      <div class="s"><b>대부분</b><span>기술보다 <b>습관</b>으로 막을 수 있는 유형</span></div>
+    </div>
+    <div class="mis" id="mis" style="margin-top:10px"></div>
+  </div>
+
+  <p class="notice law-cite" style="margin-top:16px;font-size:12px;color:var(--muted)">근거·참고: 개인정보 보호법(제25조의2 이동형 영상기기·제26조 위수탁 등) 및 하위 고시, 「개인정보 보호 법규 위반 비위 징계 처리 지침」(2023.1 시행), 「공공부문 사이버보안 책임성 강화 방안」(공공 침해사고·과징금 통계), 「이동형 영상정보처리기기 개인영상정보 보호·활용 안내서」(2024.9), 베리존 데이터 유출 조사(사람 요인 68%), 2019 정보보호 실태조사(관리 실수 우려 74%), 2025~2026 국내 사고 언론 보도 및 개인정보보호위원회 발표. 공공 통계는 ’21.1~’26.5 기준이며, 측정 결과는 교육용 자가진단으로 법적 평가가 아니에요.</p>
+</div>
+
+<script src="assets/config.js"></script>
+<script>
+(function(){
+  const $ = s => document.querySelector(s);
+  const DOMS = [
+    { k:'C', name:'수집·동의', color:'#1d8f5b', links:[['수집·이용·제공·파기 흐름','learn.html#lifecycle'],['동의서 자동 생성','consent.html']] },
+    { k:'S', name:'안전조치·암호화', color:'#1d5bc0', links:[['안전성 확보조치 지도','learn.html#safeguards'],['암호화 대상 판별','learn.html#encrypt-map'],['접속기록 보관·점검','learn.html#access-log']] },
+    { k:'L', name:'생활·기기 보안', color:'#0d9488', links:[['문자 스미싱','learn.html#smishing'],['해킹메일 판별','learn.html#phishmail'],['공공 와이파이','learn.html#wifi']] },
+    { k:'R', name:'유출대응·파기', color:'#d9731f', links:[['개인정보 유출 대응','learn.html#breach'],['개인정보의 파기','learn.html#destroy']] },
+    { k:'H', name:'인간중심·넛지', color:'#7c3aed', links:[['사이버 복원력 키우기','learn.html#resilience'],['CTF 인간 중심 보안 트랙','learn.html#home']] },
+    { k:'A', name:'AI·신기술', color:'#be185d', links:[['프롬프트 인젝션','learn.html#prompt-inject'],['CTF AI 분야 트랙','learn.html#home']] }
+  ];
+  const DMAP = Object.fromEntries(DOMS.map(d=>[d.k,d]));
+
+  // 12문항 (영역당 2) — 상황형, 점수 100/50/0
+  const QS = [
+    { d:'C', t:'회원가입 폼을 새로 만들 때, 가장 바람직한 것은?', o:[['서비스에 꼭 필요한 항목만 받는다',100],['나중을 위해 되도록 많이 받아 둔다',0],['선택 항목까지 전부 ‘필수’로 둔다',0]] },
+    { d:'C', t:'수집 목적을 다 이룬 개인정보는 어떻게 하나요?', o:[['지체 없이 파기하거나 분리 보관한다',100],['혹시 몰라 계속 가지고 있는다',0],['백업에만 남겨두고 잊는다',50]] },
+    { d:'S', t:'업무 시스템 접근 권한은 어떻게 주나요?', o:[['담당 업무에 필요한 만큼만(최소권한)',100],['편하게 팀 공용 계정을 함께 쓴다',0],['일단 넓게 주고 문제 생기면 조정',50]] },
+    { d:'S', t:'고객 개인정보가 담긴 파일을 보관할 때?', o:[['암호화하거나 접근을 통제해 둔다',100],['바탕화면에 그냥 둔다',0],['파일 이름만 바꿔 둔다',50]] },
+    { d:'L', t:'출처 불명 ‘택배 배송조회’ 문자의 링크, 어떻게?', o:[['누르지 않고 공식 앱·번호로 확인',100],['일단 눌러서 확인한다',0],['눌러보고 이상하면 닫는다',50]] },
+    { d:'L', t:'비밀번호 관리, 가장 좋은 방법은?', o:[['사이트마다 다르게 + 2단계 인증',100],['외우기 쉽게 모든 사이트 같은 걸로',0],['비슷한 걸 조금씩 바꿔 쓴다',50]] },
+    { d:'R', t:'개인정보 유출을 알게 됐다면, 가장 먼저?', o:[['정해진 절차로 즉시 신고·통지',100],['조용히 내부에서만 수습한다',0],['확실해질 때까지 기다린다',50]] },
+    { d:'R', t:'같은 사고가 반복되지 않게 하려면?', o:[['원인을 분석하고 재발방지책을 적용·공유',100],['담당자만 교체한다',0],['한동안 다 같이 조심한다',50]] },
+    { d:'H', t:'동료가 피싱 메일을 클릭한 것 같아요. 좋은 조직은?', o:[['혼내지 않고 빨리 신고하게 하는 문화',100],['실수한 사람부터 징계한다',0],['개인적으로만 주의 준다',50]] },
+    { d:'H', t:'보안 교육·경고가 너무 잦아 피곤하다면?', o:[['꼭 필요한 순간에 짧게 ‘넛지’로 안내',100],['무시하고 늘 같은 방식 유지',0],['교육을 가끔만 한다',50]] },
+    { d:'A', t:'챗GPT 같은 외부 AI에 업무자료를 넣을 때?', o:[['개인정보·기밀은 빼거나 가명처리 후',100],['그대로 복사해 붙여넣는다',0],['고객 이름만 지우고 넣는다',50]] },
+    { d:'A', t:'AI가 만들어 준 결과물은?', o:[['사람이 사실·개인정보 포함 여부를 검증',100],['그대로 바로 사용한다',0],['급하면 검증을 생략한다',50]] }
+  ];
+
+  let ans = {};
+  function render(){
+    const wrap = $('#quizWrap'); wrap.innerHTML = '';
+    QS.forEach((q,i)=>{
+      const dom = DMAP[q.d];
+      const el = document.createElement('div'); el.className='qcard';
+      el.innerHTML = `<div class="qh"><div class="qn">${i+1}</div><div><span class="qdom" style="color:${dom.color}">${dom.name}</span><div class="qt">${q.t}</div></div></div>
+        <div class="opts">${q.o.map((o,j)=>`<button class="opt" data-q="${i}" data-v="${o[1]}" data-j="${j}" type="button"><span class="mk"></span>${o[0]}</button>`).join('')}</div>`;
+      wrap.appendChild(el);
+    });
+  }
+  function progress(){
+    const n = Object.keys(ans).length;
+    $('#qpc').textContent = n + ' / 12';
+    $('#qpi').style.width = (n/12*100) + '%';
+    $('#see').disabled = n < 12;
+  }
+
+  document.addEventListener('click', e=>{
+    const op = e.target.closest('.opt'); if(!op) return;
+    const qi = op.dataset.q;
+    document.querySelectorAll(`.opt[data-q="${qi}"]`).forEach(b=>b.classList.remove('on'));
+    op.classList.add('on'); ans[qi] = +op.dataset.v; progress();
+  });
+
+  $('#begin').addEventListener('click', ()=>{ render(); $('#startCard').hidden=true; $('#quizArea').hidden=false; $('#quizArea').scrollIntoView({behavior:'smooth'}); });
+  $('#again').addEventListener('click', ()=>{ ans={}; render(); progress(); $('#resultArea').hidden=true; $('#quizArea').hidden=false; window.scrollTo({top:0,behavior:'smooth'}); });
+
+  // CTF 세션 보너스 (같은 오리진이면 공유). 안전하게 try/catch
+  function ctfBonus(){
+    const b = {C:0,S:0,L:0,R:0,H:0,A:0};
+    try{
+      const raw = sessionStorage.getItem('ctf-session'); if(!raw) return b;
+      const s = JSON.parse(raw); const solved = s && s.solved ? Object.keys(s.solved) : [];
+      solved.forEach(id=>{
+        let k='L';
+        if(id.indexOf('ai-')===0) k='A';
+        else if(id.indexOf('hc-')===0) k='H';
+        else if(/cctv|destroy|pseudo|access|safeguard|encrypt|hash/.test(id)) k='S';
+        else if(/breach|report/.test(id)) k='R';
+        else if(/consent|subject|sensitive|def|life|collect/.test(id)) k='C';
+        b[k] = Math.min(20, b[k] + 6);
+      });
+    }catch(e){}
+    return b;
+  }
+
+  const GRADES = [
+    { min:85, name:'제주 정보보호 수호자', color:'#7c3aed' },
+    { min:65, name:'개인정보 지킴이', color:'#1d5bc0' },
+    { min:45, name:'올레꾼 입문', color:'#0d9488' },
+    { min:0,  name:'새싹 지킴이', color:'#1d8f5b' }
+  ];
+
+  function compute(){
+    const bonus = ctfBonus();
+    const dom = {};
+    DOMS.forEach(d=>dom[d.k]=[]);
+    QS.forEach((q,i)=>dom[q.d].push(ans[i]!=null?ans[i]:0));
+    const scores = {};
+    DOMS.forEach(d=>{ const a=dom[d.k]; const base=a.reduce((x,y)=>x+y,0)/a.length; scores[d.k]=Math.min(100,Math.round(base+ (bonus[d.k]||0))); });
+    const overall = Math.round(DOMS.reduce((s,d)=>s+scores[d.k],0)/DOMS.length);
+    return { scores, overall, usedBonus: Object.values(bonus).some(v=>v>0) };
+  }
+
+  // 레이더차트
+  function drawRadar(scores){
+    const cv = $('#radar'); const cssW = cv.clientWidth || 340; const dpr = window.devicePixelRatio||1;
+    cv.width = cssW*dpr; cv.height = cssW*dpr; const ctx = cv.getContext('2d'); ctx.scale(dpr,dpr);
+    const W=cssW, cx=W/2, cy=W/2, R=W*0.34, N=DOMS.length;
+    const cs = getComputedStyle(document.body);
+    const line = cs.getPropertyValue('--line').trim()||'#d4dce3';
+    const muted = cs.getPropertyValue('--muted').trim()||'#586874';
+    const ink = cs.getPropertyValue('--ink').trim()||'#14202b';
+    const accent = cs.getPropertyValue('--cipher').trim()||'#1d5bc0';
+    ctx.clearRect(0,0,W,W);
+    const ang = i => -Math.PI/2 + i*2*Math.PI/N;
+    // grid rings
+    [0.25,0.5,0.75,1].forEach(r=>{
+      ctx.beginPath();
+      for(let i=0;i<=N;i++){ const a=ang(i%N); const x=cx+Math.cos(a)*R*r, y=cy+Math.sin(a)*R*r; i?ctx.lineTo(x,y):ctx.moveTo(x,y); }
+      ctx.strokeStyle=line; ctx.lineWidth=1; ctx.stroke();
+    });
+    // spokes + labels
+    ctx.font='600 11px "IBM Plex Sans KR",sans-serif'; ctx.textAlign='center'; ctx.textBaseline='middle';
+    DOMS.forEach((d,i)=>{
+      const a=ang(i); const x=cx+Math.cos(a)*R, y=cy+Math.sin(a)*R;
+      ctx.beginPath(); ctx.moveTo(cx,cy); ctx.lineTo(x,y); ctx.strokeStyle=line; ctx.stroke();
+      const lx=cx+Math.cos(a)*(R+20), ly=cy+Math.sin(a)*(R+18);
+      ctx.fillStyle=ink; ctx.fillText(d.name, lx, ly);
+      ctx.fillStyle=muted; ctx.font='700 10px "JetBrains Mono",monospace';
+      ctx.fillText(scores[d.k], cx+Math.cos(a)*(R+20), cy+Math.sin(a)*(R+18)+13);
+      ctx.font='600 11px "IBM Plex Sans KR",sans-serif';
+    });
+    // data polygon
+    ctx.beginPath();
+    DOMS.forEach((d,i)=>{ const a=ang(i); const r=R*(scores[d.k]/100); const x=cx+Math.cos(a)*r, y=cy+Math.sin(a)*r; i?ctx.lineTo(x,y):ctx.moveTo(x,y); });
+    ctx.closePath();
+    ctx.fillStyle = hexA(accent,0.22); ctx.fill();
+    ctx.strokeStyle=accent; ctx.lineWidth=2; ctx.stroke();
+    DOMS.forEach((d,i)=>{ const a=ang(i); const r=R*(scores[d.k]/100); const x=cx+Math.cos(a)*r, y=cy+Math.sin(a)*r; ctx.beginPath(); ctx.arc(x,y,3,0,7); ctx.fillStyle=d.color; ctx.fill(); });
+  }
+  function hexA(hex,a){ const h=hex.replace('#',''); const n=h.length===3?h.split('').map(c=>c+c).join(''):h; const r=parseInt(n.slice(0,2),16),g=parseInt(n.slice(2,4),16),b=parseInt(n.slice(4,6),16); return `rgba(${r},${g},${b},${a})`; }
+
+  function showResult(){
+    const { scores, overall, usedBonus } = compute();
+    $('#resultArea').hidden=false; $('#quizArea').hidden=true;
+    const g = GRADES.find(x=>overall>=x.min);
+    $('#gName').textContent = g.name; $('#gName').style.color=g.color;
+    $('#gScore').textContent = overall;
+    $('#gBadge').textContent = g.name; $('#gBadge').style.background=g.color;
+    $('#gPct').textContent = overall>=85?'10%':overall>=65?'30%':overall>=45?'60%':'—';
+    // meters
+    const mw = $('#meters'); mw.innerHTML = DOMS.map(d=>`<div class="meter"><div class="ml"><span class="mt" style="color:${d.color}">${d.name}</span><span class="mv">${scores[d.k]}/100</span></div><div class="mb"><i style="width:${scores[d.k]}%;background:${d.color}"></i></div></div>`).join('')
+      + (usedBonus?`<p class="hint" style="font-size:11.5px;color:var(--muted);margin:2px 0 0">＋ CTF에서 푼 문제가 반영됐어요(영역별 최대 +20).</p>`:'');
+    drawRadar(scores);
+    roadmap(scores);
+    $('#resultArea').scrollIntoView({behavior:'smooth'});
+    window._lastScores = scores;
+  }
+  $('#see').addEventListener('click', showResult);
+  window.addEventListener('resize', ()=>{ if(window._lastScores && !$('#resultArea').hidden) drawRadar(window._lastScores); });
+  if(window.matchMedia) window.matchMedia('(prefers-color-scheme: dark)').addEventListener?.('change', ()=>{ if(window._lastScores && !$('#resultArea').hidden) drawRadar(window._lastScores); });
+
+  // 넛지 로드맵: 약한 2영역 + (낮으면) 3영역
+  const NUDGE = {
+    C:[['지금 쓰는 수집 폼에서 ‘안 써도 되는 항목’ 1개를 지우기','기본값을 바꾸면 수집이 줄어요'],['수집 항목마다 왜 필요한지 한 줄 메모','목적을 적으면 과수집이 보여요']],
+    S:['공용 계정 하나를 개인 계정으로 분리','내 PC 화면잠금 시간을 5분 이하로','민감 파일 1개를 암호화해 보기'].map(x=>[x,'작은 실천']),
+    L:['내 주요 계정에 2단계 인증 켜기','문자 링크는 눌러보기 전에 공식 앱으로 확인','비밀번호 관리자 1개 써보기'].map(x=>[x,'손실 회피']),
+    R:['우리 조직 유출 신고 절차·연락처를 지금 확인','최근 로그·접속기록을 한 번 점검'].map(x=>[x,'사고 대비']),
+    H:['이번 주 피싱 의심 메일 1건 ‘신고’해 보기','팀에 ‘혼내지 않는 신고’ 한마디 제안','CTF 인간 중심 보안 트랙 1문제 풀기'].map(x=>[x,'보안 문화']),
+    A:['AI에 넣기 전 개인정보 지우는 습관 만들기','AI 답을 1분만 사실 검증','CTF AI 트랙 1문제 풀기'].map(x=>[x,'작은 실천'])
+  };
+  function roadmap(scores){
+    const sorted = DOMS.slice().sort((a,b)=>scores[a.k]-scores[b.k]);
+    const weak = sorted.filter(d=>scores[d.k]<85).slice(0,3);
+    const list = weak.length?weak:[sorted[0]];
+    const html = list.map((d,idx)=>{
+      const acts = (NUDGE[d.k]||[]).slice(0,2).map(a=>`<li>${a[0]} <span class="nudge-tag">${a[1]}</span></li>`).join('');
+      const links = d.links.map(l=>`<a href="${l[1]}">${l[0]}</a>`).join(' · ');
+      const pr = idx===0?'1순위':idx===1?'2순위':'다음';
+      return `<div class="step"><div class="sh"><span class="pri ${scores[d.k]>=65?'ok':''}">${pr}</span><h4 style="color:${d.color}">${d.name} <span class="mv" style="font-family:var(--f-mono);font-size:12px;color:var(--muted)">${scores[d.k]}점</span></h4></div>
+        <ul class="acts">${acts}</ul>
+        <div style="font-size:12.5px;margin-top:6px">🔗 연결 학습: ${links}</div></div>`;
+    }).join('');
+    const strong = sorted[sorted.length-1];
+    $('#road').innerHTML = html + `<div class="step" style="border-left-color:#1d8f5b"><div class="sh"><span class="pri ok">잘함</span><h4 style="color:#1d8f5b">${strong.name} ${scores[strong.k]}점</h4></div><ul class="acts"><li>강점이에요! 같은 수준을 <b>동료에게 공유</b>하면 조직 전체가 올라가요 <span class="nudge-tag">사회적 증거</span></li></ul></div>`;
+  }
+
+  // ── 4컷 만화 ──
+  const TOONS = [
+    { emo:'📧', title:'단체메일 ‘참조(CC)’ 사고', tag:'오발송', panels:[
+      ['🧑‍💼','고객 200명에게 안내메일 보내자!','tl','월요일 아침, 바쁜 손놀림'],
+      ['📧','받는사람·참조에 쭉~ 붙여넣기','tr','주소 200개를 그대로 ‘참조’에'],
+      ['😱','전원에게 서로 이메일이 노출!','tl','수신자끼리 주소가 다 보임 = 유출'],
+      ['✅','대량 발송은 ‘숨은참조(BCC)’','bl','발송 전 1초만 확인']
+    ], lesson:'대량 메일은 <b>숨은참조(BCC)</b>가 기본값. 보내기 전 수신자 칸을 <b>1초</b>만 확인해요.' },
+    { emo:'📱', title:'택배 문자 스미싱', tag:'피싱', panels:[
+      ['📩','[Web발신] 택배 주소 오류, 확인:bit.ly/..','tl','모르는 번호의 문자'],
+      ['👆','바빠서 그냥 링크 클릭','tr','‘설마’ 하고 누름'],
+      ['🔓','가짜 앱 설치 → 개인정보·소액결제','tl','문자·연락처·인증까지 탈취'],
+      ['🛡','링크 말고 공식 앱·고객센터로','bl','눌러보기 전에 확인']
+    ], lesson:'출처 불명 링크는 <b>누르지 않기</b>. 택배·결제는 <b>공식 앱/번호</b>로 직접 확인해요.' },
+    { emo:'💾', title:'USB·출력물 방치', tag:'분실', panels:[
+      ['🗂','고객명단 USB에 담아 외부 작업','tl','“집에서 마저 해야지”'],
+      ['🚕','택시에 가방째 두고 내림','tr','USB 암호화 안 됨'],
+      ['😰','누가 열면 그대로 다 보임','tl','분실=유출'],
+      ['🔐','반출 최소화 + 암호화 + 클린데스크','bl','출력물은 바로 회수']
+    ], lesson:'개인정보 <b>반출은 최소화</b>, 꼭 필요하면 <b>암호화</b>. 출력물·화면은 자리 비울 때 정리/잠금.' },
+    { emo:'🤖', title:'AI에 기밀 붙여넣기', tag:'AI', panels:[
+      ['🧑‍💻','고객 리스트 요약 좀 시켜볼까?','tl','외부 생성형 AI 사용'],
+      ['📋','이름·연락처 통째로 붙여넣기','tr','기밀·개인정보 그대로'],
+      ['🌐','입력이 학습·유출될 수 있음','tl','내 손을 떠난 데이터'],
+      ['✂','개인정보는 빼거나 가명처리 후','bl','AI 답은 사실 검증']
+    ], lesson:'외부 AI엔 <b>개인정보·기밀 금지</b>. 꼭 쓰면 <b>가명처리</b> 후, 결과는 사람이 <b>검증</b>해요.' },
+    { emo:'🔑', title:'비밀번호 돌려쓰기', tag:'계정', panels:[
+      ['😌','한 개면 편하지, 다 똑같이!','tl','모든 사이트 같은 비번'],
+      ['💥','한 사이트 유출 = 전부 뚫림','tr','‘크리덴셜 스터핑’'],
+      ['🏦','메일·쇼핑·회사까지 연쇄 피해','tl','도미노처럼'],
+      ['🧩','사이트마다 다르게 + 2단계 인증','bl','관리자 앱이 도와줘요']
+    ], lesson:'비밀번호 <b>재사용 금지</b>. 사이트마다 다르게, 중요한 계정엔 <b>2단계 인증</b>.' },
+    { emo:'🕶', title:'스마트글라스로 몰래 촬영', tag:'신기술', panels:[
+      ['🕶','현장 점검, 스마트글라스로 다 찍자','tl','착용형 이동형 영상기기'],
+      ['🧍','지나가는 민원인 얼굴까지 녹화','tr','업무 목적 무단 촬영'],
+      ['⚖','공개장소 업무 촬영은 원칙 금지','tl','법 제25조의2'],
+      ['🔔','촬영 표시(불빛·안내)+필요 최소한','bl','동의·법령 예외만']
+    ], lesson:'스마트글라스·바디캠 업무 촬영은 <b>원칙 금지</b>. 꼭 필요하면 <b>촬영 사실을 표시</b>하고 최소한으로.' }
+  ];
+  function paintToons(){
+    $('#toons').innerHTML = TOONS.map(t=>`<div class="toon"><div class="th"><span class="emo">${t.emo}</span><b>${t.title}</b><span class="tag">${t.tag}</span></div>
+      <div class="panels">${t.panels.map((p,i)=>`<div class="pan"><div class="scene"><span class="pn">${i+1}</span><span class="cast">${p[0]}</span><span class="bub ${p[2]}">${p[1]}</span></div><div class="cap">${p[3]}</div></div>`).join('')}</div>
+      <div class="toon-les">💡 ${t.lesson}</div></div>`).join('');
+  }
+
+  // ── 최근 국내 사고 ──
+  const CASES = [
+    { yr:'2025.04', t:'통신사 USIM 인증정보 유출', p:'이동통신 가입자의 USIM(IMSI 등) 인증정보가 대규모로 유출된 것으로 알려져, 가입자 USIM 교체·보호 조치가 대대적으로 이뤄졌어요.', l:'핵심 <b>인증정보 암호화</b>와 <b>침해 조기탐지</b>가 1차 방어선.' },
+    { yr:'2025.06', t:'온라인 서점·예매 랜섬웨어', p:'랜섬웨어 공격으로 주문·배송·공연 예매 등 전사 시스템이 한동안 마비됐어요.', l:'<b>백업·업무연속성(BCP)</b>과 랜섬웨어 대응 훈련이 필요.' },
+    { yr:'2025.09', t:'불법 초소형 기지국 악용', p:'불법 기지국으로 단말 정보를 가로채 무단 소액결제 피해가 발생한 것으로 보도됐어요.', l:'<b>이상거래 탐지</b>와 결제 <b>인증 강화</b>로 방어.' },
+    { yr:'2025.11', t:'대형 이커머스 대규모 유출', p:'수천만 건 규모의 고객정보(이름·연락처·주문내역 등) 유출이 보도되고, 내부자 연루 의혹으로 수사가 진행됐어요.', l:'<b>최소권한·접속기록·내부통제</b>가 핵심. 사람·권한이 가장 약한 고리.' },
+    { yr:'2025', t:'카드사 개인신용정보 유출 조사', p:'금융사의 개인신용정보 유출 정황이 조사됐어요(진행 중).', l:'금융 <b>민감정보 암호화</b>와 <b>접근통제·위탁관리</b>.' },
+    { yr:'2026', t:'제도 강화 — 징벌적 과징금·ISMS-P', p:'개인정보보호위원회가 반복·중대 위반에 대한 과징금 상향과 ISMS-P 심사 강화 등을 추진한다고 밝혔어요(세부 수치는 확정 전).', l:'이제 <b>예방·입증</b>이 곧 비용 절감. 평소 관리가 돈을 아껴요.' }
+  ];
+  function paintCases(){
+    $('#cases').innerHTML = CASES.map(c=>`<div class="case"><span class="yr">${c.yr}</span><h4>${c.t}</h4><p>${c.p}</p><div class="les">📌 교훈: ${c.l}</div></div>`).join('');
+  }
+
+  // ── 공공분야·위수탁 사건 ──
+  const PUBCASES = [
+    { yr:'’25.7~’26.7', t:'공공 침해사고 잇따라', p:'온나라시스템 해킹(’25.7), 한마음혈액원 랜섬웨어(’25.11), 강원대·화순전남대병원 랜섬웨어(’26.1), 국립외교원 교육시스템 유출(’26.2) 등 공공부문 사고가 이어졌어요.', l:'대부분 <b>기본 보안수칙</b> 미준수가 원인. 패치·점검·권한관리가 1차 방어.' },
+    { yr:'2023.1', t:'공무원 ‘고의 유출=공직 퇴출’', p:'「개인정보 보호 법규 위반 비위 징계 처리 지침」 시행. 고의 유출·부정이용으로 중대 침해 시 파면·해임. 비위 유형은 ①부정이용 ②무단유출 ③무단조회·열람 ④관리 소홀.', l:'<b>민감·고유식별정보, 영리목적, 1,000명 이상</b> 유출은 ‘중대’로 판단돼요.' },
+    { yr:'위수탁', t:'맡겨도 책임은 위탁기관에', p:'공공기관이 개인정보 처리를 외부에 위탁하면, 범위·재위탁 제한·안전조치를 <b>문서</b>로 정하고(제26조), 수탁자·업무를 <b>공개</b>하며 <b>관리·감독</b>해야 해요.', l:'<b>재위탁은 위탁자 동의</b> 필요. 교육·점검을 빼먹으면 위탁기관이 책임.' },
+    { yr:'신기술', t:'스마트글라스·드론·바디캠', p:'착용형 이동형 영상정보처리기기가 늘며, 공개된 장소의 업무 목적 촬영은 원칙 금지(법 제25조의2). 예외도 <b>촬영 사실 표시</b>(불빛·소리·안내판)가 필요해요.', l:'새 기술일수록 <b>촬영 표시·최소수집·목적제한</b> 기본을 먼저.' }
+  ];
+  function paintPub(){
+    $('#pubcases').innerHTML = PUBCASES.map(c=>`<div class="case" style="border-top:3px solid #1e3a8a"><span class="yr" style="color:#1e3a8a">${c.yr}</span><h4>${c.t}</h4><p>${c.p}</p><div class="les">📌 교훈: ${c.l}</div></div>`).join('');
+  }
+
+  // ── 직원 실수 Top ──
+  const MIS = [
+    ['1','단체메일 수신자 노출(참조/전체답장)','받는사람·참조에 주소를 그대로 넣어 수신자끼리 노출.','대량 발송은 <b>BCC 기본값</b>, 발송 전 ‘수신자 1초 확인’ 습관.'],
+    ['2','엑셀 숨김 행·열, 수식 마스킹','숨긴 데이터·원본이 파일에 그대로 남아 외부로.','제출 전 <b>숨김 해제 점검</b>, 마스킹은 값 자체를 삭제.'],
+    ['3','과다 권한·공용 계정','필요 이상 권한과 공용 로그인으로 책임·추적 불가.','<b>최소권한</b>·개인 계정, 분기별 권한 점검.'],
+    ['4','출력물·화면 방치','프린트물·화이트보드·모니터 메모가 그대로 노출.','<b>클린데스크</b>·자동 화면잠금, 출력물 즉시 회수.'],
+    ['5','USB·노트북 분실, 개인 클라우드 업로드','암호화 없는 반출·개인 저장소 업로드로 유출.','반출 최소화·<b>암호화</b>, 승인된 저장소만 사용.'],
+    ['6','테스트/개발 DB에 실데이터','개발·테스트 환경에 실제 개인정보를 그대로.','<b>가명·더미데이터</b> 사용을 기본값으로.'],
+    ['7','클라우드 공유링크 ‘전체 공개’','링크를 아는 누구나 접근 가능하게 공유.','공유 권한 <b>기본 ‘제한’</b>, 만료일·대상 지정.'],
+    ['8','호기심·사적 조회(오남용)','업무와 무관한 개인정보를 들여다봄.','<b>접속기록·사후점검</b>, 목적 외 열람 금지 고지.']
+  ];
+  function paintMis(){
+    $('#mis').innerHTML = MIS.map(m=>`<div class="misrow"><div class="rk">${m[0]}</div><div><div class="mt">${m[1]}</div><div class="md">${m[2]}</div><div class="nd">🧠 넛지: ${m[3]}</div></div></div>`).join('');
+  }
+
+  paintToons(); paintCases(); paintPub(); paintMis();
+})();
+</script>
+</body>
+</html>

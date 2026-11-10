@@ -1,0 +1,270 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>사이버 보안 길라잡이 · 혼디지킴이</title>
+<meta name="description" content="2026년도 사이버보안 실태 평가지표를 분야별로 단계별 자가진단해요. 관리적·기술적·물리적 보안과 정책·가산점 항목을 배점과 함께, 근거·점검방법을 배우며 100점 만점으로 점검합니다.">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+KR:wght@400;600;700&family=JetBrains+Mono:wght@400;700&family=Nanum+Myeongjo:wght@700;800&display=swap">
+<link rel="stylesheet" href="assets/css/style.css">
+<style>
+  .sp-wrap.wide { max-width: 1000px; }
+  .stepper { display:flex; gap:4px; margin:10px 0 14px; flex-wrap:wrap; }
+  .stx { flex:1; min-width:110px; text-align:center; font-size:11.5px; color:var(--muted); border-top:3px solid var(--line); padding-top:6px; cursor:pointer; }
+  .stx b { display:block; font-size:12.5px; color:var(--ink); }
+  .stx.on { border-top-color:#1e3a8a; } .stx.on b { color:#1e3a8a; }
+  .stx.done { border-top-color:#1d8f5b; }
+  .step { display:none; } .step.on { display:block; }
+  .teach { background:#eef2fb; border:1px solid #c7d4ef; border-left:4px solid #1e3a8a; border-radius:10px; padding:12px 15px; margin:10px 0; font-size:13px; line-height:1.7; }
+  html[data-theme="dark"] .teach, :root[data-theme="dark"] .teach { background:#1a2336; border-color:#2d3a5a; }
+  .teach h3 { margin:0 0 5px; font-family:var(--f-display); font-size:14.5px; color:#1e3a8a; }
+  html[data-theme="dark"] .teach h3 { color:#93b0ef; }
+  .reg { font-size:11.5px; color:var(--muted); } .reg b { color:var(--ink); }
+  .cards3 { display:grid; grid-template-columns:repeat(3,1fr); gap:9px; margin:8px 0; }
+  @media(max-width:640px){ .cards3 { grid-template-columns:1fr; } }
+  .mini { border:1px solid var(--line); border-radius:10px; padding:11px 13px; background:var(--surface); }
+  .mini .big { font-family:var(--f-display); font-size:19px; font-weight:800; color:#1e3a8a; }
+  .mini .lbl { font-size:12px; color:var(--muted); }
+  .dg { border:1px solid var(--line); border-radius:10px; margin:7px 0; overflow:hidden; }
+  .dg summary { padding:10px 13px; cursor:pointer; font-size:13.5px; display:flex; align-items:center; gap:9px; list-style:none; }
+  .dg summary::-webkit-details-marker { display:none; }
+  .dg summary .chk { width:20px; height:20px; border:2px solid var(--line); border-radius:6px; flex:none; display:inline-flex; align-items:center; justify-content:center; font-size:13px; color:transparent; }
+  .dg.ok summary .chk { background:#1d8f5b; border-color:#1d8f5b; color:#fff; }
+  .dg summary .q { flex:1; }
+  .dg summary .pt { font-family:var(--f-mono); font-size:11px; font-weight:700; color:#fff; background:#1e3a8a; padding:2px 7px; border-radius:10px; flex:none; }
+  .dg .dgb { padding:0 13px 11px 42px; font-size:12.5px; color:var(--muted); line-height:1.65; }
+  .dg .dgb label { display:inline-flex; gap:6px; margin-top:6px; cursor:pointer; color:var(--ink); }
+  .areahead { font-family:var(--f-display); font-weight:800; font-size:15px; margin:4px 0 8px; color:#1e3a8a; display:flex; align-items:center; gap:8px; }
+  .areahead .ap { font-size:11.5px; color:var(--muted); font-family:var(--f-mono); }
+  .navbtns { display:flex; justify-content:space-between; margin-top:16px; }
+  .scorebox { display:flex; gap:16px; align-items:center; flex-wrap:wrap; }
+  .scorebox .big { font-family:var(--f-display); font-size:40px; font-weight:800; line-height:1; }
+  .gauge { flex:1; min-width:160px; height:14px; background:var(--surface-2); border-radius:8px; overflow:hidden; }
+  .gauge i { display:block; height:100%; border-radius:8px; transition:width .5s; }
+  .areabar { display:grid; gap:7px; margin:8px 0; }
+  .ab { display:grid; grid-template-columns:120px 1fr 56px; gap:8px; align-items:center; font-size:12.5px; }
+  .ab .abar { height:9px; background:var(--surface-2); border-radius:5px; overflow:hidden; } .ab .abar i { display:block; height:100%; background:#1e3a8a; }
+  .result-list li { margin-bottom:4px; }
+  .ex2 { display:grid; grid-template-columns:1fr 1fr; gap:7px; margin:7px 0; }
+  @media(max-width:600px){ .ex2 { grid-template-columns:1fr; } }
+  .ex { border-radius:8px; padding:7px 10px; font-size:12px; line-height:1.55; border-left:3px solid var(--line); background:var(--surface); }
+  .ex b { display:block; font-size:11.5px; margin-bottom:2px; }
+  .ex.good { border-left-color:#1d8f5b; background:color-mix(in srgb,#1d8f5b 7%,var(--surface)); } .ex.good b { color:#1d8f5b; }
+  .ex.bad { border-left-color:#c4321b; background:color-mix(in srgb,#c4321b 7%,var(--surface)); } .ex.bad b { color:#c4321b; }
+  .ex.tmpl { border-left-color:#1d5bc0; background:var(--surface-2); } .ex.tmpl b { color:#1d5bc0; }
+  .exrow { display:grid; grid-template-columns:1fr 1fr 1fr; gap:7px; margin-top:7px; }
+  @media(max-width:600px){ .exrow { grid-template-columns:1fr; } }
+  .ex.note { border-left-color:#d9731f; } .ex.note b { color:#d9731f; }
+  .ex.pen { border-left-color:#7c3aed; } .ex.pen b { color:#7c3aed; }
+  .ex.risk { border-left-color:#c4321b; } .ex.risk b { color:#c4321b; }
+  .metbar { margin-top:9px; padding-top:8px; border-top:1px dashed var(--line); }
+</style>
+</head>
+<body>
+<div class="sp-wrap wide">
+  <div class="sp-top"><a class="back" href="index.html">← 혼디지킴이 포털</a><span class="brand">사이버 보안 길라잡이</span></div>
+  <div class="sp-head">
+    <h1>🛡 사이버 보안 길라잡이</h1>
+    <p class="lead"><b>2026년도 사이버보안 실태 평가지표</b>를 분야별로 따라 하며 자가진단해요. 관리적·기술적·물리적 보안과 정책·가산점 항목을 <b>배점·근거·점검방법</b>과 함께 점검하고, <b>100점 만점</b>으로 환산해 드려요. 입력은 저장되지 않아요.</p>
+  </div>
+
+  <div class="sp-card">
+    <div class="stepper" id="stepper"></div>
+
+    <!-- intro -->
+    <section class="step on" data-s="0">
+      <h2 style="font-family:var(--f-display);font-size:18px;margin:0 0 4px">0. 실태평가란? — 체계·배점 익히기</h2>
+      <div class="teach"><h3>사이버보안 실태평가</h3>
+        각급기관의 사이버보안 수준을 <b>관리적·기술적·물리적</b> 분야로 평가해요(100점 만점). 2026년에는 N2SF(국가 망 보안체계), 다중인증(MFA), 보안지원 종료 SW 교체, AI 보안관제 등이 강화됐어요.
+        <div class="reg" style="margin-top:6px">근거: <b>국가 사이버보안 기본지침·국가정보보안 기본지침</b>, 2026년도 사이버보안 실태 평가지표</div></div>
+      <div class="cards3">
+        <div class="mini"><div class="big">관리적</div><div class="lbl">전담인력·조직·예산·교육·감사·용역·제품 도입</div></div>
+        <div class="mini"><div class="big">기술적</div><div class="lbl">망분리(N2SF)·접근통제·서버/단말·포트·패치·MFA</div></div>
+        <div class="mini"><div class="big">물리적·정책</div><div class="lbl">출입·매체 통제 + N2SF·DR·AI관제·훈련(가산)</div></div>
+      </div>
+      <div class="teach reg">💡 아래 STEP에서 분야별 항목을 ‘지키고 있으면 체크’하세요. 각 항목의 <b>배점</b>만큼 점수가 쌓이고, 끝에서 <b>100점 환산</b>과 미흡 항목을 보여줘요.</div>
+    </section>
+
+    <section class="step" data-s="1"><div id="area0"></div></section>
+    <section class="step" data-s="2"><div id="area1"></div></section>
+    <section class="step" data-s="3"><div id="area2"></div></section>
+    <section class="step" data-s="4"><div id="area3"></div></section>
+
+    <!-- result -->
+    <section class="step" data-s="5">
+      <h2 style="font-family:var(--f-display);font-size:18px;margin:0 0 6px">진단 결과</h2>
+      <div class="sp-card" style="margin:0">
+        <div class="scorebox"><div class="big" id="rScore" style="color:#1e3a8a">0</div><div style="font-size:14px;color:var(--muted)">/ 100점</div>
+          <div class="gauge"><i id="rGauge" style="width:0;background:#1e3a8a"></i></div>
+          <div id="rGrade" style="font-weight:800;font-size:16px">—</div>
+        </div>
+        <div class="areabar" id="rAreas" style="margin-top:14px"></div>
+        <h3 style="font-size:14px;margin:12px 0 5px">보완 우선순위 (배점 높은 미흡 항목)</h3>
+        <ul class="result-list" id="rMiss" style="font-size:13px;color:var(--muted)"></ul>
+        <h3 style="font-size:14px;margin:12px 0 5px">함께 보면 좋아요</h3>
+        <ul style="font-size:13px;line-height:1.7">
+          <li>서버 <b>기본포트 변경·취약 서비스 차단</b>은 <a href="port-lookup.html" style="color:#1e3a8a;font-weight:700">🔌 포트 조회</a>로 위험 포트 확인</li>
+          <li>접근통제·암호화·접속기록은 <a href="learn.html#access" style="color:#1e3a8a;font-weight:700">학습(CTF)</a>의 안전조치 레슨 참고</li>
+          <li>개인정보 영향평가는 <a href="pia-guide.html" style="color:#1e3a8a;font-weight:700">개인정보 보호 길라잡이</a>로</li>
+        </ul>
+      </div>
+    </section>
+
+    <div class="navbtns">
+      <button class="btn" id="prev" type="button">← 이전</button>
+      <button class="btn primary" id="next" type="button" style="background:#1e3a8a;border-color:#1e3a8a">다음 →</button>
+    </div>
+  </div>
+
+  <p class="notice" style="margin-top:14px;font-size:12px;color:var(--muted)">교육·자가점검용이며 실제 실태평가 결과와 다를 수 있어요(대표 지표를 발췌). 기반: 2026년도 사이버보안 실태 평가지표, 국가 사이버보안 기본지침, 주요정보통신기반시설 취약점 분석·평가 안내서. 배점·항목은 기관 유형별로 달라질 수 있어요.</p>
+</div>
+
+<script>
+(function(){
+  var $=s=>document.querySelector(s), $$=s=>[].slice.call(document.querySelectorAll(s));
+  var AREAS=[
+    {name:'① 관리적 보안 분야', icon:'📋', items:[
+      {q:'정보화 담당 인원 대비 10% 이상 정보보안 전담인력을 확보했는가', pt:3, reg:'실태평가 10200', how:'전담인력 명부·비율 확인'},
+      {q:'정보보안 전담조직을 두고 있는가', pt:2, reg:'10400', how:'조직도·직제 확인'},
+      {q:'정보화 예산 대비 정보보안 예산 비율을 확보했는가', pt:3, reg:'10500', how:'최근 3년 예산 비율'},
+      {q:'연 1회 이상 정보보안 감사를 실시하는가', pt:2, reg:'10600', how:'감사 계획·결과 보고'},
+      {q:'전 직원 정보보안 교육·보안수칙 숙지가 이루어지는가', pt:2, reg:'10700', how:'교육 참석률·무작위 숙지 점검'},
+      {q:'정보화 사업 전 보안성 검토를 실시하는가', pt:0.5, reg:'10800 · 국가정보보안 기본지침', how:'보안성 검토 결과서'},
+      {q:'용역업체 보안(교육·점검·반출입·산출물 삭제)을 관리하는가', pt:2, reg:'10900', how:'보안교육·반출입대장·완전삭제 확약서'},
+      {q:'국정원 인증(보안기능확인서·CC 등) 정보보호제품을 도입했는가', pt:1, reg:'11100', how:'도입 제품 인증 현황'},
+      {q:'위규행위 처리기준을 두고 자체점검 결과에 따라 보안조치하는가', pt:1.5, reg:'11xxx', how:'위규 처리기준·조치 이력'},
+      {q:'악성코드 감염 예방 자체 보안대책을 수립·시행하는가', pt:1, reg:'11xxx', how:'백신·차단·훈련 대책'},
+      {q:'기관장(차하위 직책자)에게 정보보안 사항을 보고하는가', pt:1, reg:'11xxx', how:'보고 체계·이력'},
+      {q:'소관 기반시설 보호대책을 이행하는가(해당 시)', pt:2, reg:'11xxx', how:'기반시설 보호대책 이행'},
+    ]},
+    {name:'② 기술적 보안 분야', icon:'🔧', items:[
+      {q:'국가 망 보안체계(N2SF)/CDS 등으로 자료 반출입을 통제하는가', pt:2, reg:'실태평가 20100 · N2SF', how:'망분리·CDS 운영'},
+      {q:'정보보호시스템·네트워크장비 관리자 접근통제를 하는가', pt:2, reg:'20200', how:'관리자 인증·권한'},
+      {q:'관리자 접속용 단말은 관리대상 외 네트워크 접속을 차단하는가', pt:1, reg:'20200', how:'관리단말 망 차단'},
+      {q:'중앙관리시스템(백신·패치·자산) 보안대책을 적용했는가', pt:1, reg:'20300', how:'중앙관리 적용 현황'},
+      {q:'서버 대상 관리자 접근통제를 실시하는가', pt:2, reg:'20400', how:'서버 접근통제·인증'},
+      {q:'관리용 기본포트(SSH·RDP·VNC)를 변경하고 취약 서비스(TELNET·FTP·rlogin)를 차단하는가', pt:1, reg:'20400', how:'포트/서비스 점검 — 🔌 포트 조회 참고'},
+      {q:'도입·운영 시스템의 보안 설정이 올바른가', pt:2, reg:'20xxx', how:'보안설정 점검 기준 적용'},
+      {q:'보안지원 종료 운영체제(Windows 10 등)를 교체했는가', pt:1, reg:'2026 강화', how:'단종 OS 교체 현황'},
+      {q:'단말기 OS·백신 업데이트를 실시하고 점검하는가', pt:1, reg:'20xxx', how:'업데이트·이상유무 점검'},
+      {q:'업무시스템·원격근무 로그인에 다중인증(MFA)을 적용하는가', pt:2, reg:'2026 보안이슈', how:'MFA 적용 범위'},
+      {q:'인터넷전화(IP전화)망을 분리하고 통화내용을 암호화하는가', pt:1, reg:'20xxx', how:'IP전화 분리·암호화'},
+      {q:'프린터·복합기 보안대책을 완료했는가', pt:1, reg:'20xxx', how:'복합기 보안설정'},
+    ]},
+    {name:'③ 물리적 보안 분야', icon:'🏢', items:[
+      {q:'전산실 등 중요구역 출입을 인가자로 통제하는가', pt:1, reg:'물리적 보안', how:'출입통제 장치·인가 명부'},
+      {q:'출입기록을 관리하고 영상정보처리기기를 운영하는가', pt:1, reg:'물리적 보안', how:'출입기록·CCTV 관리대장'},
+      {q:'휴대용 저장매체 수량·보관·반출입을 정기 점검하는가', pt:0.5, reg:'11xxx', how:'매체 관리대장·점검'},
+      {q:'개인 소유 비인가 정보통신기기 반출입을 통제하는가', pt:0.5, reg:'11xxx', how:'반출입 통제 대책'},
+      {q:'비밀·대외비 자료를 보안수준에 맞는 수단으로 저장·소통하는가', pt:1, reg:'20xxx', how:'암호화·보안 저장매체'},
+    ]},
+    {name:'④ 정책·가산점', icon:'⭐', items:[
+      {q:'국가 망 보안체계(N2SF)를 구축했는가', pt:1, reg:'가산점', how:'N2SF 구축 확인'},
+      {q:'재해복구시스템(DR)을 구축했는가', pt:1, reg:'가산점', how:'DR 구축·훈련'},
+      {q:'AI 기반 보안관제시스템 등 AI 보안업무를 도입했는가', pt:1, reg:'가산점', how:'AI 관제 도입'},
+      {q:'사이버공격 방어대회 등 교육·훈련에 참여하는가', pt:1, reg:'가산점', how:'참여 실적'},
+      {q:'정보보호 종합대책·재난 방지대책을 수립·시행하는가', pt:3, reg:'정보보호 종합대책', how:'종합대책 문서·훈련'},
+    ]},
+  ];
+
+  // 항목별 상세 (잘된/잘못된 사례·증빙예시·유의·미이행 영향·위험)
+  var DETAIL=[
+    [ // 관리적
+      {g:'정보화 대비 10%+ 전담인력 확보·유지',b:'겸임만 두고 전담인력 없음',t:'전담인력 명부·비율 산정표',n:'정보화 담당 인원 대비 비율로 산정',p:'기준 미달 시 평가 감점·개선 요구',r:'관리 공백으로 사고 대응 지연'},
+      {g:'독립된 정보보안 전담조직 운영',b:'조직 없이 개인 담당만',t:'직제·조직도',n:'조직 권한·보고라인 명확화',p:'미설치 감점',r:'책임 분산으로 대응 지연'},
+      {g:'정보보안 예산 비율 확보·상향',b:'보안 예산 미편성',t:'최근 3년 정보보안 예산 비율표',n:'정보화 예산 대비 비율',p:'저조 시 감점',r:'보안투자 부족 → 취약 누적'},
+      {g:'연 1회 이상 보안감사·시정',b:'감사 미실시',t:'감사계획·결과보고서',n:'하급기관 포함',p:'미실시 감점',r:'취약점 방치'},
+      {g:'전직원 교육 + 보안수칙 숙지',b:'교육 미실시',t:'교육 이수율·무작위 숙지 점검표',n:'무작위 숙지 확인',p:'저조 시 감점',r:'사람 실수로 유출'},
+      {g:'정보화 사업 전 보안성 검토',b:'검토 생략하고 착수',t:'보안성 검토서',n:'국가정보보안 기본지침 준거',p:'미실시 감점',r:'설계 단계 취약 유입'},
+      {g:'용역 교육·점검·반출입·완전삭제 관리',b:'용역 보안 방치',t:'반출입대장·완전삭제 확약서',n:'산출물 회수·삭제',p:'미흡 시 감점',r:'용역업체 통한 유출'},
+      {g:'국정원 인증 정보보호제품 도입',b:'미인증 장비 사용',t:'도입 제품 인증 현황(보안기능확인서·CC)',n:'사전인증요건 준수',p:'미이행 감점',r:'검증 안 된 장비 취약'},
+      {g:'위규 처리기준 수립·조치',b:'위규 방치',t:'위규 처리기준·조치 대장',n:'자체점검 결과 연계',p:'미조치 감점',r:'위반 반복'},
+      {g:'백신·차단·훈련 등 악성코드 대책',b:'대책 없음',t:'백신 현황·대응 절차서',n:'예방 중심 설계',p:'미흡 감점',r:'랜섬웨어 감염'},
+      {g:'기관장(차하위)에 보안 보고',b:'보고 체계 없음',t:'보고 체계·이력',n:'정례 보고',p:'미보고 감점',r:'경영진 인지 지연'},
+      {g:'소관 기반시설 보호대책 이행',b:'보호대책 미이행',t:'기반시설 보호계획·이행 증빙',n:'해당 기관만',p:'미이행 감점·정보통신기반보호법상 책임',r:'국가 핵심시설 침해'},
+    ],
+    [ // 기술적
+      {g:'망분리(N2SF)·CDS로 반출입 통제',b:'무단 반출입 가능',t:'CDS 운영·반출입 로그',n:'N2SF 적용',p:'미적용 감점',r:'자료 무단 유출'},
+      {g:'보호시스템·장비 관리자 접근통제',b:'접근통제 없음',t:'관리자 접근 정책·인증',n:'최소권한',p:'미흡 감점',r:'보안장비 장악'},
+      {g:'관리단말을 관리대상 외 망에서 차단',b:'관리단말 인터넷 겸용',t:'관리단말 운영 정책',n:'관리대상 외 접속 차단',p:'감점',r:'관리채널로 침투'},
+      {g:'중앙관리(백신·패치·자산) 적용',b:'단말별 개별 방치',t:'중앙관리 적용 현황',n:'백신·패치·자산 일괄',p:'감점',r:'미패치 침해'},
+      {g:'서버 관리자 접근통제·인증',b:'공용·무통제 접속',t:'서버 접근 정책',n:'최소권한·전용 단말',p:'감점',r:'서버 장악'},
+      {g:'기본포트(SSH·RDP·VNC) 변경 + TELNET·FTP 차단',b:'기본포트·평문 서비스 노출',t:'포트/서비스 점검표 — 🔌 포트 조회 활용',n:'관리용 포트 변경·취약서비스 차단',p:'감점',r:'스캐닝 → 침투(445·3389 등)'},
+      {g:'시스템 보안설정 기준 적용',b:'기본설정 방치',t:'보안설정 체크리스트',n:'시스템별 기준',p:'감점',r:'설정 취약 악용'},
+      {g:'보안지원 종료 OS 교체',b:'Windows 10 등 계속 사용',t:'OS 현황·교체 계획',n:'단종 SW 교체(2026 강화)',p:'감점',r:'미패치 취약점 악용'},
+      {g:'단말 OS·백신 업데이트·점검',b:'업데이트 미실시',t:'업데이트 점검 기록',n:'이상유무 점검',p:'감점',r:'악성코드 감염'},
+      {g:'업무·원격 로그인 다중인증(MFA)',b:'단일 비밀번호',t:'MFA 적용 범위',n:'원격근무 강화',p:'감점',r:'계정 탈취'},
+      {g:'IP전화망 분리·통화 암호화',b:'혼용·평문',t:'IP전화 구성도',n:'제어신호·통화 암호화',p:'감점',r:'통화 도청'},
+      {g:'프린터·복합기 보안대책',b:'기본값 노출',t:'복합기 보안 현황',n:'저장 데이터 삭제',p:'감점',r:'출력물·저장 데이터 유출'},
+    ],
+    [ // 물리적
+      {g:'인가자 중심 전산실 출입통제',b:'출입 개방',t:'출입통제 장치·인가 명부',n:'전산실 등 중요구역',p:'감점',r:'물리적 접근 유출'},
+      {g:'출입기록·CCTV 운영',b:'출입기록 없음',t:'출입기록·관리대장',n:'보관기간 준수',p:'감점',r:'사후 추적 불가'},
+      {g:'매체 수량·보관·반출입 정기 점검',b:'매체 방치',t:'매체 관리대장',n:'정기 점검',p:'감점',r:'USB 분실 유출'},
+      {g:'비인가 개인기기 반출입 통제',b:'개인기기 자유 반입',t:'반출입 통제 대책',n:'개인 소유 기기',p:'감점',r:'비인가 경로 유출'},
+      {g:'보안수준에 맞는 저장·소통수단 사용',b:'평문·일반 메일로 대외비 전송',t:'암호화·보안 저장매체',n:'비밀·대외비 취급',p:'감점·징계',r:'기밀 유출'},
+    ],
+    [ // 정책·가산점
+      {g:'국가 망 보안체계(N2SF) 구축',b:'미구축',t:'N2SF 적용 현황',n:'가산점',p:'가산점 미반영',r:'활용성·보안성 저하'},
+      {g:'재해복구시스템(DR) 구축·훈련',b:'DR 없음',t:'DR 구성·훈련 기록',n:'가산점',p:'가산점 미반영',r:'재해 시 업무 중단'},
+      {g:'AI 기반 보안관제 도입',b:'도입 없음',t:'AI 관제 도입 현황',n:'가산점',p:'가산점 미반영',r:'위협 탐지 지연'},
+      {g:'사이버공격 방어대회 등 참여',b:'미참여',t:'교육·훈련 참여 실적',n:'가산점',p:'가산점 미반영',r:'대응역량 부족'},
+      {g:'정보보호 종합·재난방지대책 수립·훈련',b:'대책 없음',t:'종합대책 문서·훈련 기록',n:'배점 상향 지표',p:'미수립 감점',r:'재난 시 대응 혼선'},
+    ],
+  ];
+  // render area checklists
+  AREAS.forEach((a,ai)=>{
+    var totalPt=a.items.reduce((s,it)=>s+it.pt,0);
+    var h='<div class="areahead">'+a.icon+' '+a.name+' <span class="ap">('+a.items.length+'개 · '+totalPt+'점)</span></div>';
+    a.items.forEach((it,ii)=>{ var id='c'+ai+'_'+ii; var d=(DETAIL[ai]&&DETAIL[ai][ii])||{};
+      h+='<details class="dg" id="'+id+'" data-ai="'+ai+'" data-pt="'+it.pt+'"><summary><span class="chk">✓</span><span class="q">'+it.q+'</span><span class="pt">'+it.pt+'점</span></summary>'+
+         '<div class="dgb"><div style="margin-bottom:5px"><b>근거</b>: '+it.reg+' · <b>점검방법</b>: '+it.how+'</div>'+
+         (d.g?'<div class="ex2"><div class="ex good"><b>✅ 잘된 사례</b>'+d.g+'</div><div class="ex bad"><b>❌ 잘못된 사례</b>'+d.b+'</div></div>'+
+              '<div class="ex tmpl"><b>📝 증빙·예시</b>'+d.t+'</div>'+
+              '<div class="exrow"><div class="ex note"><b>⚠ 유의</b>'+d.n+'</div><div class="ex pen"><b>⚖ 미이행 시</b>'+d.p+'</div><div class="ex risk"><b>🔓 위험</b>'+d.r+'</div></div>':'')+
+         '<div class="metbar"><label><input type="checkbox" class="met" data-id="'+id+'"> 우리 기관은 이 항목을 충족해요</label></div></div></details>';
+    });
+    document.getElementById('area'+ai).innerHTML=h;
+  });
+
+  var STEPS=['실태평가 개요'].concat(AREAS.map(a=>a.name.replace(/^[①②③④]\s*/,''))).concat(['결과']);
+  var cur=0;
+  $('#stepper').innerHTML=STEPS.map((s,i)=>'<div class="stx" data-i="'+i+'"><span>STEP '+i+'</span><b>'+s+'</b></div>').join('');
+  function show(i){
+    cur=Math.max(0,Math.min(STEPS.length-1,i));
+    $$('.step').forEach(el=>el.classList.toggle('on',+el.dataset.s===cur));
+    $$('.stx').forEach(el=>{ var k=+el.dataset.i; el.classList.toggle('on',k===cur); el.classList.toggle('done',k<cur); });
+    $('#prev').style.visibility=cur===0?'hidden':'visible';
+    $('#next').textContent=cur>=STEPS.length-1?'처음으로 ↺':(cur===STEPS.length-2?'결과 보기 →':'다음 →');
+    if(cur===STEPS.length-1) renderResult();
+    window.scrollTo({top:0,behavior:'smooth'});
+  }
+  $('#prev').onclick=()=>show(cur-1);
+  $('#next').onclick=()=>{ if(cur>=STEPS.length-1) show(0); else show(cur+1); };
+  $$('.stx').forEach(el=>el.onclick=()=>show(+el.dataset.i));
+
+  document.addEventListener('change', e=>{
+    if(e.target.classList.contains('met')){ document.getElementById(e.target.dataset.id).classList.toggle('ok', e.target.checked); }
+  });
+
+  function renderResult(){
+    var totalPt=0, gain=0, areaPt=AREAS.map(()=>[0,0]);
+    AREAS.forEach((a,ai)=>a.items.forEach((it,ii)=>{ totalPt+=it.pt; areaPt[ai][1]+=it.pt;
+      var el=document.querySelector('#c'+ai+'_'+ii+' .met'); if(el&&el.checked){ gain+=it.pt; areaPt[ai][0]+=it.pt; } }));
+    var score=Math.round(gain/totalPt*100);
+    $('#rScore').textContent=score;
+    var g=score>=90?['매우 우수','#1d8f5b']:score>=75?['우수','#1d5bc0']:score>=55?['보통 — 보완 필요','#d9731f']:['미흡 — 개선 필요','#c4321b'];
+    $('#rGrade').textContent=g[0]; $('#rGrade').style.color=g[1];
+    $('#rGauge').style.width=score+'%'; $('#rGauge').style.background=g[1];
+    $('#rAreas').innerHTML=AREAS.map((a,ai)=>{ var p=Math.round(areaPt[ai][0]/areaPt[ai][1]*100);
+      return '<div class="ab"><span>'+a.icon+' '+a.name.replace(/^[①②③④]\s*/,'')+'</span><span class="abar"><i style="width:'+p+'%"></i></span><span class="reg">'+areaPt[ai][0]+'/'+areaPt[ai][1]+'점</span></div>'; }).join('');
+    var miss=[];
+    AREAS.forEach((a,ai)=>a.items.forEach((it,ii)=>{ var el=document.querySelector('#c'+ai+'_'+ii+' .met'); if(el&&!el.checked) miss.push({q:it.q,pt:it.pt,reg:it.reg}); }));
+    miss.sort((x,y)=>y.pt-x.pt);
+    $('#rMiss').innerHTML = miss.length? miss.slice(0,10).map(m=>'<li><b style="color:#c4321b">'+m.pt+'점</b> · '+m.q+' <span style="color:var(--muted)">('+m.reg+')</span></li>').join('') : '<li style="color:#1d8f5b">모든 항목을 충족했어요! 🎉</li>';
+  }
+})();
+</script>
+</body>
+</html>
