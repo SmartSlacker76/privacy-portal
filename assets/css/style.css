@@ -1,38 +1,43 @@
 /* 레이아웃: 좌측 목차 레일 + 우측 레슨 본문(무대 → 해설 → 조문). 색은 보호 상태를 뜻한다: 평문=인주색, 암호문=청색 */
+@import url("https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css");
 :root {
-  --bg: #eef1f4;
+  --bg: #f6f7f9;
   --surface: #ffffff;
-  --surface-2: #f6f8fa;
-  --ink: #14202b;
-  --muted: #586874;
-  --line: #d4dce3;
-  --plain: #c4321b;      /* 평문·노출 */
-  --plain-soft: #fbe9e5;
-  --cipher: #1d5bc0;     /* 암호화·보호 */
-  --cipher-soft: #e5eefc;
-  --ok: #1b7a4e;
-  --ok-soft: #e1f3ea;
+  --surface-2: #f2f4f6;
+  --ink: #191f28;
+  --muted: #5d6876;
+  --line: #e2e6eb;
+  --plain: #d0402a;      /* 평문·노출 */
+  --plain-soft: #fdeeeb;
+  --cipher: #2a5bd7;     /* 암호화·보호 */
+  --cipher-soft: #ebf1fd;
+  --ok: #1a7f52;
+  --ok-soft: #e5f5ec;
   --warn: #a8640a;
-  --warn-soft: #fbf0dc;
-  --stage: #f3f6f9;
-  --grid: #dfe6ec;
-  --f-display: "Nanum Myeongjo", "Noto Serif KR", "Batang", serif;
-  --f-body: "IBM Plex Sans KR", "Apple SD Gothic Neo", "Malgun Gothic", system-ui, sans-serif;
+  --warn-soft: #fcf3e3;
+  --stage: #f6f8fa;
+  --grid: #e3e8ed;
+  --shadow-sm: 0 1px 2px rgba(16, 24, 40, .04);
+  --shadow-md: 0 8px 24px rgba(16, 24, 40, .08);
+  --f-display: "Pretendard Variable", Pretendard, -apple-system, "Apple SD Gothic Neo", "Malgun Gothic", system-ui, sans-serif;
+  --f-body: "Pretendard Variable", Pretendard, -apple-system, "Apple SD Gothic Neo", "Malgun Gothic", system-ui, sans-serif;
   --f-mono: "JetBrains Mono", "D2Coding", ui-monospace, "SFMono-Regular", Menlo, monospace;
   --rail: 288px;
 }
 @media (prefers-color-scheme: dark) {
   :root:not([data-theme="light"]) {
-    --bg: #0c131a; --surface: #131c25; --surface-2: #18232e; --ink: #e2e8ee; --muted: #8d9eab; --line: #263441;
-    --plain: #ff6a4d; --plain-soft: #3a1b15; --cipher: #6ea6ff; --cipher-soft: #15263d;
-    --ok: #4cc38a; --ok-soft: #12301f; --warn: #e7a443; --warn-soft: #33260f; --stage: #0f1820; --grid: #1c2833;
+    --bg: #0f1216; --surface: #171b21; --surface-2: #1e232a; --ink: #e6e9ed; --muted: #949eab; --line: #2a3038;
+    --plain: #ff7a61; --plain-soft: #3a1d17; --cipher: #7aa5ff; --cipher-soft: #1a2640;
+    --ok: #4cc38a; --ok-soft: #12301f; --warn: #e7a443; --warn-soft: #33260f; --stage: #13171c; --grid: #232a32;
+    --shadow-sm: 0 1px 2px rgba(0, 0, 0, .3); --shadow-md: 0 8px 24px rgba(0, 0, 0, .35);
     color-scheme: dark;
   }
 }
 :root[data-theme="dark"] {
-  --bg: #0c131a; --surface: #131c25; --surface-2: #18232e; --ink: #e2e8ee; --muted: #8d9eab; --line: #263441;
-  --plain: #ff6a4d; --plain-soft: #3a1b15; --cipher: #6ea6ff; --cipher-soft: #15263d;
-  --ok: #4cc38a; --ok-soft: #12301f; --warn: #e7a443; --warn-soft: #33260f; --stage: #0f1820; --grid: #1c2833;
+  --bg: #0f1216; --surface: #171b21; --surface-2: #1e232a; --ink: #e6e9ed; --muted: #949eab; --line: #2a3038;
+  --plain: #ff7a61; --plain-soft: #3a1d17; --cipher: #7aa5ff; --cipher-soft: #1a2640;
+  --ok: #4cc38a; --ok-soft: #12301f; --warn: #e7a443; --warn-soft: #33260f; --stage: #13171c; --grid: #232a32;
+  --shadow-sm: 0 1px 2px rgba(0, 0, 0, .3); --shadow-md: 0 8px 24px rgba(0, 0, 0, .35);
   color-scheme: dark;
 }
 
@@ -41,7 +46,9 @@ html { -webkit-text-size-adjust: 100%; }
 body {
   margin: 0; background: var(--bg); color: var(--ink);
   font: 15px/1.7 var(--f-body); word-break: keep-all; overflow-wrap: anywhere;
+  -webkit-font-smoothing: antialiased; letter-spacing: -.005em;
 }
+h1, h2 { letter-spacing: -.02em; }
 a { color: var(--cipher); }
 button, input, select, textarea { font: inherit; color: inherit; }
 :focus-visible { outline: 2px solid var(--cipher); outline-offset: 2px; }
@@ -106,14 +113,14 @@ main {
 .chip.ok { color: var(--ok); background: var(--ok-soft); border-color: transparent; }
 .chip.warn { color: var(--warn); background: var(--warn-soft); border-color: transparent; }
 
-.panel { background: var(--surface); border: 1px solid var(--line); border-radius: 12px; padding: 20px; min-width: 0; }
+.panel { background: var(--surface); border: 1px solid var(--line); border-radius: 14px; padding: 22px; min-width: 0; box-shadow: var(--shadow-sm); }
 .panel > h2:first-child, .panel > h3:first-child { margin-top: 0; }
 .cols { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 300px), 1fr)); gap: 16px; }
 .cols > * { min-width: 0; }
 .cols > div { align-content: start; }
 
 /* 조문 상자 */
-.statute { border-left: 3px solid var(--ink); background: var(--surface); padding: 14px 18px; border-radius: 0 10px 10px 0; font-family: var(--f-display); font-size: 14.5px; line-height: 1.85; }
+.statute { border-left: 3px solid var(--cipher); background: var(--surface); padding: 14px 18px; border-radius: 0 10px 10px 0; font-family: var(--f-display); font-size: 14.5px; line-height: 1.85; }
 .statute b { font-weight: 800; }
 .statute .src { display: block; font-family: var(--f-body); font-size: 11.5px; color: var(--muted); margin-top: 6px; }
 
@@ -131,10 +138,12 @@ main {
 textarea.input { font-family: var(--f-mono); font-size: 13px; resize: vertical; }
 .row { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
 .btn {
-  border: 1px solid var(--line); background: var(--surface); padding: 7px 14px; border-radius: 8px; cursor: pointer; font-weight: 600; font-size: 13.5px;
+  border: 1px solid var(--line); background: var(--surface); padding: 8px 15px; border-radius: 10px; cursor: pointer; font-weight: 600; font-size: 13.5px;
+  transition: border-color .15s, background-color .15s, filter .15s;
 }
 .btn:hover { border-color: var(--muted); }
 .btn.primary { background: var(--cipher); border-color: var(--cipher); color: #fff; }
+.btn.primary:hover { filter: brightness(1.07); }
 .btn.danger { background: var(--plain); border-color: var(--plain); color: #fff; }
 .btn[disabled] { opacity: .45; cursor: not-allowed; }
 .seg { display: inline-flex; border: 1px solid var(--line); border-radius: 9px; overflow: hidden; background: var(--surface-2); flex-wrap: wrap; }
