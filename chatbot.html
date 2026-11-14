@@ -26,6 +26,20 @@
   .a-chk { margin-top: 10px; display: flex; flex-wrap: wrap; gap: 6px; }
   .a-chk a { font-size: 11.5px; font-weight: 600; text-decoration: none; color: var(--cipher); border: 1px solid var(--line); border-radius: 7px; padding: 3px 9px; }
   .a-chk a:hover { border-color: var(--cipher); background: var(--cipher-soft); }
+  /* 질의응답 모음집 */
+  .qa { border: 1px solid var(--line); border-radius: 9px; padding: 11px 13px; background: var(--surface); }
+  .qa h4 { font-family: var(--f-display); font-size: 13px; margin: 0 0 7px; }
+  .qa-src { display: block; font-family: var(--f-body, inherit); font-size: 10.5px; font-weight: 400; color: var(--muted); margin-top: 2px; }
+  details.qa-i { border-top: 1px dashed var(--line); padding-top: 7px; margin-top: 7px; }
+  details.qa-i:first-of-type { border-top: 0; padding-top: 0; margin-top: 0; }
+  details.qa-i > summary { cursor: pointer; font-size: 12.5px; line-height: 1.65; list-style: none; }
+  details.qa-i > summary::-webkit-details-marker { display: none; }
+  details.qa-i > summary::before { content: '▸ '; color: var(--cipher); }
+  details.qa-i[open] > summary::before { content: '▾ '; }
+  details.qa-i > summary b { color: var(--cipher); }
+  .qa-a { font-size: 12.5px; line-height: 1.75; margin-top: 6px; padding-left: 14px; }
+  .qa-d { font-size: 12px; line-height: 1.7; color: var(--muted); margin-top: 5px; padding-left: 14px; }
+  .qa-l { font-size: 11px; color: var(--muted); margin-top: 5px; padding-left: 14px; }
   /* 첨부 가이드 인용 */
   .gd { background: var(--surface-2); border: 1px solid var(--line); border-left: 3px solid var(--ok, #0d7a6e); border-radius: 9px; padding: 11px 13px; }
   .gd h4 { font-family: var(--f-display); font-size: 13px; margin: 0 0 4px; }
@@ -100,7 +114,7 @@
   <div class="sp-top"><a class="back" href="index.html">← 혼디지킴이 포털</a><span class="brand">뭐든 물어봅서 고팡 도우미</span></div>
   <div class="sp-head">
     <h1>뭐든 물어봅서 고팡 도우미</h1>
-    <p class="lead">공공기관 개인정보 보호 업무를 도와드려요. <b>용어·조문</b>을 입력하면 정의부터 판례·체크리스트까지 <b>표준 8단계</b>로, <b>사업 적법성</b>을 물으면 <b>실무 검토 의견</b>을, <b>퀴즈</b>를 요청하면 <b>직원 교육용 문제</b>를 만들어요. <b>규칙 기반(토큰 0)</b>이라 입력은 서버로 전송되지 않아요.</p>
+    <p class="lead">공공기관 개인정보 보호 업무를 도와드려요. <b>용어·조문</b>을 입력하면 정의부터 판례·체크리스트까지 <b>표준 8단계</b>로, <b>사업 적법성</b>을 물으면 <b>실무 검토 의견</b>을, <b>퀴즈</b>를 요청하면 <b>직원 교육용 문제</b>를 만들어요. 기관에 등록된 <b>안내서·지침</b>과 <b>질의응답 모음집 99문답</b>을 함께 인용해요. <b>규칙 기반(토큰 0)</b>이라 입력은 서버로 전송되지 않아요.</p>
   </div>
 
   <p class="asof-bar" id="asofBar"></p>
@@ -116,9 +130,10 @@
 <script src="assets/config.js"></script>
 <script src="assets/js/law.js"></script>
 <script src="assets/data/chatbot-kb.js"></script>
+<script src="assets/data/chatbot-qna.js"></script>
 <script>
 (function () {
-  var KB = window.CHATKB || [], A = window.CHATKB_ASOF || {};
+  var KB = window.CHATKB || [], A = window.CHATKB_ASOF || {}, QNA = window.CHATQNA || [];
   var chat = document.getElementById('chat');
   function esc(s) { return String(s == null ? '' : s).replace(/[&<>]/g, function (c) { return ({ '&': '&amp;', '<': '&lt;', '>': '&gt;' })[c]; }); }
 
@@ -165,7 +180,7 @@
       return b + '</div>';
     }).join('<hr class="a-hr">');
     if (e.tableHtml) h += e.tableHtml;
-    h += guideBlock(e);
+    h += guideBlock(e) + qnaBlock(e);
     return h + tailer(e);
   }
 
@@ -220,6 +235,20 @@
         '</b> 등 등록된 안내서를 함께 참조했어요.</p>';
     }
     return h + tailer(e);
+  }
+
+  /* 개인정보보호위원회 질의응답 모음집(2025.12.) 연계 */
+  function qnaBlock(e) {
+    var list = QNA.filter(function (x) { return (x.t || []).indexOf(e.id) >= 0; }).slice(0, 5);
+    if (!list.length) return '';
+    return '<hr class="a-hr"><div class="qa"><h4>📋 관련 질의응답 <span class="qa-src">개인정보보호위원회 「개인정보 질의응답 모음집」(2025. 12.)</span></h4>' +
+      list.map(function (x) {
+        return '<details class="qa-i"><summary><b>Q' + x.no + '.</b> ' + esc(x.q) + '</summary>' +
+          '<div class="qa-a"><b>A.</b> ' + esc(x.a) + '</div>' +
+          (x.d && x.d.length ? '<div class="qa-d">' + x.d.slice(0, 3).map(function (d) { return esc(d); }).join('<br>') + '</div>' : '') +
+          (x.law && x.law.length ? '<div class="qa-l">근거: ' + esc(x.law.join(', ')) + '</div>' : '') +
+          '</details>';
+      }).join('') + '</div>';
   }
 
   function tailer(e) {
@@ -297,7 +326,8 @@
     '</b>, 시행령 <b>시행 ' + esc(A.decree || '—') + '</b>. 근거 조문을 누르면 <b>최신 현행본</b>으로 연결돼요. ' +
     '자치법규는 <b>자치법규정보시스템(elis.go.kr)</b>에서 확인하세요.' +
     '<br>📎 기관에 등록된 <b>개인정보 영향평가 수행안내서·안전성 확보조치 기준 안내서·처리방침 작성지침·공공시스템 안전조치</b> 등 ' +
-    '<b>안내서 ' + (KB.reduce(function (a, t) { return a + ((t.guide || []).length ? 1 : 0); }, 0)) + '개 주제</b>의 기준을 함께 인용해요 — 법령과 가이드가 다르면 <b>가이드 기준을 우선</b> 적용합니다.';
+    '<b>안내서 인용 ' + KB.reduce(function (a, t) { return a + (t.guide || []).length; }, 0) + '건</b>과 ' +
+    '<b>개인정보보호위원회 「개인정보 질의응답 모음집」(2025.12.) ' + QNA.length + '문답</b>을 함께 제공해요 — 법령과 가이드가 다르면 <b>가이드 기준을 우선</b> 적용합니다.';
 
   add('bot', '<p class="a-intro">안녕! 난 <b>요망진 간세다리</b>예요. 공공기관 개인정보 보호 업무를 도와드려요.</p>' +
     '<div class="how3"><div><b>① 용어·조문을 입력하면</b><span>정의·근거부터 판례·체크리스트까지 <b>표준 8단계</b>로 설명해요.<br>예) <i>민감정보</i>, <i>제18조 목적 외 이용</i></span></div>' +
