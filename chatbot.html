@@ -26,6 +26,14 @@
   .a-chk { margin-top: 10px; display: flex; flex-wrap: wrap; gap: 6px; }
   .a-chk a { font-size: 11.5px; font-weight: 600; text-decoration: none; color: var(--cipher); border: 1px solid var(--line); border-radius: 7px; padding: 3px 9px; }
   .a-chk a:hover { border-color: var(--cipher); background: var(--cipher-soft); }
+  /* 첨부 가이드 인용 */
+  .gd { background: var(--surface-2); border: 1px solid var(--line); border-left: 3px solid var(--ok, #0d7a6e); border-radius: 9px; padding: 11px 13px; }
+  .gd h4 { font-family: var(--f-display); font-size: 13px; margin: 0 0 4px; }
+  .gd-n { font-size: 11.5px; color: var(--muted); margin: 0 0 8px; line-height: 1.6; }
+  .gd-i { border-top: 1px dashed var(--line); padding-top: 7px; margin-top: 7px; }
+  .gd-i:first-of-type { border-top: 0; padding-top: 0; margin-top: 0; }
+  .gd-s { font-size: 11px; font-weight: 700; color: var(--ok, #0d7a6e); margin-bottom: 2px; }
+  .gd-t { font-size: 12.5px; line-height: 1.7; }
   /* 공통 출력 구조: 2줄 요약 + 토글 */
   .sum2 { background: var(--cipher-soft); border-left: 3px solid var(--cipher); border-radius: 8px; padding: 10px 13px; margin: 0 0 9px; }
   .sum2 p { margin: 0; font-size: 13.5px; line-height: 1.72; }
@@ -157,7 +165,18 @@
       return b + '</div>';
     }).join('<hr class="a-hr">');
     if (e.tableHtml) h += e.tableHtml;
+    h += guideBlock(e);
     return h + tailer(e);
+  }
+
+  /* 첨부 가이드(지식 파일) 인용 — 지식베이스 최우선 참조 원칙 */
+  function guideBlock(e) {
+    if (!e.guide || !e.guide.length) return '';
+    return '<hr class="a-hr"><div class="gd"><h4>📎 첨부 가이드 기준</h4>' +
+      '<p class="gd-n">아래는 기관에 등록된 <b>안내서·지침 파일</b>에서 직접 인용한 기준이에요. 법령과 함께 <b>우선 적용</b>해 주세요.</p>' +
+      e.guide.map(function (g) {
+        return '<div class="gd-i"><div class="gd-s">' + esc(g.s) + '</div><div class="gd-t">' + g.t + '</div></div>';
+      }).join('') + '</div>';
   }
 
   /* ── 모드 2: 실무 검토 심화 ─────────────────────────────── */
@@ -171,6 +190,9 @@
       '<p class="rv-q">검토 요청: <b>' + esc(q.length > 120 ? q.slice(0, 120) + '…' : q) + '</b></p>' +
       '<dl class="rv-dl">' +
       '<dt>검토 결론</dt><dd>아래 <b>3가지 조건</b>을 모두 충족하면 <b class="ok">적법</b>, 하나라도 비면 <b class="cond">조건부 가능</b>, 법령 근거도 별도 동의도 없으면 <b class="bad">부적법(위반 소지 높음)</b>이에요. 규칙 기반 도구라 <b>최종 판정은 담당자가</b> 아래 기준으로 확정해 주세요.</dd>' +
+      (e.guide && e.guide.length
+        ? '<dt>첨부 가이드 대조</dt><dd>' + e.guide.slice(0, 2).map(function (g) { return '· <b>' + esc(g.s) + '</b> — ' + g.t; }).join('<br>') + '</dd>'
+        : '') +
       '<dt>법적 근거 대조</dt><dd>' + (e.sections.filter(function (x) { return x.n === 3; })[0] || { items: [] }).items.slice(0, 3).map(function (i) { return '· ' + i; }).join('<br>') + '</dd>' +
       '<dt>예상 리스크</dt><dd>' + (e.sections.filter(function (x) { return x.n === 5; })[0] || { items: [] }).items.slice(0, 3).map(function (i) { return '· ' + i; }).join('<br>') + '</dd>' +
       '<dt>실무 대안·보완</dt><dd>· <b>최소수집</b>으로 항목을 줄일 수 있는지 먼저 보세요(대체 가능한 항목이 있으면 그 항목은 받지 않아요).<br>' +
@@ -192,6 +214,11 @@
         '<div class="qz-why"><b>[상세 해설]</b> ' + x.why + '</div>' +
         '<div class="qz-tip">💡 <b>실무 핵심 팁</b> — ' + x.tip + '</div></div></div>';
     }).join('');
+    if (e.guide && e.guide.length) {
+      h += '<p class="gd-n" style="margin-top:9px">📎 해설의 실무 기준은 <b>' +
+        e.guide.map(function (g) { return esc(g.s); }).filter(function (v, i, a) { return a.indexOf(v) === i; }).slice(0, 3).join('</b>, <b>') +
+        '</b> 등 등록된 안내서를 함께 참조했어요.</p>';
+    }
     return h + tailer(e);
   }
 
@@ -268,7 +295,9 @@
   document.getElementById('asofBar').innerHTML =
     '📚 답변은 <b>법제처 국가법령정보센터 현행본</b> 기준이에요 — 개인정보 보호법 <b>시행 ' + esc(A.law || '—') +
     '</b>, 시행령 <b>시행 ' + esc(A.decree || '—') + '</b>. 근거 조문을 누르면 <b>최신 현행본</b>으로 연결돼요. ' +
-    '자치법규는 <b>자치법규정보시스템(elis.go.kr)</b>에서 확인하세요.';
+    '자치법규는 <b>자치법규정보시스템(elis.go.kr)</b>에서 확인하세요.' +
+    '<br>📎 기관에 등록된 <b>개인정보 영향평가 수행안내서·안전성 확보조치 기준 안내서·처리방침 작성지침·공공시스템 안전조치</b> 등 ' +
+    '<b>안내서 ' + (KB.reduce(function (a, t) { return a + ((t.guide || []).length ? 1 : 0); }, 0)) + '개 주제</b>의 기준을 함께 인용해요 — 법령과 가이드가 다르면 <b>가이드 기준을 우선</b> 적용합니다.';
 
   add('bot', '<p class="a-intro">안녕! 난 <b>요망진 간세다리</b>예요. 공공기관 개인정보 보호 업무를 도와드려요.</p>' +
     '<div class="how3"><div><b>① 용어·조문을 입력하면</b><span>정의·근거부터 판례·체크리스트까지 <b>표준 8단계</b>로 설명해요.<br>예) <i>민감정보</i>, <i>제18조 목적 외 이용</i></span></div>' +
