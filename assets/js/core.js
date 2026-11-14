@@ -180,9 +180,11 @@
 
   /* ---------------- 테마 ---------------- */
   function applyTheme(t) {
-    if (t === 'light' || t === 'dark') document.documentElement.setAttribute('data-theme', t); else document.documentElement.removeAttribute('data-theme');
-    $$('.theme-row button').forEach(b => b.setAttribute('aria-pressed', b.dataset.theme === (t || 'system')));
-    store.set('theme', t || 'system');
+    // 실제 적용은 공용 theme.js가 담당합니다(기본값: 시스템 설정 따르기)
+    if (window.HondiTheme) window.HondiTheme.set(t || 'system');
+    const p = (window.HondiTheme ? window.HondiTheme.get() : (t || 'system'));
+    $$('.theme-row button').forEach(b => b.setAttribute('aria-pressed', b.dataset.theme === p));
+    store.set('theme', p);
   }
 
   document.addEventListener('DOMContentLoaded', () => {
