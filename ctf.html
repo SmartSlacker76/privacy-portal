@@ -98,15 +98,39 @@
   html[data-theme="dark"] .d-하{background:#14321f;color:#7ddc9b;border-color:#2e5c3e}
   html[data-theme="dark"] .d-중{background:#332710;color:#f0c98a;border-color:#5a4718}
   html[data-theme="dark"] .d-상{background:#3a1a18;color:#f0a39d;border-color:#5e2a26}
-  .q-desc { font-size: 15px; line-height: 1.75; font-weight: 600; }
+  .q-desc { font-size: 21px; line-height: 1.6; font-weight: 700; letter-spacing: -.2px;
+             margin: 4px 0 2px; padding: 14px 16px; border-radius: 12px;
+             background: var(--surface-2); border: 1px solid var(--line); border-left: 5px solid var(--cipher); }
+  .q-desc b { color: var(--cipher); font-size: inherit; display: inline; }
+  @media (max-width: 620px) { .q-desc { font-size: 18px; padding: 12px 13px; } }
 
-  .alarm { display: flex; gap: 11px; align-items: flex-start; background: #fdecea; border: 1px solid #e6b3a8; border-left: 4px solid #c4321b;
-           border-radius: 11px; padding: 11px 13px; margin-top: 11px; animation: apulse 1.5s ease-out infinite; }
-  html[data-theme="dark"] .alarm { background: #2d1512; }
-  .alarm .i { font-size: 21px; animation: ashake .9s ease-in-out infinite; }
-  .alarm b { color: #c4321b; } .alarm .s { font-size: 12.5px; color: var(--muted); line-height: 1.7; }
-  @keyframes apulse { 0%{box-shadow:0 0 0 0 rgba(196,50,27,.35)} 70%{box-shadow:0 0 0 11px rgba(196,50,27,0)} 100%{box-shadow:0 0 0 0 rgba(196,50,27,0)} }
-  @keyframes ashake { 0%,100%{transform:rotate(0)} 25%{transform:rotate(-12deg)} 75%{transform:rotate(12deg)} }
+  /* ── 간세다리 말풍선 ──────────────────────── */
+  .talk { display: flex; gap: 12px; align-items: flex-start; margin-top: 13px; }
+  .talk .ava { flex: none; width: 56px; height: 56px; border-radius: 50%; overflow: hidden;
+               border: 2px solid var(--line); background: var(--surface-2); animation: nod 3.4s ease-in-out infinite; }
+  .talk .ava svg { display: block; width: 100%; height: 100%; }
+  @keyframes nod { 0%,100%{transform:translateY(0) rotate(0)} 42%{transform:translateY(-3px) rotate(-5deg)} 70%{transform:translateY(0) rotate(4deg)} }
+  .talk .bubs { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 8px; }
+  .bub { position: relative; border-radius: 13px; padding: 11px 14px; font-size: 13.5px; line-height: 1.75;
+         border: 1px solid var(--line); background: var(--surface-2); animation: say .38s ease both; }
+  .bub::before { content: ""; position: absolute; left: -7px; top: 15px; width: 12px; height: 12px;
+                 background: inherit; border-left: 1px solid var(--line); border-bottom: 1px solid var(--line);
+                 transform: rotate(45deg); border-radius: 0 0 0 3px; }
+  .bub:nth-child(2) { animation-delay: .16s; }
+  .bub:nth-child(3) { animation-delay: .3s; }
+  @keyframes say { from { opacity: 0; transform: translateX(-10px) scale(.97); } to { opacity: 1; transform: none; } }
+  .bub b, .bub strong { display: inline; font-size: inherit; line-height: inherit; }
+  .bub .who { display: block; font-size: 11px; font-weight: 700; color: var(--muted); margin-bottom: 3px; }
+  .bub.mission { background: #fff6ea; border-color: #e9c89f; }
+  .bub.mission::before { border-color: #e9c89f; }
+  .bub.mission b { color: #c9631a; }
+  .bub.howto { background: var(--cipher-soft); border-color: var(--line); }
+  html[data-theme="dark"] .bub.mission { background: #33270f; }
+  .bub .tick { display: inline-flex; align-items: center; gap: 5px; font-family: var(--f-mono, monospace);
+               font-size: 11.5px; font-weight: 700; color: #c4321b; background: #fdecea; border: 1px solid #e6b3a8;
+               border-radius: 999px; padding: 2px 9px; margin-left: 6px; animation: tick 1.2s steps(2) infinite; }
+  html[data-theme="dark"] .bub .tick { background: #3a1a18; }
+  @media (max-width: 560px) { .talk .ava { width: 44px; height: 44px; } }
 
   .bh { display: grid; grid-template-columns: repeat(4, 1fr); gap: 1px; background: var(--line); border: 1px solid var(--line); border-radius: 10px; overflow: hidden; margin-top: 11px; }
   .bh div { background: var(--surface-2); padding: 8px 11px; font-size: 12px; }
@@ -129,7 +153,7 @@
   .tray.filled { border-style: solid; border-color: var(--cipher); }
   .tray .ph { color: var(--muted); font-size: 12.5px; }
   .pick { display: inline-flex; align-items: center; gap: 7px; background: var(--cipher); color: #fff; border: none; border-radius: 9px;
-          padding: 8px 12px; font: inherit; font-size: 13px; font-weight: 600; cursor: pointer; animation: pop .22s ease; }
+          padding: 9px 13px; font: inherit; font-size: 14.5px; font-weight: 600; cursor: pointer; animation: pop .22s ease; }
   @keyframes pop { from { transform: scale(.8); opacity: 0; } to { transform: none; opacity: 1; } }
   .pick .ord { background: rgba(255,255,255,.25); border-radius: 50%; width: 18px; height: 18px; font-size: 11px; display: inline-flex; align-items: center; justify-content: center; }
   .pick .x { opacity: .75; font-size: 14px; }
@@ -137,12 +161,13 @@
   /* 블록 — 카드 하단 */
   .blocks { display: grid; grid-template-columns: repeat(2, 1fr); gap: 9px; margin-top: 10px; }
   @media (max-width: 620px) { .blocks { grid-template-columns: 1fr; } }
-  .blk { position: relative; text-align: left; font: inherit; font-size: 13.5px; line-height: 1.6; cursor: pointer;
+  .blk { position: relative; text-align: left; font: inherit; font-size: 15px; line-height: 1.6; cursor: pointer;
          background: var(--surface); color: var(--ink); border: 1.5px solid var(--line); border-radius: 11px; padding: 12px 13px 12px 40px;
          transition: transform .12s, border-color .15s, background .15s; }
   .blk:hover { transform: translateY(-2px); border-color: var(--cipher); }
   .blk .n { position: absolute; left: 11px; top: 11px; width: 21px; height: 21px; border-radius: 50%; background: var(--surface-2);
             border: 1px solid var(--line); font-size: 11.5px; font-weight: 700; color: var(--muted); display: flex; align-items: center; justify-content: center; }
+  .blk b { font-size: inherit; display: inline; }
   .blk.sel { background: var(--cipher-soft); border-color: var(--cipher); }
   .blk.sel .n { background: var(--cipher); color: #fff; border-color: var(--cipher); }
   .blk:disabled { opacity: .55; cursor: default; transform: none; }
@@ -181,7 +206,9 @@
   .blk2.red { border-left-color: #c4321b; } .blk2.red h3 { color: #c4321b; }
   .blk2.org { border-left-color: #c9631a; } .blk2.org h3 { color: #c9631a; }
   .blk2 h3 { font-size: 13.5px; margin: 0 0 5px; color: var(--cipher); }
-  .blk2 p { font-size: 13px; line-height: 1.8; margin: 0; }
+  .blk2 p { font-size: 13.5px; line-height: 1.85; margin: 0; }
+  .blk2 b { font-size: inherit; display: inline; }
+  .reg b, .fld b, .hintout b, .verdict b { font-size: inherit; display: inline; }
   .ansline { font-size: 13.5px; line-height: 2.1; }
   .ansline .tagv { display: inline-block; background: var(--cipher); color: #fff; border-radius: 7px; padding: 3px 10px; font-weight: 700; margin: 2px 4px 2px 0; font-size: 12.5px; }
 
@@ -402,13 +429,19 @@
           '<span class="chip">Part ' + esc(q.part) + ' · ' + esc(q.area) + '. ' + esc(q.areaName) + '</span>' +
           '<span class="chip">' + esc(q.icon) + ' ' + esc(q.zone) + '</span></div>' +
         '<div class="q-desc">' + q.desc + '</div>' +
-        '<div class="alarm"><span class="i">' + (isSeq ? '🧩' : '🎯') + '</span><div>' +
-          '<b>' + (isSeq ? '순서대로 조립하세요' : '맞는 것 ' + q.ansCount + '개를 고르세요') + ' · 3분 · 기회 5번</b>' +
-          '<div class="s">' + (isSeq
-            ? '맨 아래 블록을 <b>누른 차례</b>가 그대로 답이 돼요. 4개 중 <b>' + q.ansCount + '개</b>만 쓰여요.'
-            : '맨 아래 블록 중 <b>' + q.ansCount + '개</b>를 고르세요. 순서는 상관없어요.') +
-          ' 시간이 끝나거나 5번 틀리면 정답과 해설이 열려요.</div></div></div>' +
-        '<div class="reg" style="margin-top:11px">🔎 <b>이렇게 보세요</b> — ' + q.howto + '</div>' +
+        '<div class="talk">' +
+          '<div class="ava">' + GANSE + '</div>' +
+          '<div class="bubs">' +
+            '<div class="bub mission"><span class="who">🧢 간세다리</span>' +
+              (isSeq
+                ? '이번엔 <b>순서 맞추기</b>예요! 맨 아래 블록을 <b>순서대로</b> 눌러 주세요. 네 개 중 <b>' + q.ansCount + '개</b>만 쓰여요.'
+                : '맨 아래 블록 중에서 맞는 것 <b>' + q.ansCount + '개</b>만 골라 주세요. 순서는 상관없어요!') +
+              '<span class="tick">⏱ 3분 · 기회 5번</span>' +
+              '<br><span style="color:var(--muted);font-size:12.5px">시간이 끝나거나 5번 틀리면 제가 정답이랑 해설을 보여 드릴게요.</span>' +
+            '</div>' +
+            '<div class="bub howto"><span class="who">🔎 이렇게 보면 쉬워요</span>' + q.howto + '</div>' +
+          '</div>' +
+        '</div>' +
         '<div class="toolbar"><button class="tbtn" id="tFields">🧱 판단 기준 4가지</button>' +
           '<button class="tbtn" id="tLaw">⚖ 관련 법령·지침</button></div>' +
         '<div class="panel" id="pFields"><div class="fields">' + fieldsHtml + '</div></div>' +
