@@ -100,3 +100,76 @@ body { font-family:var(--g-sans); }
   .g-strip, .g-head, .g-crumb, .g-foot, .g-skip { display:none !important; }
   body { background:#fff !important; }
 }
+
+/* ───────── 메인(홈) ───────── */
+.h-visual { background:linear-gradient(104deg,var(--g-pri-l) 0%, var(--g-bg) 72%); border-bottom:1px solid var(--g-line-2); }
+html[data-theme="dark"] .h-visual { background:linear-gradient(104deg,#18243C 0%, var(--g-bg-2) 72%); }
+.h-visual .in { max-width:var(--g-max); margin:0 auto; padding:44px 22px 46px; display:flex; align-items:center; gap:34px; }
+.h-visual .tx { flex:1 1 auto; min-width:0; }
+.h-visual .eyebrow { font-size:13px; color:var(--g-pri); font-weight:700; margin:0 0 10px; }
+.h-visual h1 { font-size:clamp(26px,4vw,40px); font-weight:800; letter-spacing:-.03em; line-height:1.25; margin:0; }
+.h-visual h1 em { font-style:normal; color:var(--g-pri); }
+.h-visual p.lead { font-size:15px; line-height:1.8; color:var(--g-ink-2); margin:14px 0 0; max-width:60ch; }
+.h-visual p.lead b { color:var(--g-ink); font-weight:700; }
+.h-cta { display:flex; gap:9px; flex-wrap:wrap; margin:22px 0 0; }
+.h-cta a { display:inline-flex; align-items:center; gap:7px; font-size:14.5px; font-weight:700; text-decoration:none;
+  border-radius:var(--g-r); padding:12px 20px; border:1px solid var(--g-line); background:var(--g-bg); color:var(--g-ink); }
+.h-cta a.pri { background:var(--g-pri); border-color:var(--g-pri); color:#fff; }
+.h-cta a.pri:hover { background:var(--g-pri-d); }
+.h-cta a:hover { border-color:var(--g-pri); color:var(--g-pri); }
+.h-cta a.pri:hover { color:#fff; }
+.h-visual .mascot { flex:0 0 auto; }
+.h-visual .mascot svg { width:148px; height:148px; display:block; }
+@media (max-width:860px){ .h-visual .in { flex-direction:column-reverse; align-items:flex-start; gap:18px; padding:30px 22px 34px; } .h-visual .mascot svg { width:92px; height:92px; } }
+
+.h-sec { padding:40px 0 0; }
+.h-sec > h2 { font-size:20px; font-weight:800; letter-spacing:-.02em; margin:0 0 6px; }
+.h-sec > p.d { font-size:13.5px; color:var(--g-mut); margin:0 0 18px; line-height:1.7; }
+
+/* 자주 찾는 서비스 */
+.h-quick { display:grid; grid-template-columns:repeat(6,minmax(0,1fr)); gap:10px; }
+@media (max-width:900px){ .h-quick { grid-template-columns:repeat(3,minmax(0,1fr)); } }
+@media (max-width:520px){ .h-quick { grid-template-columns:repeat(2,minmax(0,1fr)); } }
+.h-quick a { display:flex; flex-direction:column; align-items:center; gap:9px; text-align:center; text-decoration:none;
+  background:var(--g-bg); border:1px solid var(--g-line); border-radius:var(--g-r-l); padding:19px 11px 16px; color:var(--g-ink);
+  box-shadow:var(--g-sh); transition:border-color .15s, transform .15s; }
+.h-quick a:hover { border-color:var(--g-pri); transform:translateY(-2px); }
+.h-quick .ic { width:46px; height:46px; border-radius:50%; background:var(--g-pri-l); display:grid; place-items:center; font-size:22px; }
+.h-quick b { font-size:13.5px; font-weight:700; line-height:1.4; }
+
+/* 분야별 카드 */
+.h-group { margin:0 0 26px; }
+.h-group > h3 { display:flex; align-items:center; gap:9px; font-size:15px; font-weight:800; margin:0 0 12px; }
+.h-group > h3 .no { width:22px; height:22px; border-radius:6px; background:var(--g-pri); color:#fff; font-size:12px; display:grid; place-items:center; }
+.h-group > h3 small { font-weight:600; color:var(--g-mut); font-size:12.5px; }
+.h-cards { display:grid; grid-template-columns:repeat(auto-fill,minmax(282px,1fr)); gap:12px; }
+.h-cards a { display:flex; flex-direction:column; text-decoration:none; color:inherit; background:var(--g-bg);
+  border:1px solid var(--g-line); border-radius:var(--g-r-l); padding:18px 19px 16px; box-shadow:var(--g-sh);
+  transition:border-color .15s, box-shadow .15s; }
+.h-cards a:hover { border-color:var(--g-pri); box-shadow:0 4px 14px rgba(29,78,216,.1); }
+.h-cards .t { display:flex; align-items:center; gap:9px; margin:0 0 10px; }
+.h-cards .t .ic { font-size:19px; }
+.h-cards .t .tag { margin-left:auto; font-size:11px; font-weight:700; color:var(--g-pri); background:var(--g-pri-l); border-radius:999px; padding:3px 9px; }
+.h-cards h4 { font-size:15.5px; font-weight:800; line-height:1.4; margin:0 0 8px; letter-spacing:-.01em; }
+.h-cards p { font-size:13px; line-height:1.72; color:var(--g-mut); margin:0 0 14px; flex:1; }
+.h-cards p b { color:var(--g-ink-2); font-weight:600; }
+.h-cards .go { font-size:13px; font-weight:700; color:var(--g-pri); }
+
+/* 기준 자료 / 관련 기관 */
+.h-two { display:grid; grid-template-columns:minmax(0,1.25fr) minmax(0,1fr); gap:14px; }
+@media (max-width:860px){ .h-two { grid-template-columns:1fr; } }
+.h-box { background:var(--g-bg); border:1px solid var(--g-line); border-radius:var(--g-r-l); padding:19px 21px; box-shadow:var(--g-sh); }
+.h-box h3 { font-size:15px; font-weight:800; margin:0 0 13px; }
+.h-box ul { list-style:none; margin:0; padding:0; }
+.h-box li { display:flex; gap:10px; align-items:baseline; font-size:13px; line-height:1.75; padding:7px 0; border-top:1px solid var(--g-line-2); }
+.h-box li:first-child { border-top:0; padding-top:0; }
+.h-box li .dt { flex:0 0 auto; font-size:11.5px; font-weight:700; color:var(--g-pri); font-variant-numeric:tabular-nums; }
+.h-box li .nm { color:var(--g-ink-2); }
+.h-box li .nm small { display:block; color:var(--g-mut); font-size:11.5px; margin-top:2px; }
+.h-links { display:grid; grid-template-columns:1fr 1fr; gap:8px; }
+.h-links a { display:flex; align-items:center; gap:8px; font-size:13px; font-weight:600; text-decoration:none; color:var(--g-ink-2);
+  border:1px solid var(--g-line); border-radius:var(--g-r); padding:10px 12px; background:var(--g-bg-2); }
+.h-links a:hover { border-color:var(--g-pri); color:var(--g-pri); }
+.h-links a span.ex { margin-left:auto; font-size:11px; color:var(--g-mut); }
+.h-note { margin:14px 0 0; font-size:12.5px; line-height:1.8; color:var(--g-mut); background:var(--g-bg-3); border-radius:var(--g-r); padding:13px 15px; }
+.h-note b { color:var(--g-ink-2); }
