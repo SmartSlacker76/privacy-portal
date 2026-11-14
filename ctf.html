@@ -86,6 +86,30 @@
   .card.under { border-radius: 0 0 14px 14px; border-top: none; margin-top: 0; }
   .combo { font-size: 12px; font-weight: 700; color: #1d8f5b; }
 
+
+  /* ── 제공 데이터(터미널 뷰어) ─────────────── */
+  .term { background: #0f1720; border: 1px solid #223040; border-radius: 12px; overflow: hidden; margin-top: 4px; }
+  .term-h { display: flex; align-items: center; gap: 6px; padding: 8px 12px; background: #18232e; }
+  .tdot { width: 10px; height: 10px; border-radius: 50%; }
+  .tdot.r{background:#ff5f56}.tdot.y{background:#ffbd2e}.tdot.g{background:#27c93f}
+  .term-t { margin-left: 8px; font-family: var(--f-mono, monospace); font-size: 12px; color: #8fa3b3; }
+  .term-b { padding: 10px 12px; font-family: var(--f-mono, "JetBrains Mono", monospace); font-size: 12.5px;
+            line-height: 1.7; max-height: 320px; overflow: auto; }
+  .ln { padding: 4px 7px; border-radius: 6px; color: #b9c8d4; white-space: pre-wrap; word-break: break-all;
+        opacity: 0; transform: translateX(-6px); animation: logIn .34s ease forwards; }
+  .ln.bad { background: rgba(196,50,27,.18); color: #ff9b8c; }
+  .ln b { color: #ffd479; font-size: inherit; display: inline; }
+  .ln.bad b { color: #ffb3a8; }
+  .ln .alert { color: #ff5f56; font-weight: 700; animation: blink 1s steps(2) infinite; }
+  @keyframes logIn { to { opacity: 1; transform: none; } }
+  @keyframes blink { 50% { opacity: .3; } }
+  /* 관리대장 표 */
+  .ltab { width: 100%; border-collapse: collapse; font-size: 12.5px; margin-top: 6px; }
+  .ltab th, .ltab td { border: 1px solid var(--line); padding: 7px 9px; text-align: left; vertical-align: top; line-height: 1.65; }
+  .ltab th { background: var(--surface-2); color: var(--muted); font-weight: 700; width: 128px; }
+  .ltab b { font-size: inherit; display: inline; }
+  @media (max-width: 560px) { .ltab th { width: 96px; } }
+
   /* ── 카드 ─────────────────────────────────── */
   .card { background: var(--surface); border: 1px solid var(--line); border-radius: 14px; padding: 15px 17px; margin: 13px 0; }
   .card h2 { font-size: 15px; margin: 0 0 9px; color: var(--cipher); font-family: var(--f-display); }
@@ -226,6 +250,72 @@
   .lg.esdone { background: #e8f6ee; border-color: #9cd3ae; } html[data-theme="dark"] .lg.esdone { background: #14321f; border-color: #2e5c3e; }
   .lg b { display: block; font-size: 12px; } .lg span { color: var(--muted); }
   .srcs { margin-top: 20px; font-size: 11.5px; color: var(--muted); line-height: 1.85; } .srcs b { color: var(--ink); }
+
+  /* ── 가독성 / 다크모드 대비 보정 ──────────── */
+  .es { --mut2: var(--muted); }
+  html[data-theme="dark"] .es { --mut2: #b3bdc9; }
+  @media (prefers-color-scheme: dark) { html:not([data-theme="light"]) .es { --mut2: #b3bdc9; } }
+
+  .b-pct, .mz-legend, .mz-head, .chip, .q-zone, .tray .ph, .srcs, .lg span,
+  .bub .who, .hb, .blk2 h3 + p, .fld { color: var(--mut2); }
+  .b-pct, .mz-legend, .srcs { font-size: 12px; }
+  .chip { font-size: 11.5px; }
+  .tray .ph { font-size: 13.5px; }
+  .hb { font-size: 13px; }
+  .fld { font-size: 13.5px; }
+  .reg { font-size: 13.5px; }
+  .bub { font-size: 14.5px; }
+  .bub .who { font-size: 12px; }
+  .ltab th, .ltab td { font-size: 13px; }
+  .term-b { font-size: 13px; }
+  .ln { color: #cdd9e6; }
+
+  /* 파란 배경 위 글자: 다크모드에서는 어두운 글자로 */
+  html[data-theme="dark"] .q-no,
+  html[data-theme="dark"] .acts button:not(.ghost),
+  html[data-theme="dark"] .wu-next button,
+  html[data-theme="dark"] .pick,
+  html[data-theme="dark"] .ansline .tagv,
+  html[data-theme="dark"] .fld i { color: #0f1216; font-weight: 700; }
+  @media (prefers-color-scheme: dark) {
+    html:not([data-theme="light"]) .q-no,
+    html:not([data-theme="light"]) .acts button:not(.ghost),
+    html:not([data-theme="light"]) .wu-next button,
+    html:not([data-theme="light"]) .pick,
+    html:not([data-theme="light"]) .ansline .tagv,
+    html:not([data-theme="light"]) .fld i { color: #0f1216; font-weight: 700; }
+  }
+  html[data-theme="dark"] .pick .ord { background: rgba(15,18,22,.3); }
+  html[data-theme="dark"] .acts button:disabled { opacity: .35; }
+
+  /* 장면 자막: 선과 겹치지 않게 + 가독성 */
+  .stage .sc { background: linear-gradient(90deg, rgba(8,12,22,.92), rgba(8,12,22,.72) 70%, transparent);
+               padding: 7px 12px 7px 10px; border-radius: 9px; color: #e6eefb; font-weight: 500;
+               text-shadow: 0 1px 2px rgba(0,0,0,.6); }
+  .stage .tag { color: #9cc2ff; border-color: rgba(156,194,255,.55); }
+
+  /* 말풍선 가독성 */
+  html[data-theme="dark"] .bub.mission { background: #3a2d12; border-color: #7a6228; }
+  html[data-theme="dark"] .bub.mission::before { border-color: #7a6228; }
+  html[data-theme="dark"] .bub.mission b { color: #ffc46b; }
+  html[data-theme="dark"] .bub.howto { background: #1c2a45; border-color: #35507e; }
+  html[data-theme="dark"] .bub.howto::before { border-color: #35507e; }
+  html[data-theme="dark"] .reg { background: #1c2a45; border-color: #35507e; }
+  html[data-theme="dark"] .hintout { background: #3a2d12; border-color: #7a6228; }
+  html[data-theme="dark"] .hintout b { color: #ffc46b; }
+  html[data-theme="dark"] .bub .tick { color: #ff9b8c; border-color: #7a3a33; }
+  html[data-theme="dark"] .verdict.bad { border-color: #7a3a33; } 
+  html[data-theme="dark"] .verdict.bad b { color: #ff9b8c; }
+  html[data-theme="dark"] .verdict.good { background: #16331f; border-color: #2f6b45; }
+  html[data-theme="dark"] .verdict.good b { color: #7ddc9b; }
+  html[data-theme="dark"] .blk2 h3 { color: #9cc2ff; }
+  html[data-theme="dark"] .blk2.red h3 { color: #ff9b8c; }
+  html[data-theme="dark"] .blk2.org h3 { color: #ffc46b; }
+  html[data-theme="dark"] .card h2 { color: #9cc2ff; }
+  html[data-theme="dark"] .blk.right { background: #16331f; border-color: #2f6b45; }
+  html[data-theme="dark"] .blk.wrong { background: #331815; border-color: #7a3a33; }
+  html[data-theme="dark"] .lg.esdone { background: #16331f; border-color: #2f6b45; }
+
   @media (prefers-reduced-motion: reduce) { * { animation: none !important; transition: none !important; } }
 </style>
 </head>
@@ -442,8 +532,19 @@
             '<div class="bub howto"><span class="who">🔎 이렇게 보면 쉬워요</span>' + q.howto + '</div>' +
           '</div>' +
         '</div>' +
-        '<div class="toolbar"><button class="tbtn" id="tFields">🧱 판단 기준 4가지</button>' +
-          '<button class="tbtn" id="tLaw">⚖ 관련 법령·지침</button></div>' +
+      '</div>' +
+
+      '<div class="card">' +
+        '<h2>📂 제공 데이터 — <code style="font-family:var(--f-mono,monospace);font-size:13px">' + esc(q.file) + '</code></h2>' +
+        '<div class="term">' +
+          '<div class="term-h"><span class="tdot r"></span><span class="tdot y"></span><span class="tdot g"></span>' +
+            '<span class="term-t">' + esc(q.file) + ' — ROOM ' + q.no + '</span></div>' +
+          '<div class="term-b" id="logbox"></div>' +
+        '</div>' +
+        '<div class="toolbar">' +
+          '<button class="tbtn" id="tFields">🧱 자료 구조 보기</button>' +
+          '<button class="tbtn" id="tLaw">⚖ 관련 법령·지침</button>' +
+          '<button class="tbtn" id="tReplay">↺ 다시 재생</button></div>' +
         '<div class="panel" id="pFields"><div class="fields">' + fieldsHtml + '</div></div>' +
         '<div class="panel" id="pLaw"><div class="reg">' + esc(q.law) + '</div></div>' +
       '</div>' +
@@ -502,6 +603,19 @@
     $('#clr').onclick = function () { if (finished) return; picked = []; repaint(); $('#vd').className = 'verdict'; };
     repaint();
 
+    function drawLog() {
+      var box = $('#logbox'); if (!box) return;
+      box.innerHTML = q.ev.map(function (l, i) {
+        var raw = l[0].replace(/<b>/g, '\u0001').replace(/<\/b>/g, '\u0002');
+        var h = esc(raw).replace(/\u0001/g, '<b>').replace(/\u0002/g, '</b>')
+                 .replace(/(🚨[^\n\]]*)/g, '<span class="alert">$1</span>');
+        return '<div class="ln' + (l[1] ? ' bad' : '') + '" style="animation-delay:' + (i * 0.11).toFixed(2) + 's">' +
+               (h || '&nbsp;') + '</div>';
+      }).join('');
+    }
+    drawLog();
+    if ($('#tReplay')) $('#tReplay').onclick = drawLog;
+
     function hook(btn, panel) { $(btn).onclick = function () { $(panel).classList.toggle('open'); $(btn).classList.toggle('on'); }; }
     hook('#tFields', '#pFields'); hook('#tLaw', '#pLaw');
 
@@ -558,7 +672,10 @@
         '<div class="blk2"><h3>💡 왜 이 답일까요</h3><p>' + q.expl + '</p></div>' +
         '<div class="blk2"><h3>⚖ 관련 법령 · 지침</h3><p>' + esc(q.law) + '</p></div>' +
         '<div class="blk2 red"><h3>🚨 위반하면 어떻게 되나요</h3><p>' + q.pen + '</p></div>' +
-        '<div class="blk2 org"><h3>📋 실무에서는 이렇게 하세요</h3><p>' + q.fix + '</p></div>' +
+        '<div class="blk2 org"><h3>📋 실무에서는 이렇게 하세요</h3><p>' + q.fix + '</p>' +
+          '<table class="ltab">' + q.ledger.map(function (r) {
+            return '<tr><th>' + esc(r[0]) + '</th><td>' + r[1] + '</td></tr>'; }).join('') + '</table></div>' +
+        '<div class="reg">🛡 <b>재발방지</b> — ' + q.prevent + '</div>' +
         (nn ? '<div class="acts"><button id="go">다음 방으로 🚪 (ROOM ' + nn + ')</button></div>' : '');
       $('#sol').classList.add('show');
       if ($('#go')) $('#go').onclick = function () { show(nn); window.scrollTo({ top: 0, behavior: 'smooth' }); };
