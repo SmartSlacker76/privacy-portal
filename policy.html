@@ -4,64 +4,176 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>개인정보 처리방침 자가 진단 · 혼디지킴이</title>
-<meta name="description" content="처리방침을 업로드하면 법정 기재사항을 자동 진단하고, 개선된 처리방침·계층별 처리방침·신구대조표를 만들어 다운로드합니다. 입력은 브라우저 안에서만 처리됩니다.">
+<meta name="description" content="기관명과 처리방침 주소만 넣으면 「개인정보 처리방침 작성지침」(2026.4.) 38개 항목을 자동 점검하고, 개선 보고서·개선된 처리방침(안)·신구대조표·계층별 처리방침을 만들어 드립니다. 모든 처리는 브라우저 안에서만 이뤄집니다.">
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700&display=swap">
 <link rel="stylesheet" href="assets/css/style.css">
 <style>
-  .tabrow { display: flex; gap: 6px; flex-wrap: wrap; margin: 4px 0 12px; }
-  .tabrow button { font-size: 13px; padding: 7px 13px; border: 1px solid var(--line); border-radius: 20px; background: var(--surface-2); cursor: pointer; color: var(--ink); }
-  .tabrow button.on { background: var(--cipher); border-color: var(--cipher); color: #fff; font-weight: 700; }
-  .drop { border: 2px dashed var(--line); border-radius: 12px; padding: 22px; text-align: center; color: var(--muted); font-size: 13.5px; cursor: pointer; }
-  .drop.hl { border-color: var(--cipher); background: var(--cipher-soft); }
-  .gen-out { border: 1px solid var(--line); border-radius: 10px; background: #fff; color: #14202b; padding: 18px 20px; font-size: 13px; line-height: 1.75; white-space: pre-wrap; max-height: 460px; overflow-y: auto; }
-  html[data-theme="dark"] .gen-out, :root[data-theme="dark"] .gen-out { background: #f7f9fb; }
-  table.cmp { width: 100%; border-collapse: collapse; font-size: 12px; }
-  table.cmp th, table.cmp td { border: 1px solid var(--line); padding: 6px 8px; text-align: left; vertical-align: top; }
-  table.cmp th { background: var(--surface-2); }
-  table.cmp .new { color: var(--cipher); }
-  .modal { position: fixed; inset: 0; background: rgba(0,0,0,.4); display: grid; place-items: center; z-index: 100; padding: 20px; }
-  .modal .box { background: var(--surface); border-radius: 14px; padding: 22px; max-width: 420px; }
-  .modal h3 { font-family: var(--f-display); margin: 0 0 8px; }
+:root{ --ok2:#1a7f5a; --ok2s:#e6f6ef; --warn2:#b07400; --warn2s:#fdf3e0; --bad2:#c0392b; --bad2s:#fdeceb; --ask2:#5b6b7c; --ask2s:#eef1f4; --mut2:#5a6672; }
+html[data-theme="dark"]{ --ok2:#52d6a4; --ok2s:#12302a; --warn2:#f0b95c; --warn2s:#33280f; --bad2:#ff8a7a; --bad2s:#3a1f1d; --ask2:#aab6c2; --ask2s:#222a33; --mut2:#b3bdc9; }
+@media (prefers-color-scheme:dark){ html:not([data-theme="light"]){ --ok2:#52d6a4; --ok2s:#12302a; --warn2:#f0b95c; --warn2s:#33280f; --bad2:#ff8a7a; --bad2s:#3a1f1d; --ask2:#aab6c2; --ask2s:#222a33; --mut2:#b3bdc9; } }
+
+.pc-wrap{max-width:1080px;margin:0 auto;padding:0 20px 80px}
+.pc-top{display:flex;align-items:center;gap:12px;padding:18px 0;font-size:13.5px}
+.pc-top a.back{color:var(--muted);text-decoration:none}
+.pc-top .brand{font-weight:700}
+.pc-hero{padding:14px 0 6px}
+.pc-hero h1{font-size:clamp(25px,4vw,34px);font-weight:800;margin:0 0 10px;line-height:1.25}
+.pc-hero p{font-size:14.5px;color:var(--mut2);line-height:1.75;margin:0;max-width:72ch}
+.pc-hero p b{color:var(--ink);font-weight:600}
+.pc-card{background:var(--surface);border:1px solid var(--line);border-radius:16px;padding:22px;margin:16px 0;box-shadow:var(--shadow-sm)}
+.pc-card h2{font-family:var(--f-display);font-size:17px;margin:0 0 4px}
+.pc-card h3{font-size:14.5px;margin:18px 0 8px}
+.fld{margin:14px 0}
+.fld label{display:block;font-size:13px;font-weight:700;margin:0 0 6px}
+.fld label i{font-style:normal;color:var(--bad2);margin-left:3px}
+.fld .hint{font-size:12.5px;color:var(--mut2);margin:6px 0 0;line-height:1.6}
+.fld input[type=text],.fld input[type=url],.fld select,.fld textarea{width:100%;font:inherit;font-size:14px;padding:11px 12px;border:1px solid var(--line);border-radius:9px;background:var(--surface-2);color:var(--ink)}
+.fld textarea{min-height:150px;font-size:13px;line-height:1.7;resize:vertical}
+details.alt{border:1px solid var(--line);border-radius:10px;padding:0;margin:14px 0;background:var(--surface-2)}
+details.alt>summary{cursor:pointer;padding:11px 14px;font-size:13.5px;font-weight:600;list-style:none}
+details.alt>summary::-webkit-details-marker{display:none}
+details.alt>summary::before{content:"▸ ";color:var(--cipher)}
+details.alt[open]>summary::before{content:"▾ "}
+details.alt .inner{padding:0 14px 14px}
+.drop{border:2px dashed var(--line);border-radius:11px;padding:20px;text-align:center;color:var(--mut2);font-size:13px;cursor:pointer;background:var(--surface)}
+.drop.hl{border-color:var(--cipher);background:var(--cipher-soft)}
+.pc-actions{display:flex;gap:9px;flex-wrap:wrap;margin-top:16px}
+.pc-note{font-size:12.5px;color:var(--mut2);line-height:1.7;margin:14px 0 0;padding:11px 13px;border-radius:9px;background:var(--surface-2);border:1px solid var(--line)}
+.pc-note b{color:var(--ink)}
+
+.tabs{display:flex;gap:6px;flex-wrap:wrap;margin:20px 0 14px}
+.tabs button{font:inherit;font-size:13px;padding:8px 14px;border:1px solid var(--line);border-radius:999px;background:var(--surface-2);color:var(--ink);cursor:pointer}
+.tabs button.on{background:var(--cipher);border-color:var(--cipher);color:#fff;font-weight:700}
+html[data-theme="dark"] .tabs button.on{color:#0b1118}
+
+.score{display:flex;align-items:center;gap:22px;flex-wrap:wrap}
+.ring{width:132px;height:132px;flex:0 0 auto}
+.score .big{font-size:40px;font-weight:800;line-height:1}
+.score .big span{font-size:17px;color:var(--mut2);font-weight:600}
+.score .grade{font-size:14px;font-weight:700;margin-top:6px}
+.score .ssub{font-size:13px;color:var(--mut2);margin-top:7px;line-height:1.7}
+
+.dist{display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:10px;margin:16px 0 0}
+.dist div{border:1px solid var(--line);border-radius:11px;padding:12px 13px;background:var(--surface-2)}
+.dist b{display:block;font-size:24px;font-weight:800;line-height:1.2}
+.dist small{font-size:12.5px;color:var(--mut2)}
+.dist.s-ok b{color:var(--ok2)} .dist.s-warn b{color:var(--warn2)}
+.d-ok b{color:var(--ok2)} .d-warn b{color:var(--warn2)} .d-bad b{color:var(--bad2)} .d-ask b{color:var(--ask2)}
+
+.bars{margin-top:8px}
+.bar{display:grid;grid-template-columns:150px 1fr 54px;gap:10px;align-items:center;margin:7px 0;font-size:13px}
+.bar .tr{height:9px;border-radius:999px;background:var(--surface-2);overflow:hidden}
+.bar .tr i{display:block;height:100%;border-radius:999px;background:var(--cipher)}
+.bar .v{text-align:right;font-family:var(--f-mono);font-size:12px;color:var(--mut2)}
+@media(max-width:620px){.bar{grid-template-columns:112px 1fr 46px;font-size:12px}}
+
+table.pt{width:100%;border-collapse:collapse;font-size:12.5px;margin:10px 0}
+table.pt th,table.pt td{border:1px solid var(--line);padding:7px 9px;text-align:left;vertical-align:top;line-height:1.65}
+table.pt th{background:var(--surface-2);font-weight:700;white-space:nowrap}
+table.pt td.c{text-align:center;white-space:nowrap}
+
+.st{display:inline-block;font-size:11.5px;font-weight:700;padding:3px 9px;border-radius:999px;white-space:nowrap}
+.st.ok{background:var(--ok2s);color:var(--ok2)} .st.warn{background:var(--warn2s);color:var(--warn2)}
+.st.bad{background:var(--bad2s);color:var(--bad2)} .st.ask{background:var(--ask2s);color:var(--ask2)}
+
+.fix{border:1px solid var(--line);border-left:4px solid var(--warn2);border-radius:11px;padding:16px 18px;margin:14px 0;background:var(--surface)}
+.fix.bad{border-left-color:var(--bad2)}
+.fix h4{font-size:15px;margin:0 0 4px;display:flex;align-items:center;gap:9px;flex-wrap:wrap}
+.fix .meta{font-size:12px;color:var(--mut2);margin:0 0 12px}
+.fix .blk{margin:11px 0}
+.fix .blk .k{font-size:12px;font-weight:700;color:var(--mut2);margin:0 0 5px;letter-spacing:.02em}
+.fix .blk .t{font-size:13.5px;line-height:1.8}
+.fix .miss{margin:0;padding-left:18px;font-size:13.5px;line-height:1.85}
+.fix pre.ex{white-space:pre-wrap;font:inherit;font-size:12.5px;line-height:1.85;background:var(--surface-2);border:1px solid var(--line);border-radius:9px;padding:13px 15px;margin:0;max-height:340px;overflow:auto}
+.fix .quote{font-size:12.5px;line-height:1.8;background:var(--surface-2);border:1px solid var(--line);border-radius:9px;padding:11px 13px;color:var(--mut2);max-height:150px;overflow:auto;white-space:pre-wrap}
+
+.doc{background:#fff;color:#16222e;border:1px solid var(--line);border-radius:12px;padding:26px 28px;font-size:13.5px;line-height:1.9;white-space:pre-wrap;max-height:620px;overflow:auto}
+html[data-theme="dark"] .doc{background:#f6f8fa}
+@media (prefers-color-scheme:dark){html:not([data-theme="light"]) .doc{background:#f6f8fa}}
+
+.lab{display:flex;flex-wrap:wrap;gap:12px;margin:12px 0}
+.lab figure{margin:0;width:86px;text-align:center}
+.ic{display:inline-block;vertical-align:middle;background-repeat:no-repeat;flex:0 0 auto}
+.lab .ic{display:block;margin:0 auto}
+.lab figcaption{font-size:11px;color:var(--mut2);margin-top:4px;line-height:1.4}
+
+.lgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(96px,1fr));gap:12px}
+.tier{border:1px solid var(--line);border-radius:12px;padding:16px 18px;margin:12px 0;background:var(--surface-2)}
+.tier h4{margin:0 0 8px;font-size:15px}
+.tier ul{margin:0;padding-left:18px;font-size:13.5px;line-height:1.95}
+.pill{display:inline-block;font-size:11.5px;padding:2px 8px;border-radius:999px;background:var(--surface-2);border:1px solid var(--line);color:var(--mut2)}
+@media print{ .tabs,.pc-actions,.pc-top,#inputCard,.noprint{display:none!important} .pc-card{break-inside:avoid;box-shadow:none} .doc{max-height:none} }
 </style>
 </head>
 <body>
-<div class="sp-wrap">
-  <div class="sp-top"><a class="back" href="index.html">← 혼디지킴이 포털</a><span class="brand">개인정보 처리방침 자가 진단</span></div>
-  <div class="sp-head">
-    <h1>개인정보 처리방침 자가 진단</h1>
-    <p class="lead">처리방침을 <b>붙여넣거나 파일(PDF·DOCX·HWPX·XLSX·TXT)·URL로 올리면</b>, 「개인정보 보호법」 제30조 법정 기재사항을 자동 진단하고 <b>개선된 처리방침·계층별 처리방침·신구대조표</b>를 만들어 드려요. 모든 처리는 <b>브라우저 안에서만</b> 이뤄지고 서버로 전송되지 않아요.</p>
-  </div>
+<div class="pc-wrap">
+<div class="pc-top"><a class="back" href="index.html">← 혼디지킴이 포털</a><span class="brand">개인정보 처리방침 자가 진단</span></div>
 
-  <div class="sp-card" id="inputCard">
-    <div class="tabrow"><button class="on" data-tab="paste" type="button">붙여넣기</button><button data-tab="file" type="button">파일 업로드</button><button data-tab="url" type="button">URL</button></div>
-    <div id="tab-paste"><textarea id="pasteBox" style="width:100%;min-height:160px;font:inherit;font-size:13px;padding:11px;border:1px solid var(--line);border-radius:8px;background:var(--surface-2);color:var(--ink)" placeholder="처리방침 전문을 붙여넣으세요."></textarea></div>
-    <div id="tab-file" hidden><div class="drop" id="drop">파일을 끌어다 놓거나 클릭해 선택하세요<br><small>PDF · DOCX · HWPX · XLSX · TXT (브라우저 안에서만 해석)</small><input type="file" id="file" accept=".pdf,.docx,.hwpx,.xlsx,.txt" hidden></div><div id="fileName" class="notice" style="margin-top:8px;display:none"></div></div>
-    <div id="tab-url" hidden><input type="text" id="urlBox" placeholder="https://기관.go.kr/privacy" style="width:100%;font:inherit;font-size:14px;padding:10px 12px;border:1px solid var(--line);border-radius:8px;background:var(--surface-2);color:var(--ink)"><p class="hint" style="font-size:12px;color:var(--muted);margin:6px 0 0">로그인·차단 사이트는 불러오지 못할 수 있어요. 그럴 땐 ‘붙여넣기’를 쓰세요.</p></div>
-    <div class="sp-btns" style="margin-top:12px"><button class="btn primary" id="run" type="button">진단 시작</button><button class="btn" id="sample" type="button">예시 넣기</button></div>
-  </div>
-
-  <div id="results" hidden>
-    <div class="lv-scorebar" id="sb" style="position:static"></div>
-    <div class="tabrow" id="rtabs"><button class="on" data-r="diag" type="button">진단 결과</button><button data-r="improved" type="button">개선 처리방침(안)</button><button data-r="tiered" type="button">계층별</button><button data-r="compare" type="button">신구대조표</button></div>
-    <div class="sp-card"><div id="rbody"></div></div>
-    <div class="sp-card">
-      <h2 style="font-family:var(--f-display);font-size:16px;margin:0 0 8px">다운로드</h2>
-      <div class="sp-btns"><button class="btn" data-dl="txt" type="button">TXT</button><button class="btn" data-dl="docx" type="button">DOCX</button><button class="btn" data-dl="pdf" type="button">PDF(인쇄)</button><button class="btn" data-dl="hwpx" type="button">HWPX (베타)</button></div>
-      <p class="hint" style="font-size:12px;color:var(--muted);margin:8px 0 0">HWPX는 베타예요. 한글에서 안 열리면 DOCX를 쓰세요(한글이 DOCX를 바로 엽니다).</p>
-    </div>
-    <div class="sp-card" id="retention">
-      <h2 style="font-family:var(--f-display);font-size:16px;margin:0 0 6px">기록 관리</h2>
-      <p class="hint" style="font-size:13px;color:var(--muted);margin:0 0 10px">모든 자료는 이 브라우저 안에만 있어요. 다운로드 후 삭제 여부를 물어보고, ‘보관’을 고르면 <b>24시간 뒤 자동 삭제</b>돼요.</p>
-      <div class="sp-btns"><button class="btn" id="purge" type="button">지금 모두 삭제</button><span id="retInfo" class="hint" style="font-size:12px;color:var(--muted);align-self:center"></span></div>
-    </div>
-  </div>
-  <p class="notice law-cite" style="margin-top:16px">근거: 개인정보 보호법 제30조·제31조, 시행령 제31조, 개인정보 처리방침 작성지침. 규칙 기반(토큰 0) 생성이며, 생성물은 표준 문구 기반 초안이에요. 공개 전 소관 부서 검토를 거치세요.</p>
+<div class="pc-hero">
+  <h1>개인정보 처리방침 자가 진단</h1>
+  <p>기관명과 처리방침 주소만 넣으면 <b>「개인정보 처리방침 작성지침」(2026. 4.)</b>의 기재사항 28개와 형식·최신성 10개, 모두 <b>38개 항목</b>을 자동으로 점검합니다. 점검 보고서·개선된 처리방침(안)·신구대조표·계층별 처리방침까지 한 번에 만들어 드려요. 모든 처리는 <b>이 브라우저 안에서만</b> 이뤄지고 서버로 전송되지 않습니다.</p>
 </div>
 
-<script src="assets/vendor/jszip.min.js"></script>
-<script src="assets/config.js"></script>
-<script src="assets/js/law.js"></script>
-<script src="assets/js/diagnose.js"></script>
+<div class="pc-card" id="inputCard">
+  <div class="fld"><label for="org">기관명 <i>*</i></label>
+    <input type="text" id="org" placeholder="예) 제주특별자치도 ○○과">
+  </div>
+  <div class="fld"><label for="otype">유형 선택 <i>*</i></label>
+    <select id="otype"></select>
+    <p class="hint" id="otdesc"></p>
+  </div>
+  <div class="fld"><label for="url">개인정보 처리방침 주소(URL) <i>*</i></label>
+    <input type="url" id="url" placeholder="https://www.jeju.go.kr/privacy.htm">
+    <p class="hint">공개된 처리방침 페이지 주소를 넣으세요. 사이트가 외부 호출을 막아 두면 불러오지 못할 수 있는데, 그때는 아래 ‘직접 붙여넣기’나 ‘파일 올리기’를 쓰시면 됩니다.</p>
+  </div>
+
+  <details class="alt" id="altbox"><summary>주소로 불러오기가 안 될 때 — 직접 붙여넣기 / 파일 올리기</summary>
+    <div class="inner">
+      <div class="fld"><label for="paste">처리방침 전문 붙여넣기</label>
+        <textarea id="paste" placeholder="처리방침 본문을 그대로 붙여넣으세요."></textarea>
+      </div>
+      <div class="fld"><label>파일 업로드</label>
+        <div class="drop" id="drop">파일을 끌어다 놓거나 클릭해 고르세요<br><small>.hwpx · .docx · .pdf · .txt — 파일은 브라우저 안에서만 열립니다</small>
+          <input type="file" id="file" accept=".hwpx,.docx,.pdf,.txt" hidden></div>
+        <p class="hint" id="fname" style="display:none"></p>
+      </div>
+    </div>
+  </details>
+
+  <div class="pc-actions">
+    <button class="btn primary" id="run" type="button">점검 시작</button>
+    <button class="btn" id="demo" type="button">예시로 체험하기</button>
+  </div>
+  <p class="pc-note">🔒 <b>비식별 처리</b> — 불러온 본문에서 사람 이름·전화번호·전자우편·주민등록번호·계좌번호로 보이는 값은 보고서에 넣기 전에 자동으로 가립니다(예: 010-****-**12). 원문은 이 브라우저를 벗어나지 않습니다.</p>
+</div>
+
+<div id="results" hidden>
+  <div class="tabs" id="rtabs">
+    <button class="on" data-r="dash" type="button">📊 대시보드</button>
+    <button data-r="report" type="button">📄 점검 보고서</button>
+    <button data-r="improved" type="button">✍️ 개선된 처리방침</button>
+    <button data-r="compare" type="button">📑 신구대조표</button>
+    <button data-r="tier" type="button">👨‍👩‍👧 계층별 처리방침</button>
+    <button data-r="raw" type="button">🔒 원문(비식별)</button>
+  </div>
+  <div id="rbody"></div>
+  <div class="pc-card noprint">
+    <h2>내려받기</h2>
+    <div class="pc-actions">
+      <button class="btn" data-dl="pdf" type="button">⬇ 통합 보고서 PDF</button>
+      <button class="btn" data-dl="hwpx" type="button">⬇ 한글(HWPX)</button>
+      <button class="btn" data-dl="docx" type="button">⬇ 워드(DOCX)</button>
+      <button class="btn" data-dl="txt" type="button">⬇ 텍스트</button>
+    </div>
+    <p class="pc-note">PDF는 브라우저 인쇄 대화상자에서 ‘PDF로 저장’을 고르시면 됩니다. HWPX·DOCX는 한글과 워드에서 모두 열립니다.</p>
+  </div>
+</div>
+
+<p class="notice law-cite" style="margin-top:18px">근거 : 「개인정보 보호법」 제30조·제31조, 같은 법 시행령 제31조, 「표준 개인정보 보호지침」 제18조~제21조, 개인정보보호위원회 「개인정보 처리방침 작성지침」(2026. 4.). 규칙 기반 점검이며 생성물은 표준 문구에 기반한 초안입니다. 공개 전 소관 부서 검토를 거치세요.</p>
+</div>
+
+<script src="assets/data/policy-items.js"></script>
+<script src="assets/js/policy.js"></script>
 </body>
 </html>
