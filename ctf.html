@@ -39,9 +39,15 @@
   .b-pct { font-size: 11.5px; color: var(--muted); }
 
   /* ── 미로 지도 ────────────────────────────── */
-  .maze { margin-top: 12px; border: 1px solid var(--line); border-radius: 14px; background: var(--surface); padding: 12px 12px 8px; }
-  .mz-grid { display: grid; grid-template-columns: repeat(20, 1fr); gap: 3px; }
-  .cell { aspect-ratio: 1; border-radius: 3px; background: var(--surface-2); border: 1px solid var(--line); cursor: pointer; }
+  .maze { margin-top: 10px; border: 1px solid var(--line); border-radius: 14px; background: var(--surface); padding: 10px 12px; }
+  .mz-head { display: flex; align-items: center; gap: 9px; flex-wrap: wrap; font-size: 12px; }
+  .mz-head .zbar { flex: 1; min-width: 120px; display: flex; gap: 2px; }
+  .mz-head .zbar i { flex: 1; height: 8px; border-radius: 2px; background: var(--surface-2); border: 1px solid var(--line); font-style: normal; }
+  .mz-head .zbar i.f { background: var(--c, #8ab4f8); border-color: var(--c, #8ab4f8); }
+  .mz-body { display: none; margin-top: 10px; }
+  .mz-body.open { display: block; }
+  .mz-grid { display: grid; grid-template-columns: repeat(25, 1fr); gap: 2px; }
+  .cell { aspect-ratio: 1; border-radius: 2px; background: var(--surface-2); border: 1px solid var(--line); cursor: pointer; }
   .cell.z1{--c:#8ab4f8}.cell.z2{--c:#a8c7a0}.cell.z3{--c:#9ad0d6}.cell.z4{--c:#c5a3e0}.cell.z5{--c:#e0c08a}
   .cell.z6{--c:#8fc7b0}.cell.z7{--c:#e8a7a0}.cell.z8{--c:#f0b36b}.cell.z9{--c:#7fa8d9}.cell.z10{--c:#b0a0e8}.cell.z11{--c:#f9ab00}
   .cell.esdone { background: var(--c); border-color: var(--c); }
@@ -50,6 +56,35 @@
   .cell.last { border-radius: 50%; background: linear-gradient(135deg,#5b3fa8,#8e44ad); border-color: #4a3290; }
   .mz-legend { display: flex; gap: 10px; flex-wrap: wrap; font-size: 11px; color: var(--muted); padding-top: 9px; }
   .mz-legend b { color: var(--ink); font-weight: 700; }
+
+
+  /* ── 장면 스테이지 (애니메이션 라인아트) ───────────── */
+  .stage { position: relative; height: 150px; border-radius: 14px 14px 0 0; overflow: hidden;
+           background: radial-gradient(130% 110% at 22% 0%, rgba(110,168,255,.13), transparent 62%),
+                       linear-gradient(180deg, #0d1426, #0b1020); border: 1px solid var(--line); border-bottom: none; }
+  .stage::before { content: ""; position: absolute; inset: 0; opacity: .45;
+    background-image: linear-gradient(rgba(110,168,255,.07) 1px, transparent 1px),
+                      linear-gradient(90deg, rgba(110,168,255,.07) 1px, transparent 1px);
+    background-size: 26px 26px; }
+  .stage svg { position: absolute; inset: 0; width: 100%; height: 100%; }
+  .stage .sc { position: absolute; left: 16px; right: 16px; bottom: 12px; color: #cfe0f5; font-size: 13.5px; line-height: 1.6; }
+  .stage .sc b { color: #ffd479; }
+  .stage .tag { position: absolute; right: 13px; top: 11px; font-size: 10.5px; letter-spacing: .08em;
+                font-family: var(--f-mono, monospace); color: #6ea8ff; border: 1px solid rgba(110,168,255,.4);
+                border-radius: 999px; padding: 3px 10px; background: rgba(110,168,255,.08); }
+  .nd { fill: none; stroke: #6ea8ff; stroke-width: 1.8; stroke-linejoin: round; stroke-linecap: round; }
+  .nd.w { stroke: #ff8a7a; } .nd.g { stroke: #6fd4a6; } .nd.y { stroke: #ffd479; }
+  .ndf { fill: rgba(110,168,255,.14); stroke: none; }
+  .pulse { animation: pls 1.9s ease-in-out infinite; transform-origin: center; }
+  @keyframes pls { 0%,100% { opacity: .3; } 50% { opacity: 1; } }
+  .dash { stroke-dasharray: 6 6; animation: dsh 1.1s linear infinite; }
+  @keyframes dsh { to { stroke-dashoffset: -24; } }
+  .sway { animation: swy 3s ease-in-out infinite; transform-origin: 50% 20%; }
+  @keyframes swy { 0%,100%{transform:rotate(-10deg)} 50%{transform:rotate(10deg)} }
+  .drop { animation: drp 1.7s linear infinite; }
+  @keyframes drp { 0%{transform:translateY(0);opacity:0} 18%{opacity:1} 100%{transform:translateY(40px);opacity:0} }
+  .card.under { border-radius: 0 0 14px 14px; border-top: none; margin-top: 0; }
+  .combo { font-size: 12px; font-weight: 700; color: #1d8f5b; }
 
   /* ── 카드 ─────────────────────────────────── */
   .card { background: var(--surface); border: 1px solid var(--line); border-radius: 14px; padding: 15px 17px; margin: 13px 0; }
@@ -190,10 +225,16 @@
   </div>
 
   <div class="maze">
-    <div class="mz-grid" id="grid"></div>
-    <div class="mz-legend">
-      <span>🟨 지금 있는 방</span><span>■ 탈출 완료</span><span>□ 잠긴 방</span>
-      <span style="margin-left:auto"><b id="zoneNow">제1구역 · 민원실</b></span>
+    <div class="mz-head">
+      <b id="zoneNow">제1구역 · 민원실</b>
+      <span class="zbar" id="zbar"></span>
+      <span id="zcnt" style="color:var(--muted)"></span>
+      <button class="b-btn" id="btnMap">🗺️ 전체 지도</button>
+    </div>
+    <div class="mz-body" id="mzBody">
+      <div class="mz-grid" id="grid"></div>
+      <div class="mz-legend"><span>🟨 지금 있는 방</span><span>■ 탈출 완료</span><span>□ 잠긴 방</span>
+        <span style="margin-left:auto">칸을 누르면 그 방으로 이동해요</span></div>
     </div>
   </div>
 
@@ -240,6 +281,47 @@
     return Array.from(new Uint8Array(h)).map(function (b) { return b.toString(16).padStart(2, '0'); }).join('');
   }
 
+
+  /* ── 장면 글리프 ─────────────────────────── */
+  var G = {
+    doc:'<path class="nd" d="M-11-16h17l6 6v26h-23z"/><path class="nd" d="M6-16v6h6"/><path class="nd" d="M-6-4h12M-6 3h12M-6 10h8"/>',
+    sign:'<path class="nd" d="M-16-12h32v24h-32z"/><path class="nd" d="M-10 2h12"/><path class="nd y" d="M4 6c4-6 8-10 11-8s-2 7-6 9 9-2 11 1"/>',
+    id:'<path class="nd" d="M-17-11h34v22h-34z"/><circle class="nd" cx="-7" cy="-2" r="5"/><path class="nd" d="M2-4h11M2 2h11M-14 8h8"/><path class="nd w dash" d="M-17 11 17-11"/>',
+    hand:'<path class="nd" d="M-18 4c4-6 9-8 13-5l5 4"/><path class="nd" d="M18 4c-4-6-9-8-13-5"/><circle class="nd" cx="-14" cy="-8" r="5"/><circle class="nd" cx="14" cy="-8" r="5"/>',
+    board:'<path class="nd" d="M-18-13h36v22h-36z"/><path class="nd" d="M0 9v8M-7 17h14"/><path class="nd" d="M-12-7h20M-12-1h14"/><path class="nd w" d="M8-1h6"/>',
+    shred:'<path class="nd" d="M-16-4h32v8h-32z"/><path class="nd" d="M-10-16h20v12h-20z"/><path class="nd w drop" d="M-9 6v8M-3 6v10M3 6v7M9 6v9"/>',
+    cam:'<g class="sway"><path class="nd" d="M-16-8h21v15h-21z"/><path class="nd" d="M5-3l11-5v13l-11-5z"/><circle class="nd" cx="-5" cy="0" r="3.4"/></g><path class="nd" d="M-9 7v9"/>',
+    org:'<path class="nd" d="M-6-16h12v9h-12z"/><path class="nd" d="M-18 6h12v8h-12zM6 6h12v8h-12z"/><path class="nd" d="M0-7v7M-12 6V0h24v6"/>',
+    desk:'<path class="nd" d="M-16-13h26v17h-26z"/><path class="ndf" d="M-14-11h22v13h-22z"/><path class="nd" d="M-3 4v6M-11 10h16"/><path class="nd w dash" d="M12-6 22 0"/>',
+    log:'<path class="nd" d="M-18-14h36v28h-36z"/><path class="nd" d="M-13-7h18M-13 0h22M-13 7h12"/><path class="nd w pulse" d="M-13 0h22"/>',
+    mask:'<path class="nd" d="M-16-7c0-5 6-8 16-8s16 3 16 8c0 8-7 14-16 14s-16-6-16-14z"/><path class="nd w" d="M-8-4h6M2-4h6"/>',
+    mail:'<path class="nd" d="M-18-11h36v22h-36z"/><path class="nd" d="M-18-11 0 3l18-14"/>',
+    clock:'<circle class="nd y" cx="0" cy="0" r="15"/><path class="nd y" d="M0-9v9l7 5"/><circle class="nd y pulse" cx="0" cy="0" r="19"/>',
+    gavel:'<path class="nd" d="M-14 10h22"/><path class="nd" d="M-3-12 9 0"/><path class="nd" d="M2-16 12-6l-6 6-10-10z"/>',
+    net:'<circle class="nd" cx="-15" cy="-8" r="5"/><circle class="nd" cx="15" cy="-8" r="5"/><circle class="nd w" cx="0" cy="11" r="5"/><path class="nd dash" d="M-11-6 -3 8M11-6 3 8M-10-8h20"/>',
+    wifi:'<circle class="nd" cx="0" cy="10" r="3"/><path class="nd" d="M-8 2a11 11 0 0 1 16 0"/><path class="nd" d="M-14-5a20 20 0 0 1 28 0"/><path class="nd w dash" d="M-20-12a29 29 0 0 1 40 0"/>',
+    pc:'<path class="nd" d="M-16-12h32v20h-32z"/><path class="ndf" d="M-14-10h28v16h-28z"/><path class="nd" d="M-22 14h44l-4-6h-36z"/><path class="nd w pulse" d="M-6-4h12v8h-12z"/>',
+    usb:'<path class="nd" d="M-6 2h12v14h-12z"/><path class="nd" d="M-4-14h8v16h-8z"/><path class="nd" d="M-1-14v-3M1-14v-3"/><path class="nd w dash" d="M-14 9h8M6 9h8"/>',
+    home:'<path class="nd" d="M-15 0 0-13 15 0v14h-30z"/><path class="nd" d="M-5 14V4h10v10"/><path class="nd w dash" d="M15 7h14"/>',
+    alert:'<path class="nd w" d="M0-15 17 12h-34z"/><path class="nd w pulse" d="M0-6v10"/><circle class="nd w" cx="0" cy="8" r="1.6"/>',
+    key:'<circle class="nd" cx="-9" cy="0" r="7"/><path class="nd" d="M-2 0h18M12 0v6M17 0v5"/>',
+    web:'<circle class="nd" cx="0" cy="0" r="15"/><path class="nd" d="M-15 0h30M0-15c7 7 7 23 0 30M0-15c-7 7-7 23 0 30"/><path class="nd w pulse" d="M-15 0h30"/>',
+    cloud:'<path class="nd" d="M-9 10a11 11 0 0 1 2-21 15 15 0 0 1 27 4 9 9 0 0 1-3 17z"/><path class="nd dash" d="M-16 16h32"/>',
+    phone:'<path class="nd" d="M-9-15h18v30h-18z"/><path class="nd" d="M-3-12h6"/><circle class="nd" cx="0" cy="11" r="1.8"/><path class="nd w dash" d="M12-6 22-10"/>'
+  };
+  function stage(q) {
+    var g = G[q.glyph] || G.doc, parts = '';
+    parts += '<circle cx="250" cy="60" r="46" fill="rgba(110,168,255,.10)" class="pulse"/>';
+    parts += '<g transform="translate(250,60) scale(2.3)">' + g + '</g>';
+    [[108, 54, .95, .3], [392, 54, .95, .3], [172, 96, .7, .18], [330, 96, .7, .18]].forEach(function (p2) {
+      parts += '<g transform="translate(' + p2[0] + ',' + p2[1] + ') scale(' + p2[2] + ')" opacity="' + p2[3] + '">' + g + '</g>';
+    });
+    parts += '<path class="nd dash" d="M32 122 H468" opacity=".45"/>';
+    return '<div class="stage"><svg viewBox="0 0 500 150" preserveAspectRatio="xMidYMid meet">' + parts + '</svg>' +
+      '<div class="tag">' + esc('AREA ' + q.area) + '</div>' +
+      '<div class="sc">' + q.scene + '</div></div>';
+  }
+
   function drawBoard(walk) {
     var c = cleared(), pct = c / N * 100, nn = nextNo();
     $('#cnt').textContent = '[ ' + c + ' / ' + N + ' ]';
@@ -250,8 +332,18 @@
     $('#pct').innerHTML = c === 0 ? '출발선이에요. 첫 번째 방의 자물쇠를 풀어 볼까요?'
       : (c >= N ? '<b>🏆 200개의 방을 모두 탈출했어요!</b>'
       : '탈출률 <b>' + pct.toFixed(1) + '%</b> · 남은 방 <b>' + (N - c) + '개</b>');
-    var cur = Q.filter(function (q) { return q.no === nn; })[0];
-    if (cur) $('#zoneNow').textContent = cur.zone;
+    var cur = Q.filter(function (q) { return q.no === nn; })[0] || Q[Q.length - 1];
+    if (cur) {
+      $('#zoneNow').textContent = cur.icon + ' ' + cur.zone;
+      var zq = Q.filter(function (x) { return x.zone === cur.zone; });
+      var zd = zq.filter(function (x) { return done[x.no]; }).length;
+      var ZC = ['#8ab4f8','#a8c7a0','#9ad0d6','#c5a3e0','#e0c08a','#8fc7b0','#e8a7a0','#f0b36b','#7fa8d9','#b0a0e8','#f9ab00'];
+      var col = ZC[(ZI[cur.zone] || 1) - 1] || '#8ab4f8';
+      var seg = Math.min(zq.length, 20), html = '';
+      for (var i = 0; i < seg; i++) html += '<i class="' + (i < Math.round(zd / zq.length * seg) ? 'f' : '') + '" style="--c:' + col + '"></i>';
+      $('#zbar').innerHTML = html;
+      $('#zcnt').textContent = zd + ' / ' + zq.length;
+    }
     drawGrid(); drawList();
   }
   function drawGrid() {
@@ -302,30 +394,21 @@
     var fieldsHtml = q.fields.map(function (f, i) { return '<div class="fld"><i>' + (i + 1) + '</i>' + f + '</div>'; }).join('');
 
     $('#stage').innerHTML =
-      '<div class="card">' +
+      stage(q) +
+      '<div class="card under">' +
         '<div class="q-top"><span class="q-no">ROOM ' + q.no + '</span>' +
           '<span class="q-room">🔒 ' + esc(q.room) + '</span>' +
           '<span class="chip d-' + q.diff + '">' + (q.diff === '최종' ? '최종 관문' : '난이도 ' + q.diff) + '</span>' +
-          '<span class="chip">Part ' + esc(q.part) + ' · ' + esc(q.areaName) + '</span>' +
+          '<span class="chip">Part ' + esc(q.part) + ' · ' + esc(q.area) + '. ' + esc(q.areaName) + '</span>' +
           '<span class="chip">' + esc(q.icon) + ' ' + esc(q.zone) + '</span></div>' +
-        '<h2>📝 1. 사건 브리핑</h2>' +
         '<div class="q-desc">' + q.desc + '</div>' +
-        '<div class="bh">' +
-          '<div><b>출제 영역</b>' + esc(q.area) + '. ' + esc(q.areaName) + '</div>' +
-          '<div><b>세부 주제</b>' + esc(q.areaShort) + '</div>' +
-          '<div><b>문제 유형</b>' + (isSeq ? '순서 조립형' : '조합 선택형') + '</div>' +
-          '<div><b>고를 개수</b>' + q.ansCount + '개</div>' +
-        '</div>' +
-        '<div class="alarm"><span class="i">⏱</span><div><b>제한시간 3분 · 기회 5번</b>' +
+        '<div class="alarm"><span class="i">' + (isSeq ? '🧩' : '🎯') + '</span><div>' +
+          '<b>' + (isSeq ? '순서대로 조립하세요' : '맞는 것 ' + q.ansCount + '개를 고르세요') + ' · 3분 · 기회 5번</b>' +
           '<div class="s">' + (isSeq
-            ? '아래 블록을 <b>순서대로</b> 누르세요. 누른 차례가 그대로 답이 돼요.'
-            : '아래 블록 중 맞는 것 <b>' + q.ansCount + '개</b>를 고르세요. 순서는 상관없어요.') +
-          ' 시간이 끝나거나 5번 틀리면 정답과 해설이 공개돼요.</div></div></div>' +
-      '</div>' +
-
-      '<div class="card">' +
-        '<h2>🔎 2. 무엇을 보고 판단할까요</h2>' +
-        '<div class="reg">' + q.howto + '</div>' +
+            ? '맨 아래 블록을 <b>누른 차례</b>가 그대로 답이 돼요. 4개 중 <b>' + q.ansCount + '개</b>만 쓰여요.'
+            : '맨 아래 블록 중 <b>' + q.ansCount + '개</b>를 고르세요. 순서는 상관없어요.') +
+          ' 시간이 끝나거나 5번 틀리면 정답과 해설이 열려요.</div></div></div>' +
+        '<div class="reg" style="margin-top:11px">🔎 <b>이렇게 보세요</b> — ' + q.howto + '</div>' +
         '<div class="toolbar"><button class="tbtn" id="tFields">🧱 판단 기준 4가지</button>' +
           '<button class="tbtn" id="tLaw">⚖ 관련 법령·지침</button></div>' +
         '<div class="panel" id="pFields"><div class="fields">' + fieldsHtml + '</div></div>' +
@@ -333,7 +416,7 @@
       '</div>' +
 
       '<div class="card" id="qcard">' +
-        '<h2>🎯 3. 정답 조립</h2>' +
+        '<h2>🎯 정답 조립 <span class="combo" id="combo"></span></h2>' +
         '<div class="tray" id="tray"></div>' +
         '<div class="acts"><span class="lock" id="lock">🔒</span>' +
           '<button id="sub" disabled>문 열기</button>' +
@@ -344,7 +427,7 @@
           '<button class="hb" data-h="1">💡 힌트 2 (개념)</button>' +
           '<button class="hb" data-h="2">💡 힌트 3 (판단)</button></div>' +
         '<div class="hintout" id="hintout" style="display:none"></div>' +
-        '<h2 style="margin:17px 0 0">🧩 선택 블록</h2>' +
+        '<h2 style="margin:17px 0 0">🧩 선택 블록 <span style="color:var(--muted);font-weight:400;font-size:12px">— 눌러서 담으세요</span></h2>' +
         '<div class="blocks" id="blocks"></div>' +
       '</div>' +
 
@@ -514,6 +597,7 @@
   }
 
   $('#btnList').onclick = function () { $('#list').classList.toggle('open'); };
+  $('#btnMap').onclick = function () { $('#mzBody').classList.toggle('open'); };
   $('#btnReset').onclick = function () {
     if (!confirm('탈출 기록을 모두 지우고 1번 방부터 다시 시작할까요?')) return;
     done = {}; save(); drawBoard(); show(1); window.scrollTo({ top: 0, behavior: 'smooth' });
