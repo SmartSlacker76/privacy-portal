@@ -157,8 +157,11 @@ function joText(art) {
   const hangs = asArray(art['항']);
   hangs.forEach(h => {
     if (h['항내용']) s += '\n' + h['항내용'].trim();
-    asArray(h['호']).forEach(ho => { if (ho['호내용']) s += '\n  ' + ho['호내용'].trim(); });
+    asArray(h['호']).forEach(ho => {
+      if (ho['호내용']) s += '\n' + ho['호내용'].trim();
+      asArray(ho['목']).forEach(mo => { const t = Array.isArray(mo['목내용']) ? mo['목내용'].join('\n') : (mo['목내용'] || ''); if (t) s += '\n' + t.trim(); });
+    });
   });
-  return s.replace(/\n{3,}/g, '\n\n').slice(0, 4000);
+  return s.replace(/\n{3,}/g, '\n\n').slice(0, 20000);
 }
 function asArray(v) { return v == null ? [] : Array.isArray(v) ? v : [v]; }

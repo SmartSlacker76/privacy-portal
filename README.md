@@ -74,6 +74,29 @@ tests/ciphers.test.js    공식 테스트 벡터 검증 (node tests/ciphers.test
 - 퀴즈: `labs-privacy.js`의 `Q` 배열 `[질문, [보기...], 정답 인덱스, 해설]`
 - 새 레슨: `index.html`에 `<section class="lesson" id="새-id" hidden>` 추가 + 목차 `<a href="#새-id">` 추가 + `PI.onLesson('새-id', fn)` 등록
 
+## 고유식별정보 근거 법령 검색 (`law-search.html`)
+
+조문제목·조문내용에 고유식별정보·민감정보·주민등록번호·운전면허번호·외국인등록번호·여권번호가 들어간 현행 법령 조문을 조문 단위로 검색하고, 공통업무 표준목록의 업무분야·개인정보파일과 연계해 보여 줍니다. 카드/표 보기, 엑셀(CSV) 내려받기를 지원합니다.
+
+| 파일 | 내용 |
+|---|---|
+| `assets/data/lawdb.json` | 법제처 원문 미러(항·호 단위, 원본) |
+| `assets/data/lawart.json` | 조문 단위 검색 데이터(빌드 결과) |
+| `assets/data/stdlist.json` | 공통업무 표준목록(빌드 결과) |
+| `tools/src/공통업무_표준목록_*.xls` | 개인정보 포털에서 내려받은 표준목록 원본 |
+| `tools/build_lawdb.py` | 위 두 데이터를 만드는 빌드 스크립트 |
+| `tools/collect_law.py` | 법제처 Open API로 조문 전체(각 항·호·목)를 수집 |
+
+데이터 갱신:
+```bash
+pip install pandas lxml
+# 1) 조문 전체 수집 — OC가 등록된 PC(IP)에서 실행
+python tools/collect_law.py <OC> --only-db
+# 2) 표준목록 연계 + 조문 전체 반영
+python tools/build_lawdb.py --full 법령조문_수집결과.csv
+```
+`--full` 없이 실행하면 조문 내용은 해당 용어가 나오는 항·호만 보여 줍니다. 표준목록을 새로 받으면 `--std <파일>`로 지정하세요.
+
 ## 유의사항
 
 - 법령·고시·안내서는 개정될 수 있습니다. 최신본은 국가법령정보센터(law.go.kr)와 개인정보보호위원회(pipc.go.kr)에서 확인하세요.
