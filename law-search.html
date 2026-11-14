@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>고유식별정보 처리 근거 법령 검색 · 혼디지킴이</title>
+<title>민감정보 및 고유식별정보 처리 법령 검색 · 혼디지킴이</title>
 <meta name="description" content="고유식별정보·민감정보·주민등록번호·운전면허번호·외국인등록번호·여권번호가 들어간 현행 법령 조문을 법령명·소관부처·조문명·조문내용으로 찾고, 공통업무 표준목록의 업무분야·개인정보파일과 연계해 보여 줍니다.">
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700&display=swap">
@@ -73,14 +73,33 @@
   mark { background: #ffe9a8; color: #191f28; padding: 0 1px; border-radius: 2px; }
   .empty { text-align: center; color: var(--muted); padding: 40px 10px; font-size: 14px; }
   @media (max-width: 640px) { .std dl { grid-template-columns: 1fr; } .std dt { margin-top: 4px; } }
+
+  /* 결과 6항목 구성 */
+  .sn { display:inline-block; min-width:17px; color:var(--cipher); font-weight:800; font-size:12px; margin-right:3px; }
+  .sec { font-size:12.5px; font-weight:700; color:var(--muted); margin:10px 0 3px; }
+  .sec .cnt { font-weight:600; color:var(--cipher); }
+  dl.std2 { display:grid; grid-template-columns:104px 1fr; gap:4px 10px; font-size:12.5px; margin:4px 0 0; }
+  dl.std2 dt { color:var(--muted); font-weight:700; }
+  dl.std2 dd { margin:0; }
+  dl.std2.org { border-top:1px dashed var(--line); padding-top:8px; margin-top:8px; }
+  .tk { display:inline-block; background:var(--surface-2); border:1px solid var(--line); border-radius:6px; padding:1px 7px; margin:2px 3px 0 0; font-size:11.5px; }
+  .none2 { color:var(--muted); }
+  table.pf { width:100%; border-collapse:collapse; font-size:12px; margin-top:4px; }
+  table.pf th, table.pf td { border:1px solid var(--line); padding:6px 8px; text-align:left; vertical-align:top; }
+  table.pf th { background:var(--surface-2); color:var(--muted); white-space:nowrap; }
+  table.pf td:first-child { min-width:150px; }
+  table.pf .pfm { font-size:11px; color:var(--muted); margin-top:2px; }
+  table.pf details summary { font-size:11px; color:var(--cipher); cursor:pointer; margin-top:3px; }
+  .r-seed { font-size:11.5px; color:var(--ok); margin:4px 0 0; }
+  @media (max-width:640px){ dl.std2 { grid-template-columns:1fr; } dl.std2 dt { margin-top:4px; } }
 </style>
 </head>
 <body>
 <div class="sp-wrap wide">
-  <div class="sp-top"><a class="back" href="index.html">← 혼디지킴이 포털</a><span class="brand">고유식별정보 근거 법령 검색</span></div>
+  <div class="sp-top"><a class="back" href="index.html">← 혼디지킴이 포털</a><span class="brand">민감정보 및 고유식별정보 처리 법령 검색</span></div>
   <div class="sp-head">
-    <h1>🔎 고유식별정보 처리 근거 법령 검색</h1>
-    <p class="lead">조문제목이나 조문내용에 <b>고유식별정보·민감정보·주민등록번호·운전면허번호·외국인등록번호·여권번호</b>가 들어간 현행 법령 조문을 찾아요. 결과마다 <b>법령명·소관부처·조문명·조문내용</b>과 <b>공통업무 표준목록의 업무분야·개인정보파일</b>을 함께 보여 주고, 표로 보거나 엑셀(CSV)로 내려받을 수 있어요.</p>
+    <h1>🔎 민감정보 및 고유식별정보 처리 법령 검색</h1>
+    <p class="lead"><b>업무분야 · 업무명(사무) · 법령 제목</b>에 포함된 단어를 입력하면, 그 업무의 <b>민감정보·고유식별정보 처리 근거 조문</b>을 찾아요. 단어가 들어간 법령을 모두 나열하지 않고 <b>업무 기준</b>으로 좁힙니다. 결과마다 ①법령 제목 ②조문제목 ③조문 본문 전체 ④소관부처 ⑤표준목록 ⑥관련 개인정보파일(파일명·수집항목·처리시스템·보유기간)을 보여 주고, 표·CSV로도 받을 수 있어요.</p>
   </div>
 
   <div class="law-intro">
@@ -96,7 +115,15 @@
 
   <div class="sp-card">
     <div class="search-bar">
-      <input id="q" type="search" placeholder="예) 계약,  여권번호 출입국,  아동복지법,  제18조,  병무" autocomplete="off" aria-label="검색어">
+      <input id="q" type="search" placeholder="예) 계약 · 복지 · 병역 · 세무 · 입찰 · 학교 — 업무분야·업무명·법령 제목으로 검색" autocomplete="off" aria-label="검색어">
+    </div>
+    <div class="filters">
+      <div class="grp"><span>매칭 범위</span>
+        <button class="ftog on" data-sc="f" type="button">업무분야</button>
+        <button class="ftog on" data-sc="tk" type="button">업무명(사무)</button>
+        <button class="ftog on" data-sc="n" type="button">법령 제목</button>
+        <button class="ftog" data-sc="x" type="button">조문내용까지</button>
+      </div>
     </div>
     <div class="filters">
       <div class="grp"><span>포함 용어</span>
@@ -140,14 +167,47 @@
 </div>
 
 <script src="assets/config.js"></script>
+<script src="assets/data/lawfull.js"></script>
 <script>
 (function(){
   var $ = function(s){ return document.querySelector(s); };
   var WK = (window.APP_CONFIG && APP_CONFIG.WORKER_URL) ? APP_CONFIG.WORKER_URL.replace(/\/$/,'') : '';
   var DATA = [], STD = [], IDX = [], META = {}, STDMETA = {};
+  var IXF = [], IXT = [], IXN = [], IXX = [];          // 업무분야·업무명·법령제목·조문내용 인덱스
+  var scope = { f:true, tk:true, n:true, x:false };
+  var FULL = window.LAWFULL || {};
+  // 업무분야 → 대표 처리시스템(추정). 표준목록에 시스템 항목이 없어 업무분야로 제안합니다.
+  var SYSF = {'행정':'새올행정시스템 · 정부24 · 온나라시스템','재정':'지방재정관리시스템(e호조) · 나라장터',
+    '세무':'지방세정보시스템(위택스)','복지':'사회보장정보시스템(행복e음) · 복지로','보건':'질병보건통합관리시스템',
+    '교육':'교육행정정보시스템(NEIS)','국방':'병무행정정보시스템','통일외교':'출입국·재외국민 관리시스템',
+    '법무':'형사사법정보시스템(KICS) · 등기시스템','산업':'기업지원플러스(기업마당)','농림':'농림사업정보시스템(AgriX)',
+    '해양수산':'어업in수산 · 해양수산정보시스템','환경':'환경정보시스템(올바로)','교통':'자동차·운전면허 정보시스템',
+    '국토':'부동산종합공부시스템(일사편리) · 세움터','문화체육관광':'문화체육 통합지원시스템','과학기술':'정보통신 인허가 관리시스템',
+    '통계':'국가통계 수집시스템','노동':'고용보험 · 산재보험 정보시스템','재난안전':'국가재난관리정보시스템(NDMS)'};
+  function sysOf(f){ if (!f) return '기관 업무처리시스템'; for (var k in SYSF) if (f.indexOf(k) >= 0) return SYSF[k]; return '기관 업무처리시스템'; }
+  // 각 호 텍스트 → 사무명 ('제13조에 따른 ○○에 관한 사무' → '○○')
+  function cleanTask(t){
+    t = String(t||'').trim().replace(/^\d+\.\s*/,'');
+    t = t.replace(/^(법\s*)?제\d+조(의\d+)?(제\d+항)?(제\d+호)?(\s*(및|,)\s*(법\s*)?제\d+조(의\d+)?)*\s*(에 따른|에 따라|에 의한)?\s*/,'');
+    t = t.replace(/^「[^」]*」\s*(제\d+조(의\d+)?)?\s*(에 따른|에 따라)?\s*/,'');
+    t = t.replace(/\s*에 관한 (사무|업무)$/,'').replace(/\s*(사무|업무)$/,'');
+    return t.trim().replace(/^[,ㆍ·\s]+|[,ㆍ·\s]+$/g,'');
+  }
+  var BADTK = /각 ?호|불가피|처리할 수|포함된 자료|개인정보 보호법|말한다|이라 한다|성명|번호|생년월일/;
+  function tasksOf(r){
+    var out = [], at = r.at || '';
+    if (at && !/고유식별정보|민감정보/.test(at)) out.push(at);
+    var ho = hoOf(r);
+    ho.forEach(function(x){ var t = cleanTask(x); if (t.length >= 3 && t.length <= 45 && !BADTK.test(t)) out.push(t); });
+    var seen = {}; return out.filter(function(t){ if (seen[t]) return false; seen[t] = 1; return true; }).slice(0,10);
+  }
+  // 보강 시드의 각 호
+  function hoOf(r){ var f = FULL[r.n + '|' + r.no]; return (f && f.ho) ? f.ho : []; }
   var activeTypes = new Set(), shown = 0, PAGE = 40, filtered = [], view = 'card';
   var TNAME = {'주민':'주민등록번호','여권':'여권번호','면허':'운전면허번호','외국인':'외국인등록번호','포괄':'고유식별정보','민감':'민감정보'};
   var TYPES = ['포괄','민감','주민','면허','외국인','여권'];
+  var TSYN = {'주민등록번호':'주민','주민번호':'주민','여권번호':'여권','여권':'여권','운전면허번호':'면허',
+    '운전면허':'면허','면허번호':'면허','외국인등록번호':'외국인','외국인':'외국인','고유식별정보':'포괄','민감정보':'민감'};
   var esc = function(s){ return String(s==null?'':s).replace(/[&<>"]/g, function(c){ return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]; }); };
 
   function kindOf(r){
@@ -160,6 +220,11 @@
   // 조문내용(전체): 수집된 전체 조문(xf)이 있으면 그대로, 없으면 해당 항·호 원문을 모아 보여 줌
   function bodyOf(r){
     if (r.xf) return { text: r.xf, full: true };
+    var sd = FULL[r.n + '|' + r.no];
+    if (sd && sd.ho && sd.ho.length){
+      var base = (r.h[0] && r.h[0][1]) ? String(r.h[0][1]).split(' / ')[0] : '';
+      return { text: base + '\n' + sd.ho.map(function(x,i){ return (i+1) + '. ' + x; }).join('\n'), full: true, seed: sd.src || '' };
+    }
     var seen = {}, lines = [];
     r.h.forEach(function(h){ String(h[1]||'').split(' / ').forEach(function(p){ p = p.trim(); if (p && !seen[p]) { seen[p]=1; lines.push(p); } }); });
     var t = lines.join('\n');
@@ -180,6 +245,10 @@
       var f = filesOf(r.s).map(function(x){ return x.f + ' ' + x.n + ' ' + x.o; }).join(' ');
       return (r.n + ' ' + r.o + ' ' + title(r) + ' ' + bodyOf(r).text + ' ' + f).toLowerCase();
     });
+    IXF = DATA.map(function(r){ return fieldsOf(r).join(' ').replace(/[·\s]/g,'').toLowerCase(); });
+    IXT = DATA.map(function(r){ return (tasksOf(r).join(' ') + ' ' + filesOf(r.s).map(function(x){ return x.n + ' ' + x.p; }).join(' ')).toLowerCase(); });
+    IXN = DATA.map(function(r){ return (r.n + ' ' + r.o).toLowerCase(); });
+    IXX = DATA.map(function(r){ return bodyOf(r).text.toLowerCase(); });
     $('#src').innerHTML = '출처: 국가법령정보센터 Open API 원문 미러(기준일 ' + esc(META.asof||'') + ', 법령 ' + (META.laws||0).toLocaleString() + '개 · 조문 ' + (META.articles||0).toLocaleString() + '개), 개인정보 포털 공통업무 표준목록(기준일 ' + esc(STDMETA.asof||'') + ', ' + STD.length.toLocaleString() + '건). 근거 분류와 표준목록 연계는 규칙 기반 자동 판정으로 <b>법적 자문이 아니에요</b>. 실제 적용 전 ‘법제처 현행본’ 링크로 <b>최신 조문</b>을 반드시 확인하세요.';
     run();
   }).catch(function(){
@@ -191,7 +260,9 @@
   $('#q').addEventListener('input', function(){ clearTimeout(deb); deb = setTimeout(run, 180); });
   ['#fkind','#forg','#ffield','#fcat','#fstd','#fbu'].forEach(function(s){ $(s).addEventListener('change', run); });
   document.querySelectorAll('.ftog').forEach(function(b){ b.addEventListener('click', function(){
-    b.classList.toggle('on'); var t = b.dataset.t; if (activeTypes.has(t)) activeTypes.delete(t); else activeTypes.add(t); run(); }); });
+    b.classList.toggle('on');
+    if (b.dataset.sc){ scope[b.dataset.sc] = b.classList.contains('on'); run(); return; }
+    var t = b.dataset.t; if (activeTypes.has(t)) activeTypes.delete(t); else activeTypes.add(t); run(); }); });
   document.querySelectorAll('.seg2 button').forEach(function(b){ b.addEventListener('click', function(){
     view = b.dataset.v; document.querySelectorAll('.seg2 button').forEach(function(x){ x.setAttribute('aria-pressed', x===b); }); paint(); }); });
   $('#more').addEventListener('click', function(){ shown += PAGE; paint(); });
@@ -212,11 +283,42 @@
       if (cat && r.c.indexOf(cat) < 0) continue;
       if (onlyStd && !r.s.length) continue;
       if (fld && fieldsOf(r).indexOf(fld) < 0) continue;
-      if (toks.length){ var s = IDX[i], all = true; for (var k = 0; k < toks.length; k++){ if (s.indexOf(toks[k]) < 0){ all = false; break; } } if (!all) continue; }
+      if (toks.length){
+        var all = true;
+        for (var k = 0; k < toks.length; k++){
+          var tk = toks[k], tt = tk.replace(/[·\s]/g,''), one = false;
+          if (scope.f  && IXF[i].indexOf(tt) >= 0) one = true;
+          if (!one && scope.tk && IXT[i].indexOf(tk) >= 0) one = true;
+          if (!one && scope.n  && IXN[i].indexOf(tk) >= 0) one = true;
+          if (!one && scope.x  && IXX[i].indexOf(tk) >= 0) one = true;
+          if (!one && TSYN[tk] && r.t.indexOf(TSYN[tk]) >= 0) one = true;
+          if (!one){ all = false; break; }
+        }
+        if (!all) continue;
+      }
       filtered.push(r);
     }
     // 표준목록 조문번호 일치 → 직접 연계 → 그 외 순, 같은 순위는 법령명·조문 순서 유지
-    filtered.sort(function(a,b){ return (b.sa.length?2:b.s.length?1:0) - (a.sa.length?2:a.s.length?1:0); });
+    if (toks.length){
+      var sc = {};
+      filtered.forEach(function(r){
+        var i = DATA.indexOf(r), v = 0;
+        toks.forEach(function(t){
+          var tt = t.replace(/[·\s]/g,'');
+          if (IXN[i].indexOf(t) >= 0) v += 100;
+          if ((r.at||'').toLowerCase().indexOf(t) >= 0) v += 40;
+          if (IXT[i].indexOf(t) >= 0) v += 30;
+          if (IXF[i].indexOf(tt) >= 0) v += 10;
+        });
+        if (r.sa.length) v += 8; else if (r.s.length) v += 4;
+        if (hoOf(r).length) v += 5;
+        if (r.c === '①') v += 3;
+        sc[r.n + '|' + r.no] = v;
+      });
+      filtered.sort(function(a,b){ return sc[b.n+'|'+b.no] - sc[a.n+'|'+a.no]; });
+    } else {
+      filtered.sort(function(a,b){ return (b.sa.length?2:b.s.length?1:0) - (a.sa.length?2:a.s.length?1:0); });
+    }
     shown = PAGE;
     $('#stat').innerHTML = '검색 결과 <b>' + filtered.length.toLocaleString() + '</b>개 조문 · 법령 <b>' + new Set(filtered.map(function(r){ return r.n; })).size.toLocaleString() + '</b>개' + (q ? ' · “' + esc($('#q').value.trim()) + '”' : '');
     paint();
@@ -231,19 +333,35 @@
   }
 
   function stdBlock(r, q){
-    var direct = filesOf(r.s), parent = filesOf(r.sp);
-    if (!direct.length && !parent.length) return '<div class="std"><h4>📋 표준목록 연계</h4><div class="none">공통업무 표준목록에서 이 법령을 운영 근거로 적은 개인정보파일이 없어요. 기관 고유업무 파일이라면 직접 등록 근거로 검토하세요.</div></div>';
-    function item(f, i){
-      var star = r.sa.indexOf(i) >= 0;
-      return '<details><summary>' + (star ? '<span class="star" title="운영 근거에 이 조문 번호까지 적혀 있어요">★ </span>' : '') + '<b>' + hl(f.n, q) + '</b> · ' + esc(f.o) + ' · ' + esc(f.f) + '</summary><dl>' +
-        '<dt>운영 근거</dt><dd>' + hl(f.b, q) + '</dd><dt>운영 목적</dt><dd>' + esc(f.p) + '</dd><dt>개인정보 항목</dt><dd>' + esc(f.i) + '</dd><dt>보유기간</dt><dd>' + esc(f.k) + '</dd></dl></details>';
+    var direct = filesOf(r.s), parent = filesOf(r.sp), fl = fieldsOf(r);
+    var h = '<div class="sec"><span class="sn">\u2464</span>\ud45c\uc900\ubaa9\ub85d</div><div class="std">';
+    h += '<dl class="std2"><dt>\uc5c5\ubb34\ubd84\uc57c</dt><dd>' +
+         (fl.length ? fl.map(function(f){ return '<span class="fld">' + esc(f) + '</span>'; }).join('') : '<span class="none2">\ud45c\uc900\ubaa9\ub85d \uc5f0\uacc4 \uc5c6\uc74c</span>') + '</dd>';
+    var tk = tasksOf(r);
+    h += '<dt>\uc5c5\ubb34\uba85(\uc0ac\ubb34)</dt><dd>' +
+         (tk.length ? tk.map(function(t){ return '<span class="tk">' + hl(t, q) + '</span>'; }).join('')
+                    : '<span class="none2">\uac01 \ud638 \uc804\ubc18 \ud655\uc778 \ud544\uc694</span>') + '</dd></dl>';
+    h += '</div>';
+    // \u2465 \uad00\ub828 \uac1c\uc778\uc815\ubcf4\ud30c\uc77c
+    h += '<div class="sec"><span class="sn">\u2465</span>\uad00\ub828 \uac1c\uc778\uc815\ubcf4\ud30c\uc77c' +
+         (direct.length ? ' <span class="cnt">' + direct.length + '\uac74</span>' : '') + '</div>';
+    if (!direct.length){
+      h += '<div class="std"><div class="none">\uacf5\ud1b5\uc5c5\ubb34 \ud45c\uc900\ubaa9\ub85d\uc5d0\uc11c \uc774 \ubc95\ub839\uc744 \uc6b4\uc601 \uadfc\uac70\ub85c \uc801\uc740 \uac1c\uc778\uc815\ubcf4\ud30c\uc77c\uc774 \uc5c6\uc5b4\uc694. \uae30\uad00 \uace0\uc720\uc5c5\ubb34 \ud30c\uc77c\uc774\ub77c\uba74 \uc9c1\uc811 \ub4f1\ub85d \uadfc\uac70\ub85c \uac80\ud1a0\ud558\uc138\uc694.</div>';
+    } else {
+      h += '<div class="tbl-wrap"><table class="pf"><thead><tr><th>\ud30c\uc77c\uba85</th><th>\uc218\uc9d1\ud56d\ubaa9</th><th>\ucc98\ub9ac\uc2dc\uc2a4\ud15c</th><th>\ubcf4\uc720\uae30\uac04</th></tr></thead><tbody>';
+      h += r.s.map(function(i){
+        var f = STD[i]; if (!f) return '';
+        var star = r.sa.indexOf(i) >= 0;
+        return '<tr><td>' + (star ? '<span class="star" title="\uc6b4\uc601 \uadfc\uac70\uc5d0 \uc774 \uc870\ubb38 \ubc88\ud638\uae4c\uc9c0 \uc801\ud788 \uc788\uc5b4\uc694">\u2605 </span>' : '') +
+          '<b>' + hl(f.n, q) + '</b><div class="pfm">' + esc(f.o) + ' · ' + esc(f.f) + '</div>' +
+          '<details><summary>\uc6b4\uc601 \uadfc\uac70·\ubaa9\uc801</summary><div class="pfm">' + hl(f.b, q) + '<br>' + esc(f.p) + '</div></details></td>' +
+          '<td>' + esc(f.i || '—') + '</td>' +
+          '<td>' + esc(sysOf(f.f)) + '<div class="pfm">\u203b \uc5c5\ubb34\ubd84\uc57c \uae30\ubc18 \ucd94\uc815</div></td>' +
+          '<td>' + esc(f.k || '—') + '</td></tr>';
+      }).join('');
+      h += '</tbody></table></div><div class="std">';
     }
-    var fl = fieldsOf(r);
-    var h = '<div class="std"><h4>📋 표준목록 연계 — 업무분야 ' + fl.length + ' · 개인정보파일 ' + direct.length + '</h4>';
-    if (fl.length) h += '<div class="fields">' + fl.map(function(f){ return '<span class="fld">' + esc(f) + '</span>'; }).join('') + '</div>';
-    h += r.s.map(function(i){ return item(STD[i], i); }).join('');
-    if (!direct.length) h += '<div class="none">이 법령을 직접 근거로 적은 파일은 없어요.</div>';
-    if (parent.length) h += '<details class="parent"><summary>모법(법률)을 근거로 적은 파일 ' + parent.length + '건 보기</summary>' + r.sp.map(function(i){ var f = STD[i]; return '<div style="margin:4px 0 0 14px">· <b>' + esc(f.n) + '</b> · ' + esc(f.o) + ' · ' + esc(f.f) + ' <span style="color:var(--muted)">(' + esc(f.b) + ')</span></div>'; }).join('') + '</details>';
+    if (parent.length) h += '<details class="parent"><summary>\ubaa8\ubc95(\ubc95\ub960)\uc744 \uadfc\uac70\ub85c \uc801\uc740 \ud30c\uc77c ' + parent.length + '\uac74 \ubcf4\uae30</summary>' + r.sp.map(function(i){ var f = STD[i]; return '<div style="margin:4px 0 0 14px">· <b>' + esc(f.n) + '</b> · ' + esc(f.o) + ' · ' + esc(f.f) + ' <span style="color:var(--muted)">(' + esc(f.b) + ')</span></div>'; }).join('') + '</details>';
     return h + '</div>';
   }
 
@@ -252,11 +370,14 @@
     var tags = TYPES.filter(function(t){ return r.t.indexOf(t) >= 0; }).map(function(t){ return '<span class="chip2 c-id c-' + t + '">' + TNAME[t] + '</span>'; }).join('');
     var jo = (r.no.match(/^제(\d+)조(?:의(\d+))?/) || []);
     return '<div class="r">' +
-      '<div class="r-top"><span class="r-name">' + hl(r.n, q) + '</span><span class="chip2 c-org">' + esc(r.o) + ' · ' + esc(r.lt) + '</span>' +
+      '<div class="r-top"><span class="sn">\u2460</span><span class="r-name">' + hl(r.n, q) + '</span><span class="chip2 c-org">' + esc(r.o) + ' · ' + esc(r.lt) + '</span>' +
         (r.c ? '<span class="chip2 c-cat">근거 ' + esc(r.c) + '</span>' : '') + tags + '</div>' +
-      '<div class="r-art">' + hl(title(r), q) + '</div>' +
+      '<div class="r-art"><span class="sn">\u2461</span>' + hl(title(r), q) + '</div>' +
+      '<div class="sec"><span class="sn">\u2462</span>\uc870\ubb38 \ubcf8\ubb38 \uc804\uccb4</div>' +
       '<div class="r-text">' + hl(b.text, q) + '<span class="tog" hidden>▾ 전체 펼치기</span></div>' +
+      (b.seed ? '<div class="r-seed">\u2714 \uac01 \ud638 \uc804\ubb38 \ud655\uc778 — ' + esc(b.seed) + '</div>' : '') +
       (b.full ? '' : '<div class="r-partial">※ 해당 용어가 나오는 항·호만 실었어요. 조문 전체는 아래 ‘법제처 현행본’에서 확인하세요.</div>') +
+      '<dl class="std2 org"><dt><span class="sn">\u2463</span>\uc18c\uad00\ubd80\ucc98</dt><dd><b>' + esc(r.o) + '</b> · ' + esc(r.lt) + (r.d ? ' · \uc2dc\ud589 ' + esc(r.d) : '') + '</dd></dl>' +
       stdBlock(r, q) +
       '<div class="r-links"><a href="' + esc(r.u) + '" target="_blank" rel="noopener">📜 법제처 현행본(최신)</a>' +
         (WK && jo[1] ? '<a href="#" class="live" data-name="' + esc(r.n) + '" data-jo="' + jo[1] + '" data-br="' + (jo[2]||0) + '">⟳ 조문 전체 불러오기(API)</a>' : '') +
@@ -302,18 +423,25 @@
 
   function exportCsv(){
     if (!filtered.length) return;
-    var head = ['법령명','법령유형','소관부처','조문명','조문내용(전체)','조문 전체 여부','포함 용어','근거분류','업무분야(표준목록)','개인정보파일(표준목록)','조문번호 일치 파일','시행일','법제처 링크'];
+    var head = ['법령 제목','법령유형','소관부처','조문제목','조문 본문 전체','조문 전체 여부','포함 용어','근거분류',
+      '표준목록_업무분야','표준목록_업무명(사무)',
+      '개인정보파일_파일명','개인정보파일_수집항목','개인정보파일_처리시스템','개인정보파일_보유기간','개인정보파일_운영근거',
+      '조문번호 일치 파일','시행일','법제처 링크'];
     var cell = function(v){ v = String(v==null?'':v); return /[",\n\r]/.test(v) ? '"' + v.replace(/"/g,'""') + '"' : v; };
     var lines = [head.join(',')];
     filtered.forEach(function(r){
-      var b = bodyOf(r);
-      lines.push([r.n, r.lt, r.o, title(r), b.text, b.full ? '전체' : '해당 항·호만',
+      var b = bodyOf(r), pf = filesOf(r.s);
+      var base = [r.n, r.lt, r.o, title(r), b.text, b.full ? '전체' : '해당 항·호만',
         TYPES.filter(function(t){ return r.t.indexOf(t) >= 0; }).map(function(t){ return TNAME[t]; }).join(', '), r.c,
-        fieldsOf(r).join(', '), filesOf(r.s).map(function(f){ return f.o + ': ' + f.n; }).join('\n'),
-        r.sa.map(function(i){ return STD[i].o + ': ' + STD[i].n; }).join('\n'), r.d, r.u].map(cell).join(','));
+        fieldsOf(r).join(', '), tasksOf(r).join(' / ')];
+      var tail = [r.sa.map(function(i){ return STD[i].o + ': ' + STD[i].n; }).join('\n'), r.d, r.u];
+      if (!pf.length){ lines.push(base.concat(['','','','']).concat(tail).map(cell).join(',')); return; }
+      pf.forEach(function(f){   // 개인정보파일 1건당 1행
+        lines.push(base.concat([f.n, f.i || '', sysOf(f.f), f.k || '', f.b || '']).concat(tail).map(cell).join(','));
+      });
     });
     var blob = new Blob(['﻿' + lines.join('\r\n')], { type: 'text/csv;charset=utf-8' });
-    var a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = '고유식별정보_근거법령_' + new Date().toISOString().slice(0,10) + '.csv';
+    var a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = '민감정보_고유식별정보_처리법령_' + new Date().toISOString().slice(0,10) + '.csv';
     document.body.appendChild(a); a.click(); setTimeout(function(){ URL.revokeObjectURL(a.href); a.remove(); }, 500);
   }
 })();
