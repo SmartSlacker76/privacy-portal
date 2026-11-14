@@ -26,6 +26,17 @@
   .a-chk { margin-top: 10px; display: flex; flex-wrap: wrap; gap: 6px; }
   .a-chk a { font-size: 11.5px; font-weight: 600; text-decoration: none; color: var(--cipher); border: 1px solid var(--line); border-radius: 7px; padding: 3px 9px; }
   .a-chk a:hover { border-color: var(--cipher); background: var(--cipher-soft); }
+  /* 공통 출력 구조: 2줄 요약 + 토글 */
+  .sum2 { background: var(--cipher-soft); border-left: 3px solid var(--cipher); border-radius: 8px; padding: 10px 13px; margin: 0 0 9px; }
+  .sum2 p { margin: 0; font-size: 13.5px; line-height: 1.72; }
+  .sum2 p + p { margin-top: 5px; }
+  details.dt { border: 1px solid var(--line); border-radius: 9px; background: var(--surface); }
+  details.dt > summary { cursor: pointer; font-size: 12.5px; font-weight: 700; color: var(--cipher); padding: 9px 13px; list-style: none; user-select: none; }
+  details.dt > summary::-webkit-details-marker { display: none; }
+  details.dt > summary::before { content: '▸ '; }
+  details.dt[open] > summary::before { content: '▾ '; }
+  details.dt[open] > summary { border-bottom: 1px solid var(--line); }
+  .dt-in { padding: 11px 13px 13px; }
   /* 3대 모드 */
   .how3 { display: grid; gap: 7px; margin-top: 9px; }
   .how3 > div { background: var(--surface); border: 1px solid var(--line); border-radius: 8px; padding: 8px 11px; font-size: 12.5px; line-height: 1.6; }
@@ -124,6 +135,12 @@
     return 1;
   }
 
+  /* ── 공통 출력 구조: 2줄 요약 + 자세히 보기 토글 ─────────── */
+  function wrap(sum2, body, label) {
+    return '<div class="sum2">' + sum2.map(function (L) { return '<p>' + L + '</p>'; }).join('') + '</div>' +
+      '<details class="dt"><summary>' + esc(label || '자세히 보기') + '</summary><div class="dt-in">' + body + '</div></details>';
+  }
+
   /* ── 모드 1: 표준 8단계 ─────────────────────────────────── */
   function render8(e, full) {
     var h = '<p class="a-intro">공공기관 실무 및 교육을 위한 <b>' + esc(e.title) + '</b>의 핵심 법령 검토 기준부터 실제 위반 사례까지 정리해 드릴게요.</p>';
@@ -144,6 +161,10 @@
   }
 
   /* ── 모드 2: 실무 검토 심화 ─────────────────────────────── */
+  function sum2of2(e) {
+    return ['이 사안은 <b>' + esc(e.title) + '</b> 문제예요. ' + ((e.sum2 && e.sum2[0]) || ''),
+            '아래 <b>검토 의견</b>에서 결론·법적 근거·예상 리스크·실무 대안을 확인하고, <b>최종 판정은 담당자가</b> 체크리스트로 확정해 주세요.'];
+  }
   function render2(e, q) {
     var h = render8(e, false);
     h += '<hr class="a-hr"><div class="rv"><h4>📑 [실무 사례 법령 검토 의견]</h4>' +
@@ -206,15 +227,25 @@
     var e = match(q);
     if (!e) {
       var topics = KB.map(function (x) { return '<button type="button" class="chip-q rel" data-q="' + esc(x.kw[0]) + '">' + esc(x.title) + '</button>'; }).join('');
-      return add('bot', '<p class="a-intro">아직 제가 아는 주제가 아니에요. 아래 주제 중에서 골라 보시겠어요? 주제명을 입력하면 <b>표준 8단계</b>로, "○○ 검토해줘"라고 쓰면 <b>실무 검토 의견</b>으로, "○○ 퀴즈 3문제"라고 쓰면 <b>교육 퀴즈</b>로 답해요.</p><div class="a-rel"><span>다룰 수 있는 주제</span>' + topics + '</div>');
+      return add('bot', wrap([
+        '이 질문에 해당하는 주제를 제가 아직 못 찾았어요 — 조금 더 <b>법령 용어</b>로 좁혀 주시면 정확히 답해 드릴 수 있어요.',
+        '주제명을 입력하면 <b>표준 8단계</b>로, "○○ 검토해줘"는 <b>실무 검토 의견</b>으로, "○○ 퀴즈 3문제"는 <b>교육 퀴즈</b>로 답해요.'
+      ], '<div class="a-rel"><span>다룰 수 있는 주제</span>' + topics + '</div>' +
+        '<p style="margin:10px 0 0;font-size:12.5px;color:var(--muted)">구체적 사안은 <b>개인정보보호위원회(pipc.go.kr)</b> 상담이나 전문가 검토가 필요할 수 있어요.</p>',
+        '다룰 수 있는 주제 보기'), null, '주제를 찾지 못했어요');
     }
     var m = mode(q);
     if (m === 3) {
       var n = (q.match(/(\d+)\s*(문제|문항|개)/) || [])[1];
-      return add('bot', render3(e, n ? Math.min(+n, (e.quiz || []).length) : 3), e.src, e.title + ' — 교육 퀴즈');
+      var cnt = n ? Math.min(+n, (e.quiz || []).length) : 3;
+      return add('bot', wrap([
+        '<b>' + esc(e.title) + '</b> 교육용 <b>OX 퀴즈 ' + cnt + '문제</b>를 준비했어요 — 실무에서 가장 헷갈리는 함정 포인트로 골랐어요.',
+        '각 문제마다 <b>정답 · 상세 해설(조문 근거) · 실무 핵심 팁</b>이 붙어 있어 교육 자료로 바로 쓸 수 있어요.'
+      ], render3(e, cnt), '퀴즈 ' + cnt + '문제 보기'), e.src, e.title + ' — 교육 퀴즈');
     }
-    if (m === 2) return add('bot', render2(e, q), e.src, e.title + ' — 실무 검토');
-    return add('bot', render8(e, true), e.src, e.title);   // 모드1 = 표준 8단계 전체
+    if (m === 2) return add('bot', wrap(sum2of2(e), render2(e, q), '검토 의견 자세히 보기'), e.src, e.title + ' — 실무 검토');
+    return add('bot', wrap(e.sum2 || ['<b>' + esc(e.title) + '</b>에 대한 핵심 내용을 정리했어요.', '아래 <b>표준 8단계</b>에서 정의·근거부터 판례·체크리스트까지 확인하세요.'],
+                           render8(e, true), '자세히 보기 (표준 8단계)'), e.src, e.title);
   }
 
   var QS = ['민감정보', '고유식별정보', '제18조 목적 외 이용', '접속기록', '암호화', 'CCTV',
