@@ -22,6 +22,23 @@
   .chip-q:hover { border-color: var(--cipher); color: var(--cipher); }
   .barrow { display: flex; gap: 8px; margin-top: 12px; }
   .barrow input { flex: 1; font: inherit; font-size: 14px; padding: 11px 13px; border: 1px solid var(--line); border-radius: 10px; background: var(--surface-2); color: var(--ink); }
+  /* 구조화 상세 답변 */
+  .chat { height: min(72vh, 680px); }
+  .msg { max-width: 86%; }
+  .msg.bot { max-width: 95%; }
+  .msg .bubble.long { max-width: none; }
+  .a-title { font-family: var(--f-display); font-weight: 800; font-size: 15px; margin: 0 0 7px; padding-bottom: 6px; border-bottom: 2px solid var(--cipher); display: inline-block; }
+  .a-intro { margin: 0 0 4px; }
+  .a-hr, hr.a-hr { border: 0; border-top: 1px solid var(--line); margin: 11px 0 9px; }
+  .a-sec h4 { font-family: var(--f-display); font-size: 13.5px; margin: 9px 0 5px; color: var(--cipher); }
+  .a-sec ul { margin: 0; padding-left: 17px; }
+  .a-sec li { margin: 4px 0; line-height: 1.7; }
+  .a-sec li::marker { color: var(--cipher); }
+  .a-rel { margin-top: 12px; padding-top: 9px; border-top: 1px dashed var(--line); display: flex; flex-wrap: wrap; gap: 6px; align-items: center; }
+  .a-rel > span { font-size: 11.5px; color: var(--muted); font-weight: 700; margin-right: 2px; }
+  .a-rel .chip-q { font-size: 11.5px; padding: 4px 10px; }
+  .msg .bubble .src { border-top: 1px dashed var(--line); padding-top: 6px; margin-top: 10px; }
+  @media (max-width: 640px) { .msg.bot { max-width: 100%; } .chat { padding: 12px; } }
 </style>
 </head>
 <body>
@@ -29,7 +46,7 @@
   <div class="sp-top"><a class="back" href="index.html">← 혼디지킴이 포털</a><span class="brand">뭐든 물어봅서 고팡 도우미</span></div>
   <div class="sp-head">
     <h1>뭐든 물어봅서 고팡 도우미</h1>
-    <p class="lead">개인정보 보호가 궁금할 때 물어보세요. <b>규칙 기반(토큰 0)</b>으로 근거 조문과 함께 답해요. 입력은 서버로 전송되지 않고, 근거 조문을 누르면 국가법령정보센터로 연결됩니다.</p>
+    <p class="lead">개인정보 보호가 궁금할 때 물어보세요. 주제를 입력하면 <b>정의 · 유형 · 법령 근거 · 공공기관 실무 · 법적 제재 · 위반 사례 · 판례</b> 순서로 자세히 답해요. <b>규칙 기반(토큰 0)</b>이라 입력은 서버로 전송되지 않고, 근거 조문을 누르면 국가법령정보센터로 연결됩니다.</p>
   </div>
 
   <div class="chips" id="chips"></div>
@@ -43,51 +60,86 @@
 
 <script src="assets/config.js"></script>
 <script src="assets/js/law.js"></script>
+<script src="assets/data/chatbot-kb.js"></script>
 <script>
 (function () {
-  // 규칙 기반 지식베이스: 키워드 매칭 → 답변 + 근거(법령 자동 링크)
-  const KB = [
-    { kw: ['cctv', '영상', '보관기간', '시시티비', '며칠', '몇일'], need: ['cctv', '영상', '시시티비'], a: 'CCTV 영상의 보관기간은 <b>개별 법령이 정한 기간</b>이 먼저예요. 예를 들어 어린이집은 <b>영유아보육법 시행규칙 제9조</b>에 따라 <b>60일 이상</b> 보관해야 해요. 별도 규정이 없으면 <b>표준 개인정보 보호지침 제41조</b>에 따라 <b>30일 이내</b> 보관이 원칙이에요.<br><br>저장기간이 지나면 <b>자동삭제 주기(예: 30일)</b>로 실제 자동삭제되는지 확인하고 <b>영상정보 관리대장</b>에 기록해야 해요. 저장장치에서 <b>직접 영상을 돌려보며 삭제를 확인</b>했다면 대장의 <b>이용·삭제</b>를 함께 체크하고, <b>삭제 로그만</b> 확인했다면 <b>삭제</b> 항목에 체크해 기록관리해요.<br><br>👉 “<b>영상정보 관리대장 예시</b>”라고 입력하면 작성 예시를 보여드려요.', src: '영유아보육법 시행규칙 제9조, 표준 개인정보 보호지침 제41조, 법 제25조·제25조의2' },
-    { kw: ['관리대장', '영상정보 관리대장', '대장 예시', '대장작성'], table: true, a: '영상정보 관리대장은 <b>영상정보의 이용·제공·파기·열람</b> 이력을 남기는 기록이에요. 파기(자동삭제) 확인은 아래처럼 적어요.', tableHtml: `<table style="width:100%;border-collapse:collapse;font-size:12px;margin-top:8px"><thead><tr style="background:var(--surface-2)"><th style="border:1px solid var(--line);padding:5px">일자</th><th style="border:1px solid var(--line);padding:5px">구분(이용/제공/파기/열람)</th><th style="border:1px solid var(--line);padding:5px">대상·사유</th><th style="border:1px solid var(--line);padding:5px">확인방법</th><th style="border:1px solid var(--line);padding:5px">담당자</th></tr></thead><tbody><tr><td style="border:1px solid var(--line);padding:5px">2026-11-09</td><td style="border:1px solid var(--line);padding:5px">파기(자동삭제)</td><td style="border:1px solid var(--line);padding:5px">보관 30일 경과 영상 자동삭제</td><td style="border:1px solid var(--line);padding:5px">삭제로그 확인</td><td style="border:1px solid var(--line);padding:5px">홍길동</td></tr><tr><td style="border:1px solid var(--line);padding:5px">2026-11-09</td><td style="border:1px solid var(--line);padding:5px">이용 + 파기</td><td style="border:1px solid var(--line);padding:5px">민원 확인 후 해당 구간 삭제 직접 확인</td><td style="border:1px solid var(--line);padding:5px">저장장치 직접 재생·삭제 확인</td><td style="border:1px solid var(--line);padding:5px">홍길동</td></tr></tbody></table><span style="display:block;margin-top:6px;font-size:11.5px;color:var(--muted)">· 자동삭제 로그만 확인 → ‘파기’에 체크 · 직접 재생하며 삭제 확인 → ‘이용’과 ‘파기’ 모두 체크</span>`, src: '표준 개인정보 보호지침 제41조, 법 제25조' },
-    { kw: ['주민', '주민번호', '주민등록번호'], a: '주민등록번호는 <b>법령에 구체적 근거가 있는 경우에만</b> 처리할 수 있어요(동의만으로는 불가). 저장할 때는 <b>안전한 암호 알고리즘으로 암호화</b>해야 해요.', src: '법 제24조의2, 고시 제7조' },
-    { kw: ['비밀번호', '패스워드', '비번'], a: '비밀번호는 <b>복호화되지 않도록 일방향(해시) 암호화</b>해서 저장해야 해요. 솔트를 더하고 PBKDF2 같은 반복 함수를 쓰면 더 안전해요.', src: '고시 제7조①' },
-    { kw: ['접속기록', '로그', '접속 기록'], a: '접속기록은 <b>최소 1년 이상</b> 보관해야 해요. 다만 <b>5만 명 이상</b> 정보주체의 개인정보를 처리하거나 <b>고유식별정보·민감정보</b>를 처리하면 <b>2년 이상</b> 보관하고, 월 1회 이상 점검해야 해요.', src: '고시 제8조' },
-    { kw: ['파기', '삭제', '지우'], a: '보유기간이 지나거나 처리 목적을 달성하면 <b>지체 없이(정당한 사유가 없으면 5일 이내)</b> 파기해야 해요. 전자파일은 복원 불가능한 방법으로, 출력물은 파쇄·소각해요.', src: '법 제21조, 고시 제13조, 표준지침' },
-    { kw: ['유출', '통지', '신고', '해킹당'], a: '유출을 알게 되면 <b>정보주체에게 지체 없이(72시간 이내) 통지</b>하고, <b>1천 명 이상</b> 또는 민감·고유식별정보 유출, 외부 불법접근에 의한 유출이면 <b>개인정보보호위원회·KISA에 신고</b>해야 해요.', src: '법 제34조' },
-    { kw: ['영향평가', '평가 대상', 'pia'], a: '공공기관이 일정 규모 이상 개인정보파일을 구축·운영하면 <b>영향평가가 의무</b>예요. 대표 기준은 ①5만 명 이상의 민감·고유식별정보 ②50만 명 이상의 연계 ③100만 명 이상 파일이에요.', src: '법 제33조, 영 제35조' },
-    { kw: ['동의', '필수', '고지', '받을때'], a: '동의를 받을 때는 ①수집·이용 목적 ②수집 항목 ③보유·이용 기간 ④동의 거부 권리와 불이익을 반드시 알려야 해요. 고유식별정보·민감정보·제3자 제공은 <b>별도 동의</b>를 받아요.', src: '법 제15조·제17조·제22조·제23조·제24조' },
-    { kw: ['암호화', '암호화 대상', '무엇을 암호화'], a: '비밀번호(일방향), 고유식별정보·바이오정보·신용카드·계좌번호 등은 <b>암호화 저장</b> 대상이에요. 인터넷망으로 개인정보를 주고받을 때는 전송구간도 암호화해야 해요.', src: '고시 제7조' },
-    { kw: ['가명', '가명정보', '가명처리'], a: '가명정보는 <b>통계작성·과학적 연구·공익적 기록보존</b> 목적이면 정보주체 동의 없이 처리할 수 있어요. 다만 재식별을 금지하고 안전조치를 해야 해요.', src: '법 제28조의2~제28조의7' },
-    { kw: ['14세', '아동', '미성년', '어린이'], a: '만 14세 미만 아동의 개인정보를 처리하려면 <b>법정대리인의 동의</b>를 받고 이를 확인해야 해요.', src: '법 제22조의2' },
-    { kw: ['열람', '정정', '삭제요구', '처리정지', '권리'], a: '정보주체는 열람·정정·삭제·처리정지를 요구할 수 있고, 처리자는 <b>10일 이내</b>에 조치하거나 사유를 알려야 해요.', src: '법 제35조·제36조·제37조' },
-    { kw: ['위탁', '수탁', '제3자', '제공 차이'], a: '<b>위탁</b>은 처리자의 업무를 대신 처리하게 하는 것(문서 체결·공개·관리감독), <b>제3자 제공</b>은 제공받는 자의 목적을 위해 넘기는 것(별도 동의 또는 법적 근거)이에요.', src: '법 제26조(위탁)·제17조(제공)' },
-    { kw: ['과태료', '처벌', '벌칙', '안전조치 위반'], a: '안전조치 의무(법 제29조)를 위반하면 과태료가 부과될 수 있어요(안전조치 미이행 등은 최대 <b>3천만원 이하</b>). 위반 유형별로 과태료·벌칙이 달라요.', src: '법 제29조·제73조·제75조' }
-  ];
-  const chat = document.getElementById('chat');
-  function esc(s) { return String(s).replace(/[&<>]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;' }[c])); }
-  function add(role, html, src) {
-    const m = document.createElement('div'); m.className = 'msg ' + role;
-    const av = role === 'bot' ? '<div class="av">🧑🏻‍🦱</div>' : '<div class="av">🙋</div>';
-    m.innerHTML = av + `<div class="bubble">${html}${src ? `<span class="src law-cite">근거: ${esc(src)}</span>` : ''}</div>`;
-    chat.appendChild(m); chat.scrollTop = chat.scrollHeight;
+  var KB = window.CHATKB || [];
+  var chat = document.getElementById('chat');
+  function esc(s) { return String(s == null ? '' : s).replace(/[&<>]/g, function (c) { return ({ '&': '&amp;', '<': '&lt;', '>': '&gt;' })[c]; }); }
+
+  /* 구조화 답변 렌더링: 제목 → 인트로 → 구분선 → 번호 절 → 근거 → 관련 주제 */
+  function render(e) {
+    var h = '';
+    if (e.intro) h += '<p class="a-intro">' + e.intro + '</p>';
+    if (e.sections && e.sections.length) {
+      h += e.sections.map(function (sec, i) {
+        return '<div class="a-sec"><h4>' + (i + 1) + '. ' + esc(sec.h) + '</h4><ul>' +
+          sec.items.map(function (it) { return '<li>' + it + '</li>'; }).join('') + '</ul></div>';
+      }).join('<hr class="a-hr">');
+    }
+    if (e.tableHtml) h += e.tableHtml;
+    if (e.related && e.related.length) {
+      var names = e.related.map(function (id) {
+        var t = KB.filter(function (x) { return x.id === id; })[0];
+        return t ? '<button type="button" class="chip-q rel" data-q="' + esc(t.kw[0]) + '">' + esc(t.title) + '</button>' : '';
+      }).filter(Boolean).join('');
+      if (names) h += '<div class="a-rel"><span>이어서 볼 주제</span>' + names + '</div>';
+    }
+    return h;
+  }
+
+  function add(role, html, src, title) {
+    var m = document.createElement('div');
+    m.className = 'msg ' + role;
+    var av = role === 'bot' ? '<div class="av">🧑🏻‍🦱</div>' : '<div class="av">🙋</div>';
+    m.innerHTML = av + '<div class="bubble' + (role === 'bot' && title ? ' long' : '') + '">' +
+      (title ? '<div class="a-title">' + esc(title) + '</div>' : '') + html +
+      (src ? '<span class="src law-cite">근거: ' + esc(src) + '</span>' : '') + '</div>';
+    chat.appendChild(m);
+    chat.scrollTop = chat.scrollHeight;
     if (role === 'bot' && window.PI && window.PI.linkifyLaws) window.PI.linkifyLaws(m);
   }
-  function answer(q) {
-    const s = q.toLowerCase().replace(/\s/g, '');
-    let best = null, bestScore = 0;
-    KB.forEach(e => { let sc = 0; e.kw.forEach(k => { if (s.includes(k.replace(/\s/g, ''))) sc++; }); if (e.need && !e.need.some(n => s.includes(n))) { } if (sc > bestScore) { bestScore = sc; best = e; } });
-    if (best && bestScore > 0) return add('bot', best.a + (best.tableHtml || ''), best.src);
-    add('bot', '아직 제가 아는 주제가 아니에요. 아래 추천 질문을 눌러 보거나, <b>CCTV 보관기간 · 주민번호 저장 · 접속기록 · 파기 · 유출 통지 · 영향평가 · 동의 · 암호화 · 가명정보</b> 같은 키워드로 물어봐 주세요. 더 자세한 건 <a href="learn.html" style="color:var(--cipher)">함께 배우는 개인정보 보호</a>에서 실습으로 확인할 수 있어요.');
+
+  /* 키워드 매칭: 긴 키워드 우선, need 조건 충족 필수 */
+  function match(q) {
+    var s = q.toLowerCase().replace(/\s/g, '');
+    var best = null, bestScore = 0;
+    KB.forEach(function (e) {
+      if (e.need && !e.need.some(function (n) { return s.indexOf(n.replace(/\s/g, '')) >= 0; })) return;
+      var sc = 0;
+      e.kw.forEach(function (k) {
+        var kk = k.toLowerCase().replace(/\s/g, '');
+        if (s.indexOf(kk) >= 0) sc = Math.max(sc, kk.length);   // 긴 키워드일수록 정확한 매칭
+      });
+      if (sc > bestScore) { bestScore = sc; best = e; }
+    });
+    return bestScore > 0 ? best : null;
   }
-  const QS = ['CCTV는 며칠 보관해요?', '영상정보 관리대장 예시', '주민번호는 어떻게 저장해요?', '접속기록은 몇 년 보관해요?', '유출되면 언제까지 신고해요?', '영향평가는 누가 받아요?'];
-  const chips = document.getElementById('chips');
-  chips.innerHTML = QS.map(q => `<button type="button" class="chip-q">${q}</button>`).join('');
-  chips.addEventListener('click', e => { const b = e.target.closest('.chip-q'); if (!b) return; add('me', esc(b.textContent)); setTimeout(() => answer(b.textContent), 160); });
-  document.getElementById('form').addEventListener('submit', e => {
-    e.preventDefault(); const inp = document.getElementById('q'); const v = inp.value.trim(); if (!v) return;
-    add('me', esc(v)); inp.value = ''; setTimeout(() => answer(v), 160);
+
+  function answer(q) {
+    var e = match(q);
+    if (e) return add('bot', render(e), e.src, e.title);
+    var topics = KB.map(function (x) { return '<button type="button" class="chip-q rel" data-q="' + esc(x.kw[0]) + '">' + esc(x.title) + '</button>'; }).join('');
+    add('bot', '<p class="a-intro">아직 제가 아는 주제가 아니에요. 아래 주제 중에서 골라 보시겠어요?</p><div class="a-rel"><span>다룰 수 있는 주제</span>' + topics + '</div>' +
+      '<p style="margin:10px 0 0;font-size:12.5px;color:var(--muted)">더 자세한 실습은 <a href="learn.html" style="color:var(--cipher)">함께 배우는 개인정보 보호</a>와 <a href="ctf.html" style="color:var(--cipher)">CTF로 배우는 개인정보 보호</a>에서 확인할 수 있어요.</p>');
+  }
+
+  var QS = ['민감정보', '주민등록번호는 어떻게 저장해요?', '접속기록은 몇 년 보관해요?', '암호화 대상이 뭐예요?',
+            'CCTV는 며칠 보관해요?', '유출되면 언제까지 신고해요?', '영향평가는 누가 받아요?', '위탁과 제3자 제공 차이',
+            '목적 외 이용', '공무원 징계'];
+  var chips = document.getElementById('chips');
+  chips.innerHTML = QS.map(function (q) { return '<button type="button" class="chip-q">' + esc(q) + '</button>'; }).join('');
+
+  function ask(text) { add('me', esc(text)); setTimeout(function () { answer(text); }, 160); }
+  chips.addEventListener('click', function (ev) { var b = ev.target.closest('.chip-q'); if (b) ask(b.dataset.q || b.textContent); });
+  chat.addEventListener('click', function (ev) { var b = ev.target.closest('.chip-q'); if (b) ask(b.dataset.q || b.textContent); });
+  document.getElementById('form').addEventListener('submit', function (ev) {
+    ev.preventDefault();
+    var inp = document.getElementById('q'), v = inp.value.trim();
+    if (!v) return; inp.value = ''; ask(v);
   });
-  add('bot', '안녕! 난 <b>요망진 간세다리</b>야. 개인정보 보호가 궁금하면 뭐든 물어보게 마씸. 아래 추천 질문을 눌러도 좋아요.');
+
+  add('bot', '<p class="a-intro">안녕! 난 <b>요망진 간세다리</b>예요. 개인정보 보호가 궁금하면 뭐든 물어봅서. 주제를 입력하면 <b>정의 · 유형 · 법령 근거 · 공공기관 실무 · 법적 제재 · 위반 사례 · 판례</b> 순서로 자세히 알려드려요.</p>');
 })();
 </script>
 </body>
