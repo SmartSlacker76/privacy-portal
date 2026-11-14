@@ -22,6 +22,41 @@
   .chip-q:hover { border-color: var(--cipher); color: var(--cipher); }
   .barrow { display: flex; gap: 8px; margin-top: 12px; }
   .barrow input { flex: 1; font: inherit; font-size: 14px; padding: 11px 13px; border: 1px solid var(--line); border-radius: 10px; background: var(--surface-2); color: var(--ink); }
+  .asof-bar { font-size: 12px; color: var(--muted); line-height: 1.65; background: var(--surface-2); border: 1px solid var(--line); border-left: 3px solid var(--cipher); border-radius: 8px; padding: 9px 12px; margin: 12px 0 0; }
+  .a-chk { margin-top: 10px; display: flex; flex-wrap: wrap; gap: 6px; }
+  .a-chk a { font-size: 11.5px; font-weight: 600; text-decoration: none; color: var(--cipher); border: 1px solid var(--line); border-radius: 7px; padding: 3px 9px; }
+  .a-chk a:hover { border-color: var(--cipher); background: var(--cipher-soft); }
+  /* 3대 모드 */
+  .how3 { display: grid; gap: 7px; margin-top: 9px; }
+  .how3 > div { background: var(--surface); border: 1px solid var(--line); border-radius: 8px; padding: 8px 11px; font-size: 12.5px; line-height: 1.6; }
+  .how3 b { color: var(--cipher); }
+  .how3 span { display: block; color: var(--muted); margin-top: 2px; }
+  .how3 i { font-style: normal; background: var(--surface-2); border-radius: 4px; padding: 0 5px; }
+  .chk-box { margin-top: 9px; background: var(--surface); border: 1px solid var(--line); border-radius: 9px; padding: 10px 12px; }
+  .chk-h { font-size: 12.5px; font-weight: 700; color: var(--cipher); margin-bottom: 6px; }
+  .chk-i { display: flex; gap: 8px; align-items: flex-start; font-size: 12.5px; line-height: 1.65; margin: 5px 0; cursor: pointer; }
+  .chk-i input { margin-top: 3px; flex: 0 0 auto; }
+  .chk-i input:checked + span { color: var(--muted); text-decoration: line-through; }
+  .sum-box { margin-top: 9px; background: var(--cipher-soft); border-left: 3px solid var(--cipher); border-radius: 7px; padding: 8px 12px; }
+  .sum-box b { font-size: 11.5px; color: var(--cipher); letter-spacing: .02em; }
+  .sum-box p { margin: 3px 0 0; font-size: 13px; line-height: 1.65; }
+  .rv { background: var(--surface); border: 1px solid var(--line); border-radius: 10px; padding: 11px 13px; }
+  .rv h4 { font-family: var(--f-display); font-size: 13.5px; margin: 0 0 6px; color: var(--cipher); }
+  .rv-q { font-size: 12px; color: var(--muted); margin: 0 0 8px; }
+  .rv-dl { display: grid; grid-template-columns: 104px 1fr; gap: 7px 10px; font-size: 12.5px; margin: 0; }
+  .rv-dl dt { font-weight: 700; color: var(--muted); }
+  .rv-dl dd { margin: 0; line-height: 1.7; }
+  .rv b.ok { color: var(--ok); } .rv b.cond { color: var(--warn); } .rv b.bad { color: var(--plain); }
+  .qz { border: 1px solid var(--line); border-radius: 10px; padding: 11px 13px; margin-top: 9px; background: var(--surface); }
+  .qz-q { font-size: 13px; line-height: 1.7; }
+  .qz-ox { color: var(--cipher); font-weight: 700; white-space: nowrap; }
+  .qz-btn { margin-top: 8px; font: inherit; font-size: 12px; font-weight: 600; padding: 5px 12px; border: 1px solid var(--cipher); background: transparent; color: var(--cipher); border-radius: 7px; cursor: pointer; }
+  .qz-btn:hover { background: var(--cipher-soft); }
+  .qz-a { margin-top: 9px; border-top: 1px dashed var(--line); padding-top: 8px; font-size: 12.5px; line-height: 1.7; }
+  .qz-ans .ox { display: inline-block; min-width: 24px; text-align: center; background: var(--cipher); color: #fff; border-radius: 5px; font-weight: 800; padding: 0 7px; }
+  .qz-why { margin-top: 5px; }
+  .qz-tip { margin-top: 6px; background: var(--surface-2); border-radius: 6px; padding: 6px 9px; font-size: 12px; }
+  @media (max-width: 640px) { .rv-dl { grid-template-columns: 1fr; } .rv-dl dt { margin-top: 5px; } }
   /* 구조화 상세 답변 */
   .chat { height: min(72vh, 680px); }
   .msg { max-width: 86%; }
@@ -46,9 +81,10 @@
   <div class="sp-top"><a class="back" href="index.html">← 혼디지킴이 포털</a><span class="brand">뭐든 물어봅서 고팡 도우미</span></div>
   <div class="sp-head">
     <h1>뭐든 물어봅서 고팡 도우미</h1>
-    <p class="lead">개인정보 보호가 궁금할 때 물어보세요. 주제를 입력하면 <b>정의 · 유형 · 법령 근거 · 공공기관 실무 · 법적 제재 · 위반 사례 · 판례</b> 순서로 자세히 답해요. <b>규칙 기반(토큰 0)</b>이라 입력은 서버로 전송되지 않고, 근거 조문을 누르면 국가법령정보센터로 연결됩니다.</p>
+    <p class="lead">공공기관 개인정보 보호 업무를 도와드려요. <b>용어·조문</b>을 입력하면 정의부터 판례·체크리스트까지 <b>표준 8단계</b>로, <b>사업 적법성</b>을 물으면 <b>실무 검토 의견</b>을, <b>퀴즈</b>를 요청하면 <b>직원 교육용 문제</b>를 만들어요. <b>규칙 기반(토큰 0)</b>이라 입력은 서버로 전송되지 않아요.</p>
   </div>
 
+  <p class="asof-bar" id="asofBar"></p>
   <div class="chips" id="chips"></div>
   <div class="chat" id="chat" aria-live="polite"></div>
   <form class="barrow" id="form" autocomplete="off">
@@ -63,83 +99,150 @@
 <script src="assets/data/chatbot-kb.js"></script>
 <script>
 (function () {
-  var KB = window.CHATKB || [];
+  var KB = window.CHATKB || [], A = window.CHATKB_ASOF || {};
   var chat = document.getElementById('chat');
   function esc(s) { return String(s == null ? '' : s).replace(/[&<>]/g, function (c) { return ({ '&': '&amp;', '<': '&lt;', '>': '&gt;' })[c]; }); }
 
-  /* 구조화 답변 렌더링: 제목 → 인트로 → 구분선 → 번호 절 → 근거 → 관련 주제 */
-  function render(e) {
-    var h = '';
-    if (e.intro) h += '<p class="a-intro">' + e.intro + '</p>';
-    if (e.sections && e.sections.length) {
-      h += e.sections.map(function (sec, i) {
-        return '<div class="a-sec"><h4>' + (i + 1) + '. ' + esc(sec.h) + '</h4><ul>' +
-          sec.items.map(function (it) { return '<li>' + it + '</li>'; }).join('') + '</ul></div>';
-      }).join('<hr class="a-hr">');
-    }
+  /* ── 주제 매칭 ─────────────────────────────────────────── */
+  function match(q) {
+    var s = q.toLowerCase().replace(/\s/g, ''), best = null, sc0 = 0;
+    KB.forEach(function (e) {
+      if (e.need && !e.need.some(function (n) { return s.indexOf(n.replace(/\s/g, '')) >= 0; })) return;
+      var sc = 0;
+      e.kw.forEach(function (k) { var kk = k.toLowerCase().replace(/\s/g, ''); if (s.indexOf(kk) >= 0) sc = Math.max(sc, kk.length); });
+      if (sc > sc0) { sc0 = sc; best = e; }
+    });
+    return sc0 > 0 ? best : null;
+  }
+
+  /* ── 모드 판별 ─────────────────────────────────────────── */
+  var RE_QUIZ   = /퀴즈|문제\s*(를|좀)?\s*(만들|출제|내)|테스트|ox|o\/x|교육자료|문항/i;
+  var RE_REVIEW = /검토|적법|위법|가능한가|가능한지|되나요|돼요\?|해도\s*(되|돼)|문제\s*(없|있)|괜찮|합법|위반\s*(인|되)|받아도|수집해도|제공해도/;
+  function mode(q) {
+    if (RE_QUIZ.test(q)) return 3;
+    if (RE_REVIEW.test(q) && q.replace(/\s/g, '').length > 12) return 2;
+    return 1;
+  }
+
+  /* ── 모드 1: 표준 8단계 ─────────────────────────────────── */
+  function render8(e, full) {
+    var h = '<p class="a-intro">공공기관 실무 및 교육을 위한 <b>' + esc(e.title) + '</b>의 핵심 법령 검토 기준부터 실제 위반 사례까지 정리해 드릴게요.</p>';
+    var secs = e.sections || [];
+    if (!full) secs = secs.filter(function (x) { return [1, 3, 5, 8].indexOf(x.n) >= 0; });
+    h += secs.map(function (sec) {
+      var b = '<div class="a-sec"><h4>' + sec.n + '. ' + esc(sec.h) + '</h4>';
+      if (sec.items && sec.items.length) b += '<ul>' + sec.items.map(function (i) { return '<li>' + i + '</li>'; }).join('') + '</ul>';
+      if (sec.check) {
+        b += '<div class="chk-box"><div class="chk-h">법령 검토 체크리스트 (실무자용)</div>' +
+          sec.check.map(function (c, i) { return '<label class="chk-i"><input type="checkbox" data-c="' + i + '"><span>' + c + '</span></label>'; }).join('') + '</div>';
+      }
+      if (sec.summary) b += '<div class="sum-box"><b>한 줄 핵심 요약</b><p>' + sec.summary + '</p></div>';
+      return b + '</div>';
+    }).join('<hr class="a-hr">');
     if (e.tableHtml) h += e.tableHtml;
-    if (e.related && e.related.length) {
-      var names = e.related.map(function (id) {
-        var t = KB.filter(function (x) { return x.id === id; })[0];
-        return t ? '<button type="button" class="chip-q rel" data-q="' + esc(t.kw[0]) + '">' + esc(t.title) + '</button>' : '';
-      }).filter(Boolean).join('');
-      if (names) h += '<div class="a-rel"><span>이어서 볼 주제</span>' + names + '</div>';
+    return h + tailer(e);
+  }
+
+  /* ── 모드 2: 실무 검토 심화 ─────────────────────────────── */
+  function render2(e, q) {
+    var h = render8(e, false);
+    h += '<hr class="a-hr"><div class="rv"><h4>📑 [실무 사례 법령 검토 의견]</h4>' +
+      '<p class="rv-q">검토 요청: <b>' + esc(q.length > 120 ? q.slice(0, 120) + '…' : q) + '</b></p>' +
+      '<dl class="rv-dl">' +
+      '<dt>검토 결론</dt><dd>아래 <b>3가지 조건</b>을 모두 충족하면 <b class="ok">적법</b>, 하나라도 비면 <b class="cond">조건부 가능</b>, 법령 근거도 별도 동의도 없으면 <b class="bad">부적법(위반 소지 높음)</b>이에요. 규칙 기반 도구라 <b>최종 판정은 담당자가</b> 아래 기준으로 확정해 주세요.</dd>' +
+      '<dt>법적 근거 대조</dt><dd>' + (e.sections.filter(function (x) { return x.n === 3; })[0] || { items: [] }).items.slice(0, 3).map(function (i) { return '· ' + i; }).join('<br>') + '</dd>' +
+      '<dt>예상 리스크</dt><dd>' + (e.sections.filter(function (x) { return x.n === 5; })[0] || { items: [] }).items.slice(0, 3).map(function (i) { return '· ' + i; }).join('<br>') + '</dd>' +
+      '<dt>실무 대안·보완</dt><dd>· <b>최소수집</b>으로 항목을 줄일 수 있는지 먼저 보세요(대체 가능한 항목이 있으면 그 항목은 받지 않아요).<br>' +
+        '· 법령 근거가 없으면 <b>별도 동의 서식</b>을 갖추고 거부 시 불이익이 없도록 설계하세요.<br>' +
+        '· 처리가 불가피하면 <b>보유기간 단축 · 암호화 · 접근권한 최소화</b>로 위험을 낮추고 근거를 문서로 남기세요.</dd>' +
+      '</dl></div>';
+    return h;
+  }
+
+  /* ── 모드 3: 교육 퀴즈 ──────────────────────────────────── */
+  function render3(e, n) {
+    var qs = (e.quiz || []).slice(0, n || 3);
+    if (!qs.length) return '<p class="a-intro">이 주제는 아직 퀴즈가 준비되지 않았어요. 다른 주제로 요청해 주시겠어요?</p>' + tailer(e);
+    var h = '<p class="a-intro"><b>' + esc(e.title) + '</b> 교육용 <b>OX 퀴즈 ' + qs.length + '문제</b>예요. 공공기관 직원이 실무에서 가장 헷갈리기 쉬운 지점으로 골랐어요.</p>';
+    h += qs.map(function (x, i) {
+      return '<div class="qz"><div class="qz-q"><b>[문제 ' + (i + 1) + ']</b> ' + x.q + ' <span class="qz-ox">( O / X )</span></div>' +
+        '<button type="button" class="qz-btn">정답·해설 보기</button>' +
+        '<div class="qz-a" hidden><div class="qz-ans"><b>[정답]</b> <span class="ox">' + esc(x.a) + '</span></div>' +
+        '<div class="qz-why"><b>[상세 해설]</b> ' + x.why + '</div>' +
+        '<div class="qz-tip">💡 <b>실무 핵심 팁</b> — ' + x.tip + '</div></div></div>';
+    }).join('');
+    return h + tailer(e);
+  }
+
+  function tailer(e) {
+    var h = '';
+    if (e.laws && e.laws.length) {
+      h += '<div class="a-chk">' + e.laws.map(function (L) {
+        return '<a href="https://www.law.go.kr/법령/' + encodeURIComponent(L.n.replace(/\s/g, '')) + '/' + encodeURIComponent(L.a) + '" target="_blank" rel="noopener">⟳ ' + esc(L.n + ' ' + L.a) + ' 현행본</a>';
+      }).join('') + '</div>';
     }
+    var acts = '<button type="button" class="chip-q rel" data-q="' + esc(e.kw[0]) + ' 적법성 검토해줘">🔍 실무 검토 받기</button>' +
+               '<button type="button" class="chip-q rel" data-q="' + esc(e.kw[0]) + ' 퀴즈 3문제">📝 교육 퀴즈 만들기</button>';
+    var rel = (e.related || []).map(function (id) {
+      var t = KB.filter(function (x) { return x.id === id; })[0];
+      return t ? '<button type="button" class="chip-q rel" data-q="' + esc(t.kw[0]) + '">' + esc(t.title) + '</button>' : '';
+    }).filter(Boolean).join('');
+    h += '<div class="a-rel"><span>이어서</span>' + acts + rel + '</div>';
     return h;
   }
 
   function add(role, html, src, title) {
     var m = document.createElement('div');
     m.className = 'msg ' + role;
-    var av = role === 'bot' ? '<div class="av">🧑🏻‍🦱</div>' : '<div class="av">🙋</div>';
-    m.innerHTML = av + '<div class="bubble' + (role === 'bot' && title ? ' long' : '') + '">' +
+    m.innerHTML = (role === 'bot' ? '<div class="av">🧑🏻‍🦱</div>' : '<div class="av">🙋</div>') +
+      '<div class="bubble' + (role === 'bot' && title ? ' long' : '') + '">' +
       (title ? '<div class="a-title">' + esc(title) + '</div>' : '') + html +
       (src ? '<span class="src law-cite">근거: ' + esc(src) + '</span>' : '') + '</div>';
-    chat.appendChild(m);
-    chat.scrollTop = chat.scrollHeight;
+    chat.appendChild(m); chat.scrollTop = chat.scrollHeight;
     if (role === 'bot' && window.PI && window.PI.linkifyLaws) window.PI.linkifyLaws(m);
-  }
-
-  /* 키워드 매칭: 긴 키워드 우선, need 조건 충족 필수 */
-  function match(q) {
-    var s = q.toLowerCase().replace(/\s/g, '');
-    var best = null, bestScore = 0;
-    KB.forEach(function (e) {
-      if (e.need && !e.need.some(function (n) { return s.indexOf(n.replace(/\s/g, '')) >= 0; })) return;
-      var sc = 0;
-      e.kw.forEach(function (k) {
-        var kk = k.toLowerCase().replace(/\s/g, '');
-        if (s.indexOf(kk) >= 0) sc = Math.max(sc, kk.length);   // 긴 키워드일수록 정확한 매칭
-      });
-      if (sc > bestScore) { bestScore = sc; best = e; }
-    });
-    return bestScore > 0 ? best : null;
   }
 
   function answer(q) {
     var e = match(q);
-    if (e) return add('bot', render(e), e.src, e.title);
-    var topics = KB.map(function (x) { return '<button type="button" class="chip-q rel" data-q="' + esc(x.kw[0]) + '">' + esc(x.title) + '</button>'; }).join('');
-    add('bot', '<p class="a-intro">아직 제가 아는 주제가 아니에요. 아래 주제 중에서 골라 보시겠어요?</p><div class="a-rel"><span>다룰 수 있는 주제</span>' + topics + '</div>' +
-      '<p style="margin:10px 0 0;font-size:12.5px;color:var(--muted)">더 자세한 실습은 <a href="learn.html" style="color:var(--cipher)">함께 배우는 개인정보 보호</a>와 <a href="ctf.html" style="color:var(--cipher)">CTF로 배우는 개인정보 보호</a>에서 확인할 수 있어요.</p>');
+    if (!e) {
+      var topics = KB.map(function (x) { return '<button type="button" class="chip-q rel" data-q="' + esc(x.kw[0]) + '">' + esc(x.title) + '</button>'; }).join('');
+      return add('bot', '<p class="a-intro">아직 제가 아는 주제가 아니에요. 아래 주제 중에서 골라 보시겠어요? 주제명을 입력하면 <b>표준 8단계</b>로, "○○ 검토해줘"라고 쓰면 <b>실무 검토 의견</b>으로, "○○ 퀴즈 3문제"라고 쓰면 <b>교육 퀴즈</b>로 답해요.</p><div class="a-rel"><span>다룰 수 있는 주제</span>' + topics + '</div>');
+    }
+    var m = mode(q);
+    if (m === 3) {
+      var n = (q.match(/(\d+)\s*(문제|문항|개)/) || [])[1];
+      return add('bot', render3(e, n ? Math.min(+n, (e.quiz || []).length) : 3), e.src, e.title + ' — 교육 퀴즈');
+    }
+    if (m === 2) return add('bot', render2(e, q), e.src, e.title + ' — 실무 검토');
+    return add('bot', render8(e, true), e.src, e.title);   // 모드1 = 표준 8단계 전체
   }
 
-  var QS = ['민감정보', '주민등록번호는 어떻게 저장해요?', '접속기록은 몇 년 보관해요?', '암호화 대상이 뭐예요?',
-            'CCTV는 며칠 보관해요?', '유출되면 언제까지 신고해요?', '영향평가는 누가 받아요?', '위탁과 제3자 제공 차이',
-            '목적 외 이용', '공무원 징계'];
+  var QS = ['민감정보', '고유식별정보', '제18조 목적 외 이용', '접속기록', '암호화', 'CCTV',
+            '공모전 참가자 건강정보 수집해도 되나요?', '가명정보 퀴즈 3문제'];
   var chips = document.getElementById('chips');
   chips.innerHTML = QS.map(function (q) { return '<button type="button" class="chip-q">' + esc(q) + '</button>'; }).join('');
 
-  function ask(text) { add('me', esc(text)); setTimeout(function () { answer(text); }, 160); }
+  function ask(t) { add('me', esc(t)); setTimeout(function () { answer(t); }, 160); }
   chips.addEventListener('click', function (ev) { var b = ev.target.closest('.chip-q'); if (b) ask(b.dataset.q || b.textContent); });
-  chat.addEventListener('click', function (ev) { var b = ev.target.closest('.chip-q'); if (b) ask(b.dataset.q || b.textContent); });
+  chat.addEventListener('click', function (ev) {
+    var qb = ev.target.closest('.qz-btn');
+    if (qb) { var box = qb.nextElementSibling; box.hidden = !box.hidden; qb.textContent = box.hidden ? '정답·해설 보기' : '해설 접기'; return; }
+    var b = ev.target.closest('.chip-q'); if (b) ask(b.dataset.q || b.textContent);
+  });
   document.getElementById('form').addEventListener('submit', function (ev) {
-    ev.preventDefault();
-    var inp = document.getElementById('q'), v = inp.value.trim();
-    if (!v) return; inp.value = ''; ask(v);
+    ev.preventDefault(); var i = document.getElementById('q'), v = i.value.trim();
+    if (!v) return; i.value = ''; ask(v);
   });
 
-  add('bot', '<p class="a-intro">안녕! 난 <b>요망진 간세다리</b>예요. 개인정보 보호가 궁금하면 뭐든 물어봅서. 주제를 입력하면 <b>정의 · 유형 · 법령 근거 · 공공기관 실무 · 법적 제재 · 위반 사례 · 판례</b> 순서로 자세히 알려드려요.</p>');
+  document.getElementById('asofBar').innerHTML =
+    '📚 답변은 <b>법제처 국가법령정보센터 현행본</b> 기준이에요 — 개인정보 보호법 <b>시행 ' + esc(A.law || '—') +
+    '</b>, 시행령 <b>시행 ' + esc(A.decree || '—') + '</b>. 근거 조문을 누르면 <b>최신 현행본</b>으로 연결돼요. ' +
+    '자치법규는 <b>자치법규정보시스템(elis.go.kr)</b>에서 확인하세요.';
+
+  add('bot', '<p class="a-intro">안녕! 난 <b>요망진 간세다리</b>예요. 공공기관 개인정보 보호 업무를 도와드려요.</p>' +
+    '<div class="how3"><div><b>① 용어·조문을 입력하면</b><span>정의·근거부터 판례·체크리스트까지 <b>표준 8단계</b>로 설명해요.<br>예) <i>민감정보</i>, <i>제18조 목적 외 이용</i></span></div>' +
+    '<div><b>② 사업 적법성을 물으면</b><span><b>실무 검토 의견</b>(결론·근거·리스크·대안)을 덧붙여요.<br>예) <i>공모전 참가자 건강정보 수집해도 되나요?</i></span></div>' +
+    '<div><b>③ 퀴즈를 요청하면</b><span>직원 교육용 <b>OX 문제</b>를 해설·실무 팁과 함께 만들어요.<br>예) <i>가명정보 퀴즈 3문제</i></span></div></div>');
 })();
 </script>
 </body>
