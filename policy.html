@@ -4,176 +4,785 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>개인정보 처리방침 자가 진단 · 혼디지킴이</title>
-<meta name="description" content="기관명과 처리방침 주소만 넣으면 「개인정보 처리방침 작성지침」(2026.4.) 38개 항목을 자동 점검하고, 개선 보고서·개선된 처리방침(안)·신구대조표·계층별 처리방침을 만들어 드립니다. 모든 처리는 브라우저 안에서만 이뤄집니다.">
+<meta name="description" content="기관명과 처리방침 주소만 넣으면 「개인정보 보호법」 제30조와 개인정보 처리방침 작성지침(2026.4.) 기준 38개 항목을 자동 점검하고, 개선된 처리방침(안)·신구대조표·계층별 처리방침까지 만들어 드립니다.">
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700&display=swap">
 <link rel="stylesheet" href="assets/css/style.css">
 <style>
-:root{ --ok2:#1a7f5a; --ok2s:#e6f6ef; --warn2:#b07400; --warn2s:#fdf3e0; --bad2:#c0392b; --bad2s:#fdeceb; --ask2:#5b6b7c; --ask2s:#eef1f4; --mut2:#5a6672; }
-html[data-theme="dark"]{ --ok2:#52d6a4; --ok2s:#12302a; --warn2:#f0b95c; --warn2s:#33280f; --bad2:#ff8a7a; --bad2s:#3a1f1d; --ask2:#aab6c2; --ask2s:#222a33; --mut2:#b3bdc9; }
-@media (prefers-color-scheme:dark){ html:not([data-theme="light"]){ --ok2:#52d6a4; --ok2s:#12302a; --warn2:#f0b95c; --warn2s:#33280f; --bad2:#ff8a7a; --bad2s:#3a1f1d; --ask2:#aab6c2; --ask2s:#222a33; --mut2:#b3bdc9; } }
+  :root { --pcnavy:#1b2a4e; --pcnavy2:#243a68; --pcblue:#2563eb; --pcbg:#f4f6fa; }
+  body { background:var(--pcbg); }
+  html[data-theme="dark"] body { background:#0e1526; }
+  .pc-top { background:linear-gradient(100deg,#1b2a4e,#2b4484); color:#fff; padding:14px 0 15px; }
+  .pc-top .in { max-width:1180px; margin:0 auto; padding:0 22px; display:flex; align-items:center; gap:13px; flex-wrap:wrap; }
+  .pc-top .mk { width:34px; height:34px; border-radius:9px; background:rgba(255,255,255,.14); display:grid; place-items:center; font-size:17px; flex:0 0 auto; }
+  .pc-top h1 { font-family:var(--f-display); font-size:19px; font-weight:800; margin:0; letter-spacing:-.01em; }
+  .pc-top .sub { font-size:11.5px; color:#b9c8e8; margin:2px 0 0; }
+  .pc-top .chips { margin-left:auto; display:flex; gap:6px; flex-wrap:wrap; }
+  .pc-top .chip { font-size:11px; font-weight:600; border:1px solid rgba(255,255,255,.26); border-radius:14px; padding:4px 11px; color:#dce6fb; }
+  .pc-top .chip.on { background:#2f6df6; border-color:#2f6df6; color:#fff; }
+  .pc-top a.back { color:#b9c8e8; text-decoration:none; font-size:12px; }
+  .pc-top a.back:hover { color:#fff; }
+  .pc-wrap { max-width:1180px; margin:0 auto; padding:22px 22px 70px; }
+  .pc-card { background:var(--surface); border:1px solid var(--line); border-radius:14px; padding:20px 22px; box-shadow:0 1px 3px rgba(16,24,40,.05); }
+  .pc-h { display:flex; align-items:center; gap:9px; font-family:var(--f-display); font-size:16px; font-weight:800; margin:0 0 16px; }
+  .pc-h .n { width:23px; height:23px; border-radius:50%; background:var(--pcblue); color:#fff; font-size:12px; display:grid; place-items:center; flex:0 0 auto; }
+  .pc-row { display:grid; grid-template-columns:1fr 310px; gap:14px; }
+  @media(max-width:780px){ .pc-row { grid-template-columns:1fr; } }
+  .pc-f { display:block; }
+  .pc-f label { display:block; font-size:12.5px; font-weight:700; margin:0 0 6px; }
+  .pc-f label i { color:#dc2626; font-style:normal; }
+  .pc-f input, .pc-f select, .pc-f textarea { width:100%; font:inherit; font-size:14px; padding:10px 12px; border:1px solid var(--line); border-radius:9px; background:var(--surface-2); color:var(--ink); }
+  .pc-f input:focus, .pc-f select:focus, .pc-f textarea:focus { outline:2px solid #b7cdfb; outline-offset:0; border-color:var(--pcblue); }
+  .pc-f textarea { min-height:170px; font-size:13px; line-height:1.65; resize:vertical; }
+  .pc-f + .pc-f { margin-top:14px; }
+  .pc-f .hint { font-size:11.5px; color:var(--muted); margin:5px 0 0; }
+  .pc-more { margin-top:14px; }
+  .pc-more > summary { cursor:pointer; font-size:12.5px; font-weight:700; color:var(--pcblue); list-style:none; }
+  .pc-more > summary::-webkit-details-marker { display:none; }
+  .pc-more > summary::before { content:"▶ "; font-size:10px; }
+  .pc-more[open] > summary::before { content:"▼ "; }
+  .pc-more .inner { margin-top:12px; padding:14px; border:1px dashed var(--line); border-radius:11px; background:var(--surface-2); }
+  .pc-btns { display:flex; gap:9px; flex-wrap:wrap; align-items:center; margin-top:17px; }
+  .pc-btn { font:inherit; font-size:13.5px; font-weight:700; border:1px solid var(--line); background:var(--surface-2); color:var(--ink); border-radius:9px; padding:10px 18px; cursor:pointer; }
+  .pc-btn.pri { background:var(--pcblue); border-color:var(--pcblue); color:#fff; }
+  .pc-btn.pri:hover { background:#1d4fd8; }
+  .pc-btn:disabled { opacity:.5; cursor:default; }
+  .pc-mask { font-size:11.5px; color:var(--muted); margin-left:auto; }
+  .pc-src { font-size:11px; color:var(--muted); line-height:1.75; margin:16px 0 0; }
+  .pc-src b { color:var(--ink); }
 
-.pc-wrap{max-width:1080px;margin:0 auto;padding:0 20px 80px}
-.pc-top{display:flex;align-items:center;gap:12px;padding:18px 0;font-size:13.5px}
-.pc-top a.back{color:var(--muted);text-decoration:none}
-.pc-top .brand{font-weight:700}
-.pc-hero{padding:14px 0 6px}
-.pc-hero h1{font-size:clamp(25px,4vw,34px);font-weight:800;margin:0 0 10px;line-height:1.25}
-.pc-hero p{font-size:14.5px;color:var(--mut2);line-height:1.75;margin:0;max-width:72ch}
-.pc-hero p b{color:var(--ink);font-weight:600}
-.pc-card{background:var(--surface);border:1px solid var(--line);border-radius:16px;padding:22px;margin:16px 0;box-shadow:var(--shadow-sm)}
-.pc-card h2{font-family:var(--f-display);font-size:17px;margin:0 0 4px}
-.pc-card h3{font-size:14.5px;margin:18px 0 8px}
-.fld{margin:14px 0}
-.fld label{display:block;font-size:13px;font-weight:700;margin:0 0 6px}
-.fld label i{font-style:normal;color:var(--bad2);margin-left:3px}
-.fld .hint{font-size:12.5px;color:var(--mut2);margin:6px 0 0;line-height:1.6}
-.fld input[type=text],.fld input[type=url],.fld select,.fld textarea{width:100%;font:inherit;font-size:14px;padding:11px 12px;border:1px solid var(--line);border-radius:9px;background:var(--surface-2);color:var(--ink)}
-.fld textarea{min-height:150px;font-size:13px;line-height:1.7;resize:vertical}
-details.alt{border:1px solid var(--line);border-radius:10px;padding:0;margin:14px 0;background:var(--surface-2)}
-details.alt>summary{cursor:pointer;padding:11px 14px;font-size:13.5px;font-weight:600;list-style:none}
-details.alt>summary::-webkit-details-marker{display:none}
-details.alt>summary::before{content:"▸ ";color:var(--cipher)}
-details.alt[open]>summary::before{content:"▾ "}
-details.alt .inner{padding:0 14px 14px}
-.drop{border:2px dashed var(--line);border-radius:11px;padding:20px;text-align:center;color:var(--mut2);font-size:13px;cursor:pointer;background:var(--surface)}
-.drop.hl{border-color:var(--cipher);background:var(--cipher-soft)}
-.pc-actions{display:flex;gap:9px;flex-wrap:wrap;margin-top:16px}
-.pc-note{font-size:12.5px;color:var(--mut2);line-height:1.7;margin:14px 0 0;padding:11px 13px;border-radius:9px;background:var(--surface-2);border:1px solid var(--line)}
-.pc-note b{color:var(--ink)}
+  /* 탭 */
+  .pc-tabs { display:flex; gap:4px; flex-wrap:wrap; border-bottom:2px solid var(--line); margin:22px 0 0; }
+  .pc-tabs button { font:inherit; font-size:13px; font-weight:700; color:var(--muted); background:transparent; border:0; border-bottom:3px solid transparent; margin-bottom:-2px; padding:11px 15px; cursor:pointer; }
+  .pc-tabs button.on { color:var(--pcblue); border-bottom-color:var(--pcblue); }
+  .pc-pane { padding-top:18px; }
 
-.tabs{display:flex;gap:6px;flex-wrap:wrap;margin:20px 0 14px}
-.tabs button{font:inherit;font-size:13px;padding:8px 14px;border:1px solid var(--line);border-radius:999px;background:var(--surface-2);color:var(--ink);cursor:pointer}
-.tabs button.on{background:var(--cipher);border-color:var(--cipher);color:#fff;font-weight:700}
-html[data-theme="dark"] .tabs button.on{color:#0b1118}
+  /* 대시보드 */
+  .kpi { display:grid; grid-template-columns:repeat(auto-fit,minmax(172px,1fr)); gap:12px; }
+  .kpi .k { background:var(--surface); border:1px solid var(--line); border-radius:13px; padding:16px 17px; }
+  .kpi .k .lb { font-size:12px; color:var(--muted); margin:0 0 7px; display:flex; align-items:center; gap:6px; }
+  .kpi .k .vv { font-family:var(--f-display); font-size:34px; font-weight:800; line-height:1; }
+  .kpi .k .vv span { font-size:14px; font-weight:600; color:var(--muted); margin-left:2px; }
+  .kpi .k .gd { display:inline-block; font-size:11.5px; font-weight:800; border-radius:12px; padding:3px 11px; margin-left:9px; vertical-align:6px; color:#fff; }
+  .dot4 { width:9px; height:9px; border-radius:2px; display:inline-block; }
+  .pc-2col { display:grid; grid-template-columns:320px minmax(0,1fr); gap:14px; margin-top:14px; }
+  @media(max-width:860px){ .pc-2col { grid-template-columns:1fr; } }
+  .bar { margin:0 0 11px; }
+  .bar .t { display:flex; justify-content:space-between; font-size:12.5px; margin:0 0 5px; }
+  .bar .t b { font-weight:700; }
+  .bar .t span { font-family:var(--f-mono); font-size:11.5px; color:var(--muted); }
+  .bar .tr { height:9px; border-radius:5px; background:var(--surface-2); overflow:hidden; }
+  .bar .fi { height:100%; border-radius:5px; background:var(--pcblue); transition:width .5s ease; }
 
-.score{display:flex;align-items:center;gap:22px;flex-wrap:wrap}
-.ring{width:132px;height:132px;flex:0 0 auto}
-.score .big{font-size:40px;font-weight:800;line-height:1}
-.score .big span{font-size:17px;color:var(--mut2);font-weight:600}
-.score .grade{font-size:14px;font-weight:700;margin-top:6px}
-.score .ssub{font-size:13px;color:var(--mut2);margin-top:7px;line-height:1.7}
+  /* 표 */
+  .pc-tb { width:100%; border-collapse:collapse; font-size:12.5px; }
+  .pc-tb th, .pc-tb td { border:1px solid var(--line); padding:8px 10px; text-align:left; vertical-align:top; line-height:1.6; }
+  .pc-tb th { background:var(--surface-2); font-weight:700; font-size:12px; }
+  .pc-tb td.c, .pc-tb th.c { text-align:center; }
+  .st { font-size:11.5px; font-weight:800; white-space:nowrap; }
+  .st.ok { color:#15803d; } .st.pa { color:#b45309; } .st.no { color:#b91c1c; } .st.qq { color:#64748b; }
+  html[data-theme="dark"] .st.ok { color:#4ade80; } html[data-theme="dark"] .st.pa { color:#fbbf24; }
+  html[data-theme="dark"] .st.no { color:#f87171; } html[data-theme="dark"] .st.qq { color:#94a3b8; }
+  .kd { font-size:11px; color:var(--muted); white-space:nowrap; }
 
-.dist{display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:10px;margin:16px 0 0}
-.dist div{border:1px solid var(--line);border-radius:11px;padding:12px 13px;background:var(--surface-2)}
-.dist b{display:block;font-size:24px;font-weight:800;line-height:1.2}
-.dist small{font-size:12.5px;color:var(--mut2)}
-.dist.s-ok b{color:var(--ok2)} .dist.s-warn b{color:var(--warn2)}
-.d-ok b{color:var(--ok2)} .d-warn b{color:var(--warn2)} .d-bad b{color:var(--bad2)} .d-ask b{color:var(--ask2)}
+  /* 개선 카드 */
+  .fix { border:1px solid var(--line); border-left:4px solid #b45309; border-radius:11px; background:var(--surface); padding:16px 18px; margin:0 0 14px; }
+  .fix.no { border-left-color:#b91c1c; }
+  .fix h4 { font-family:var(--f-display); font-size:15px; margin:0 0 11px; display:flex; align-items:center; gap:8px; flex-wrap:wrap; }
+  .fix .bk { font-size:11.5px; font-weight:800; border-radius:11px; padding:2px 9px; background:var(--surface-2); color:var(--muted); }
+  .fix dl { margin:0; display:grid; grid-template-columns:84px minmax(0,1fr); gap:7px 12px; font-size:12.5px; line-height:1.7; }
+  .fix dt { color:var(--muted); font-weight:700; font-size:11.5px; padding-top:1px; }
+  .fix dd { margin:0; }
+  .fix dd ul { margin:0; padding-left:17px; }
+  .fix .cur { background:var(--surface-2); border-radius:8px; padding:9px 11px; font-size:12px; white-space:pre-wrap; line-height:1.65; max-height:190px; overflow-y:auto; }
+  .fix .ex { background:#eef4ff; border:1px solid #cfdefb; border-radius:8px; padding:11px 13px; font-size:12.5px; white-space:pre-wrap; line-height:1.8; color:#152a52; }
+  html[data-theme="dark"] .fix .ex { background:#15213d; border-color:#2b3f6b; color:#d7e3fb; }
+  .fix .lw { font-size:11.5px; color:var(--muted); }
 
-.bars{margin-top:8px}
-.bar{display:grid;grid-template-columns:150px 1fr 54px;gap:10px;align-items:center;margin:7px 0;font-size:13px}
-.bar .tr{height:9px;border-radius:999px;background:var(--surface-2);overflow:hidden}
-.bar .tr i{display:block;height:100%;border-radius:999px;background:var(--cipher)}
-.bar .v{text-align:right;font-family:var(--f-mono);font-size:12px;color:var(--mut2)}
-@media(max-width:620px){.bar{grid-template-columns:112px 1fr 46px;font-size:12px}}
+  /* 처리방침(안) */
+  .doc { background:#fff; color:#17202e; border:1px solid var(--line); border-radius:12px; padding:28px 32px; font-size:13.5px; line-height:1.95; }
+  html[data-theme="dark"] .doc { background:#f8fafc; }
+  .doc h3 { font-family:var(--f-display); font-size:21px; text-align:center; margin:0 0 7px; color:#111827; }
+  .doc .pre { white-space:pre-wrap; margin:0 0 16px; }
+  .doc h4 { font-size:14.5px; margin:22px 0 8px; color:#0f2d6b; border-left:3px solid #2563eb; padding-left:9px; }
+  .doc .tag { font-size:10.5px; font-weight:800; border-radius:9px; padding:1px 7px; margin-left:7px; vertical-align:2px; }
+  .doc .tag.add { background:#dcfce7; color:#15803d; } .doc .tag.mod { background:#fef3c7; color:#92400e; }
+  .doc .toc { background:#f1f5f9; border-radius:9px; padding:13px 17px; font-size:12.5px; line-height:1.9; }
+  .doc table { width:100%; border-collapse:collapse; font-size:12px; margin:9px 0; }
+  .doc table th, .doc table td { border:1px solid #cbd5e1; padding:6px 9px; text-align:left; }
+  .doc table th { background:#eef2f7; }
+  /* 라벨링 */
+  .lbl { border:1px solid #cbd5e1; border-radius:11px; padding:15px 17px; margin:0 0 18px; background:#f8fafc; }
+  .lbl .lh { display:flex; align-items:center; gap:9px; font-size:13px; font-weight:800; margin:0 0 12px; color:#0f2d6b; flex-wrap:wrap; }
+  .lbl .sw { margin-left:auto; display:flex; gap:4px; }
+  .lbl .sw button { font:inherit; font-size:11px; font-weight:700; border:1px solid #cbd5e1; background:#fff; color:#334155; border-radius:13px; padding:3px 10px; cursor:pointer; }
+  .lbl .sw button.on { background:#2563eb; border-color:#2563eb; color:#fff; }
+  .lbl .gr { font-size:11px; font-weight:800; color:#64748b; margin:12px 0 7px; letter-spacing:.04em; }
+  .lbl .gr:first-of-type { margin-top:0; }
+  .lbl .set { display:grid; grid-template-columns:repeat(auto-fill,minmax(132px,1fr)); gap:11px; }
+  .lbl .it { text-align:center; }
+  .lbi { width:46px; height:46px; margin:0 auto 4px; background-image:url(assets/img/label-color.png); background-repeat:no-repeat; background-size:552px 138px; }
+  .lbl.s-line .lbi { background-image:url(assets/img/label-line.png); }
+  .lbl.s-mono .lbi { background-image:url(assets/img/label-mono.png); }
+  .lbl .it .nm { font-size:11px; font-weight:800; color:#1e293b; line-height:1.4; }
+  .lbl .it .vl { font-size:10.5px; color:#64748b; line-height:1.5; margin-top:2px; }
+  .lbl .ft { font-size:11px; color:#64748b; margin:13px 0 0; line-height:1.6; }
 
-table.pt{width:100%;border-collapse:collapse;font-size:12.5px;margin:10px 0}
-table.pt th,table.pt td{border:1px solid var(--line);padding:7px 9px;text-align:left;vertical-align:top;line-height:1.65}
-table.pt th{background:var(--surface-2);font-weight:700;white-space:nowrap}
-table.pt td.c{text-align:center;white-space:nowrap}
+  /* 신구대조표 */
+  .cmp { width:100%; border-collapse:collapse; font-size:12px; table-layout:fixed; }
+  .cmp th, .cmp td { border:1px solid var(--line); padding:9px 11px; vertical-align:top; line-height:1.72; }
+  .cmp th { background:var(--surface-2); font-size:12px; font-weight:700; text-align:center; }
+  .cmp td.old { color:var(--muted); white-space:pre-wrap; }
+  .cmp td.new { white-space:pre-wrap; }
+  .cmp td.new em { font-style:normal; color:#1d4fd8; font-weight:600; }
+  html[data-theme="dark"] .cmp td.new em { color:#8ab4ff; }
+  .cmp td.rm { font-size:11.5px; color:var(--muted); }
+  .cmp .sec { background:var(--surface-2); font-weight:800; font-size:12.5px; }
 
-.st{display:inline-block;font-size:11.5px;font-weight:700;padding:3px 9px;border-radius:999px;white-space:nowrap}
-.st.ok{background:var(--ok2s);color:var(--ok2)} .st.warn{background:var(--warn2s);color:var(--warn2)}
-.st.bad{background:var(--bad2s);color:var(--bad2)} .st.ask{background:var(--ask2s);color:var(--ask2)}
+  /* 계층별 */
+  .tier { display:grid; gap:16px; }
+  .tier .tc { border:1px solid var(--line); border-radius:13px; overflow:hidden; background:var(--surface); }
+  .tier .th2 { padding:15px 19px; color:#fff; }
+  .tier .th2 h4 { font-family:var(--f-display); font-size:17px; margin:0; }
+  .tier .th2 p { font-size:12.5px; margin:5px 0 0; opacity:.92; line-height:1.65; }
+  .tier .kid .th2 { background:linear-gradient(100deg,#f97316,#fb923c); }
+  .tier .teen .th2 { background:linear-gradient(100deg,#0ea5e9,#38bdf8); }
+  .tier .sen .th2 { background:linear-gradient(100deg,#15803d,#22c55e); }
+  .tier .bd { padding:17px 19px; display:grid; grid-template-columns:repeat(auto-fill,minmax(236px,1fr)); gap:12px; }
+  .tier .q { border:1px solid var(--line); border-radius:10px; padding:12px 13px; background:var(--surface-2); }
+  .tier .q b { display:block; font-size:12.5px; margin:0 0 5px; }
+  .tier .q span { font-size:12px; color:var(--muted); line-height:1.7; display:block; }
+  .tier .ft2 { padding:13px 19px 17px; font-size:12px; color:var(--muted); border-top:1px solid var(--line); line-height:1.7; }
+  .tier.sen-big .sen .bd .q b { font-size:14.5px; } .tier.sen-big .sen .bd .q span { font-size:13.5px; }
 
-.fix{border:1px solid var(--line);border-left:4px solid var(--warn2);border-radius:11px;padding:16px 18px;margin:14px 0;background:var(--surface)}
-.fix.bad{border-left-color:var(--bad2)}
-.fix h4{font-size:15px;margin:0 0 4px;display:flex;align-items:center;gap:9px;flex-wrap:wrap}
-.fix .meta{font-size:12px;color:var(--mut2);margin:0 0 12px}
-.fix .blk{margin:11px 0}
-.fix .blk .k{font-size:12px;font-weight:700;color:var(--mut2);margin:0 0 5px;letter-spacing:.02em}
-.fix .blk .t{font-size:13.5px;line-height:1.8}
-.fix .miss{margin:0;padding-left:18px;font-size:13.5px;line-height:1.85}
-.fix pre.ex{white-space:pre-wrap;font:inherit;font-size:12.5px;line-height:1.85;background:var(--surface-2);border:1px solid var(--line);border-radius:9px;padding:13px 15px;margin:0;max-height:340px;overflow:auto}
-.fix .quote{font-size:12.5px;line-height:1.8;background:var(--surface-2);border:1px solid var(--line);border-radius:9px;padding:11px 13px;color:var(--mut2);max-height:150px;overflow:auto;white-space:pre-wrap}
-
-.doc{background:#fff;color:#16222e;border:1px solid var(--line);border-radius:12px;padding:26px 28px;font-size:13.5px;line-height:1.9;white-space:pre-wrap;max-height:620px;overflow:auto}
-html[data-theme="dark"] .doc{background:#f6f8fa}
-@media (prefers-color-scheme:dark){html:not([data-theme="light"]) .doc{background:#f6f8fa}}
-
-.lab{display:flex;flex-wrap:wrap;gap:12px;margin:12px 0}
-.lab figure{margin:0;width:86px;text-align:center}
-.ic{display:inline-block;vertical-align:middle;background-repeat:no-repeat;flex:0 0 auto}
-.lab .ic{display:block;margin:0 auto}
-.lab figcaption{font-size:11px;color:var(--mut2);margin-top:4px;line-height:1.4}
-
-.lgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(96px,1fr));gap:12px}
-.tier{border:1px solid var(--line);border-radius:12px;padding:16px 18px;margin:12px 0;background:var(--surface-2)}
-.tier h4{margin:0 0 8px;font-size:15px}
-.tier ul{margin:0;padding-left:18px;font-size:13.5px;line-height:1.95}
-.pill{display:inline-block;font-size:11.5px;padding:2px 8px;border-radius:999px;background:var(--surface-2);border:1px solid var(--line);color:var(--mut2)}
-@media print{ .tabs,.pc-actions,.pc-top,#inputCard,.noprint{display:none!important} .pc-card{break-inside:avoid;box-shadow:none} .doc{max-height:none} }
+  /* 원문 */
+  .raw { background:var(--surface-2); border:1px solid var(--line); border-radius:11px; padding:17px 19px; font-size:12.5px; line-height:1.85; white-space:pre-wrap; max-height:620px; overflow-y:auto; }
+  .pc-dl { display:flex; gap:8px; flex-wrap:wrap; margin-top:18px; }
+  @media print { .pc-top, .pc-tabs, .pc-btns, .pc-dl, #inputCard { display:none !important; } .pc-pane { display:block !important; } }
 </style>
 </head>
 <body>
+<header class="pc-top">
+  <div class="in">
+    <div class="mk">🛡</div>
+    <div>
+      <h1>개인정보 처리방침 자가 진단</h1>
+      <p class="sub">개인정보 보호법·작성지침(2026.4.) 기준 자동 점검 · 개선안 · 계층별 처리방침</p>
+    </div>
+    <div class="chips">
+      <span class="chip">작성지침 2026.4.</span>
+      <span class="chip">보호법 2026.9.11. 시행</span>
+      <span class="chip on">최신 모드</span>
+      <a class="back" href="index.html">← 혼디지킴이 포털</a>
+    </div>
+  </div>
+</header>
+
 <div class="pc-wrap">
-<div class="pc-top"><a class="back" href="index.html">← 혼디지킴이 포털</a><span class="brand">개인정보 처리방침 자가 진단</span></div>
-
-<div class="pc-hero">
-  <h1>개인정보 처리방침 자가 진단</h1>
-  <p>기관명과 처리방침 주소만 넣으면 <b>「개인정보 처리방침 작성지침」(2026. 4.)</b>의 기재사항 28개와 형식·최신성 10개, 모두 <b>38개 항목</b>을 자동으로 점검합니다. 점검 보고서·개선된 처리방침(안)·신구대조표·계층별 처리방침까지 한 번에 만들어 드려요. 모든 처리는 <b>이 브라우저 안에서만</b> 이뤄지고 서버로 전송되지 않습니다.</p>
-</div>
-
-<div class="pc-card" id="inputCard">
-  <div class="fld"><label for="org">기관명 <i>*</i></label>
-    <input type="text" id="org" placeholder="예) 제주특별자치도 ○○과">
-  </div>
-  <div class="fld"><label for="otype">유형 선택 <i>*</i></label>
-    <select id="otype"></select>
-    <p class="hint" id="otdesc"></p>
-  </div>
-  <div class="fld"><label for="url">개인정보 처리방침 주소(URL) <i>*</i></label>
-    <input type="url" id="url" placeholder="https://www.jeju.go.kr/privacy.htm">
-    <p class="hint">공개된 처리방침 페이지 주소를 넣으세요. 사이트가 외부 호출을 막아 두면 불러오지 못할 수 있는데, 그때는 아래 ‘직접 붙여넣기’나 ‘파일 올리기’를 쓰시면 됩니다.</p>
-  </div>
-
-  <details class="alt" id="altbox"><summary>주소로 불러오기가 안 될 때 — 직접 붙여넣기 / 파일 올리기</summary>
-    <div class="inner">
-      <div class="fld"><label for="paste">처리방침 전문 붙여넣기</label>
-        <textarea id="paste" placeholder="처리방침 본문을 그대로 붙여넣으세요."></textarea>
-      </div>
-      <div class="fld"><label>파일 업로드</label>
-        <div class="drop" id="drop">파일을 끌어다 놓거나 클릭해 고르세요<br><small>.hwpx · .docx · .pdf · .txt — 파일은 브라우저 안에서만 열립니다</small>
-          <input type="file" id="file" accept=".hwpx,.docx,.pdf,.txt" hidden></div>
-        <p class="hint" id="fname" style="display:none"></p>
-      </div>
+  <div class="pc-card" id="inputCard">
+    <h2 class="pc-h"><span class="n">1</span>점검할 처리방침 입력</h2>
+    <div class="pc-row">
+      <div class="pc-f"><label for="org">기관명 <i>*</i></label>
+        <input id="org" type="text" placeholder="예) ○○시, ○○주식회사" autocomplete="organization"></div>
+      <div class="pc-f"><label for="otype">기관 유형</label><select id="otype"></select></div>
     </div>
-  </details>
+    <div class="pc-f" style="margin-top:14px"><label for="url">개인정보 처리방침 주소(URL) <i>*</i></label>
+      <input id="url" type="url" placeholder="https://www.example.go.kr/privacy.do">
+      <p class="hint">공개된 처리방침 주소를 넣으면 내용을 불러와 점검합니다. 로그인이 필요하거나 차단된 사이트는 불러오지 못할 수 있어요.</p></div>
 
-  <div class="pc-actions">
-    <button class="btn primary" id="run" type="button">점검 시작</button>
-    <button class="btn" id="demo" type="button">예시로 체험하기</button>
-  </div>
-  <p class="pc-note">🔒 <b>비식별 처리</b> — 불러온 본문에서 사람 이름·전화번호·전자우편·주민등록번호·계좌번호로 보이는 값은 보고서에 넣기 전에 자동으로 가립니다(예: 010-****-**12). 원문은 이 브라우저를 벗어나지 않습니다.</p>
-</div>
+    <details class="pc-more">
+      <summary>주소로 불러오기가 안 될 때: 내용 직접 붙여넣기 / 파일 올리기</summary>
+      <div class="inner">
+        <div class="pc-f"><label for="paste">처리방침 전문 붙여넣기</label>
+          <textarea id="paste" placeholder="처리방침 전체 내용을 복사해 붙여넣으세요."></textarea></div>
+        <div class="pc-f"><label for="file">파일 올리기 (.hwpx · .docx · .pdf · .txt)</label>
+          <input id="file" type="file" accept=".hwpx,.docx,.pdf,.txt">
+          <p class="hint" id="fileInfo">파일은 브라우저 안에서만 해석하며 서버로 전송하지 않습니다. 한글 .hwp(구형)는 .hwpx로 저장한 뒤 올려 주세요.</p></div>
+      </div>
+    </details>
 
-<div id="results" hidden>
-  <div class="tabs" id="rtabs">
-    <button class="on" data-r="dash" type="button">📊 대시보드</button>
-    <button data-r="report" type="button">📄 점검 보고서</button>
-    <button data-r="improved" type="button">✍️ 개선된 처리방침</button>
-    <button data-r="compare" type="button">📑 신구대조표</button>
-    <button data-r="tier" type="button">👨‍👩‍👧 계층별 처리방침</button>
-    <button data-r="raw" type="button">🔒 원문(비식별)</button>
-  </div>
-  <div id="rbody"></div>
-  <div class="pc-card noprint">
-    <h2>내려받기</h2>
-    <div class="pc-actions">
-      <button class="btn" data-dl="pdf" type="button">⬇ 통합 보고서 PDF</button>
-      <button class="btn" data-dl="hwpx" type="button">⬇ 한글(HWPX)</button>
-      <button class="btn" data-dl="docx" type="button">⬇ 워드(DOCX)</button>
-      <button class="btn" data-dl="txt" type="button">⬇ 텍스트</button>
+    <div class="pc-btns">
+      <button class="pc-btn pri" id="run" type="button">점검 시작</button>
+      <button class="pc-btn" id="sample" type="button">예시로 체험하기</button>
+      <span class="pc-mask">🔒 성명·전화번호·전자우편 등 개인정보는 *** 로 가려서 표시합니다.</span>
     </div>
-    <p class="pc-note">PDF는 브라우저 인쇄 대화상자에서 ‘PDF로 저장’을 고르시면 됩니다. HWPX·DOCX는 한글과 워드에서 모두 열립니다.</p>
+
+    <p class="pc-src"><b>기준 자료</b> · 「개인정보 보호법」(2026.9.11. 시행) 제30조 · 같은 법 시행령 제31조 · 「표준 개인정보 보호지침」 제11조·제18조·제20조 · <b>개인정보 처리방침 작성지침(2026.4.)</b> · 개인정보의 안전성 확보조치 기준 및 안내서 · 개인정보 영향평가 수행안내서(2025.10.) · 개인정보 처리 통합 안내서(2025.7.) · 개인정보 질의응답 모음집(2025.12.) · 업종별 작성 가이드(여행업·노인복지관·공인중개사)<br>
+    이 도구는 결과는 자동 생성된 <b>초안</b>입니다. 최종 판단과 게시 전 검토는 기관의 개인정보 보호책임자가 하셔야 합니다.</p>
+  </div>
+
+  <div id="results" hidden>
+    <nav class="pc-tabs" id="tabs">
+      <button class="on" data-t="dash" type="button">📊 대시보드</button>
+      <button data-t="rep" type="button">📄 점검 보고서</button>
+      <button data-t="imp" type="button">✍️ 개선된 처리방침</button>
+      <button data-t="cmp" type="button">📑 신구대조표</button>
+      <button data-t="tier" type="button">👨‍👩‍👧 계층별 처리방침</button>
+      <button data-t="raw" type="button">🔒 원문(비식별)</button>
+    </nav>
+    <div class="pc-pane" id="pane"></div>
+    <div class="pc-dl">
+      <button class="pc-btn" data-dl="print" type="button">⬇ 통합 보고서 PDF(인쇄)</button>
+      <button class="pc-btn" data-dl="docx" type="button">⬇ 워드(DOCX)</button>
+      <button class="pc-btn" data-dl="html" type="button">⬇ 처리방침(안) HTML</button>
+      <button class="pc-btn" data-dl="txt" type="button">⬇ 텍스트(TXT)</button>
+    </div>
   </div>
 </div>
 
-<p class="notice law-cite" style="margin-top:18px">근거 : 「개인정보 보호법」 제30조·제31조, 같은 법 시행령 제31조, 「표준 개인정보 보호지침」 제18조~제21조, 개인정보보호위원회 「개인정보 처리방침 작성지침」(2026. 4.). 규칙 기반 점검이며 생성물은 표준 문구에 기반한 초안입니다. 공개 전 소관 부서 검토를 거치세요.</p>
-</div>
-
+<script src="assets/config.js"></script>
 <script src="assets/data/policy-items.js"></script>
-<script src="assets/js/policy.js"></script>
+<script>
+(function(){
+'use strict';
+var $  = function(s){ return document.querySelector(s); };
+var $$ = function(s){ return Array.prototype.slice.call(document.querySelectorAll(s)); };
+var esc = function(s){ return (s==null?'':String(s)).replace(/[&<>"]/g, function(c){ return ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'})[c]; }); };
+var P = window.PCHK;
+var CFG = window.APP_CONFIG || {};
+var WK = (CFG.WORKER_URL || '').trim().replace(/\/+$/,'');
+var S = { org:'', otype:'public', raw:'', masked:'', src:'', res:null, tab:'dash', lblStyle:'color' };
+
+/* ── 기관 유형 ── */
+(function(){
+  $('#otype').innerHTML = P.orgTypes.map(function(t){
+    return '<option value="'+t.id+'"'+(t.id==='public'?' selected':'')+'>'+esc(t.name)+' — '+esc(t.desc)+'</option>';
+  }).join('');
+})();
+
+/* ── 비식별 처리 ── */
+function maskText(t){
+  return t
+    .replace(/(01[016-9])[-. ]?(\d{3,4})[-. ]?(\d{4})/g, '***-****-****')
+    .replace(/(0\d{1,2})[-. ](\d{3,4})[-. ](\d{4})/g, '***-****-****')
+    .replace(/[\w.%+-]+@[\w.-]+\.[A-Za-z]{2,}/g, '***@***')
+    .replace(/\b(\d{6})[-\s]?([1-4]\d{6})\b/g, '******-*******')
+    .replace(/(성\s*명|이\s*름|담\s*당\s*자|책\s*임\s*자)\s*[:：]\s*([가-힣]{2,4})(?![가-힣])/g, '$1: ***')
+    .replace(/([가-힣]{1,2})([가-힣])\s*(과장|팀장|부장|국장|주무관|사무관|실장|센터장|대표)/g, '*** $3');
+}
+
+/* ── 입력 수집 ── */
+function statusMsg(m, bad){
+  var el = $('#fileInfo'); if(!el) return;
+  el.textContent = m; el.style.color = bad ? '#b91c1c' : '';
+}
+function loadScript(src){
+  return new Promise(function(ok, no){
+    if(document.querySelector('script[data-s="'+src+'"]')) return ok();
+    var s = document.createElement('script'); s.src = src; s.dataset.s = src;
+    s.onload = function(){ ok(); }; s.onerror = function(){ no(new Error('라이브러리를 불러오지 못했습니다')); };
+    document.head.appendChild(s);
+  });
+}
+function xml2text(x, br){
+  return x.replace(new RegExp('</'+br+'>','g'), '\n')
+          .replace(/<[^>]+>/g,'')
+          .replace(/&amp;/g,'&').replace(/&lt;/g,'<').replace(/&gt;/g,'>').replace(/&quot;/g,'"').replace(/&#39;/g,"'")
+          .split('\n').map(function(l){ return l.replace(/[ \t ]+/g,' ').trim(); }).filter(Boolean).join('\n');
+}
+async function readFile(f){
+  var n = f.name.toLowerCase();
+  if(/\.txt$/.test(n)) return await f.text();
+  if(/\.(docx|hwpx)$/.test(n)){
+    await loadScript('https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js');
+    var zip = await window.JSZip.loadAsync(await f.arrayBuffer());
+    if(/\.docx$/.test(n)){
+      var d = zip.file('word/document.xml');
+      if(!d) throw new Error('문서 본문을 찾지 못했습니다');
+      return xml2text(await d.async('string'), 'w:p');
+    }
+    var secs = zip.file(/Contents\/section\d*\.xml/);
+    if(!secs || !secs.length) throw new Error('한글 문서 본문을 찾지 못했습니다');
+    var parts = [];
+    for(var i=0;i<secs.length;i++) parts.push(xml2text(await secs[i].async('string'), 'hp:p'));
+    return parts.join('\n');
+  }
+  if(/\.pdf$/.test(n)){
+    await loadScript('https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js');
+    var pdfjs = window.pdfjsLib;
+    pdfjs.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
+    var doc = await pdfjs.getDocument({ data: await f.arrayBuffer() }).promise;
+    var out = [];
+    for(var p=1;p<=doc.numPages;p++){
+      var c = await (await doc.getPage(p)).getTextContent();
+      out.push(c.items.map(function(it){ return it.str; }).join(' '));
+    }
+    return out.join('\n');
+  }
+  throw new Error('지원하지 않는 형식입니다 (.hwpx · .docx · .pdf · .txt)');
+}
+async function fetchUrl(u){
+  if(WK){
+    var r = await fetch(WK + '/fetch?url=' + encodeURIComponent(u));
+    var j = await r.json();
+    if(j && j.ok) return j.text;
+    throw new Error((j && j.error) || '불러오기 실패');
+  }
+  var r2 = await fetch(u, { mode:'cors' });
+  if(!r2.ok) throw new Error('응답 코드 ' + r2.status);
+  var html = await r2.text();
+  return html.replace(/<(script|style|head)[\s\S]*?<\/\1>/gi,' ')
+             .replace(/<\/(p|div|li|h[1-6]|tr|br)>/gi,'\n').replace(/<[^>]+>/g,' ')
+             .replace(/&nbsp;/g,' ').replace(/&amp;/g,'&')
+             .split('\n').map(function(l){ return l.replace(/\s+/g,' ').trim(); }).filter(Boolean).join('\n');
+}
+
+/* ── 예시 처리방침 (체험용) ── */
+var SAMPLE = [
+'가나다시 개인정보취급방침',
+'',
+'가나다시는 이용자의 개인정보를 소중히 다루며 「정보통신망 이용촉진 및 정보보호 등에 관한 법률」 제27조의2에 따라 다음과 같이 개인정보취급방침을 공개합니다.',
+'',
+'목차',
+'1. 개인정보의 처리 목적  2. 처리하는 개인정보 항목  3. 개인정보의 처리 및 보유기간  4. 개인정보의 파기  5. 개인정보 처리업무의 위탁  6. 정보주체의 권리  7. 개인정보 보호책임자',
+'',
+'제1조(개인정보의 처리 목적)',
+'가나다시는 민원 처리, 홈페이지 회원 관리 등의 목적으로 개인정보를 처리합니다.',
+'',
+'제2조(처리하는 개인정보 항목)',
+'성명, 연락처, 주소 등',
+'',
+'제3조(개인정보의 처리 및 보유기간)',
+'관련 법령에 따라 보유합니다.',
+'',
+'제4조(개인정보의 파기)',
+'가나다시는 보유기간이 지난 개인정보를 지체 없이 파기합니다. 전자적 파일은 복구할 수 없도록 삭제하고, 종이 문서는 분쇄합니다.',
+'',
+'제5조(개인정보 처리업무의 위탁)',
+'가나다시는 홈페이지 유지보수 업무를 (주)가나시스템에 위탁하고 있습니다.',
+'',
+'제6조(정보주체와 법정대리인의 권리·의무 및 행사방법)',
+'정보주체는 개인정보 열람, 정정·삭제, 처리정지 요구를 할 수 있으며, 서면 또는 전자우편으로 요청할 수 있습니다.',
+'',
+'제7조(개인정보 보호책임자)',
+'개인정보 보호책임자 : 홍길동 (정보통신과장), 전화 064-123-4567, 이메일 privacy@ganada.go.kr',
+'개인정보 보호 담당부서 : 정보통신과, 담당자 : 김보호 주무관, 전화 064-123-4568',
+'',
+'제8조(개인정보의 안전성 확보조치)',
+'가나다시는 내부관리계획 수립, 개인정보 취급자 교육, 접근권한 관리, 암호화를 시행합니다.',
+'홈페이지는 이용자 편의를 위해 쿠키를 사용합니다.',
+'',
+'제9조(개인정보 처리방침의 변경)',
+'이 처리방침은 2023. 1. 1.부터 시행합니다.'
+].join('\n');
+
+/* ── 형식·최신성 전제 조건 ── */
+var NEED = {
+  g07: /유출|분실|도난|위조|변조|훼손/,
+  g08: /주민등록번호/,
+  g04: /국외|해외로\s*이전/
+};
+
+/* ── 본문에서 해당 항목 구간 뽑기 ── */
+var HEAD = /(^|\n)\s*(제\s*\d+\s*조|[ⅠⅡⅢⅣⅤⅥⅦⅧⅨⅩ]+\s*[.．]|\d{1,2}\s*[.．]\s*\S|□|◻|■|○\s*\S)/g;
+function section(t, idx){
+  var ls = t.lastIndexOf('\n', idx);
+  var start = ls < 0 ? 0 : ls + 1;
+  // 바로 앞 줄이 짧으면 제목으로 보고 포함
+  var prev = t.lastIndexOf('\n', start - 2);
+  if(start > 0 && (start - (prev < 0 ? 0 : prev + 1)) < 46) start = prev < 0 ? 0 : prev + 1;
+  HEAD.lastIndex = idx + 4;
+  var m, end = Math.min(t.length, start + 1400);
+  while((m = HEAD.exec(t))){
+    if(m.index > idx + 4){ end = Math.min(end, m.index + (m[1] ? 1 : 0)); break; }
+  }
+  HEAD.lastIndex = 0;
+  return t.slice(start, end).trim();
+}
+
+/* ── 점검 ── */
+function analyze(text, org, otype){
+  var t = text.replace(/ /g,' ');
+  var rows = [], c = { ok:0, pa:0, no:0, q:0 }, num = 0, den = 0;
+
+  P.items.forEach(function(it){
+    if(it.scope === 'public' && otype !== 'public') return;
+    var re, hit = null, sec = '', miss = [], got = 0, tot = (it.sub||[]).length;
+    try { re = new RegExp(it.det); } catch(e){ re = null; }
+    var m = re ? re.exec(t) : null;
+    if(it.id === 't01') m = { index: 0 };   // 제목·서문은 문서 앞머리로 고정
+    var st;
+    if(m){
+      sec = it.id === 't01' ? t.slice(0, 700).trim() : section(t, m.index);
+      (it.sub||[]).forEach(function(s){
+        var ok = false;
+        try { ok = new RegExp(s.re).test(sec) || new RegExp(s.re).test(t.slice(Math.max(0,m.index-200), m.index+2200)); } catch(e){}
+        if(ok) got++; else miss.push(s.label);
+      });
+      st = (tot === 0 || got === tot) ? 'ok' : 'pa';
+    } else {
+      var cond = it.cond;
+      var applies = !cond;
+      if(cond){ try { applies = new RegExp(cond).test(t); } catch(e){ applies = false; } }
+      if(/해당시/.test(it.kind) && !applies) st = 'q';
+      else st = 'no';
+    }
+    c[st]++;
+    if(st !== 'q'){ den++; num += (st === 'ok' ? 1 : st === 'pa' ? (tot ? got/tot : 0.5) : 0); }
+    rows.push({ id:it.id, no:it.no, area:it.area, title:it.title, kind:it.kind, law:it.law, page:it.page,
+                icon:it.icon, how:it.how, why:it.why, sample:it.sample, easy:it.easy,
+                st:st, cur:sec, miss:miss, got:got, tot:tot, fmt:false });
+  });
+
+  P.format.forEach(function(q){
+    var found = false;
+    try { found = new RegExp(q.pat).test(t); } catch(e){}
+    var st;
+    if(NEED[q.id] && !NEED[q.id].test(t)) st = 'q';
+    else if(q.mode === 'bad') st = found ? 'no' : 'ok';
+    else st = found ? 'ok' : (q.id === 'g06' ? 'pa' : 'no');
+    c[st]++;
+    if(st !== 'q'){ den++; num += (st === 'ok' ? 1 : st === 'pa' ? 0.5 : 0); }
+    var cur = '';
+    if(st === 'no' && q.mode === 'bad'){
+      var mm; try { mm = new RegExp(q.pat).exec(t); } catch(e){}
+      if(mm) cur = '…' + t.slice(Math.max(0, mm.index-70), mm.index + mm[0].length + 110).replace(/\n/g,' ') + '…';
+    }
+    if(!cur) cur = st === 'ok' ? '(해당 표현을 사용하지 않았습니다)' : '(문서 전체에서 관련 표현을 찾지 못함)';
+    rows.push({ id:q.id, no:q.no, area:'Z', title:q.title, kind:'형식·최신성', law:q.law, page:0,
+                icon:null, how:q.how, why:q.why, sample:q.fix ? q.fix[1] : '', easy:null,
+                st:st, cur:cur, miss: st==='ok'?[]:[q.title], got: st==='ok'?1:0, tot:1, fmt:true });
+  });
+
+  var score = den ? Math.round(100 * num / den) : 0;
+  var grade = score >= 90 ? ['우수','#15803d'] : score >= 80 ? ['양호','#0891b2']
+            : score >= 70 ? ['보통','#2563eb'] : score >= 60 ? ['주의','#b45309'] : ['미흡','#b91c1c'];
+  var areas = {};
+  P.areas.forEach(function(a){ areas[a.id] = { name:a.name, n:0, s:0 }; });
+  rows.forEach(function(r){
+    if(r.st === 'q' || !areas[r.area]) return;
+    areas[r.area].n++;
+    areas[r.area].s += (r.st === 'ok' ? 1 : r.st === 'pa' ? (r.tot ? r.got/r.tot : .5) : 0);
+  });
+  return { rows:rows, count:c, score:score, grade:grade, areas:areas, org:org, otype:otype,
+           date: new Date().toLocaleDateString('ko-KR'), total: rows.length };
+}
+var STN = { ok:['✔ 충족','ok'], pa:['▲ 일부 미흡','pa'], no:['✖ 누락','no'], q:['? 해당여부 확인','qq'] };
+var STC = { ok:'#16a34a', pa:'#f59e0b', no:'#dc2626', q:'#94a3b8' };
+
+/* ── 라벨링 ── */
+var LBMAP = [
+  ['처리 항목','t03'],['처리 목적','t02'],['보유기간','t05'],['파기','t06'],
+  ['제3자 제공','t07'],['처리위탁','t09'],['국외 이전','t10'],['추가적 이용·제공','t08'],
+  ['자동 수집','t14'],['행태정보 수집','t15'],['가명정보 처리','t13'],
+  ['민감정보','t12'],['개인영상정보','t21'],['법정대리인 권리의무','t04'],
+  ['정보주체 권리','t16'],['안전성 확보조치','t11'],['개인정보 보호책임자','t18'],
+  ['고충처리 부서','t18'],['열람청구','t28'],['권익침해 구제','t20'],['처리방침 변경','t24'],
+  ['국내대리인','t19'],['처리방침 변경','t24']
+];
+var LBVAL = {
+  t02:'처리 목적 본문 참조', t03:'수집 항목 본문 참조', t04:'법정대리인 동의 후 처리',
+  t05:'목적 달성·법정 기간까지', t06:'목적 달성 시 지체 없이', t07:'제공 현황 본문 참조',
+  t08:'판단 기준 본문 참조', t09:'수탁자 본문 참조', t10:'이전 국가·대상 본문 참조',
+  t11:'관리·기술·물리적 조치', t12:'비공개 선택 방법 안내', t13:'통계·연구 목적',
+  t14:'거부 방법 안내', t15:'거부 방법 안내', t16:'열람·정정·삭제·처리정지',
+  t18:'성명·부서·연락처 본문 참조', t19:'국내대리인 본문 참조', t20:'118 · 1833-6972',
+  t21:'설치 목적·장소 본문 참조', t24:'변경 이력 본문 참조', t28:'열람청구 접수·처리 부서'
+};
+function lbIcon(name){
+  var L = P.labels[name]; if(!L) return '';
+  return '<div class="lbi" style="background-position:-'+(L.c*46)+'px -'+(L.r*46)+'px" role="img" aria-label="'+esc(name)+'"></div>';
+}
+function labelBlock(R){
+  var by = {}; R.rows.forEach(function(r){ by[r.id] = r; });
+  var groups = { t:['개인정보 유형',[]], p:['개인정보 처리 단계',[]], d:['보호 의무·권리',[]] };
+  var seen = {};
+  LBMAP.forEach(function(pair){
+    var name = pair[0], id = pair[1], L = P.labels[name], r = by[id];
+    if(!L || !r || r.st === 'q' || seen[name]) return;
+    seen[name] = 1;
+    (groups[L.g] || groups.d)[1].push([name, LBVAL[id] || '']);
+  });
+  var h = '<div class="lbl s-'+S.lblStyle+'" id="lblBox"><div class="lh">🏷 주요 개인정보 처리 표시(라벨링)'+
+    '<span style="font-weight:600;font-size:11px;color:#64748b">작성지침 2026.4. Part Ⅴ</span>'+
+    '<span class="sw">'+
+      ['color','line','mono'].map(function(k,i){
+        return '<button type="button" data-ls="'+k+'"'+(S.lblStyle===k?' class="on"':'')+'>'+['색깔형','라인형','흑백형'][i]+'</button>';
+      }).join('')+'</span></div>';
+  Object.keys(groups).forEach(function(g){
+    var G = groups[g]; if(!G[1].length) return;
+    h += '<div class="gr">'+G[0]+'</div><div class="set">' + G[1].map(function(x){
+      return '<div class="it">'+lbIcon(x[0])+'<div class="nm">'+esc(x[0])+'</div><div class="vl">'+esc(x[1])+'</div></div>';
+    }).join('') + '</div>';
+  });
+  h += '<p class="ft">※ 위 표시는 개인정보 처리방침의 주요 내용을 요약한 것입니다. 자세한 내용은 아래 본문에서 확인하실 수 있습니다. 기호 파일은 개인정보 포털(privacy.go.kr) 자료실에서 내려받아 활용할 수 있습니다.</p></div>';
+  return h;
+}
+
+/* ── 개선 후 조문 ── */
+function articles(R){
+  return R.rows.filter(function(r){ return !r.fmt && r.st !== 'q' && r.sample; })
+    .sort(function(a,b){ return a.no - b.no; })
+    .map(function(r, i){
+      var body = r.st === 'no' ? r.sample
+               : r.st === 'pa' ? (r.cur || '') + '\n\n[보완 문구]\n' + r.sample
+               : (r.cur || r.sample);
+      return { n:i+1, title:r.title, tag: r.st === 'no' ? 'add' : r.st === 'pa' ? 'mod' : '', r:r, body:body };
+    });
+}
+function preface(R){
+  return R.org + '은(는) 정보주체의 자유와 권리 보호를 위해 「개인정보 보호법」 및 관계 법령이 정한 바를 준수하여 적법하게 개인정보를 처리하고 안전하게 관리하고 있습니다. 이에 「개인정보 보호법」 제30조에 따라 정보주체에게 개인정보의 처리와 보호에 관한 절차 및 기준을 안내하고, 이와 관련한 고충을 신속하고 원활하게 처리할 수 있도록 다음과 같이 개인정보 처리방침을 수립·공개합니다.';
+}
+
+/* ── 탭별 렌더 ── */
+function paneDash(R){
+  var c = R.count, seg = [['ok',c.ok],['pa',c.pa],['no',c.no],['q',c.q]], tot = R.total || 1;
+  var off = 0, circ = 2*Math.PI*54;
+  var donut = seg.map(function(s){
+    var len = circ * s[1] / tot, el = '<circle cx="70" cy="70" r="54" fill="none" stroke="'+STC[s[0]]+'" stroke-width="22" '+
+      'stroke-dasharray="'+len.toFixed(2)+' '+(circ-len).toFixed(2)+'" stroke-dashoffset="'+(-off).toFixed(2)+'" transform="rotate(-90 70 70)"/>';
+    off += len; return el;
+  }).join('');
+  var h = '<div class="kpi">'+
+    '<div class="k"><p class="lb">종합 점수</p><div class="vv">'+R.score+'<span>/100</span>'+
+      '<span class="gd" style="background:'+R.grade[1]+'">'+R.grade[0]+'</span></div></div>'+
+    seg.map(function(s){
+      return '<div class="k"><p class="lb"><i class="dot4" style="background:'+STC[s[0]]+'"></i>'+STN[s[0]][0]+'</p>'+
+             '<div class="vv">'+s[1]+'<span>개</span></div></div>';
+    }).join('') + '</div>';
+
+  h += '<div class="pc-2col"><div class="pc-card"><h3 class="pc-h" style="font-size:14px;margin-bottom:12px">항목 상태 분포</h3>'+
+       '<svg viewBox="0 0 140 140" style="width:100%;max-width:220px;display:block;margin:0 auto 12px">'+donut+
+       '<text x="70" y="66" text-anchor="middle" font-size="13" fill="currentColor" opacity=".6">점검 항목</text>'+
+       '<text x="70" y="88" text-anchor="middle" font-size="24" font-weight="800" fill="currentColor">'+R.total+'</text></svg>'+
+       '<div style="display:grid;gap:6px;font-size:12.5px">'+ seg.map(function(s){
+         return '<div style="display:flex;align-items:center;gap:7px"><i class="dot4" style="background:'+STC[s[0]]+'"></i>'+
+                STN[s[0]][0]+'<b style="margin-left:auto">'+s[1]+'개</b></div>'; }).join('') +'</div></div>';
+
+  h += '<div class="pc-card"><h3 class="pc-h" style="font-size:14px;margin-bottom:14px">영역별 충족률</h3>';
+  Object.keys(R.areas).forEach(function(k){
+    var a = R.areas[k]; if(!a.n) return;
+    var pct = Math.round(100*a.s/a.n);
+    h += '<div class="bar"><div class="t"><b>'+esc(a.name)+'</b><span>'+pct+'% · '+a.n+'개 항목</span></div>'+
+         '<div class="tr"><div class="fi" style="width:'+pct+'%;background:'+(pct>=80?'#16a34a':pct>=50?'#f59e0b':'#dc2626')+'"></div></div></div>';
+  });
+  h += '</div></div>';
+
+  h += '<div class="pc-card" style="margin-top:14px"><h3 class="pc-h" style="font-size:14px;margin-bottom:12px">📚 법령 최신성 · 형식 점검</h3>'+
+       '<table class="pc-tb"><thead><tr><th style="width:54px" class="c">번호</th><th>점검 내용</th><th style="width:120px" class="c">결과</th></tr></thead><tbody>'+
+       R.rows.filter(function(r){ return r.fmt; }).map(function(r){
+         return '<tr><td class="c kd">'+r.id.toUpperCase().replace('G','G')+'</td><td>'+esc(r.title)+'</td>'+
+                '<td class="c"><span class="st '+STN[r.st][1]+'">'+STN[r.st][0]+'</span></td></tr>';
+       }).join('') + '</tbody></table></div>';
+  return h;
+}
+
+function paneRep(R){
+  var fixes = R.rows.filter(function(r){ return r.st === 'pa' || r.st === 'no'; }).sort(function(a,b){ return a.no-b.no; });
+  var oks = R.rows.filter(function(r){ return r.st === 'ok'; });
+  var qs  = R.rows.filter(function(r){ return r.st === 'q'; });
+  var oname = (P.orgTypes.filter(function(t){ return t.id === R.otype; })[0] || {}).name || '';
+  var h = '<div class="pc-card"><h2 class="pc-h" style="font-size:18px">개인정보 처리방침 적정성 점검 보고서</h2>'+
+    '<table class="pc-tb"><tbody>'+
+    '<tr><th style="width:110px">기관명</th><td>'+esc(R.org)+' ('+esc(oname)+')</td></tr>'+
+    '<tr><th>점검 대상</th><td>'+esc(S.src)+'</td></tr>'+
+    '<tr><th>점검일</th><td>'+esc(R.date)+'</td></tr>'+
+    '<tr><th>점검 기준</th><td>「개인정보 보호법」(2026.9.11. 시행) 제30조, 같은 법 시행령 제31조, 「표준 개인정보 보호지침」 제11조·제18조·제20조, 「개인정보 처리방침 작성지침」(2026.4.) 및 개인정보보호위원회 안내서</td></tr>'+
+    '<tr><th>종합 결과</th><td><b>'+R.score+'점 / 100 · '+R.grade[0]+'</b> — 충족 '+R.count.ok+' · 일부 미흡 '+R.count.pa+' · 누락 '+R.count.no+' · 해당여부 확인 '+R.count.q+'</td></tr>'+
+    '<tr><th>비식별</th><td>성명·전화번호·전자우편 등 개인정보는 *** 로 표시함</td></tr>'+
+    '</tbody></table></div>';
+
+  h += '<div class="pc-card" style="margin-top:14px"><h3 class="pc-h" style="font-size:15px">1. 점검 결과</h3>'+
+       '<p style="font-size:12.5px;color:var(--muted);margin:0 0 12px">1-2. 항목별 점검 결과</p>'+
+       '<table class="pc-tb"><thead><tr><th class="c" style="width:52px">번호</th><th>점검 항목</th>'+
+       '<th class="c" style="width:88px">구분</th><th class="c" style="width:112px">결과</th></tr></thead><tbody>'+
+       R.rows.map(function(r){
+         return '<tr><td class="c kd">'+(r.fmt ? r.id.toUpperCase() : r.no)+'</td><td>'+esc(r.title)+'</td>'+
+                '<td class="c kd">'+esc(r.kind)+'</td><td class="c"><span class="st '+STN[r.st][1]+'">'+STN[r.st][0]+'</span></td></tr>';
+       }).join('')+'</tbody></table>';
+  h += '<p style="font-size:12.5px;margin:16px 0 5px"><b>1-3. 충족 항목 ('+oks.length+'건)</b></p>'+
+       '<p style="font-size:12.5px;color:var(--muted);line-height:1.8;margin:0">'+
+       (oks.length ? oks.map(function(r){ return esc((r.fmt?r.id.toUpperCase():r.no)+'. '+r.title); }).join(' · ') : '충족으로 판정된 항목이 없습니다.')+'</p>';
+  h += '<p style="font-size:12.5px;margin:16px 0 5px"><b>1-4. 해당 여부 확인이 필요한 항목 ('+qs.length+'건)</b></p>'+
+       '<p style="font-size:12px;color:var(--muted);margin:0 0 6px">처리방침에서 관련 내용을 찾지 못한 ‘해당시’ 항목입니다. 실제로 해당 처리를 한다면 항목을 추가하고, 하지 않는다면 “처리하지 않습니다”라고 적는 것을 권장합니다.</p>'+
+       '<p style="font-size:12.5px;color:var(--muted);line-height:1.8;margin:0">'+
+       (qs.length ? qs.map(function(r){ return esc((r.fmt?r.id.toUpperCase():r.no)+'. '+r.title); }).join(' · ') : '없습니다.')+'</p></div>';
+
+  h += '<div class="pc-card" style="margin-top:14px"><h3 class="pc-h" style="font-size:15px">2. 개선 방법 및 근거 ('+fixes.length+'건)</h3>'+
+       '<p style="font-size:12.5px;color:var(--muted);margin:-8px 0 14px">항목마다 현행 내용, 미흡한 부분, 개선 방법(작성 예시), 근거 조문을 정리했습니다.</p>';
+  h += fixes.map(function(r){
+    return '<div class="fix'+(r.st==='no'?' no':'')+'">'+
+      '<h4>'+esc((r.fmt?'[형식·최신성] ':r.no+'. ')+r.title)+
+        '<span class="st '+STN[r.st][1]+'">'+STN[r.st][0]+'</span><span class="bk">'+esc(r.kind)+'</span></h4>'+
+      '<dl>'+
+        '<dt>현행 내용</dt><dd><div class="cur">'+esc(r.cur || '해당 항목을 찾을 수 없습니다.')+'</div></dd>'+
+        '<dt>미흡한 부분</dt><dd><ul>'+(r.miss.length ? r.miss.map(function(m){ return '<li>'+esc(m)+'</li>'; }).join('') : '<li>항목 자체가 없음</li>')+'</ul></dd>'+
+        '<dt>개선 방법</dt><dd>'+esc(r.why)+'<br>'+esc(r.how)+'</dd>'+
+        (r.sample ? '<dt>작성 예시</dt><dd><div class="ex">'+esc(r.sample)+'</div></dd>' : '')+
+        '<dt>근거</dt><dd class="lw">'+esc(r.law)+(r.page?' · 작성지침 p.'+r.page:'')+'</dd>'+
+      '</dl></div>';
+  }).join('');
+  h += '</div>';
+  return h;
+}
+
+function paneImp(R){
+  var arts = articles(R);
+  var h = '<div class="pc-card"><p style="font-size:12.5px;color:var(--muted);margin:0 0 14px">'+
+    '점검 결과를 반영한 초안입니다. <b>보완</b>은 현행 내용에 문구를 더한 조항, <b>신설</b>은 새로 넣은 조항이에요. ○○ 부분을 기관의 실제 처리 현황으로 채운 뒤 개인정보 보호책임자의 검토를 거쳐 게시하세요.</p>'+
+    '<div class="doc" id="docBox"><h3>'+esc(R.org)+' 개인정보 처리방침</h3>'+
+    '<p class="pre">'+esc(preface(R))+'</p>' + labelBlock(R) +
+    '<div class="toc"><b>목차</b><br>' + arts.map(function(a){ return '제'+a.n+'조 '+esc(a.title); }).join(' · ') + '</div>';
+  arts.forEach(function(a){
+    h += '<h4>제'+a.n+'조('+esc(a.title)+')'+
+         (a.tag ? '<span class="tag '+a.tag+'">'+(a.tag==='add'?'신설':'보완')+'</span>' : '')+'</h4>'+
+         '<p class="pre">'+esc(a.body)+'</p>';
+  });
+  h += '</div></div>';
+  return h;
+}
+
+function paneCmp(R){
+  var arts = articles(R);
+  var h = '<div class="pc-card"><p style="font-size:12.5px;color:var(--muted);margin:0 0 13px">현행 처리방침과 개정안을 조항별로 비교한 표입니다. <em style="font-style:normal;color:#1d4fd8;font-weight:600">파란 글씨</em>는 새로 넣거나 보완한 부분이며, 비고에 개정 사유를 적었습니다.</p>'+
+    '<table class="cmp"><colgroup><col style="width:34%"><col style="width:40%"><col style="width:26%"></colgroup>'+
+    '<thead><tr><th>현행</th><th>'+esc(R.org)+' 개인정보 처리방침 개정안 ('+esc(R.date)+')</th><th>비고</th></tr></thead><tbody>';
+  h += '<tr><td colspan="3" class="sec">제목 및 서문</td></tr>'+
+       '<tr><td class="old">'+esc((R.rows.filter(function(r){return r.id==='t01';})[0]||{}).cur || '(없음)')+'</td>'+
+       '<td class="new"><em>'+esc(R.org+' 개인정보 처리방침\n\n'+preface(R))+'</em></td>'+
+       '<td class="rm">표준 명칭 “개인정보 처리방침” 사용 · 서문에 수립 근거(보호법 제30조) 기재</td></tr>';
+  h += '<tr><td colspan="3" class="sec">주요 개인정보 처리 표시(라벨링)</td></tr>'+
+       '<tr><td class="old">(없음)</td><td class="new"><em>개인정보 유형 · 처리 단계 · 보호 의무사항 기호로 핵심 사항 요약 표시</em></td>'+
+       '<td class="rm">라벨링 신설 — 작성지침 2026.4. Part Ⅴ</td></tr>';
+  h += '<tr><td colspan="3" class="sec">목차</td></tr>'+
+       '<tr><td class="old">(현행 목차 확인 필요)</td><td class="new"><em>'+arts.map(function(a){ return '제'+a.n+'조 '+esc(a.title); }).join('\n')+'</em></td>'+
+       '<td class="rm">조항 추가·순서 정비, 클릭 시 해당 조항으로 이동</td></tr>';
+  arts.forEach(function(a){
+    var tag = a.tag === 'add' ? '신설' : a.tag === 'mod' ? '보완' : '유지';
+    h += '<tr><td colspan="3" class="sec">제'+a.n+'조('+esc(a.title)+') '+tag+'</td></tr>'+
+         '<tr><td class="old">'+esc(a.r.cur || '(없음)')+'</td>'+
+         '<td class="new">'+(a.tag==='add' ? '<em>'+esc(a.body)+'</em>'
+             : esc(a.r.cur||'') + (a.tag==='mod' ? '<em>\n\n[보완]\n'+esc(a.r.sample)+'</em>' : ''))+'</td>'+
+         '<td class="rm">'+(a.r.miss.length ? esc(tag+': '+a.r.miss.join(' / ')) : '현행 유지')+'<br>(근거: '+esc(a.r.law)+')</td></tr>';
+  });
+  h += '</tbody></table></div>';
+  return h;
+}
+
+var TIER = {
+  child:['kid','🧒 어린이용 개인정보 처리방침(안)','개인정보는 ‘나’를 알아볼 수 있는 정보예요. 이름, 얼굴 사진, 전화번호 같은 거예요.','내 정보는 소중해요. 모르는 사람에게 함부로 알려 주지 않기로 약속해요! 🤙'],
+  teen:['teen','🧑‍🎓 청소년용 개인정보 처리방침(안)','개인정보 처리방침은 이 기관이 내 정보를 어떻게 다루는지 알려 주는 ‘약속 문서’예요. 꼭 알아야 할 것만 뽑았어요.','SNS·게임·앱에 정보를 입력하기 전에 “왜 필요한지” 한 번 더 확인하는 습관! 👍'],
+  senior:['sen','👵 어르신용 개인정보 처리방침(안)','개인정보란 이름, 전화번호, 주소처럼 어르신을 알아볼 수 있는 정보입니다. 꼭 필요한 만큼만 받고 안전하게 지킵니다.','기관은 전화나 문자로 통장 비밀번호를 묻지 않습니다. 의심되면 바로 끊고 ☎118로 확인하세요.']
+};
+function paneTier(R){
+  var rows = R.rows.filter(function(r){ return r.easy && r.st !== 'q'; }).sort(function(a,b){ return a.no-b.no; });
+  var h = '<div class="pc-card"><p style="font-size:12.5px;color:var(--muted);margin:0 0 14px">개선 후 처리방침(안)을 바탕으로 대상별 눈높이에 맞춰 핵심만 쉽게 정리했습니다. 누리집에는 ‘계층별 처리방침’ 페이지로 게시할 수 있어요.</p><div class="tier sen-big">';
+  ['child','teen','senior'].forEach(function(k){
+    var T = TIER[k];
+    h += '<div class="tc '+T[0]+'"><div class="th2"><h4>'+esc(R.org)+' · '+T[1]+'</h4><p>'+esc(T[2])+'</p></div>'+
+      '<div class="bd">' + rows.map(function(r){
+        return '<div class="q"><b>'+esc(r.title)+'</b><span>'+esc(r.easy[k])+'</span></div>';
+      }).join('') + '</div>'+
+      '<div class="ft2">📞 문의는 '+esc(R.org)+' 개인정보 보호 담당부서로 해 주세요. 피해를 입었다면 개인정보침해 신고센터(☎118) · 개인정보 분쟁조정위원회(☎1833-6972)에 도움을 요청할 수 있어요.<br>'+esc(T[3])+'<br><span style="opacity:.8">'+esc(R.org)+' 개인정보 처리방침 · '+esc(R.date)+' · 자세한 내용은 처리방침 전문을 확인하세요.</span></div></div>';
+  });
+  return h + '</div></div>';
+}
+function paneRaw(R){
+  return '<div class="pc-card"><p style="font-size:12.5px;color:var(--muted);margin:0 0 12px">점검에 사용한 원문입니다. 성명·전화번호·전자우편·주민등록번호로 보이는 값은 <b>***</b>로 가려서 표시했어요. (총 '+S.masked.length.toLocaleString()+'자)</p>'+
+    '<div class="raw">'+esc(S.masked)+'</div></div>';
+}
+
+/* ── 탭 전환 ── */
+var PANES = { dash:paneDash, rep:paneRep, imp:paneImp, cmp:paneCmp, tier:paneTier, raw:paneRaw };
+function draw(){
+  if(!S.res) return;
+  $('#pane').innerHTML = (PANES[S.tab] || paneDash)(S.res);
+  $$('#lblBox .sw button').forEach(function(b){
+    b.addEventListener('click', function(){
+      S.lblStyle = b.dataset.ls;
+      $('#lblBox').className = 'lbl s-' + S.lblStyle;
+      $$('#lblBox .sw button').forEach(function(x){ x.classList.toggle('on', x === b); });
+    });
+  });
+}
+$$('#tabs button').forEach(function(b){
+  b.addEventListener('click', function(){
+    $$('#tabs button').forEach(function(x){ x.classList.remove('on'); });
+    b.classList.add('on'); S.tab = b.dataset.t; draw();
+    $('#results').scrollIntoView({ behavior:'smooth', block:'start' });
+  });
+});
+
+/* ── 실행 ── */
+function go(text, src){
+  S.org = ($('#org').value || '').trim() || '○○기관';
+  S.otype = $('#otype').value;
+  S.raw = text; S.masked = maskText(text); S.src = src;
+  S.res = analyze(S.masked, S.org, S.otype);
+  $('#results').hidden = false;
+  S.tab = 'dash';
+  $$('#tabs button').forEach(function(x){ x.classList.toggle('on', x.dataset.t === 'dash'); });
+  draw();
+  $('#results').scrollIntoView({ behavior:'smooth', block:'start' });
+}
+$('#sample').addEventListener('click', function(){
+  if(!$('#org').value) $('#org').value = '가나다시';
+  $('#otype').value = 'public';
+  go(SAMPLE, '예시 처리방침(체험용)');
+});
+$('#file').addEventListener('change', async function(){
+  var f = this.files && this.files[0]; if(!f) return;
+  statusMsg('파일을 읽는 중입니다…');
+  try {
+    var t = await readFile(f);
+    $('#paste').value = t;
+    statusMsg('“' + f.name + '” 에서 ' + t.length.toLocaleString() + '자를 읽었습니다. [점검 시작]을 눌러 주세요.');
+  } catch(e){ statusMsg('읽지 못했습니다: ' + (e.message || e), true); }
+});
+$('#run').addEventListener('click', async function(){
+  var org = ($('#org').value || '').trim();
+  if(!org){ $('#org').focus(); statusMsg('기관명을 입력해 주세요.', true); return; }
+  var paste = ($('#paste').value || '').trim();
+  if(paste.length > 120){ go(paste, '직접 입력한 내용'); return; }
+  var u = ($('#url').value || '').trim();
+  if(!u){ $('#url').focus(); statusMsg('처리방침 주소를 넣거나, 아래에서 내용을 붙여넣어 주세요.', true); return; }
+  if(!/^https?:\/\//i.test(u)) u = 'https://' + u;
+  this.disabled = true; this.textContent = '불러오는 중…';
+  try {
+    var t = await fetchUrl(u);
+    go(t, u);
+  } catch(e){
+    statusMsg('주소에서 내용을 불러오지 못했습니다 (' + (e.message || e) + '). 아래 ‘내용 직접 붙여넣기’를 이용해 주세요.', true);
+    var d = document.querySelector('.pc-more'); if(d) d.open = true;
+    $('#paste').focus();
+  } finally { this.disabled = false; this.textContent = '점검 시작'; }
+});
+
+/* ── 내려받기 ── */
+function planText(R){
+  var arts = articles(R), out = [R.org + ' 개인정보 처리방침', '', preface(R), ''];
+  out.push('[목차] ' + arts.map(function(a){ return '제'+a.n+'조 '+a.title; }).join(' · '), '');
+  arts.forEach(function(a){
+    out.push('제'+a.n+'조('+a.title+')' + (a.tag ? ' — ' + (a.tag==='add'?'신설':'보완') : ''), a.body, '');
+  });
+  return out.join('\n');
+}
+function dl(name, mime, content){
+  var b = new Blob(['﻿' + content], { type:mime });
+  var a = document.createElement('a');
+  a.href = URL.createObjectURL(b); a.download = name;
+  document.body.appendChild(a); a.click();
+  setTimeout(function(){ URL.revokeObjectURL(a.href); a.remove(); }, 1500);
+}
+$$('[data-dl]').forEach(function(b){
+  b.addEventListener('click', function(){
+    if(!S.res) return;
+    var R = S.res, base = R.org + '_개인정보처리방침_' + R.date.replace(/[^\d]/g,'');
+    var k = b.dataset.dl;
+    if(k === 'print'){ window.print(); return; }
+    if(k === 'txt'){ dl(base + '.txt', 'text/plain;charset=utf-8', planText(R)); return; }
+    var inner = (k === 'docx') ? (paneRep(R) + paneImp(R) + paneCmp(R)) : paneImp(R);
+    var css = '<style>body{font-family:"맑은 고딕",Malgun Gothic,sans-serif;font-size:11pt;line-height:1.8;color:#17202e}'+
+      'h2,h3,h4{font-family:inherit}table{border-collapse:collapse;width:100%;font-size:9.5pt}'+
+      'th,td{border:1px solid #94a3b8;padding:5px 7px;text-align:left;vertical-align:top}th{background:#eef2f7}'+
+      '.pre,.cur,.ex,.old,.new{white-space:pre-wrap}.lbi{display:none}.sw{display:none}'+
+      '.fix{border:1px solid #cbd5e1;padding:10px 12px;margin:0 0 10px}.doc{border:0;padding:0}</style>';
+    var html = '<!doctype html><html lang="ko"><head><meta charset="utf-8"><title>' + esc(base) + '</title>' + css + '</head><body>' + inner + '</body></html>';
+    dl(base + (k === 'docx' ? '.doc' : '.html'), k === 'docx' ? 'application/msword' : 'text/html;charset=utf-8', html);
+  });
+});
+})();
+
+</script>
 </body>
 </html>

@@ -58,6 +58,41 @@ export default {
         return json({ ok: false, error: String(e && e.message || e) }, 502);
       }
     }
+    // ===== 처리방침 페이지 불러오기 (policy.html) =====
+    if (url.pathname === '/fetch') {
+      const target = url.searchParams.get('url') || '';
+      let u;
+      try { u = new URL(target); } catch (e) { return json({ ok: false, error: 'url 형식 오류' }, 400); }
+      if (u.protocol !== 'https:' && u.protocol !== 'http:') return json({ ok: false, error: 'http(s)만 허용' }, 400);
+      // 내부망·루프백 주소 차단
+      if (/^(localhost$|127\.|10\.|192\.168\.|169\.254\.|172\.(1[6-9]|2\d|3[01])\.|\[?::1)/i.test(u.hostname)) {
+        return json({ ok: false, error: '내부 주소는 불러올 수 없습니다' }, 400);
+      }
+      const ck = new Request('https://cache.local/fetch?u=' + encodeURIComponent(u.toString()), request);
+      const cache = caches.default;
+      const hit = await cache.match(ck);
+      if (hit) return hit;
+      try {
+        const r = await fetch(u.toString(), {
+          redirect: 'follow',
+          headers: { 'User-Agent': UA, 'Accept': 'text/html,application/xhtml+xml', 'Accept-Language': 'ko' },
+          cf: { cacheTtl: 1800 }
+        });
+        if (!r.ok) return json({ ok: false, error: '응답 코드 ' + r.status }, 502);
+        const ct = r.headers.get('content-type') || '';
+        if (!/text\/|xhtml|xml/i.test(ct)) return json({ ok: false, error: 'HTML이 아닌 문서입니다 (' + ct + ')' }, 415);
+        let html = (await r.text()).slice(0, 1500000);
+        const text = htmlToText(html);
+        if (text.length < 120) return json({ ok: false, error: '본문을 찾지 못했습니다. 내용을 직접 붙여넣어 주세요.' }, 422);
+        const res = json({ ok: true, url: r.url, chars: text.length, text: text.slice(0, 300000) });
+        res.headers.set('Cache-Control', 'public, max-age=1800');
+        await cache.put(ck, res.clone());
+        return res;
+      } catch (e) {
+        return json({ ok: false, error: String(e && e.message || e) }, 502);
+      }
+    }
+
     // ===== MCP 서버 (Claude 커스텀 커넥터) =====
     if (url.pathname === '/mcp') {
       if (request.method !== 'POST') return json({ ok: false, error: 'POST only' }, 405);
@@ -165,3 +200,20 @@ function joText(art) {
   return s.replace(/\n{3,}/g, '\n\n').slice(0, 20000);
 }
 function asArray(v) { return v == null ? [] : Array.isArray(v) ? v : [v]; }
+
+/* HTML → 본문 텍스트 (처리방침 추출용) */
+function htmlToText(html) {
+  let s = html
+    .replace(/<!--[\s\S]*?-->/g, ' ')
+    .replace(/<(script|style|noscript|svg|head)[\s\S]*?<\/\1>/gi, ' ')
+    .replace(/<(nav|header|footer)[\s\S]*?<\/\1>/gi, ' ');
+  // 표는 구분자를 살려 둔다
+  s = s.replace(/<\/t[dh]>/gi, ' | ').replace(/<\/tr>/gi, '\n');
+  s = s.replace(/<\/(p|div|li|h[1-6]|section|article|br)>/gi, '\n').replace(/<br\s*\/?>/gi, '\n');
+  s = s.replace(/<[^>]+>/g, ' ');
+  s = s.replace(/&nbsp;/g, ' ').replace(/&amp;/g, '&').replace(/&lt;/g, '<').replace(/&gt;/g, '>')
+       .replace(/&quot;/g, '"').replace(/&#39;/g, "'")
+       .replace(/&#(\d+);/g, (m, d) => String.fromCharCode(+d));
+  s = s.split('\n').map(l => l.replace(/[ \t\u00a0]+/g, ' ').trim()).filter(Boolean).join('\n');
+  return s.replace(/\n{3,}/g, '\n\n').trim();
+}
