@@ -95,6 +95,16 @@
   .q-title { font-family: var(--f-display); font-size: 15px; font-weight: 700; margin: 11px 0 2px; }
   .q-sec { font-size: 12.5px; font-weight: 700; color: var(--muted); margin: 14px 0 5px; }
   .q-scene { font-size: 13.5px; line-height: 1.8; }
+  .brief { margin-top: 10px; border: 1px solid var(--line); border-radius: 12px; overflow: hidden; }
+  .brief .bh { display: grid; grid-template-columns: repeat(4, 1fr); gap: 1px; background: var(--line); }
+  .brief .bh > div { background: var(--surface-2); padding: 8px 11px; }
+  .brief .bh dt { font-size: 10.5px; color: var(--muted); font-weight: 700; letter-spacing: .04em; margin: 0 0 2px; }
+  .brief .bh dd { margin: 0; font-size: 12.5px; font-weight: 600; line-height: 1.5; }
+  .brief .bb { padding: 11px 13px; font-size: 13px; line-height: 1.8; }
+  .brief .bb p { margin: 0; }
+  .brief .bb p + p { margin-top: 8px; padding-top: 8px; border-top: 1px dashed var(--line); }
+  .brief .bb .k { font-weight: 700; color: var(--cipher); }
+  @media (max-width: 720px) { .brief .bh { grid-template-columns: repeat(2, 1fr); } }
   /* 터미널 단서 뷰어 */
   .term { background: #0f1720; border: 1px solid #223040; border-radius: 12px; overflow: hidden; }
   .term-h { display: flex; align-items: center; gap: 6px; padding: 8px 12px; background: #18232e; }
@@ -394,11 +404,12 @@
   function show(no) {
     var p = P.filter(function (x) { return x.no === no; })[0];
     if (!p) return;
-    var BAD = /위반|취약|누락|없음|미설정|미적용|미실시|미등록|오류|실패|경보|이상|초과|평문|enable|YES|TRUE|OPEN|RUNNING|disable = <b>no|0\.0\.0\.0|public|private|admin|999|NOPASSWD|injected|DROP|SUCCESS/i;
     var evHtml = p.ev.map(function (l, i) {
       var raw = l.replace(/<b>/g, '\u0001').replace(/<\/b>/g, '\u0002');
       var h = esc(raw).replace(/\u0001/g, '<b>').replace(/\u0002/g, '</b>');
-      var bad = BAD.test(l) && !/^\s*(──|\[|#\s*$|$)/.test(l.replace(/<\/?b>/g, ''));
+      h = h.replace(/(FLAG\{[^}]*\})/g, '<span class="k">$1</span>')
+           .replace(/(🚨[^\n]*)/g, '<span class="alert">$1</span>');
+      var bad = /<b>/.test(l);
       return '<div class="ln' + (bad ? ' bad' : '') + '" style="animation-delay:' + (i * 0.11).toFixed(2) + 's">' + (h || '&nbsp;') + '</div>';
     }).join('');
     var fileName = ({ log: 'privacy_access.log', unix: 'hardening_check.out', win: 'secpol_export.txt', db: 'db_privs.sql',
@@ -413,7 +424,19 @@
           '<span class="q-area">' + esc(p.area || '') + '</span>' +
           '<span class="q-zone">' + esc(p.icon || '') + ' ' + esc(p.zone) + '</span></div>' +
         '<div class="q-title">🗝️ ' + esc(p.title) + '</div>' +
-        '<div class="q-sec">📖 1. 방 안의 상황</div><div class="q-scene">' + p.scene + '</div>' +
+        '<div class="q-sec">📖 1. 사건 브리핑</div><div class="q-scene">' + p.scene + '</div>' +
+        (p.brief ? '<div class="brief">' +
+          '<div class="bh">' +
+            '<div><dt>기관 · 부서</dt><dd>' + esc(p.brief.org) + '</dd></div>' +
+            '<div><dt>대상</dt><dd>' + esc(p.brief.sys) + '</dd></div>' +
+            '<div><dt>규모</dt><dd>' + esc(p.brief.scale) + '</dd></div>' +
+            '<div><dt>시점</dt><dd>' + esc(p.brief.when) + '</dd></div>' +
+          '</div>' +
+          '<div class="bb">' +
+            '<p><span class="k">무슨 일이 있었나</span> — ' + esc(p.brief.who) + '가 점검하던 중 <b>' + esc(p.brief.what) + '</b> 정황이 확인됐어요. 아래 단서가 그때 확보한 자료예요.</p>' +
+            '<p><span class="k">법이 요구하는 것</span> — ' + p.brief.why + '</p>' +
+            '<p><span class="k">당신이 할 일</span> — ' + p.brief.task + '</p>' +
+          '</div></div>' : '') +
         ((p.key === 'log_abnormal' || p.key === 'leak_time' || p.key === 'attack' || p.key === 'final200')
           ? '<div class="alarm"><span class="ai">🚨</span><div><b>경보 · 개인정보 총괄부서 알림</b><br>' +
             '점검 결과 즉시 확인이 필요한 정황이 <b>1건</b> 탐지됐어요. 사유 소명과 초기 조치가 필요합니다.</div></div>' : '') +
