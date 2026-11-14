@@ -42,16 +42,31 @@
   let pendingFileText = '';
   async function handleFile(f) {
     $('#fileName').style.display = 'block'; $('#fileName').textContent = '해석 중: ' + f.name;
-    try { pendingFileText = await parseFile(f); $('#fileName').textContent = `불러옴: ${f.name} (${pendingFileText.length.toLocaleString()}자)`; }
-    catch (e) { pendingFileText = ''; $('#fileName').textContent = '해석 실패: ' + f.name + ' — 내용을 붙여넣기로 넣어 주세요.'; }
+    $('#fileName').style.display = 'block';
+    $('#fileName').textContent = `읽는 중: ${f.name} …`;
+    try {
+      pendingFileText = await parseFile(f);
+      if (!pendingFileText || pendingFileText.replace(/\s/g,'').length < 30) {
+        pendingFileText = '';
+        $('#fileName').textContent = `텍스트를 찾지 못했어요: ${f.name} — 스캔 이미지 PDF이거나 본문이 그림으로 들어간 문서일 수 있어요. 내용을 ‘붙여넣기’로 넣어 주세요.`;
+      } else {
+        $('#fileName').textContent = `불러옴: ${f.name} (${pendingFileText.length.toLocaleString()}자) — ‘진단 시작’을 누르세요.`;
+      }
+    } catch (e) {
+      pendingFileText = '';
+      var msg = (e && e.message === 'PDF_LIB') ? 'PDF 해석기를 불러오지 못했어요(네트워크 차단). 인터넷 연결 후 다시 시도하거나 내용을 붙여넣기로 넣어 주세요.'
+              : '해석 실패 — 파일이 손상되었거나 암호가 걸려 있을 수 있어요. 내용을 붙여넣기로 넣어 주세요.';
+      $('#fileName').textContent = f.name + ' — ' + msg;
+    }
   }
 
   async function parseFile(f) {
     const name = f.name.toLowerCase();
     if (name.endsWith('.txt')) return await f.text();
     const buf = await f.arrayBuffer();
-    if (name.endsWith('.docx')) return await parseZipXml(buf, /word\/document\.xml$/);
-    if (name.endsWith('.hwpx')) return await parseZipXml(buf, /Contents\/section\d+\.xml$/);
+    if (name.endsWith('.docx') || name.endsWith('.docm'))
+      return await parseZipXml(buf, /word\/(document|header\d*|footer\d*)\.xml$/);
+    if (name.endsWith('.hwpx')) return await parseZipXml(buf, /(Contents\/)?section\d+\.xml$/i);
     if (name.endsWith('.xlsx')) return await parseXlsx(buf);
     if (name.endsWith('.pdf')) return await parsePdf(buf);
     return await f.text();
@@ -70,8 +85,10 @@
     return out.trim();
   }
   async function parsePdf(buf) {
-    await loadScript('https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js');
-    const pdfjs = window.pdfjsLib; pdfjs.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
+    try { await loadScript('https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js'); }
+    catch (e) { throw new Error('PDF_LIB'); }
+    const pdfjs = window.pdfjsLib;
+    if (!pdfjs) throw new Error('PDF_LIB'); pdfjs.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
     const doc = await pdfjs.getDocument({ data: buf }).promise; let out = '';
     for (let i = 1; i <= doc.numPages; i++) { const pg = await doc.getPage(i); const tc = await pg.getTextContent(); out += '\n' + tc.items.map(x => x.str).join(' '); }
     return out.trim();

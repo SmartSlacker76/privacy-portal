@@ -1,0 +1,373 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>접속기록 분석 시연 — 프라이버시 디펜더</title>
+<style>
+  :root{ --ink:#152029; --mut:#51616e; --line:#d9e2ea; --surface:#ffffff; --s2:#f1f6f9;
+         --teal:#0d7a6e; --teal2:#0a5f56; --red:#c4321b; --org:#c9631a; --mono:"JetBrains Mono","Noto Sans Mono CJK KR",monospace; }
+  @media(prefers-color-scheme:dark){ :root:not([data-theme="light"]){ --ink:#e6eef3; --mut:#9fb0bd; --line:#2a3842; --surface:#141c22; --s2:#1b252d; } }
+  :root[data-theme="dark"]{ --ink:#e6eef3; --mut:#9fb0bd; --line:#2a3842; --surface:#141c22; --s2:#1b252d; }
+  *{ box-sizing:border-box; }
+  body{ margin:0; background:var(--s2); color:var(--ink);
+    font-family:"IBM Plex Sans KR","Noto Sans KR",sans-serif; line-height:1.6; }
+  .wrap{ max-width:860px; margin:0 auto; padding:22px 16px 70px; }
+  .diff{ display:inline-block; background:#1d8f5b; color:#fff; font-weight:800; font-size:13px; padding:3px 12px; border-radius:20px; }
+  h1{ font-size:24px; margin:10px 0 4px; }
+  .sub{ color:var(--mut); font-size:14px; margin:0 0 16px; }
+  .card{ background:var(--surface); border:1px solid var(--line); border-radius:14px; padding:16px 18px; margin:14px 0; }
+  .card h2{ font-size:16px; margin:0 0 8px; color:var(--teal2); }
+  /* 경보 */
+  .alarm{ display:flex; gap:12px; align-items:flex-start; background:color-mix(in srgb,var(--red) 9%,var(--surface)); border:1px solid #e6b3a8; border-left:4px solid var(--red); border-radius:12px; padding:12px 14px; box-shadow:0 0 0 0 rgba(196,50,27,.5); animation:pulse 1.2s ease-out infinite; }
+  .alarm .i{ font-size:24px; animation:shake .9s ease-in-out infinite; }
+  .alarm b{ color:var(--red); } .alarm .s{ font-size:13px; color:var(--mut); }
+  @keyframes pulse{ 0%{ box-shadow:0 0 0 0 rgba(196,50,27,.5);} 70%{ box-shadow:0 0 0 12px rgba(196,50,27,0);} 100%{ box-shadow:0 0 0 0 rgba(196,50,27,0);} }
+  @keyframes shake{ 0%,100%{ transform:rotate(0);} 25%{ transform:rotate(-12deg);} 75%{ transform:rotate(12deg);} }
+  /* 대화형 브리핑 + 모션 씬 */
+  .briefing .live{ font-size:11px; color:var(--red); font-weight:800; vertical-align:middle; animation:blink 1s steps(2) infinite; }
+  .scene{ position:relative; height:160px; border-radius:12px; overflow:hidden; margin:8px 0 14px; background:linear-gradient(180deg,#0b1a3a,#132a52 60%,#17322a); }
+  .scene .moon{ position:absolute; left:16px; top:12px; font-size:26px; filter:drop-shadow(0 0 8px #ffe08a); }
+  .scene .bldg{ position:absolute; left:22px; bottom:0; width:116px; height:104px; background:#0d1526; border-radius:6px 6px 0 0; display:grid; grid-template-columns:repeat(3,1fr); grid-auto-rows:20px; gap:7px; padding:12px; }
+  .scene .win{ background:#1c2b44; border-radius:2px; }
+  .scene .win.on{ background:#ffd36b; box-shadow:0 0 6px #ffd36b; }
+  .scene .win.blink{ background:#ff5f56; box-shadow:0 0 9px #ff5f56; animation:winblink .7s steps(2) infinite; }
+  @keyframes winblink{ 50%{ background:#5a1812; box-shadow:none; } }
+  .scene .dlwrap{ position:absolute; right:64px; top:26px; width:150px; color:#cdd9e3; font-family:var(--mono); }
+  .scene .dl-label{ font-size:11px; color:#9fb2c0; }
+  .scene .dl-bar{ height:12px; background:#1b2a36; border-radius:6px; overflow:hidden; margin:5px 0; }
+  .scene .dl-bar i{ display:block; height:100%; width:0; background:linear-gradient(90deg,#1d8f5b,#ff5f56); animation:fillbar 2.4s ease-out forwards; }
+  @keyframes fillbar{ to{ width:100%; } }
+  .scene .dl-num{ font-size:13px; } .scene .dl-num b{ color:#ff9b8c; font-size:17px; }
+  .scene .arrows{ position:absolute; right:16px; top:0; width:40px; height:70px; }
+  .scene .arrows span{ position:absolute; color:#7fd1c0; font-size:18px; animation:drop 1.2s linear infinite; }
+  .scene .arrows span:nth-child(2){ left:15px; animation-delay:.4s; } .scene .arrows span:nth-child(3){ left:30px; animation-delay:.8s; }
+  @keyframes drop{ 0%{ transform:translateY(-12px); opacity:0; } 30%{ opacity:1; } 100%{ transform:translateY(64px); opacity:0; } }
+  .scene .siren{ position:absolute; right:16px; bottom:12px; font-size:30px; filter:drop-shadow(0 0 10px #ff5f56); animation:shake .8s ease-in-out infinite; }
+  /* 사무실 씬: 총괄 담당자 + 모니터(경보) + 전화 + 다른 부서 직원 */
+  .scene.office{ background:linear-gradient(180deg,#13233a,#1a2e3f 70%,#20392e); }
+  .monitor{ position:absolute; left:18px; top:16px; width:154px; }
+  .mon-top{ background:#0b1119; border-radius:7px 7px 0 0; padding:3px 8px; display:flex; align-items:center; gap:6px; }
+  .mon-dot{ width:7px; height:7px; border-radius:50%; background:#ff5f56; animation:winblink .7s steps(2) infinite; }
+  .mon-ttl{ font-family:var(--mono); font-size:9px; color:#8fa3b3; }
+  .mon-screen{ background:#0a0f16; border:2px solid #ff5f56; border-top:0; height:80px; padding:5px 8px; overflow:hidden; animation:alarmborder 1s steps(2) infinite; }
+  @keyframes alarmborder{ 50%{ border-color:#5a1812; } }
+  .mon-alarm{ color:#ff5f56; font-family:var(--mono); font-size:9.5px; font-weight:700; animation:blink 1s steps(2) infinite; }
+  .mon-log{ font-family:var(--mono); font-size:9px; color:#7fd1c0; line-height:1.55; margin-top:4px; }
+  .mon-log .r{ color:#ff9b8c; font-weight:700; }
+  .mon-neck{ width:12px; height:9px; background:#0b1119; margin:0 auto; }
+  .mon-base{ width:54px; height:6px; background:#0b1119; border-radius:3px; margin:0 auto; }
+  .mgr{ position:absolute; left:132px; bottom:6px; font-size:42px; line-height:1; }
+  .mgr-phone{ position:absolute; left:-10px; top:8px; font-size:21px; animation:shake .8s ease-in-out infinite; }
+  .callwave{ position:absolute; right:84px; top:58px; width:60px; height:40px; }
+  .callwave i{ position:absolute; left:0; top:8px; width:14px; height:14px; border:2.5px solid #7fd1c0; border-radius:50%; border-right-color:transparent; border-bottom-color:transparent; transform:rotate(45deg); opacity:0; animation:callwave 1.6s ease-out infinite; }
+  .callwave i:nth-child(2){ left:15px; animation-delay:.5s; } .callwave i:nth-child(3){ left:30px; animation-delay:1s; }
+  @keyframes callwave{ 0%{ opacity:0; transform:rotate(45deg) scale(.5); } 40%{ opacity:1; } 100%{ opacity:0; transform:rotate(45deg) scale(1.25); } }
+  .staff{ position:absolute; right:14px; bottom:8px; font-size:40px; line-height:1; }
+  .staff-q{ position:absolute; right:30px; top:-8px; font-size:19px; color:#ffd36b; font-weight:800; animation:pop2 1.5s ease-in-out infinite; }
+  @keyframes pop2{ 0%,100%{ transform:translateY(0); opacity:.55; } 50%{ transform:translateY(-5px); opacity:1; } }
+  .chat{ display:flex; flex-direction:column; gap:10px; min-height:56px; }
+  .bubble{ max-width:84%; padding:10px 13px; border-radius:14px; font-size:14px; line-height:1.55; display:flex; gap:8px; align-items:flex-start; opacity:0; transform:translateY(8px); animation:pop .35s ease forwards; }
+  .bubble .av{ font-size:22px; flex:none; line-height:1.3; }
+  .bubble.mentor{ align-self:flex-start; background:color-mix(in srgb,var(--teal) 12%,var(--surface)); border:1px solid #b9ddd6; border-bottom-left-radius:4px; }
+  .bubble.rookie{ align-self:flex-end; flex-direction:row-reverse; background:var(--s2); border:1px solid var(--line); border-bottom-right-radius:4px; text-align:right; }
+  @keyframes pop{ to{ opacity:1; transform:none; } }
+  .chat-ctl{ display:flex; gap:8px; margin-top:12px; }
+  .brief-sum{ margin-top:14px; padding-top:12px; border-top:1px dashed var(--line); }
+  .brief-sum p{ font-size:13.5px; color:var(--mut); margin:0 0 10px; }
+  @media(prefers-reduced-motion:reduce){ .scene .win.blink,.scene .siren,.scene .arrows span,.briefing .live,.mon-dot,.mon-screen,.mon-alarm,.mgr-phone,.callwave i,.staff-q{ animation:none; } .scene .dl-bar i{ width:100%; animation:none; } .bubble{ opacity:1; transform:none; animation:none; } }
+  /* 로그 뷰어 */
+  .term{ background:#0f1720; border-radius:12px; overflow:hidden; border:1px solid #223; }
+  .term-h{ display:flex; align-items:center; gap:6px; padding:8px 12px; background:#18232e; }
+  .dot{ width:10px; height:10px; border-radius:50%; } .dot.r{ background:#ff5f56;} .dot.y{ background:#ffbd2e;} .dot.g{ background:#27c93f;}
+  .term-t{ margin-left:8px; font-family:var(--mono); font-size:12px; color:#8fa3b3; }
+  .term-b{ padding:10px 12px; font-family:var(--mono); font-size:12.5px; max-height:280px; overflow:auto; }
+  .ln{ padding:4px 6px; border-radius:6px; color:#b9c8d4; opacity:0; transform:translateX(-6px); animation:logIn .35s ease forwards; white-space:pre-wrap; word-break:break-all; }
+  .ln.bad{ background:rgba(196,50,27,.18); color:#ff9b8c; }
+  .ln .k{ color:#7fd1c0; } .ln .alert{ color:#ff5f56; font-weight:700; animation:blink 1s steps(2) infinite; }
+  @keyframes logIn{ to{ opacity:1; transform:none; } }
+  @keyframes blink{ 50%{ opacity:.3; } }
+  .toolbar{ display:flex; gap:8px; flex-wrap:wrap; margin-top:10px; }
+  .btn{ border:1px solid var(--line); background:var(--s2); color:var(--ink); border-radius:9px; padding:8px 13px; font-size:13.5px; font-weight:600; cursor:pointer; }
+  .btn:hover{ background:var(--surface); } .btn.p{ background:var(--teal); border-color:var(--teal); color:#fff; } .btn.p:hover{ background:var(--teal2); }
+  /* 구조 주석 */
+  .fields{ display:grid; grid-template-columns:1fr 1fr; gap:8px; margin-top:4px; }
+  @media(max-width:560px){ .fields{ grid-template-columns:1fr; } }
+  .fld{ background:var(--s2); border:1px solid var(--line); border-radius:9px; padding:9px 11px; font-size:13px; }
+  .fld code{ font-family:var(--mono); color:var(--teal); background:color-mix(in srgb,var(--teal) 10%,transparent); padding:0 4px; border-radius:4px; }
+  /* 입력 */
+  .q{ display:flex; flex-direction:column; gap:10px; }
+  .q label{ font-size:13.5px; font-weight:600; display:flex; flex-direction:column; gap:4px; }
+  .q input{ border:1.5px solid var(--line); background:var(--surface); color:var(--ink); border-radius:9px; padding:10px 12px; font-size:14px; font-weight:400; }
+  .hintbtns{ display:flex; gap:8px; flex-wrap:wrap; margin:10px 0 0; }
+  .hb{ border:1px dashed var(--line); background:transparent; color:var(--mut); border-radius:20px; padding:6px 12px; font-size:12.5px; cursor:pointer; }
+  .hb.used{ border-style:solid; border-color:var(--org); color:var(--org); }
+  .hintout{ margin-top:8px; background:color-mix(in srgb,var(--org) 8%,var(--surface)); border:1px solid #e9c89f; border-radius:9px; padding:9px 12px; font-size:13.5px; }
+  .hintout b{ color:var(--org); }
+  .verdict{ margin-top:12px; border-radius:10px; padding:12px 14px; font-size:14px; display:none; }
+  .verdict.bad{ display:block; background:color-mix(in srgb,var(--red) 8%,var(--surface)); border:1px solid #e6b3a8; }
+  .verdict.bad b{ color:var(--red); }
+  .verdict.good{ display:block; background:color-mix(in srgb,#1d8f5b 8%,var(--surface)); border:1px solid #a9d8c0; }
+  .flag{ font-family:var(--mono); font-size:15px; color:var(--teal2); font-weight:700; }
+  /* 해설 */
+  .sol{ display:none; }
+  .sol.show{ display:block; }
+  .sol .blk{ background:var(--surface); border:1px solid var(--line); border-left:4px solid var(--teal); border-radius:10px; padding:12px 14px; margin:10px 0; }
+  .sol .blk.red{ border-left-color:var(--red); } .sol .blk.red h3{ color:var(--red); }
+  .sol .blk.org{ border-left-color:var(--org); } .sol .blk.org h3{ color:var(--org); }
+  .sol h3{ font-size:14.5px; margin:0 0 6px; color:var(--teal2); }
+  .sol p,.sol li{ font-size:13.5px; }
+  .sol ol,.sol ul{ margin:4px 0; padding-left:20px; }
+  table{ width:100%; border-collapse:collapse; font-size:12.5px; margin-top:6px; }
+  th,td{ border:1px solid var(--line); padding:7px 9px; text-align:left; vertical-align:top; }
+  th{ background:var(--s2); color:var(--mut); }
+  .reg{ background:color-mix(in srgb,var(--teal) 6%,var(--surface)); border:1px solid #b9ddd6; border-radius:8px; padding:8px 11px; font-size:12.5px; margin:6px 0; }
+  .reg b{ color:var(--teal2); }
+  .tag{ display:inline-block; background:var(--s2); border:1px solid var(--line); border-radius:20px; padding:1px 9px; font-size:11.5px; color:var(--mut); margin:2px 3px 0 0; }
+  .themebtn{ position:fixed; right:14px; top:14px; border:1px solid var(--line); background:var(--surface); color:var(--ink); border-radius:8px; width:34px; height:34px; cursor:pointer; }
+</style>
+</head>
+<body>
+<button class="themebtn" id="theme" aria-label="밝게/어둡게">🌓</button>
+<div class="wrap">
+  <span class="diff">🟢 난이도 하</span>
+  <h1>개인정보 접속기록 분석 — 업무시간 외 대량 다운로드 추적</h1>
+  <p class="sub">프라이버시 디펜더 · 기술 트랙 시연 · 안전성 확보조치 기준 제8조</p>
+
+  <div class="card briefing">
+    <h2>📝 사건 브리핑 <span class="live">● LIVE</span></h2>
+    <div class="scene office" role="img" aria-label="개인정보 총괄 담당자가 모니터의 경보 로그를 보며 다른 부서 직원에게 전화로 확인하는 모션 그래픽">
+      <div class="monitor">
+        <div class="mon-top"><span class="mon-dot"></span><span class="mon-ttl">privacy_access.log</span></div>
+        <div class="mon-screen">
+          <div class="mon-alarm">🚨 ALERT · 업무시간 외 대량 다운로드</div>
+          <div class="mon-log" id="monlog"></div>
+        </div>
+        <div class="mon-neck"></div><div class="mon-base"></div>
+      </div>
+      <div class="mgr"><span class="mgr-emo">👩‍💼</span><span class="mgr-phone">📞</span></div>
+      <div class="callwave"><i></i><i></i><i></i></div>
+      <div class="staff"><span class="staff-q">?</span><span class="staff-emo">🧑‍💼</span></div>
+    </div>
+    <div class="chat" id="chat" aria-live="polite"></div>
+    <div class="chat-ctl">
+      <button class="btn" id="chatNext">▶ 다음 대화</button>
+      <button class="btn p" id="toLog" style="display:none">🔎 로그 보러가기</button>
+    </div>
+    <div class="brief-sum">
+      <p>○○공공기관 <b>개인정보처리시스템 접속기록</b>을 <b>매일 점검</b>하던 개인정보 보호 <b>총괄부서</b>.
+      평소 소량 조회만 일어나던 ‘민원인 개인정보 내려받기’ 메뉴에서 <b>심야 대량 다운로드</b>가 포착됐어요.
+      아래 접속기록을 분석해 ① 무단 다운로드 <b>계정</b>, ② <b>유출 의심 건수</b>, ③ 시스템에 남겨진 <b>FLAG</b>를 찾으세요.</p>
+      <div class="alarm"><span class="i">🚨</span><div><b>경보 · 개인정보 총괄부서 알림</b><div class="s">매일 점검 중 업무시간 외 대량 다운로드 <b>1건</b> 탐지 — 즉시 사유 확인(소명)이 필요합니다.</div></div></div>
+    </div>
+  </div>
+
+  <div class="card">
+    <h2>📂 제공 데이터 — <code style="font-family:var(--mono)">privacy_access.log</code></h2>
+    <div class="term">
+      <div class="term-h"><span class="dot r"></span><span class="dot y"></span><span class="dot g"></span><span class="term-t">privacy_access.log — 접속기록 점검</span></div>
+      <div class="term-b" id="log"></div>
+    </div>
+    <div class="toolbar">
+      <button class="btn" id="struct">🧱 로그 구조 보기</button>
+      <button class="btn" id="howto">🔎 로그 보는 법</button>
+      <button class="btn" id="replay">↺ 다시 재생</button>
+    </div>
+    <div id="structBox" style="display:none;margin-top:10px">
+      <div class="fields">
+        <div class="fld"><code>[접속일시]</code> 누가 ‘언제’ 접근했나 — 심야·업무시간 외가 적신호</div>
+        <div class="fld"><code>acct=</code> 계정(식별자) — 임시·공용·퇴직자 계정 주의</div>
+        <div class="fld"><code>ip=</code> 접속지 IP — 내부망(10.x) 밖 외부 IP 주의</div>
+        <div class="fld"><code>menu/action</code> 수행업무 — VIEW·UPDATE는 소량, <b>EXPORT·다운로드·출력</b>이 핵심</div>
+        <div class="fld"><code>target / count</code> 처리한 정보주체·건수 — <b>대량(count)</b>이면 유출 규모</div>
+        <div class="fld"><code>result / 🚨경보</code> 처리결과·자동 경보 — 임계 초과 시 자동 알림</div>
+      </div>
+    </div>
+    <div id="howtoBox" style="display:none;margin-top:10px">
+      <div class="reg"><b>로그 보는 법 4단계</b>
+      <ol style="margin:6px 0 0">
+        <li><b>기준선(정상) 파악</b>: 업무시간대·1건 단위·내부 IP의 평범한 조회가 ‘정상’이에요.</li>
+        <li><b>이탈 찾기</b>: 시간(심야)·계정(임시)·IP(외부)·행위(EXPORT)·건수(대량)가 기준에서 벗어난 줄을 찾아요.</li>
+        <li><b>경보 확인</b>: <span style="color:var(--red)">🚨</span>·Alert·Unauthorized 같은 자동 경보 표식을 따라가요.</li>
+        <li><b>흔적 수집</b>: 공격자가 남긴 파라미터·피드백·게시글(평문)에서 FLAG 같은 결정적 단서를 확보해요.</li>
+      </ol></div>
+      <div class="reg" style="background:color-mix(in srgb,var(--org) 7%,var(--surface));border-color:#e9c89f"><b>⚠ 함정 주의</b> 문제와 무관한 ‘DDoS·웹셸 Write-up 예시’ 같은 디코이 설명에 현혹되지 마세요. 단서는 <code>EXPORT·count·🚨경보·text=FLAG</code> 뿐이에요.</div>
+    </div>
+  </div>
+
+  <div class="card">
+    <h2>🎯 정답 입력</h2>
+    <div class="q">
+      <label>① 무단 다운로드 공격자 계정 <input id="a1" placeholder="예: some_account" autocomplete="off"></label>
+      <label>② 유출 의심 개인정보 건수(숫자만) <input id="a2" placeholder="예: 10000" autocomplete="off"></label>
+      <label>③ FLAG <input id="a3" placeholder="FLAG{...}" autocomplete="off"></label>
+    </div>
+    <div class="hintbtns">
+      <button class="hb" data-h="1">💡 힌트1 (관찰)</button>
+      <button class="hb" data-h="2">💡 힌트2 (개념)</button>
+      <button class="hb" data-h="3">💡 힌트3 (판단)</button>
+    </div>
+    <div class="hintout" id="hintout" style="display:none"></div>
+    <div class="toolbar"><button class="btn p" id="submit">제출하기</button></div>
+    <div class="verdict" id="verdict"></div>
+  </div>
+
+  <div class="sol card" id="sol">
+    <h2>✅ 정답 &amp; 해설</h2>
+    <p><span class="tag">공격자 계정 <b>temp_0458</b></span><span class="tag">유출 건수 <b>47,200</b></span><span class="tag">FLAG <b>FLAG{Access_Log_Unmasked_Leak}</b></span></p>
+
+    <div class="blk"><h3>⚖ 해당 법령 · 지침 · 안내서</h3>
+      <ul>
+        <li><b>개인정보 보호법 제29조</b>(안전조치 의무) → <b>「개인정보의 안전성 확보조치 기준」(고시) 제8조</b>: 접속기록 <b>최소 1년</b>(민감·고유식별정보·100만 명 이상·<b>공공시스템은 2년</b>) 보관, <b>월 1회 이상 점검</b>이 법정 최소 기준이며, 본 기관은 이를 강화해 <b>매일(일일) 점검</b>을 수행. 특히 개인정보를 <b>다운로드</b>한 경우 그 <b>사유를 반드시 확인</b>.</li>
+        <li><b>제16조</b>(공공시스템운영기관 특례): 접속기록을 <b>자동화된 방식으로 분석</b>해 이상행위(업무시간 외·대량·미인가 IP)를 탐지.</li>
+        <li><b>표준 개인정보 보호지침</b> 및 <b>개인정보의 안전성 확보조치 기준 해설서</b>: 접속기록 필수 기록항목·점검 방법 안내.</li>
+        <li><b>개인정보 보호법 제34조</b>: 유출 시 정보주체 <b>통지</b>·일정 규모 이상 <b>72시간 내 신고</b>(보호위/KISA).</li>
+      </ul>
+    </div>
+
+    <div class="blk"><h3>🔎 로그 보는 법 (이 사건 적용)</h3>
+      <ol>
+        <li><b>정상 기준선</b>: <code>minwon_kim</code>은 09시대·내부 IP(10.10.21.33)·1건 단위 조회/수정 → 정상.</li>
+        <li><b>이탈 식별</b>: <code>temp_0458</code>은 <b>02:31 심야</b>·<b>외부 IP(203.0.113.77)</b>·<b>임시계정</b>으로 로그인 직후 <code>EXPORT</code> 실행.</li>
+        <li><b>경보 추적</b>: <code>02:33:12 … count=47,200 … 🚨경보: 업무시간외 대량 다운로드</code> → 유출 규모 확정.</li>
+        <li><b>흔적 수집</b>: <code>02:35:50 … 게시판 … text=FLAG{Access_Log_Unmasked_Leak}</code> → 평문 FLAG 확보.</li>
+      </ol>
+    </div>
+
+    <div class="blk"><h3>🧱 접속기록은 어떤 구조인가 (필수 기록항목)</h3>
+      <table>
+        <tr><th>항목</th><th>의미</th><th>로그 예</th></tr>
+        <tr><td>계정(식별자)</td><td>누가 접근했나</td><td><code>acct=temp_0458</code></td></tr>
+        <tr><td>접속일시</td><td>언제 접근했나</td><td><code>2026-11-11 02:33:12</code></td></tr>
+        <tr><td>접속지 정보</td><td>어디서(IP 등)</td><td><code>ip=203.0.113.77</code></td></tr>
+        <tr><td>수행업무</td><td>무엇을(열람·수정·삭제·다운로드·출력)</td><td><code>menu=개인정보내려받기 action=EXPORT</code></td></tr>
+        <tr><td>처리한 정보주체·건수</td><td>누구의 정보를 몇 건</td><td><code>target=민원인DB_전체 count=47,200</code></td></tr>
+        <tr><td>처리결과</td><td>성공/실패·경보</td><td><code>result=정상 🚨경보</code></td></tr>
+      </table>
+    </div>
+
+    <div class="blk red"><h3>🚨 위반 시 처벌</h3>
+      <ul>
+        <li><b>형사처벌</b>: 업무상 알게 된 개인정보 누설·부정이용·목적 외 제공 → <b>제71조 5년↓ 징역 또는 5천만원↓ 벌금</b>. 안전조치 소홀로 유출 → <b>제73조 2년↓·2천만원↓</b>.</li>
+        <li><b>과태료</b>: 접속기록 보관·점검 등 <b>안전조치 미이행</b> → 과태료(제75조). 유출 통지·신고 위반도 과태료.</li>
+        <li><b>과징금</b>: 안전조치를 소홀히 해 유출된 경우 전체 매출액 기준 <b>과징금</b>(공공기관 포함).</li>
+        <li><b>징계</b>: 무단 대량 조회·외부 반출 = ‘개인정보 부정이용 및 무단열람/유출’ 비위 → <b>파면·해임</b> 등 중징계(지방공무원 징계규칙 별표1 · 개인정보보호 법규 위반 비위 징계처리지침).</li>
+      </ul>
+    </div>
+
+    <div class="blk org"><h3>📋 개인정보 접속기록 관리대장 기록 방법 — 작성 예시</h3>
+      <p style="font-size:12.5px;color:var(--mut)">접속기록 ‘점검 결과’를 남기는 관리대장 예시입니다. 이상징후 발견 시 소명·조치까지 기록해요.</p>
+      <table>
+        <tr><th style="width:120px">구분</th><th>기록 예시</th></tr>
+        <tr><td>점검일자</td><td>2026-11-11</td></tr>
+        <tr><td>점검자(부서)</td><td>개인정보 보호 총괄부서 ○○○ (운영부서와 분리)</td></tr>
+        <tr><td>대상 시스템</td><td>민원 개인정보처리시스템</td></tr>
+        <tr><td>점검주기</td><td>매일(일일) 점검 — 전일(2026-11-10) 접속기록 점검 중 탐지 · 법정 최소 월 1회 이상을 강화</td></tr>
+        <tr><td>점검방법</td><td>접속기록 자동분석(업무시간 외·대량·미인가 IP 규칙) + 수기 확인</td></tr>
+        <tr><td>이상징후</td><td>1건 — <b>계정</b> temp_0458 / <b>일시</b> 2026-11-11 02:33 / <b>유형</b> 업무시간 외 대량 EXPORT(47,200건) / 외부 IP</td></tr>
+        <tr><td>소명 요청·결과</td><td>해당 계정 사용부서에 사유 소명 요청 → 업무 근거 없음 확인</td></tr>
+        <tr><td>조치내역</td><td>① 계정 즉시 정지·권한 회수 ② 추가 유출 차단 ③ 정보주체 통지·72시간 내 신고 검토 ④ 징계의결 요구·수사 의뢰</td></tr>
+        <tr><td>보관·결재</td><td>관리대장 2년 보관, 개인정보 보호책임자 결재</td></tr>
+      </table>
+    </div>
+
+    <div class="reg"><b>재발방지</b> 임시계정 최소권한·만료관리 · 다운로드 건수 임계 경보 · 주민번호 등 마스킹 · 접속기록 2년 보관·<b>매일 점검</b> 상시화(법정 최소 월 1회 이상).</div>
+  </div>
+</div>
+
+<script>
+(function(){
+  var LINES=[
+    {t:'[2026-11-11 09:14:05] acct=minwon_kim  ip=10.10.21.33   menu=민원조회       action=VIEW   target=민원인_1건        result=정상', bad:false},
+    {t:'[2026-11-11 02:31:47] acct=temp_0458   ip=203.0.113.77  menu=개인정보내려받기 action=LOGIN                        result=성공', bad:true},
+    {t:'[2026-11-11 02:33:12] acct=temp_0458   ip=203.0.113.77  menu=개인정보내려받기 action=EXPORT target=민원인DB_전체  count=47,200  result=정상  [🚨경보: 업무시간외 대량 다운로드]', bad:true},
+    {t:'[2026-11-11 02:35:50] acct=temp_0458   ip=203.0.113.77  menu=게시판         action=WRITE  text=FLAG{Access_Log_Unmasked_Leak}', bad:true},
+    {t:'[2026-11-11 09:20:11] acct=minwon_kim  ip=10.10.21.33   menu=민원조회       action=UPDATE target=연락처_1건        result=정상', bad:false}
+  ];
+  function esc(s){ return s.replace(/[&<>]/g,function(c){return({'&':'&amp;','<':'&lt;','>':'&gt;'})[c];}); }
+  function draw(){
+    var box=document.getElementById('log'); box.innerHTML='';
+    LINES.forEach(function(l,i){
+      var h=esc(l.t).replace(/(🚨경보[^\]]*)/,'<span class="alert">$1</span>').replace(/(FLAG\{[^}]*\})/,'<span class="k">$1</span>');
+      var d=document.createElement('div'); d.className='ln'+(l.bad?' bad':''); d.style.animationDelay=(i*0.18)+'s'; d.innerHTML=h; box.appendChild(d);
+    });
+  }
+  draw();
+  document.getElementById('replay').onclick=draw;
+  function toggle(id,btn,on){ var e=document.getElementById(id); e.style.display=e.style.display==='none'?'block':'none'; }
+  document.getElementById('struct').onclick=function(){ toggle('structBox'); };
+  document.getElementById('howto').onclick=function(){ toggle('howtoBox'); };
+
+  // 대화형 브리핑
+  var reduce=false; try{ reduce=matchMedia('(prefers-reduced-motion: reduce)').matches; }catch(e){}
+  var DIALOG=[
+    {who:'rookie',av:'👩‍💼',t:'간세다리님, ‘접속기록’이 대체 뭐예요?'},
+    {who:'mentor',av:'🧚',t:'쉽게 말하면 <b>출입 일지</b>야! 누가·언제·어떤 개인정보를 봤는지 컴퓨터가 자동으로 적어두는 CCTV 같은 거지.'},
+    {who:'mentor',av:'🧚',t:'그런데 오늘 아침, 그 일지에서 빨간 <b>경보</b>가 떴어. 🚨'},
+    {who:'rookie',av:'👩‍💼',t:'헉, 무슨 일이죠?'},
+    {who:'mentor',av:'🧚',t:'평소엔 한두 명만 보던 ‘개인정보 내려받기’에서, 어젯밤 새벽에 누군가 <b>대량의 개인정보</b>를 한꺼번에 내려받았어.'},
+    {who:'rookie',av:'👩‍💼',t:'새벽에요?! 완전 수상한데요…'},
+    {who:'mentor',av:'🧚',t:'우리 기관은 접속기록을 <b>매일 점검</b>해서 바로 잡아냈어. 이제 탐정이 되어 ① <b>누가</b> ② <b>몇 명</b> 정보를 빼냈는지 ③ 범인이 남긴 <b>흔적(FLAG)</b>을 찾자!'},
+    {who:'rookie',av:'👩‍💼',t:'좋아요, 일지(로그)부터 같이 봐요! 🔎'}
+  ];
+  var di=0, chat=document.getElementById('chat');
+  function nextLine(){
+    if(di>=DIALOG.length) return;
+    var d=DIALOG[di++]; var el=document.createElement('div'); el.className='bubble '+d.who;
+    el.innerHTML='<span class="av">'+d.av+'</span><span>'+d.t+'</span>'; chat.appendChild(el);
+    if(di>=DIALOG.length){ document.getElementById('chatNext').style.display='none'; document.getElementById('toLog').style.display='inline-block'; }
+  }
+  nextLine();
+  var auto=null;
+  if(!reduce){ auto=setInterval(function(){ if(di<DIALOG.length) nextLine(); else clearInterval(auto); }, 2300); }
+  else { while(di<DIALOG.length) nextLine(); }
+  document.getElementById('chatNext').onclick=function(){ if(auto) clearInterval(auto); nextLine(); };
+  document.getElementById('toLog').onclick=function(){ document.querySelector('.term').scrollIntoView({behavior:'smooth',block:'start'}); };
+  // 모니터 경보 로그 티커
+  var monlog=document.getElementById('monlog');
+  if(monlog){
+    var ML=[
+      {t:'02:31 temp_0458 LOGIN', r:false},
+      {t:'02:33 EXPORT 47,200건 🚨', r:true},
+      {t:'ip 203.0.113.77 (외부)', r:false}
+    ];
+    function paintML(){ monlog.innerHTML=ML.map(function(l){ return '<div'+(l.r?' class="r"':'')+'>'+l.t+'</div>'; }).join(''); }
+    paintML();
+    if(!reduce){ setInterval(function(){ ML.push(ML.shift()); paintML(); }, 1400); }
+  }
+  var HINTS=['관찰: ‘정상’ 줄(업무시간·1건·내부 IP)과 다른 줄을 비교하세요. 심야·외부 IP·임시계정이 수상해요.',
+             '개념: VIEW·UPDATE는 소량, 유출은 EXPORT/다운로드 + count(건수)로 드러나요. 자동 🚨경보를 따라가세요.',
+             '판단: 공격자는 게시판 text 파라미터에 FLAG를 평문으로 남겼어요. 계정=temp_0458, 건수=count 값.'];
+  var used=0;
+  Array.prototype.forEach.call(document.querySelectorAll('.hb'),function(b){
+    b.onclick=function(){ var h=+b.dataset.h; var o=document.getElementById('hintout'); o.style.display='block';
+      o.innerHTML='<b>힌트 '+h+'</b> '+HINTS[h-1]; b.classList.add('used'); used=Math.max(used,h); };
+  });
+  function norm(s){ return (s||'').toLowerCase().replace(/\s|,/g,''); }
+  document.getElementById('submit').onclick=function(){
+    var a1=norm(document.getElementById('a1').value);
+    var a2=norm(document.getElementById('a2').value);
+    var a3=norm(document.getElementById('a3').value);
+    var ok1=a1==='temp_0458';
+    var ok2=a2==='47200';
+    var ok3=a3==='flag{access_log_unmasked_leak}';
+    var v=document.getElementById('verdict');
+    if(ok1&&ok2&&ok3){
+      v.className='verdict good';
+      v.innerHTML='🏁 <span class="flag">FLAG{Access_Log_Unmasked_Leak}</span> — 정답! 아래 해설을 확인하세요.';
+      document.getElementById('sol').classList.add('show');
+      document.getElementById('sol').scrollIntoView({behavior:'smooth',block:'start'});
+    } else {
+      v.className='verdict bad';
+      var miss=[]; if(!ok1)miss.push('계정'); if(!ok2)miss.push('건수'); if(!ok3)miss.push('FLAG');
+      v.innerHTML='<b>❌ 아직이에요.</b> 다시 볼 항목: '+miss.join(', ')+'. 힌트를 단계별로 열고, 🧱 로그 구조/🔎 로그 보는 법을 참고하세요.';
+    }
+  };
+  document.getElementById('theme').onclick=function(){
+    var r=document.documentElement; var cur=r.getAttribute('data-theme');
+    r.setAttribute('data-theme', cur==='dark'?'light':'dark');
+  };
+})();
+</script>
+</body>
+</html>
