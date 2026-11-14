@@ -3,8 +3,8 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>정보보호 비밀의 방 · 방탈출 CTF 200</title>
-<meta name="description" content="간세다리와 함께 200개의 방을 탈출하는 개인정보 보호·사이버 보안 CTF. 방마다 단서를 읽고 FLAG를 찾아 문을 엽니다.">
+<title>정보보호 비밀의 방 · 블록형 CTF 200제</title>
+<meta name="description" content="간세다리와 함께 200개의 방을 탈출하는 개인정보 보호·사이버보안 CTF. 블록을 골라 조립하면 자물쇠가 열립니다. 한 문제 3분.">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700&display=swap">
 <link rel="stylesheet" href="assets/css/style.css">
 <style>
@@ -12,18 +12,27 @@
 
   /* ── 현황판 ───────────────────────────────── */
   .board { position: sticky; top: 0; z-index: 30; background: var(--bg); padding: 11px 0 9px; border-bottom: 1px solid var(--line); }
-  .b-head { display: flex; flex-wrap: wrap; gap: 8px; align-items: baseline; }
+  .b-head { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
   .b-title { font-family: var(--f-display); font-weight: 800; font-size: 15px; }
   .b-cnt { font-family: var(--f-mono, "JetBrains Mono", monospace); font-size: 13px; color: var(--cipher); font-weight: 700; }
   .b-sp { flex: 1; }
   .b-btn { font: inherit; font-size: 12px; font-weight: 600; padding: 5px 11px; border: 1px solid var(--line); background: var(--surface-2); color: var(--ink); border-radius: 8px; cursor: pointer; }
+  .timer { display: flex; align-items: center; gap: 7px; font-family: var(--f-mono, monospace); font-weight: 700; font-size: 14px;
+           padding: 4px 12px; border-radius: 999px; border: 1px solid var(--line); background: var(--surface-2); }
+  .timer.warn { color: #c9631a; border-color: #e9c89f; background: #fff6ea; }
+  .timer.crit { color: #c4321b; border-color: #e6b3a8; background: #fdecea; animation: tick .9s steps(2) infinite; }
+  html[data-theme="dark"] .timer.warn { background: #33270f; }
+  html[data-theme="dark"] .timer.crit { background: #3a1a18; }
+  @keyframes tick { 50% { opacity: .55; } }
+  .strikes { display: flex; gap: 3px; }
+  .strikes i { width: 9px; height: 9px; border-radius: 50%; background: var(--surface-2); border: 1px solid var(--line); font-style: normal; }
+  .strikes i.hit { background: #c4321b; border-color: #c4321b; }
 
-  /* 간세다리가 걷는 트랙 */
   .track { position: relative; height: 34px; margin: 10px 0 2px; }
   .track .esrail { position: absolute; left: 0; right: 0; top: 23px; height: 7px; border-radius: 4px; background: var(--surface-2); border: 1px solid var(--line); overflow: hidden; }
   .track .esrail i { position: absolute; inset: 0; width: 0; background: linear-gradient(90deg, #6f9f7e, #34a853); transition: width .6s cubic-bezier(.3,1.4,.5,1); font-style: normal; }
   .track .flagend { position: absolute; right: -2px; top: 6px; font-size: 16px; }
-  .track .walker { position: absolute; top: 0; left: 0; width: 28px; height: 28px; transition: left .7s cubic-bezier(.3,1.3,.5,1); will-change: left; }
+  .track .walker { position: absolute; top: 0; left: 0; width: 28px; height: 28px; transition: left .7s cubic-bezier(.3,1.3,.5,1); }
   .track .walker svg { display: block; width: 28px; height: 28px; }
   .walking { animation: bob .42s ease-in-out 5; }
   @keyframes bob { 0%,100% { transform: translateY(0) rotate(0); } 30% { transform: translateY(-5px) rotate(-7deg); } 60% { transform: translateY(-2px) rotate(6deg); } }
@@ -32,168 +41,130 @@
   /* ── 미로 지도 ────────────────────────────── */
   .maze { margin-top: 12px; border: 1px solid var(--line); border-radius: 14px; background: var(--surface); padding: 12px 12px 8px; }
   .mz-grid { display: grid; grid-template-columns: repeat(20, 1fr); gap: 3px; }
-  .cell { position: relative; aspect-ratio: 1; border-radius: 3px; background: var(--surface-2); border: 1px solid var(--line); cursor: pointer; }
+  .cell { aspect-ratio: 1; border-radius: 3px; background: var(--surface-2); border: 1px solid var(--line); cursor: pointer; }
   .cell.z1{--c:#8ab4f8}.cell.z2{--c:#a8c7a0}.cell.z3{--c:#9ad0d6}.cell.z4{--c:#c5a3e0}.cell.z5{--c:#e0c08a}
   .cell.z6{--c:#8fc7b0}.cell.z7{--c:#e8a7a0}.cell.z8{--c:#f0b36b}.cell.z9{--c:#7fa8d9}.cell.z10{--c:#b0a0e8}.cell.z11{--c:#f9ab00}
   .cell.esdone { background: var(--c); border-color: var(--c); }
-  .cell.now { background: #f9ab00; border-color: #b06b00; box-shadow: 0 0 0 2px rgba(249,171,0,.45); animation: glow 1.5s ease-in-out infinite; z-index: 2; }
+  .cell.now { background: #f9ab00; border-color: #b06b00; box-shadow: 0 0 0 2px rgba(249,171,0,.45); animation: glow 1.5s ease-in-out infinite; }
   @keyframes glow { 0%,100% { box-shadow: 0 0 0 2px rgba(249,171,0,.45); } 50% { box-shadow: 0 0 0 5px rgba(249,171,0,.18); } }
   .cell.last { border-radius: 50%; background: linear-gradient(135deg,#5b3fa8,#8e44ad); border-color: #4a3290; }
   .mz-legend { display: flex; gap: 10px; flex-wrap: wrap; font-size: 11px; color: var(--muted); padding-top: 9px; }
   .mz-legend b { color: var(--ink); font-weight: 700; }
 
-  /* ── 모션 스테이지 (아이소메트릭 라인아트 + 패킷 흐름) ── */
-  .stage { position: relative; height: 210px; margin-top: 14px; border-radius: 14px 14px 0 0; overflow: hidden;
-           background:
-             radial-gradient(120% 90% at 20% 0%, rgba(110,168,255,.10), transparent 60%),
-             linear-gradient(180deg, #0d1426, #0b1020);
-           border: 1px solid var(--line); border-bottom: none; }
-  .stage::before { content: ""; position: absolute; inset: 0; opacity: .5;
-    background-image: linear-gradient(rgba(110,168,255,.07) 1px, transparent 1px),
-                      linear-gradient(90deg, rgba(110,168,255,.07) 1px, transparent 1px);
-    background-size: 26px 26px; }
-  .stage svg { position: absolute; inset: 0; width: 100%; height: 100%; }
-  .stage .cap { position: absolute; left: 14px; bottom: 9px; color: #8fb6ef; font-size: 11.5px; letter-spacing: .3px;
-                font-family: var(--f-mono, monospace); }
-  .stage .tag { position: absolute; right: 12px; top: 10px; font-size: 10.5px; letter-spacing: .08em;
-                font-family: var(--f-mono, monospace); color: #6ea8ff; border: 1px solid rgba(110,168,255,.4);
-                border-radius: 999px; padding: 3px 10px; background: rgba(110,168,255,.08); }
-  .nd { fill: none; stroke: #6ea8ff; stroke-width: 1.7; stroke-linejoin: round; stroke-linecap: round; }
-  .nd.warn { stroke: #ff8a7a; }
-  .nd.ok { stroke: #6fd4a6; }
-  .ndf { fill: rgba(110,168,255,.12); stroke: none; }
-  .lbl { fill: #cfe0f5; font-size: 9.5px; font-family: var(--f-mono, monospace); text-anchor: middle; }
-  .sub { fill: #7f9ec4; font-size: 8.2px; font-family: var(--f-mono, monospace); text-anchor: middle; }
-  .link { stroke: rgba(130,175,235,.55); stroke-width: 1.4; stroke-dasharray: 4 5; fill: none; }
-  .link.bad { stroke: rgba(255,138,122,.75); }
-  .pkt { r: 4.4; }
-  .halo { opacity: .22; }
-  .blink { animation: blink 1.05s steps(2) infinite; }
-  @keyframes blink { 0%,50% { opacity: 1; } 51%,100% { opacity: .15; } }
-  .pulse { animation: pulse 1.9s ease-in-out infinite; transform-origin: center; }
-  @keyframes pulse { 0%,100% { opacity: .25; } 50% { opacity: .9; } }
-  .flick { animation: flick 2.4s ease-in-out infinite; }
-  @keyframes flick { 0%,100%{opacity:.3} 45%{opacity:1} 55%{opacity:.45} }
-  .sweep { animation: sweep 3.4s ease-in-out infinite; transform-origin: center; }
-  @keyframes sweep { 0%,100%{transform:rotate(-19deg)} 50%{transform:rotate(19deg)} }
-
-  /* ── 문제 카드 ────────────────────────────── */
-  .q { border: 1px solid var(--line); border-radius: 0 0 14px 14px; background: var(--surface); padding: 16px 18px; }
-  .q.esshake { animation: esshake .4s; }
-  @keyframes esshake { 0%,100%{transform:translateX(0)} 20%{transform:translateX(-8px)} 40%{transform:translateX(7px)} 60%{transform:translateX(-5px)} 80%{transform:translateX(3px)} }
-  .q-top { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
+  /* ── 카드 ─────────────────────────────────── */
+  .card { background: var(--surface); border: 1px solid var(--line); border-radius: 14px; padding: 15px 17px; margin: 13px 0; }
+  .card h2 { font-size: 15px; margin: 0 0 9px; color: var(--cipher); font-family: var(--f-display); }
+  .q-top { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; margin-bottom: 9px; }
   .q-no { font-family: var(--f-mono, monospace); font-size: 12px; font-weight: 700; color: #fff; background: var(--cipher); border-radius: 6px; padding: 2px 8px; }
   .q-room { font-family: var(--f-display); font-weight: 800; font-size: 17px; }
-  .q-d { font-size: 11px; font-weight: 700; border-radius: 10px; padding: 2px 9px; }
-  .d-하{background:#e6f4ea;color:#1e7e34}.d-중{background:#fef7e0;color:#a8560f}.d-상{background:#fce8e6;color:#c5221f}
-  .d-최종{background:linear-gradient(135deg,#5b3fa8,#8e44ad);color:#fff}
-  html[data-theme="dark"] .d-하{background:#14321f;color:#7ddc9b}
-  html[data-theme="dark"] .d-중{background:#332710;color:#f0c98a}
-  html[data-theme="dark"] .d-상{background:#3a1a18;color:#f0a39d}
-  .q-area { font-size: 11px; font-weight: 700; border-radius: 10px; padding: 2px 9px; background: var(--surface-2); color: var(--muted); border: 1px solid var(--line); }
-  .q-zone { font-size: 11.5px; color: var(--muted); }
-  .q-title { font-family: var(--f-display); font-size: 15px; font-weight: 700; margin: 11px 0 2px; }
-  .q-sec { font-size: 12.5px; font-weight: 700; color: var(--muted); margin: 14px 0 5px; }
-  .q-scene { font-size: 13.5px; line-height: 1.8; }
-  .brief { margin-top: 10px; border: 1px solid var(--line); border-radius: 12px; overflow: hidden; }
-  .brief .bh { display: grid; grid-template-columns: repeat(4, 1fr); gap: 1px; background: var(--line); }
-  .brief .bh > div { background: var(--surface-2); padding: 8px 11px; }
-  .brief .bh dt { font-size: 10.5px; color: var(--muted); font-weight: 700; letter-spacing: .04em; margin: 0 0 2px; }
-  .brief .bh dd { margin: 0; font-size: 12.5px; font-weight: 600; line-height: 1.5; }
-  .brief .bb { padding: 11px 13px; font-size: 13px; line-height: 1.8; }
-  .brief .bb p { margin: 0; }
-  .brief .bb p + p { margin-top: 8px; padding-top: 8px; border-top: 1px dashed var(--line); }
-  .brief .bb .k { font-weight: 700; color: var(--cipher); }
-  @media (max-width: 720px) { .brief .bh { grid-template-columns: repeat(2, 1fr); } }
-  /* 터미널 단서 뷰어 */
-  .term { background: #0f1720; border: 1px solid #223040; border-radius: 12px; overflow: hidden; }
-  .term-h { display: flex; align-items: center; gap: 6px; padding: 8px 12px; background: #18232e; }
-  .tdot { width: 10px; height: 10px; border-radius: 50%; }
-  .tdot.r{background:#ff5f56}.tdot.y{background:#ffbd2e}.tdot.g{background:#27c93f}
-  .term-t { margin-left: 8px; font-family: var(--f-mono, monospace); font-size: 11.5px; color: #8fa3b3; }
-  .term-b { padding: 10px 12px; font-family: var(--f-mono, "JetBrains Mono", monospace); font-size: 12px; line-height: 1.75;
-            max-height: 320px; overflow: auto; }
-  .ln { padding: 3px 7px; border-radius: 6px; color: #b9c8d4; white-space: pre-wrap; word-break: break-all;
-        opacity: 0; transform: translateX(-6px); animation: logIn .34s ease forwards; }
-  .ln.bad { background: rgba(196,50,27,.18); color: #ff9b8c; }
-  .ln b { color: #ffd479; }
-  @keyframes logIn { to { opacity: 1; transform: none; } }
-  .replay { margin-top: 8px; font: inherit; font-size: 12px; font-weight: 600; padding: 5px 11px; cursor: pointer;
-            border: 1px solid var(--line); background: var(--surface-2); color: var(--ink); border-radius: 8px; }
-  /* 경보 박스 */
-  .alarm { display: flex; gap: 11px; align-items: flex-start; margin-top: 10px; border-radius: 12px; padding: 11px 13px;
-           background: color-mix(in srgb, #c4321b 9%, var(--surface)); border: 1px solid #e6b3a8; border-left: 4px solid #c4321b;
-           animation: apulse 1.5s ease-out infinite; font-size: 13px; }
-  .alarm .ai { font-size: 22px; animation: ashake .9s ease-in-out infinite; }
-  .alarm b { color: #c4321b; }
-  @keyframes apulse { 0%{box-shadow:0 0 0 0 rgba(196,50,27,.45)} 70%{box-shadow:0 0 0 11px rgba(196,50,27,0)} 100%{box-shadow:0 0 0 0 rgba(196,50,27,0)} }
+  .chip { font-size: 11px; font-weight: 700; border-radius: 10px; padding: 2px 9px; background: var(--surface-2); color: var(--muted); border: 1px solid var(--line); }
+  .d-하{background:#e6f4ea;color:#1e7e34;border-color:#bfe3cb}.d-중{background:#fef7e0;color:#a8560f;border-color:#eeda9e}
+  .d-상{background:#fce8e6;color:#c5221f;border-color:#f0c4bf}.d-최종{background:linear-gradient(135deg,#5b3fa8,#8e44ad);color:#fff;border-color:#4a3290}
+  html[data-theme="dark"] .d-하{background:#14321f;color:#7ddc9b;border-color:#2e5c3e}
+  html[data-theme="dark"] .d-중{background:#332710;color:#f0c98a;border-color:#5a4718}
+  html[data-theme="dark"] .d-상{background:#3a1a18;color:#f0a39d;border-color:#5e2a26}
+  .q-desc { font-size: 15px; line-height: 1.75; font-weight: 600; }
+
+  .alarm { display: flex; gap: 11px; align-items: flex-start; background: #fdecea; border: 1px solid #e6b3a8; border-left: 4px solid #c4321b;
+           border-radius: 11px; padding: 11px 13px; margin-top: 11px; animation: apulse 1.5s ease-out infinite; }
+  html[data-theme="dark"] .alarm { background: #2d1512; }
+  .alarm .i { font-size: 21px; animation: ashake .9s ease-in-out infinite; }
+  .alarm b { color: #c4321b; } .alarm .s { font-size: 12.5px; color: var(--muted); line-height: 1.7; }
+  @keyframes apulse { 0%{box-shadow:0 0 0 0 rgba(196,50,27,.35)} 70%{box-shadow:0 0 0 11px rgba(196,50,27,0)} 100%{box-shadow:0 0 0 0 rgba(196,50,27,0)} }
   @keyframes ashake { 0%,100%{transform:rotate(0)} 25%{transform:rotate(-12deg)} 75%{transform:rotate(12deg)} }
-  .q-mis { background: var(--cipher-soft); border-left: 3px solid var(--cipher); border-radius: 8px; padding: 10px 13px; font-size: 13px; line-height: 1.7; }
-  .aid { margin-top: 9px; border: 1px dashed var(--line); border-radius: 10px; padding: 9px 12px; font-size: 12.5px; line-height: 1.75; background: var(--surface-2); }
-  .aid .esrow { display: flex; gap: 7px; }
-  .aid .esrow + .esrow { margin-top: 6px; padding-top: 6px; border-top: 1px dashed var(--line); }
-  .aid .lab { flex: none; width: 76px; font-weight: 700; color: var(--muted); }
-  .aid code { font-family: var(--f-mono, monospace); font-size: 12px; background: var(--surface); border: 1px solid var(--line); border-radius: 5px; padding: 1px 5px; }
-  .gloss { margin-top: 9px; font-size: 12.5px; }
-  .gloss > summary { cursor: pointer; font-weight: 700; color: var(--cipher); list-style: none; padding: 7px 11px; border: 1px solid var(--line); border-radius: 9px; background: var(--surface-2); }
-  .gloss > summary::-webkit-details-marker { display: none; }
-  .gloss[open] > summary { border-radius: 9px 9px 0 0; }
-  .gloss .gin { border: 1px solid var(--line); border-top: none; border-radius: 0 0 9px 9px; padding: 9px 12px; line-height: 1.8; }
-  .gloss .gin b.t { color: var(--ink); }
-  .ansrow { display: flex; gap: 8px; margin-top: 12px; flex-wrap: wrap; align-items: center; }
-  .lock { font-size: 22px; transition: transform .3s; }
-  .lock.esopen { animation: unlock .7s ease forwards; }
-  @keyframes unlock { 0%{transform:rotate(0) scale(1)} 35%{transform:rotate(-16deg) scale(1.25)} 100%{transform:rotate(14deg) scale(1.1); opacity:.55} }
-  .ansrow input { flex: 1; min-width: 190px; font: inherit; font-family: var(--f-mono, monospace); font-size: 14px; padding: 10px 13px; border: 1px solid var(--line); border-radius: 10px; background: var(--surface-2); color: var(--ink); }
-  .ansrow button { font: inherit; font-weight: 700; font-size: 14px; padding: 10px 20px; border: 1px solid var(--cipher); background: var(--cipher); color: #fff; border-radius: 10px; cursor: pointer; }
-  .ansrow button.ghost { background: transparent; color: var(--cipher); }
-  .esvd { margin-top: 10px; font-size: 13.5px; font-weight: 700; color: #c5221f; display: none; }
-  .esvd.eson { display: block; }
-  .hintbox { margin-top: 10px; font-size: 12.5px; line-height: 1.75; }
-  .hintbox div { background: var(--surface-2); border-radius: 8px; padding: 8px 11px; margin-top: 5px; animation: fadein .35s ease; }
-  @keyframes fadein { from{opacity:0;transform:translateY(-4px)} to{opacity:1;transform:none} }
 
-  /* ── 해설 ─────────────────────────────────── */
-  .wu { margin-top: 14px; border: 1px solid var(--line); border-radius: 12px; overflow: hidden; display: none; }
-  .wu.show { display: block; animation: doorin .55s cubic-bezier(.2,1.2,.4,1); }
-  @keyframes doorin { from{opacity:0;transform:perspective(700px) rotateY(-22deg) translateY(10px)} to{opacity:1;transform:none} }
-  .wu-h { background: linear-gradient(135deg, #1e7e34, #34a853); color: #fff; padding: 12px 16px; font-family: var(--f-display); font-weight: 800; font-size: 16px; }
-  .wu-b { padding: 14px 16px; }
-  .wu-b dl { display: grid; grid-template-columns: 106px 1fr; gap: 7px 12px; font-size: 13px; margin: 0; }
-  .wu-b dt { color: var(--muted); font-weight: 700; }
-  .wu-b dd { margin: 0; line-height: 1.75; }
-  .wu-b dd.flagv { font-family: var(--f-mono, monospace); font-weight: 700; color: var(--cipher); }
-  .wu-next { margin-top: 14px; display: flex; gap: 8px; flex-wrap: wrap; }
-  .wu-next button { font: inherit; font-size: 13px; font-weight: 700; padding: 9px 18px; border-radius: 10px; cursor: pointer; border: 1px solid var(--cipher); background: var(--cipher); color: #fff; }
+  .bh { display: grid; grid-template-columns: repeat(4, 1fr); gap: 1px; background: var(--line); border: 1px solid var(--line); border-radius: 10px; overflow: hidden; margin-top: 11px; }
+  .bh div { background: var(--surface-2); padding: 8px 11px; font-size: 12px; }
+  .bh div b { display: block; color: var(--muted); font-weight: 600; font-size: 10.5px; margin-bottom: 2px; }
+  @media (max-width: 720px) { .bh { grid-template-columns: repeat(2, 1fr); } }
 
-  /* ── 완주 ─────────────────────────────────── */
-  .fin { text-align: center; padding: 28px 16px; }
-  .fin h2 { font-family: var(--f-display); font-size: 22px; margin: 8px 0; }
-  .fin .fw { font-size: 34px; letter-spacing: 4px; animation: fw 1.3s ease infinite alternate; }
-  @keyframes fw { from{transform:scale(1)} to{transform:scale(1.13)} }
+  .toolbar { display: flex; gap: 7px; flex-wrap: wrap; margin-top: 10px; }
+  .tbtn { border: 1px solid var(--line); background: var(--surface-2); color: var(--ink); border-radius: 9px; padding: 7px 12px; font: inherit; font-size: 12.5px; font-weight: 600; cursor: pointer; }
+  .tbtn.on { border-color: var(--cipher); color: var(--cipher); }
+  .panel { display: none; margin-top: 10px; }
+  .panel.open { display: block; }
+  .fields { display: grid; grid-template-columns: 1fr 1fr; gap: 7px; }
+  @media (max-width: 560px) { .fields { grid-template-columns: 1fr; } }
+  .fld { background: var(--surface-2); border: 1px solid var(--line); border-radius: 9px; padding: 8px 11px; font-size: 12.5px; line-height: 1.65; }
+  .fld i { font-style: normal; display: inline-block; width: 18px; height: 18px; line-height: 18px; text-align: center; border-radius: 50%;
+           background: var(--cipher); color: #fff; font-size: 11px; font-weight: 700; margin-right: 6px; }
+  .reg { background: var(--cipher-soft); border: 1px solid var(--line); border-left: 3px solid var(--cipher); border-radius: 9px; padding: 9px 12px; font-size: 12.5px; line-height: 1.75; }
+
+  .tray { min-height: 50px; border: 2px dashed var(--line); border-radius: 11px; padding: 9px; display: flex; flex-wrap: wrap; gap: 7px; align-items: center; background: var(--surface-2); }
+  .tray.filled { border-style: solid; border-color: var(--cipher); }
+  .tray .ph { color: var(--muted); font-size: 12.5px; }
+  .pick { display: inline-flex; align-items: center; gap: 7px; background: var(--cipher); color: #fff; border: none; border-radius: 9px;
+          padding: 8px 12px; font: inherit; font-size: 13px; font-weight: 600; cursor: pointer; animation: pop .22s ease; }
+  @keyframes pop { from { transform: scale(.8); opacity: 0; } to { transform: none; opacity: 1; } }
+  .pick .ord { background: rgba(255,255,255,.25); border-radius: 50%; width: 18px; height: 18px; font-size: 11px; display: inline-flex; align-items: center; justify-content: center; }
+  .pick .x { opacity: .75; font-size: 14px; }
+
+  /* 블록 — 카드 하단 */
+  .blocks { display: grid; grid-template-columns: repeat(2, 1fr); gap: 9px; margin-top: 10px; }
+  @media (max-width: 620px) { .blocks { grid-template-columns: 1fr; } }
+  .blk { position: relative; text-align: left; font: inherit; font-size: 13.5px; line-height: 1.6; cursor: pointer;
+         background: var(--surface); color: var(--ink); border: 1.5px solid var(--line); border-radius: 11px; padding: 12px 13px 12px 40px;
+         transition: transform .12s, border-color .15s, background .15s; }
+  .blk:hover { transform: translateY(-2px); border-color: var(--cipher); }
+  .blk .n { position: absolute; left: 11px; top: 11px; width: 21px; height: 21px; border-radius: 50%; background: var(--surface-2);
+            border: 1px solid var(--line); font-size: 11.5px; font-weight: 700; color: var(--muted); display: flex; align-items: center; justify-content: center; }
+  .blk.sel { background: var(--cipher-soft); border-color: var(--cipher); }
+  .blk.sel .n { background: var(--cipher); color: #fff; border-color: var(--cipher); }
+  .blk:disabled { opacity: .55; cursor: default; transform: none; }
+  .blk.right { border-color: #1d8f5b; background: #e8f6ee; opacity: 1; }
+  .blk.wrong { border-color: #c4321b; background: #fdecea; opacity: 1; }
+  html[data-theme="dark"] .blk.right { background: #14321f; }
+  html[data-theme="dark"] .blk.wrong { background: #2d1512; }
+
+  .acts { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 11px; align-items: center; }
+  .acts button { font: inherit; font-weight: 700; font-size: 14px; padding: 10px 20px; border-radius: 10px; cursor: pointer; border: 1px solid var(--cipher); background: var(--cipher); color: #fff; }
+  .acts button.ghost { background: transparent; color: var(--cipher); }
+  .acts button:disabled { opacity: .45; cursor: default; }
+  .lock { font-size: 21px; }
+  .lock.open { animation: unlock .7s ease forwards; }
+  @keyframes unlock { 0%{transform:rotate(0) scale(1)} 35%{transform:rotate(-16deg) scale(1.25)} 100%{transform:rotate(14deg) scale(1.1)} }
+
+  .verdict { margin-top: 11px; border-radius: 10px; padding: 11px 13px; font-size: 13.5px; line-height: 1.7; display: none; }
+  .verdict.show { display: block; }
+  .verdict.bad { background: #fdecea; border: 1px solid #e6b3a8; } .verdict.bad b { color: #c4321b; }
+  .verdict.good { background: #e8f6ee; border: 1px solid #a9d8c0; } .verdict.good b { color: #1d8f5b; }
+  html[data-theme="dark"] .verdict.bad { background: #2d1512; } html[data-theme="dark"] .verdict.good { background: #14321f; }
+  .shake { animation: shk .4s; }
+  @keyframes shk { 0%,100%{transform:translateX(0)} 20%{transform:translateX(-8px)} 40%{transform:translateX(7px)} 60%{transform:translateX(-5px)} 80%{transform:translateX(3px)} }
+
+  .hintbtns { display: flex; gap: 7px; flex-wrap: wrap; margin-top: 10px; }
+  .hb { border: 1px dashed var(--line); background: transparent; color: var(--muted); border-radius: 20px; padding: 6px 12px; font: inherit; font-size: 12.5px; cursor: pointer; }
+  .hb.used { border-style: solid; border-color: #c9631a; color: #c9631a; }
+  .hintout { margin-top: 8px; background: #fff6ea; border: 1px solid #e9c89f; border-radius: 9px; padding: 9px 12px; font-size: 13px; line-height: 1.75; }
+  html[data-theme="dark"] .hintout { background: #33270f; }
+  .hintout b { color: #c9631a; }
+
+  .sol { display: none; }
+  .sol.show { display: block; animation: doorin .5s cubic-bezier(.2,1.2,.4,1); }
+  @keyframes doorin { from{opacity:0;transform:perspective(700px) rotateY(-18deg) translateY(10px)} to{opacity:1;transform:none} }
+  .blk2 { background: var(--surface-2); border: 1px solid var(--line); border-left: 4px solid var(--cipher); border-radius: 10px; padding: 11px 13px; margin: 9px 0; }
+  .blk2.red { border-left-color: #c4321b; } .blk2.red h3 { color: #c4321b; }
+  .blk2.org { border-left-color: #c9631a; } .blk2.org h3 { color: #c9631a; }
+  .blk2 h3 { font-size: 13.5px; margin: 0 0 5px; color: var(--cipher); }
+  .blk2 p { font-size: 13px; line-height: 1.8; margin: 0; }
+  .ansline { font-size: 13.5px; line-height: 2.1; }
+  .ansline .tagv { display: inline-block; background: var(--cipher); color: #fff; border-radius: 7px; padding: 3px 10px; font-weight: 700; margin: 2px 4px 2px 0; font-size: 12.5px; }
+
+  .fin { text-align: center; padding: 26px 16px; }
+  .fin h2 { font-family: var(--f-display); font-size: 22px; margin: 8px 0; color: var(--ink); }
+  .fin .fw { font-size: 32px; letter-spacing: 4px; animation: fw 1.3s ease infinite alternate; }
+  @keyframes fw { from{transform:scale(1)} to{transform:scale(1.12)} }
   .conf { position: fixed; inset: 0; pointer-events: none; z-index: 60; overflow: hidden; }
   .conf i { position: absolute; top: -14px; width: 9px; height: 14px; border-radius: 2px; animation: fall linear forwards; }
   @keyframes fall { to { transform: translateY(105vh) rotate(760deg); opacity: .15; } }
 
-  /* ── 목록 ─────────────────────────────────── */
-  .list { display: none; margin-top: 14px; }
-  .list.show { display: block; }
-  .lgrid { display: grid; grid-template-columns: repeat(auto-fill, minmax(124px, 1fr)); gap: 6px; }
+  .list { display: none; margin-top: 13px; } .list.open { display: block; }
+  .lgrid { display: grid; grid-template-columns: repeat(auto-fill, minmax(132px, 1fr)); gap: 6px; }
   .lg { border: 1px solid var(--line); border-radius: 8px; padding: 6px 8px; font-size: 11.5px; background: var(--surface); cursor: pointer; text-align: left; font-family: inherit; color: var(--ink); }
-  .lg.esdone { background: #e6f4ea; border-color: #9cd3ae; }
-  html[data-theme="dark"] .lg.esdone { background: #14321f; border-color: #2e5c3e; }
-  .lg b { display: block; font-size: 12px; }
-  .lg span { color: var(--muted); }
-
-  .srcs { margin-top: 22px; font-size: 11.5px; color: var(--muted); line-height: 1.85; }
-  .srcs b { color: var(--ink); }
-
+  .lg.esdone { background: #e8f6ee; border-color: #9cd3ae; } html[data-theme="dark"] .lg.esdone { background: #14321f; border-color: #2e5c3e; }
+  .lg b { display: block; font-size: 12px; } .lg span { color: var(--muted); }
+  .srcs { margin-top: 20px; font-size: 11.5px; color: var(--muted); line-height: 1.85; } .srcs b { color: var(--ink); }
   @media (prefers-reduced-motion: reduce) { * { animation: none !important; transition: none !important; } }
-  @media (max-width: 720px) {
-    .mz-grid { grid-template-columns: repeat(10, 1fr); }
-    .wu-b dl { grid-template-columns: 1fr; } .wu-b dt { margin-top: 6px; }
-    .q { padding: 14px; } .stage { height: 112px; }
-  }
 </style>
 </head>
 <body>
@@ -204,6 +175,8 @@
     <div class="b-head">
       <span class="b-title">🔐 탈출 현황</span>
       <span class="b-cnt" id="cnt">[ 0 / 200 ]</span>
+      <span class="timer" id="timer">⏱ 3:00</span>
+      <span class="strikes" id="strikes"></span>
       <span class="b-sp"></span>
       <button class="b-btn" id="btnList">🗝️ 방 목록</button>
       <button class="b-btn" id="btnReset">처음부터</button>
@@ -219,7 +192,7 @@
   <div class="maze">
     <div class="mz-grid" id="grid"></div>
     <div class="mz-legend">
-      <span>🟨 지금 있는 방</span><span>■ 탈출 완료(구역 색)</span><span>□ 아직 잠긴 방</span>
+      <span>🟨 지금 있는 방</span><span>■ 탈출 완료</span><span>□ 잠긴 방</span>
       <span style="margin-left:auto"><b id="zoneNow">제1구역 · 민원실</b></span>
     </div>
   </div>
@@ -229,20 +202,20 @@
   <div class="conf" id="conf" hidden></div>
 
   <p class="srcs">
-    <b>구성</b> · 제1~8구역(No.1~150) 개인정보 보호 실무, 제9~10구역(No.151~199) 국가 사이버보안·기반시설 취약점·AI/클라우드 보안, 중앙 통제실(No.200) 융합 침해사고 대응.<br>
-    <b>근거</b> · 법제처 현행본(법률 제21445호·대통령령 제36671호, 2026. 9. 11. 시행), 「개인정보의 안전성 확보조치 기준 안내서」(2026. 11.), 「2026년도 공공기관 보호수준 평가 편람」, 「국가 사이버보안 기본지침」(2026. 5. 1.), 주요정보통신기반시설 취약점 분석·평가 가이드(2026), KISA AI 보안 매뉴얼·레드티밍 가이드(2026. 7.), 보호위원회 처분 사례.<br>
-    <b>검증</b> · 2026-11-14 전수 대조 — 인용된 기본지침 조문 35건과 점검 항목 코드 31종 전부 원문 확인. 진행 상황은 이 브라우저에만 저장되고 서버로 전송되지 않아요.
+    <b>구성</b> · Part A 개인정보 보호법·실무 15영역 150문항(ROOM 1~150), Part B 국가·공공기관 사이버보안 기본지침 15영역 50문항(ROOM 151~200).<br>
+    <b>근거</b> · 법제처 현행본(법률 제21445호·대통령령 제36671호, 2026. 9. 11. 시행), 「개인정보의 안전성 확보조치 기준 안내서」(2026. 11., 고시 제2026-9호), 「2026년도 공공기관 보호수준 평가 편람」, 개인정보 영향평가 수행안내서, 질의응답 모음집(2025. 12.), 「국가 사이버보안 기본지침」(2026. 5. 1.), 개인정보보호위원회 처분 사례.<br>
+    <b>규칙</b> · 한 문제 <b>3분(180초)</b>, <b>5번 틀리거나 시간이 끝나면</b> 정답과 해설이 공개돼요. 정답은 해시로만 저장되고, 진행 상황은 이 브라우저에만 남아요.
   </p>
 </div>
 
-<script src="assets/data/ctf-rooms.js"></script>
+<script src="assets/data/ctf-questions.js"></script>
 <script>
 (function () {
-  var P = window.ROOMS200 || [], KEY = 'escape200', N = P.length || 200;
+  var Q = window.CTF_QUESTIONS || [], KEY = 'escape200q', N = Q.length || 200;
+  var LIMIT = 180, MAXMISS = 5;
   var $ = function (s) { return document.querySelector(s); };
   function esc(s) { return String(s == null ? '' : s).replace(/[&<>]/g, function (c) { return ({ '&': '&amp;', '<': '&lt;', '>': '&gt;' })[c]; }); }
 
-  /* 간세다리 토큰 */
   var GANSE = '<svg viewBox="0 0 104 104" aria-label="간세다리">' +
     '<circle cx="52" cy="52" r="50" fill="#fff8e8" stroke="#c9a227" stroke-width="4"/>' +
     '<path d="M30 52c0-16 10-27 22-27s22 11 22 27" fill="none" stroke="#3a2a1b" stroke-width="8" stroke-linecap="round"/>' +
@@ -257,110 +230,16 @@
   var done = {};
   try { done = JSON.parse(localStorage.getItem(KEY) || '{}') || {}; } catch (e) { done = {}; }
   function save() { try { localStorage.setItem(KEY, JSON.stringify(done)); } catch (e) {} }
-  function cleared() { return P.filter(function (p) { return done[p.no]; }).length; }
-  function nextNo() { for (var i = 0; i < P.length; i++) if (!done[P[i].no]) return P[i].no; return null; }
-  var ZI = {}; P.forEach(function (p) { if (!(p.zone in ZI)) ZI[p.zone] = Object.keys(ZI).length + 1; });
+  function cleared() { return Q.filter(function (q) { return done[q.no]; }).length; }
+  function nextNo() { for (var i = 0; i < Q.length; i++) if (!done[Q[i].no]) return Q[i].no; return null; }
+  var ZI = {}; Q.forEach(function (q) { if (!(q.zone in ZI)) ZI[q.zone] = Object.keys(ZI).length + 1; });
 
-  /* ── 모션 그래픽: 유형별 장면 ───────────────── */
-  /* ── 모션 그래픽: 아이소메트릭 라인아트 + 패킷 흐름 ──────── */
-  var GLYPH = {
-    pc:   '<path class="nd" d="M-17-13h34v21h-34z"/><path class="ndf" d="M-15-11h30v17h-30z"/><path class="nd" d="M-23 12h46l-4-4h-38z"/>',
-    srv:  '<path class="nd" d="M-13-16h26v32h-26z"/><path class="nd" d="M-13-6h26M-13 4h26"/><circle class="nd" cx="-8" cy="-11" r="1.6"/><circle class="nd" cx="-8" cy="-1" r="1.6"/><circle class="nd" cx="-8" cy="9" r="1.6"/>',
-    db:   '<ellipse class="nd" cx="0" cy="-12" rx="14" ry="5"/><path class="nd" d="M-14-12v24a14 5 0 0 0 28 0v-24"/><path class="nd" d="M-14 0a14 5 0 0 0 28 0"/>',
-    rtr:  '<path class="nd" d="M-18 2h36l-4 10h-28z"/><path class="nd" d="M-9 2v-9M0 2v-14M9 2v-9"/><circle class="nd" cx="0" cy="-16" r="2"/>',
-    fw:   '<path class="nd" d="M-16-13h32v26h-32z"/><path class="nd" d="M-16-4h32M-16 5h32M-6-13v9M6-4v9M-6 5v8"/>',
-    cloud:'<path class="nd" d="M-8 10a10 10 0 0 1 1-20 14 14 0 0 1 26 4 9 9 0 0 1-2 16z"/>',
-    cam:  '<path class="nd" d="M-16-8h22v16h-22z"/><path class="nd" d="M6-3l10-5v12l-10-5z"/><path class="nd" d="M-9 8v7"/><circle class="nd" cx="-5" cy="0" r="3.4"/>',
-    cab:  '<path class="nd" d="M-13-16h26v32h-26z"/><path class="nd" d="M-13-5h26M-13 6h26"/><path class="nd" d="M-3-11h6M-3 0h6M-3 11h6"/>',
-    prn:  '<path class="nd" d="M-14-2h28v12h-28z"/><path class="nd" d="M-8-12h16v10h-16z"/><path class="nd" d="M-8 10h16v8h-16z"/><circle class="nd" cx="9" cy="3" r="1.6"/>',
-    ai:   '<path class="nd" d="M-11-11h22v22h-22z"/><path class="nd" d="M-4-4h8v8h-8z"/><path class="nd" d="M-11-5h-6M-11 5h-6M11-5h6M11 5h6M-5-11v-6M5-11v-6M-5 11v6M5 11v6"/>',
-    lock: '<path class="nd" d="M-9-1h18v13h-18z"/><path class="nd" d="M-5-1v-5a5 5 0 0 1 10 0v5"/>',
-    usr:  '<circle class="nd" cx="0" cy="-8" r="5.5"/><path class="nd" d="M-10 14a10 11 0 0 1 20 0"/>',
-    doc:  '<path class="nd" d="M-9-13h13l5 5v21h-18z"/><path class="nd" d="M4-13v5h5"/><path class="nd" d="M-5-3h10M-5 3h10M-5 9h7"/>',
-    sw:   '<path class="nd" d="M-18-6h36v12h-36z"/><path class="nd" d="M-12 0h4M-4 0h4M4 0h4M12 0h4"/>'
-  };
-
-  /* kind/key → 장면 정의: nodes[type,label,sub,x,y,cls] · links[a,b,bad] · pkt */
-  function sceneOf(p) {
-    var k = p.key, kind = p.kind;
-    var S = {
-      log: { cap: '접속기록 스트림을 거슬러 올라갑니다', tag: 'ACCESS LOG',
-        n: [['usr', '취급자', 'temp_0458', 74, 108], ['pc', '업무 단말', '10.21.3.44', 196, 74], ['srv', '처리시스템', 'APP', 318, 108], ['db', '개인정보 DB', 'RESIDENT', 436, 74]],
-        l: [[0, 1], [1, 2], [2, 3, 1]], c: '#ff8a7a' },
-      enc: { cap: '저장·전송 구간의 암호화를 확인합니다', tag: 'CRYPTO',
-        n: [['pc', '취급자 PC', '평문 입력', 72, 76], ['sw', '전송 구간', 'http / FTP', 200, 112], ['srv', '응용 서버', 'WAS', 326, 76], ['db', '저장소', '암호화 =N', 442, 112]],
-        l: [[0, 1, 1], [1, 2, 1], [2, 3, 1]], c: '#ffcf6b' },
-      leak: { cap: '인지 → 통지 → 신고, 72시간이 흐릅니다', tag: '72H',
-        n: [['srv', '유출 인지', 'T+0', 70, 104], ['usr', '정보주체 통지', '법 제34조①', 198, 70], ['cab', '보호위·KISA 신고', '영 제40조', 326, 104], ['lock', '기한 종료', 'T+72h', 444, 70]],
-        l: [[0, 1], [1, 2], [2, 3, 1]], c: '#ffcf6b' },
-      cam: { cap: '카메라에서 관제서버, 그리고 바깥까지', tag: 'VIDEO',
-        n: [['cam', 'IP카메라', 'RTSP 554', 70, 76], ['sw', '영상망', '분리 =N', 196, 112], ['srv', '관제서버', 'NVR', 322, 76], ['cloud', '외부 인터넷', '포트포워딩', 444, 112]],
-        l: [[0, 1], [1, 2], [2, 3, 1]], c: '#c9a3ef' },
-      net: { cap: '경계 구간의 트래픽을 추적합니다', tag: 'NETWORK',
-        n: [['cloud', '인터넷', '203.*.*.*', 70, 112], ['fw', '방화벽', 'ACL', 196, 76], ['rtr', '라우터', 'uRPF =N', 322, 112], ['srv', '내부 서버', '10.0.4.17', 444, 76]],
-        l: [[0, 1], [1, 2, 1], [2, 3, 1]], c: '#ff8a7a' },
-      host: { cap: '서버 설정을 한 줄씩 대조합니다', tag: 'HARDENING',
-        n: [['pc', '점검 콘솔', '평가반', 72, 108], ['srv', '대상 서버', 'UID·정책', 200, 74], ['db', '설정 파일', '기준 대조', 326, 108], ['lock', '판정', '취약 1건', 444, 74]],
-        l: [[0, 1], [1, 2], [2, 3, 1]], c: '#6ea8ff' },
-      ai: { cap: '에이전트가 스스로 도구를 호출합니다', tag: 'AI AGENT',
-        n: [['doc', '외부 문서', '숨은 지시', 68, 76], ['ai', 'AI 에이전트', 'tool call', 196, 112], ['srv', '내부 시스템', 'DB·파일', 322, 76], ['cloud', '외부 전송', 'allow =*', 444, 112]],
-        l: [[0, 1, 1], [1, 2, 1], [2, 3, 1]], c: '#c9a3ef' },
-      n2sf: { cap: '기밀 · 민감 · 공개 — 등급이 섞인 자리', tag: 'N2SF',
-        n: [['srv', '기밀 도메인', 'C', 70, 76], ['srv', '민감 도메인', 'S', 196, 112], ['lock', 'CDS', '일방향', 322, 76], ['cloud', '공개 도메인', 'O', 444, 112]],
-        l: [[0, 1], [1, 3, 1], [1, 2], [2, 3]], c: '#6fd4a6' },
-      cloud: { cap: '건물 밖으로 나간 데이터를 따라갑니다', tag: 'SUPPLY CHAIN',
-        n: [['usr', '용역업체', '작업장소', 70, 110], ['pc', '업체 단말', '관리자 계정', 196, 74], ['srv', '발주기관 망', '분리 =N', 322, 110], ['cloud', '민간 클라우드', 'CSAP ?', 444, 74]],
-        l: [[0, 1], [1, 2, 1], [2, 3, 1]], c: '#ffcf6b' },
-      phys: { cap: '전원 · 항온항습 · 출입을 점검합니다', tag: 'FACILITY',
-        n: [['cab', '전산실', '출입통제', 72, 108], ['srv', '장비 랙', 'UPS 2016', 200, 74], ['cam', '전산실 CCTV', '미설치', 326, 108], ['doc', '점검표', '빈칸', 444, 74]],
-        l: [[0, 1], [1, 2, 1], [2, 3]], c: '#ffcf6b' },
-      paper: { cap: '서류와 출력물의 흐름을 따라갑니다', tag: 'DOCUMENT',
-        n: [['usr', '민원인', '정보주체', 72, 108], ['doc', '신청 서식', '수집 항목', 200, 74], ['prn', '복합기', '출력물', 326, 108], ['cab', '문서고', '파기 대기', 444, 74]],
-        l: [[0, 1], [1, 2], [2, 3, 1]], c: '#6ea8ff' },
-      consign: { cap: '맡긴 업무가 어디까지 흘러갔는지 봅니다', tag: 'OUTSOURCING',
-        n: [['srv', '위탁자', '공공기관', 72, 108], ['doc', '위탁 계약', '현황 공개?', 200, 74], ['usr', '수탁자', '외부 업체', 326, 108], ['usr', '재수탁자', '동의 ?', 444, 74]],
-        l: [[0, 1], [1, 2], [2, 3, 1]], c: '#ffcf6b' },
-      fine: { cap: '제재는 설계 단계에서 이미 갈립니다', tag: 'SANCTION',
-        n: [['srv', '위반 행위', '기간·이력', 72, 108], ['doc', '조사·소명', '증빙', 200, 74], ['lock', '산정', '3% / 10%', 326, 108], ['cab', '처분', '과징금·공표', 444, 74]],
-        l: [[0, 1], [1, 2], [2, 3, 1]], c: '#ff8a7a' },
-      fin: { cap: '침투 ▶ 확산 ▶ 유출 ▶ 대응 실패', tag: 'FINAL',
-        n: [['ai', 'AI 에이전트', '권한 과다', 66, 76], ['db', '민감등급 DB', '암호화 =N', 186, 112], ['srv', '공개 도메인', 'CDS 없음', 310, 76], ['cloud', '외부 유출', '1,120,000', 440, 112]],
-        l: [[0, 1, 1], [1, 2, 1], [2, 3, 1]], c: '#ff8a7a' }
-    };
-    var map = {
-      log_abnormal: 'log', log_missing: 'log', access: 'log', purpose: 'log',
-      pw_hash: 'enc', enc_uid: 'enc', enc_transit: 'enc', pseudo: 'enc',
-      leak_time: 'leak', cctv: 'cam', ipcam: 'cam',
-      attack: 'net', netsep: 'net', net_dev: 'net',
-      unix_acct: 'host', unix_svc: 'host', win_sec: 'host', db_sec: 'host', secdev: 'host', backup: 'host',
-      ai_sec: 'ai', n2sf: 'n2sf', cloud_sw: 'cloud', phys: 'phys',
-      consign: 'consign', fine: 'fine', final: 'fin', final200: 'fin'
-    };
-    var kindMap = { log: 'log', unix: 'host', win: 'host', db: 'host', net: 'net', sec: 'host', phys: 'phys', n2sf: 'n2sf', cloud: 'cloud', ai: 'ai', iot: 'cam', final: 'fin' };
-    return S[map[k] || kindMap[kind] || 'paper'];
+  async function sha256(msg) {
+    var buf = new TextEncoder().encode(msg);
+    var h = await crypto.subtle.digest('SHA-256', buf);
+    return Array.from(new Uint8Array(h)).map(function (b) { return b.toString(16).padStart(2, '0'); }).join('');
   }
 
-  function motion(p) {
-    var sc = sceneOf(p), g = '', i;
-    sc.l.forEach(function (ln, idx) {
-      var a = sc.n[ln[0]], b = sc.n[ln[1]], bad = ln[2];
-      var x1 = a[3], y1 = a[4], x2 = b[3], y2 = b[4], mx = (x1 + x2) / 2, my = Math.min(y1, y2) - 26;
-      var d = 'M' + x1 + ' ' + y1 + ' Q' + mx + ' ' + my + ' ' + x2 + ' ' + y2;
-      g += '<path class="link' + (bad ? ' bad' : '') + '" d="' + d + '"/>' +
-        '<circle class="pkt halo" r="9" fill="' + sc.c + '"><animateMotion dur="2.6s" begin="' + (idx * .55) + 's" repeatCount="indefinite" path="' + d + '"/></circle>' +
-        '<circle class="pkt" r="4.4" fill="' + sc.c + '"><animateMotion dur="2.6s" begin="' + (idx * .55) + 's" repeatCount="indefinite" path="' + d + '"/></circle>';
-    });
-    sc.n.forEach(function (nd) {
-      var extra = (nd[0] === 'cam') ? ' class="sweep"' : '';
-      g += '<g transform="translate(' + nd[3] + ',' + nd[4] + ')"' + extra + '>' + (GLYPH[nd[0]] || GLYPH.srv) + '</g>' +
-        '<text class="lbl" x="' + nd[3] + '" y="' + (nd[4] + 34) + '">' + esc(nd[1]) + '</text>' +
-        '<text class="sub" x="' + nd[3] + '" y="' + (nd[4] + 45) + '">' + esc(nd[2]) + '</text>';
-    });
-    return '<div class="stage"><svg viewBox="0 0 512 190" preserveAspectRatio="xMidYMid meet">' + g + '</svg>' +
-      '<div class="tag">' + esc(sc.tag) + '</div><div class="cap">' + esc(sc.cap) + '</div></div>';
-  }
-
-  /* ── 현황판 ───────────────────────────────── */
   function drawBoard(walk) {
     var c = cleared(), pct = c / N * 100, nn = nextNo();
     $('#cnt').textContent = '[ ' + c + ' / ' + N + ' ]';
@@ -371,126 +250,256 @@
     $('#pct').innerHTML = c === 0 ? '출발선이에요. 첫 번째 방의 자물쇠를 풀어 볼까요?'
       : (c >= N ? '<b>🏆 200개의 방을 모두 탈출했어요!</b>'
       : '탈출률 <b>' + pct.toFixed(1) + '%</b> · 남은 방 <b>' + (N - c) + '개</b>');
-    var cur = P.filter(function (p) { return p.no === nn; })[0];
+    var cur = Q.filter(function (q) { return q.no === nn; })[0];
     if (cur) $('#zoneNow').textContent = cur.zone;
     drawGrid(); drawList();
   }
-
   function drawGrid() {
     var nn = nextNo();
-    $('#grid').innerHTML = P.map(function (p) {
-      return '<div class="cell z' + (ZI[p.zone] || 1) + (done[p.no] ? ' esdone' : '') + (p.no === nn ? ' now' : '') +
-        (p.no === N ? ' last' : '') + '" data-no="' + p.no + '" title="No.' + p.no + ' ' + esc(p.room) + ' · ' + esc(p.zone) + '"></div>';
+    $('#grid').innerHTML = Q.map(function (q) {
+      return '<div class="cell z' + (ZI[q.zone] || 1) + (done[q.no] ? ' esdone' : '') + (q.no === nn ? ' now' : '') +
+        (q.no === N ? ' last' : '') + '" data-no="' + q.no + '" title="ROOM ' + q.no + ' ' + esc(q.room) + ' · ' + esc(q.areaName) + '"></div>';
     }).join('');
     Array.prototype.forEach.call(document.querySelectorAll('.cell'), function (el) {
       el.addEventListener('click', function () { show(+el.dataset.no); });
     });
   }
-
   function drawList() {
-    $('#lgrid').innerHTML = P.map(function (p) {
-      return '<button class="lg' + (done[p.no] ? ' esdone' : '') + '" data-no="' + p.no + '">' +
-        '<b>' + (done[p.no] ? '🔓' : '🔒') + ' ' + p.no + '. ' + esc(p.room) + '</b>' +
-        '<span>' + esc(p.icon || '') + ' ' + esc(p.diff) + '</span></button>';
+    $('#lgrid').innerHTML = Q.map(function (q) {
+      return '<button class="lg' + (done[q.no] ? ' esdone' : '') + '" data-no="' + q.no + '">' +
+        '<b>' + (done[q.no] ? '🔓' : '🔒') + ' ' + q.no + '. ' + esc(q.room) + '</b>' +
+        '<span>' + esc(q.part) + ' · ' + esc(q.areaName) + '</span></button>';
     }).join('');
     Array.prototype.forEach.call(document.querySelectorAll('.lg'), function (el) {
-      el.addEventListener('click', function () { show(+el.dataset.no); $('#list').classList.remove('show'); });
+      el.addEventListener('click', function () { show(+el.dataset.no); $('#list').classList.remove('open'); });
     });
   }
 
-  function norm(s) { return String(s || '').trim().replace(/\s+/g, '').replace(/[·ㆍ]/g, '').toUpperCase(); }
+  var tHandle = null, tLeft = LIMIT;
+  function paintTimer() {
+    var m = Math.floor(tLeft / 60), s = tLeft % 60, el = $('#timer');
+    el.textContent = '⏱ ' + m + ':' + (s < 10 ? '0' : '') + s;
+    el.className = 'timer' + (tLeft <= 30 ? ' crit' : (tLeft <= 60 ? ' warn' : ''));
+  }
+  function stopTimer() { if (tHandle) { clearInterval(tHandle); tHandle = null; } }
+  function startTimer(onEnd) {
+    stopTimer(); tLeft = LIMIT; paintTimer();
+    tHandle = setInterval(function () { tLeft--; paintTimer(); if (tLeft <= 0) { stopTimer(); onEnd(); } }, 1000);
+  }
+  function paintStrikes(n) {
+    var h = '';
+    for (var i = 0; i < MAXMISS; i++) h += '<i class="' + (i < n ? 'hit' : '') + '"></i>';
+    $('#strikes').innerHTML = h;
+  }
 
-  /* ── 방 ───────────────────────────────────── */
   function show(no) {
-    var p = P.filter(function (x) { return x.no === no; })[0];
-    if (!p) return;
-    var evHtml = p.ev.map(function (l, i) {
-      var raw = l.replace(/<b>/g, '\u0001').replace(/<\/b>/g, '\u0002');
-      var h = esc(raw).replace(/\u0001/g, '<b>').replace(/\u0002/g, '</b>');
-      h = h.replace(/(FLAG\{[^}]*\})/g, '<span class="k">$1</span>')
-           .replace(/(🚨[^\n]*)/g, '<span class="alert">$1</span>');
-      var bad = /<b>/.test(l);
-      return '<div class="ln' + (bad ? ' bad' : '') + '" style="animation-delay:' + (i * 0.11).toFixed(2) + 's">' + (h || '&nbsp;') + '</div>';
-    }).join('');
-    var fileName = ({ log: 'privacy_access.log', unix: 'hardening_check.out', win: 'secpol_export.txt', db: 'db_privs.sql',
-      net: 'running-config.txt', sec: 'secdev_status.txt', phys: 'facility_check.csv', n2sf: 'network_design.md',
-      cloud: 'contract_and_code.diff', ai: 'agent_trace.log', iot: 'camera_scan.txt', final: 'incident_timeline.log' })[p.kind] || 'evidence.txt';
+    var q = Q.filter(function (x) { return x.no === no; })[0];
+    if (!q) return;
+    stopTimer();
+    var isSeq = q.type === 'seq';
+    var picked = [], miss = 0, finished = false;
 
-    $('#stage').innerHTML = motion(p) +
-      '<div class="q" id="qcard">' +
-        '<div class="q-top"><span class="q-no">ROOM ' + p.no + '</span>' +
-          '<span class="q-room">' + (done[p.no] ? '🔓 ' : '🔒 ') + esc(p.room) + '</span>' +
-          '<span class="q-d d-' + p.diff + '">' + (p.diff === '최종' ? '최종 관문' : '난이도 ' + p.diff) + '</span>' +
-          '<span class="q-area">' + esc(p.area || '') + '</span>' +
-          '<span class="q-zone">' + esc(p.icon || '') + ' ' + esc(p.zone) + '</span></div>' +
-        '<div class="q-title">🗝️ ' + esc(p.title) + '</div>' +
-        '<div class="q-sec">📖 1. 사건 브리핑</div><div class="q-scene">' + p.scene + '</div>' +
-        (p.brief ? '<div class="brief">' +
-          '<div class="bh">' +
-            '<div><dt>기관 · 부서</dt><dd>' + esc(p.brief.org) + '</dd></div>' +
-            '<div><dt>대상</dt><dd>' + esc(p.brief.sys) + '</dd></div>' +
-            '<div><dt>규모</dt><dd>' + esc(p.brief.scale) + '</dd></div>' +
-            '<div><dt>시점</dt><dd>' + esc(p.brief.when) + '</dd></div>' +
-          '</div>' +
-          '<div class="bb">' +
-            '<p><span class="k">무슨 일이 있었나</span> — ' + esc(p.brief.who) + '가 점검하던 중 <b>' + esc(p.brief.what) + '</b> 정황이 확인됐어요. 아래 단서가 그때 확보한 자료예요.</p>' +
-            '<p><span class="k">법이 요구하는 것</span> — ' + p.brief.why + '</p>' +
-            '<p><span class="k">당신이 할 일</span> — ' + p.brief.task + '</p>' +
-          '</div></div>' : '') +
-        ((p.key === 'log_abnormal' || p.key === 'leak_time' || p.key === 'attack' || p.key === 'final200')
-          ? '<div class="alarm"><span class="ai">🚨</span><div><b>경보 · 개인정보 총괄부서 알림</b><br>' +
-            '점검 결과 즉시 확인이 필요한 정황이 <b>1건</b> 탐지됐어요. 사유 소명과 초기 조치가 필요합니다.</div></div>' : '') +
-        '<div class="q-sec">🔍 2. 발견한 단서</div>' +
-        '<div class="term"><div class="term-h"><span class="tdot r"></span><span class="tdot y"></span><span class="tdot g"></span>' +
-          '<span class="term-t">' + esc(fileName) + ' — ROOM ' + p.no + '</span></div>' +
-          '<div class="term-b" id="termb">' + evHtml + '</div></div>' +
-        '<button class="replay" id="replay">↺ 다시 재생</button>' +
-        '<div class="q-sec">❓ 3. 자물쇠를 여는 FLAG</div><div class="q-mis">' + p.mission + '</div>' +
-        '<div class="aid">' +
-          '<div class="esrow"><span class="lab">읽는 법</span><span>' + (p.how || '') + '</span></div>' +
-          '<div class="esrow"><span class="lab">답 형식</span><span>' + (p.fmt || '') + '</span></div>' +
-          '<div class="esrow"><span class="lab">자주 나오는 실수</span><span>' + (p.common || '') + '</span></div>' +
+    var fieldsHtml = q.fields.map(function (f, i) { return '<div class="fld"><i>' + (i + 1) + '</i>' + f + '</div>'; }).join('');
+
+    $('#stage').innerHTML =
+      '<div class="card">' +
+        '<div class="q-top"><span class="q-no">ROOM ' + q.no + '</span>' +
+          '<span class="q-room">🔒 ' + esc(q.room) + '</span>' +
+          '<span class="chip d-' + q.diff + '">' + (q.diff === '최종' ? '최종 관문' : '난이도 ' + q.diff) + '</span>' +
+          '<span class="chip">Part ' + esc(q.part) + ' · ' + esc(q.areaName) + '</span>' +
+          '<span class="chip">' + esc(q.icon) + ' ' + esc(q.zone) + '</span></div>' +
+        '<h2>📝 1. 사건 브리핑</h2>' +
+        '<div class="q-desc">' + q.desc + '</div>' +
+        '<div class="bh">' +
+          '<div><b>출제 영역</b>' + esc(q.area) + '. ' + esc(q.areaName) + '</div>' +
+          '<div><b>세부 주제</b>' + esc(q.areaShort) + '</div>' +
+          '<div><b>문제 유형</b>' + (isSeq ? '순서 조립형' : '조합 선택형') + '</div>' +
+          '<div><b>고를 개수</b>' + q.ansCount + '개</div>' +
         '</div>' +
-        ((p.terms && p.terms.length) ? '<details class="gloss"><summary>📘 이 방에 나온 용어 ' + p.terms.length + '개 풀어보기</summary><div class="gin">' +
-          p.terms.map(function (t) { return '<b class="t">' + esc(t[0]) + '</b> — ' + t[1]; }).join('<br>') + '</div></details>' : '') +
-        '<div class="ansrow"><span class="lock" id="lock">🔒</span>' +
-          '<input id="ans" placeholder="FLAG{...}" autocomplete="off" spellcheck="false">' +
-          '<button id="sub">문 열기</button><button class="ghost" id="hint">힌트</button></div>' +
-        '<div class="esvd" id="vd"></div><div class="hintbox" id="hb"></div>' +
+        '<div class="alarm"><span class="i">⏱</span><div><b>제한시간 3분 · 기회 5번</b>' +
+          '<div class="s">' + (isSeq
+            ? '아래 블록을 <b>순서대로</b> 누르세요. 누른 차례가 그대로 답이 돼요.'
+            : '아래 블록 중 맞는 것 <b>' + q.ansCount + '개</b>를 고르세요. 순서는 상관없어요.') +
+          ' 시간이 끝나거나 5번 틀리면 정답과 해설이 공개돼요.</div></div></div>' +
       '</div>' +
-      '<div class="wu" id="wu"></div>';
 
-    var hi = 0;
-    $('#hint').onclick = function () {
-      if (hi >= p.hint.length) return;
-      var HL = ['관찰', '개념', '판단'];
-      $('#hb').insertAdjacentHTML('beforeend', '<div>💡 <b>힌트 ' + (hi + 1) + ' (' + (HL[hi] || '추가') + ')</b> ' + p.hint[hi] + '</div>');
-      hi++; if (hi >= p.hint.length) $('#hint').disabled = true;
-    };
-    $('#replay').onclick = function () { var t = $('#termb'); t.innerHTML = evHtml; };
-    $('#sub').onclick = check;
-    $('#ans').addEventListener('keydown', function (e) { if (e.key === 'Enter') check(); });
-    $('#ans').focus();
-    if (done[p.no]) { $('#lock').textContent = '🔓'; writeup(p); }
+      '<div class="card">' +
+        '<h2>🔎 2. 무엇을 보고 판단할까요</h2>' +
+        '<div class="reg">' + q.howto + '</div>' +
+        '<div class="toolbar"><button class="tbtn" id="tFields">🧱 판단 기준 4가지</button>' +
+          '<button class="tbtn" id="tLaw">⚖ 관련 법령·지침</button></div>' +
+        '<div class="panel" id="pFields"><div class="fields">' + fieldsHtml + '</div></div>' +
+        '<div class="panel" id="pLaw"><div class="reg">' + esc(q.law) + '</div></div>' +
+      '</div>' +
 
-    function check() {
-      var v = norm($('#ans').value), t = norm(p.flag), inner = t.replace(/^FLAG\{/, '').replace(/\}$/, '');
-      if (!v) return;
-      if (v === t || v === inner) {
-        var wasNew = !done[p.no];
-        done[p.no] = 1; save();
-        $('#lock').textContent = '🔓'; $('#lock').classList.add('esopen');
-        $('#vd').classList.remove('eson');
-        drawBoard(wasNew);
-        setTimeout(function () {
-          writeup(p);
-          document.getElementById('wu').scrollIntoView({ behavior: 'smooth', block: 'start' });
-        }, 420);
+      '<div class="card" id="qcard">' +
+        '<h2>🎯 3. 정답 조립</h2>' +
+        '<div class="tray" id="tray"></div>' +
+        '<div class="acts"><span class="lock" id="lock">🔒</span>' +
+          '<button id="sub" disabled>문 열기</button>' +
+          '<button class="ghost" id="clr">다시 고르기</button></div>' +
+        '<div class="verdict" id="vd"></div>' +
+        '<div class="hintbtns">' +
+          '<button class="hb" data-h="0">💡 힌트 1 (관찰)</button>' +
+          '<button class="hb" data-h="1">💡 힌트 2 (개념)</button>' +
+          '<button class="hb" data-h="2">💡 힌트 3 (판단)</button></div>' +
+        '<div class="hintout" id="hintout" style="display:none"></div>' +
+        '<h2 style="margin:17px 0 0">🧩 선택 블록</h2>' +
+        '<div class="blocks" id="blocks"></div>' +
+      '</div>' +
+
+      '<div class="sol card" id="sol"></div>';
+
+    $('#blocks').innerHTML = q.blocks.map(function (b, i) {
+      return '<button class="blk" data-i="' + i + '"><span class="n">' + (i + 1) + '</span>' + esc(b) + '</button>';
+    }).join('');
+
+    function repaint() {
+      var tray = $('#tray');
+      if (!picked.length) {
+        tray.className = 'tray';
+        tray.innerHTML = '<span class="ph">' + (isSeq ? '아래 블록을 순서대로 누르면 여기에 쌓여요.' : '아래 블록을 누르면 여기에 담겨요.') + '</span>';
       } else {
-        $('#vd').className = 'esvd eson';
-        $('#vd').textContent = '자물쇠가 꿈쩍도 하지 않아요. 단서를 한 줄씩 다시 비교해 보세요.';
-        var qc = $('#qcard'); qc.classList.remove('esshake'); void qc.offsetWidth; qc.classList.add('esshake');
+        tray.className = 'tray filled';
+        tray.innerHTML = picked.map(function (i, k) {
+          return '<button class="pick" data-i="' + i + '">' + (isSeq ? '<span class="ord">' + (k + 1) + '</span>' : '') +
+            esc(q.blocks[i]) + '<span class="x">✕</span></button>';
+        }).join('');
+        Array.prototype.forEach.call(tray.querySelectorAll('.pick'), function (el) {
+          el.onclick = function () { if (!finished) toggle(+el.dataset.i); };
+        });
       }
+      Array.prototype.forEach.call(document.querySelectorAll('.blk'), function (el) {
+        el.classList.toggle('sel', picked.indexOf(+el.dataset.i) >= 0);
+      });
+      $('#sub').disabled = picked.length !== q.ansCount;
+    }
+    function toggle(i) {
+      var at = picked.indexOf(i);
+      if (at >= 0) picked.splice(at, 1);
+      else { if (picked.length >= q.ansCount) return; picked.push(i); }
+      repaint();
+    }
+    Array.prototype.forEach.call(document.querySelectorAll('.blk'), function (el) {
+      el.onclick = function () { if (!finished) toggle(+el.dataset.i); };
+    });
+    $('#clr').onclick = function () { if (finished) return; picked = []; repaint(); $('#vd').className = 'verdict'; };
+    repaint();
+
+    function hook(btn, panel) { $(btn).onclick = function () { $(panel).classList.toggle('open'); $(btn).classList.toggle('on'); }; }
+    hook('#tFields', '#pFields'); hook('#tLaw', '#pLaw');
+
+    Array.prototype.forEach.call(document.querySelectorAll('.hb'), function (b) {
+      b.onclick = function () {
+        var k = +b.dataset.h;
+        $('#hintout').style.display = 'block';
+        $('#hintout').innerHTML = '<b>힌트 ' + (k + 1) + '</b> ' + q.hints[k];
+        b.classList.add('used');
+      };
+    });
+
+    paintStrikes(0);
+    $('#sub').onclick = async function () {
+      if (finished || picked.length !== q.ansCount) return;
+      var idx = q.type === 'set' ? picked.slice().sort(function (a, b) { return a - b; }) : picked.slice();
+      var norm = q.type === 'set' ? idx.join(',') : idx.join('-');
+      var got = await sha256('CTF_200_SALT_' + norm);
+      if (got === q.answerHash) {
+        var wasNew = !done[q.no];
+        done[q.no] = 1; save(); stopTimer();
+        $('#lock').textContent = '🔓'; $('#lock').classList.add('open');
+        $('#vd').className = 'verdict good show';
+        $('#vd').innerHTML = '<b>🎉 정답이에요!</b> 자물쇠가 풀렸어요. 아래 해설을 보고 다음 방으로 가 볼까요?';
+        drawBoard(wasNew);
+        reveal(true);
+      } else {
+        miss++; paintStrikes(miss);
+        $('#vd').className = 'verdict bad show';
+        if (miss >= MAXMISS) {
+          $('#vd').innerHTML = '<b>기회를 모두 썼어요.</b> 정답과 해설을 공개할게요. 천천히 읽어 보고 다음 방으로 가요.';
+          reveal(false);
+        } else {
+          $('#vd').innerHTML = '<b>아직이에요.</b> 남은 기회 <b>' + (MAXMISS - miss) + '번</b>. ' +
+            (isSeq ? '순서를 다시 생각해 보세요.' : '고른 블록 중 하나가 달라요.') + ' 힌트를 열어 보는 것도 좋아요.';
+          var c = $('#qcard'); c.classList.remove('shake'); void c.offsetWidth; c.classList.add('shake');
+        }
+      }
+    };
+
+    function reveal(ok) {
+      finished = true; stopTimer();
+      $('#sub').disabled = true; $('#clr').disabled = true;
+      markBlocks();
+      var last = q.no === N, nn = nextNo();
+      if (ok && last) confetti();
+      var head = (ok && last)
+        ? '<div class="fin"><div class="fw">🎉 🎊 🎆 🎊 🎉</div><h2>🏆 정보보호 비밀의 방 200 완전 탈출!</h2>' +
+          '<p style="font-size:15px;line-height:1.85">당신을 <b>진정한 통합 보안 마스터</b>로 임명합니다.<br>' +
+          '개인정보 보호 150문항과 사이버보안 50문항을 모두 풀어냈어요.</p></div>'
+        : '<h2>✅ 정답 &amp; 해설</h2>';
+      $('#sol').innerHTML = head +
+        '<div class="ansline" id="ansline"></div>' +
+        '<div class="blk2"><h3>💡 왜 이 답일까요</h3><p>' + q.expl + '</p></div>' +
+        '<div class="blk2"><h3>⚖ 관련 법령 · 지침</h3><p>' + esc(q.law) + '</p></div>' +
+        '<div class="blk2 red"><h3>🚨 위반하면 어떻게 되나요</h3><p>' + q.pen + '</p></div>' +
+        '<div class="blk2 org"><h3>📋 실무에서는 이렇게 하세요</h3><p>' + q.fix + '</p></div>' +
+        (nn ? '<div class="acts"><button id="go">다음 방으로 🚪 (ROOM ' + nn + ')</button></div>' : '');
+      $('#sol').classList.add('show');
+      if ($('#go')) $('#go').onclick = function () { show(nn); window.scrollTo({ top: 0, behavior: 'smooth' }); };
+      $('#sol').scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+
+    async function markBlocks() {
+      var n = q.blocks.length, want = q.ansCount, found = null, all = [], i;
+      for (i = 0; i < n; i++) all.push(i);
+      function combos(arr, k) {
+        var out = [];
+        (function rec(start, cur) {
+          if (cur.length === k) { out.push(cur.slice()); return; }
+          for (var j = start; j < arr.length; j++) { cur.push(arr[j]); rec(j + 1, cur); cur.pop(); }
+        })(0, []);
+        return out;
+      }
+      function perms(arr, k) {
+        var out = [];
+        (function rec(cur, rest) {
+          if (cur.length === k) { out.push(cur.slice()); return; }
+          for (var j = 0; j < rest.length; j++) {
+            cur.push(rest[j]); rec(cur, rest.slice(0, j).concat(rest.slice(j + 1))); cur.pop();
+          }
+        })([], arr);
+        return out;
+      }
+      var cands = q.type === 'set' ? combos(all, want) : perms(all, want);
+      for (var c = 0; c < cands.length; c++) {
+        var idx = cands[c];
+        var norm = q.type === 'set' ? idx.slice().sort(function (a, b) { return a - b; }).join(',') : idx.join('-');
+        if (await sha256('CTF_200_SALT_' + norm) === q.answerHash) { found = idx; break; }
+      }
+      if (!found) return;
+      Array.prototype.forEach.call(document.querySelectorAll('.blk'), function (el) {
+        var i = +el.dataset.i;
+        el.disabled = true; el.classList.remove('sel');
+        if (found.indexOf(i) >= 0) el.classList.add('right');
+        else if (picked.indexOf(i) >= 0) el.classList.add('wrong');
+      });
+      var al = $('#ansline');
+      if (al) al.innerHTML = '<b>정답</b> ' + found.map(function (i, k) {
+        return '<span class="tagv">' + (q.type === 'seq' ? (k + 1) + '. ' : '') + esc(q.blocks[i]) + '</span>';
+      }).join('');
+    }
+
+    if (done[q.no]) {
+      $('#lock').textContent = '🔓';
+      $('#timer').textContent = '⏱ 완료'; $('#timer').className = 'timer';
+      reveal(true);
+    } else {
+      startTimer(function () {
+        if (finished) return;
+        $('#vd').className = 'verdict bad show';
+        $('#vd').innerHTML = '<b>⏱ 3분이 지났어요.</b> 정답과 해설을 공개할게요. 천천히 읽어 보고 다음 방으로 가요.';
+        reveal(false);
+      });
     }
   }
 
@@ -504,44 +513,17 @@
     setTimeout(function () { box.hidden = true; box.innerHTML = ''; }, 7000);
   }
 
-  function writeup(p) {
-    var last = p.no === N, nn = nextNo();
-    if (last) confetti();
-    var head = last
-      ? '<div class="fin"><div class="fw">🎉 🎊 🎆 🎊 🎉</div>' +
-        '<h2>🏆 정보보호 비밀의 방 200 완전 탈출!</h2>' +
-        '<p style="font-size:15px;line-height:1.85">당신을 <b>진정한 통합 보안 마스터</b>로 임명합니다.<br>' +
-        '첫 번째 방에서 중앙 통제실까지, 개인정보 보호 150개 방과 사이버 보안 49개 방을 모두 열었어요.<br>' +
-        '이제 그 200개의 자물쇠가 당신의 점검표예요.</p>' +
-        '<div class="fw" style="font-size:26px">🎊 🎉 🎆 🎉 🎊</div></div>'
-      : '<div class="wu-h">🔓 [' + esc(p.room) + ' — 문이 열렸어요!] 🎉</div>';
-
-    document.getElementById('wu').innerHTML = head +
-      '<div class="wu-b">' +
-        '<div class="q-sec" style="margin-top:0">💡 정답 및 실무 해설 (Write-up)</div>' +
-        '<dl>' +
-          '<dt>정답 (FLAG)</dt><dd class="flagv">' + esc(p.flag) + '</dd>' +
-          '<dt>해설</dt><dd>' + p.ans + '</dd>' +
-          '<dt>조문 근거</dt><dd>' + p.law + ' <span style="color:var(--muted)">(현행본 기준)</span></dd>' +
-          '<dt>실제 처분·리스크</dt><dd>' + p.real + '<br><span style="color:var(--muted)">이 사안의 제재:</span> ' + p.risk + '</dd>' +
-          '<dt>실무 조치</dt><dd>' + p.fix + '</dd>' +
-        '</dl>' +
-        (nn ? '<div class="wu-next"><button id="go">다음 방으로 🚪 (ROOM ' + nn + ')</button></div>' : '') +
-      '</div>';
-    document.getElementById('wu').classList.add('show');
-    if ($('#go')) $('#go').onclick = function () { show(nn); window.scrollTo({ top: 0, behavior: 'smooth' }); };
-  }
-
-  $('#btnList').onclick = function () { $('#list').classList.toggle('show'); };
+  $('#btnList').onclick = function () { $('#list').classList.toggle('open'); };
   $('#btnReset').onclick = function () {
     if (!confirm('탈출 기록을 모두 지우고 1번 방부터 다시 시작할까요?')) return;
     done = {}; save(); drawBoard(); show(1); window.scrollTo({ top: 0, behavior: 'smooth' });
   };
   window.addEventListener('resize', function () { drawBoard(false); });
 
+  paintStrikes(0);
   drawBoard(false);
   show(nextNo() || N);
-  window.__ES = { P: P, done: done, show: show };
+  window.__ES = { Q: Q, done: done, show: show };
 })();
 </script>
 </body>
