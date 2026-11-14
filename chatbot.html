@@ -90,8 +90,19 @@
   .qz-btn:hover { background: var(--cipher-soft); }
   .qz-a { margin-top: 9px; border-top: 1px dashed var(--line); padding-top: 8px; font-size: 12.5px; line-height: 1.7; }
   .qz-ans .ox { display: inline-block; min-width: 24px; text-align: center; background: var(--cipher); color: #fff; border-radius: 5px; font-weight: 800; padding: 0 7px; }
-  .qz-why { margin-top: 5px; }
-  .qz-tip { margin-top: 6px; background: var(--surface-2); border-radius: 6px; padding: 6px 9px; font-size: 12px; }
+  .qz-why { margin-top: 7px; }
+  .qz-why b.h, .qz-law b.h, .qz-tip b.h { display: block; font-size: 11.5px; letter-spacing: .03em; color: var(--muted); margin-bottom: 3px; }
+  .qz-law { margin-top: 8px; font-size: 12px; color: var(--muted); border-left: 3px solid var(--cipher); padding-left: 9px; line-height: 1.65; }
+  .qz-tip { margin-top: 8px; background: var(--surface-2); border-radius: 7px; padding: 8px 10px; font-size: 12.5px; line-height: 1.7; }
+  .qz-pick { display: flex; gap: 6px; margin-top: 9px; align-items: center; flex-wrap: wrap; }
+  .qz-pick button.ox-b { font: inherit; font-size: 13px; font-weight: 800; width: 42px; height: 32px; border: 1px solid var(--line);
+    background: var(--surface-2); color: var(--ink); border-radius: 8px; cursor: pointer; }
+  .qz-pick button.ox-b:hover { border-color: var(--cipher); color: var(--cipher); }
+  .qz-pick button.ox-b.sel { background: var(--cipher); border-color: var(--cipher); color: #fff; }
+  .qz-vd { font-size: 12.5px; font-weight: 800; margin-left: 4px; }
+  .qz-vd.good { color: var(--ok, #15803d); } .qz-vd.miss { color: #c2261c; }
+  html[data-theme="dark"] .qz-vd.good { color: #4ade80; } html[data-theme="dark"] .qz-vd.miss { color: #f87171; }
+  .qz-ans { font-size: 13px; }
   @media (max-width: 640px) { .rv-dl { grid-template-columns: 1fr; } .rv-dl dt { margin-top: 5px; } }
   /* 구조화 상세 답변 */
   .chat { height: min(72vh, 680px); }
@@ -224,13 +235,23 @@
   function render3(e, n) {
     var qs = (e.quiz || []).slice(0, n || 3);
     if (!qs.length) return '<p class="a-intro">이 주제는 아직 퀴즈가 준비되지 않았어요. 다른 주제로 요청해 주시겠어요?</p>' + tailer(e);
-    var h = '<p class="a-intro"><b>' + esc(e.title) + '</b> 교육용 <b>OX 퀴즈 ' + qs.length + '문제</b>예요. 공공기관 직원이 실무에서 가장 헷갈리기 쉬운 지점으로 골랐어요.</p>';
+    var h = '<p class="a-intro"><b>' + esc(e.title) + '</b> 교육용 <b>OX 퀴즈 ' + qs.length + '문제</b>예요. 공공기관 직원이 실무에서 가장 헷갈리기 쉬운 지점으로 골랐어요. <b>O·X를 먼저 골라 보면</b> 바로 채점하고 해설을 펼쳐 드려요.</p>';
     h += qs.map(function (x, i) {
-      return '<div class="qz"><div class="qz-q"><b>[문제 ' + (i + 1) + ']</b> ' + x.q + ' <span class="qz-ox">( O / X )</span></div>' +
-        '<button type="button" class="qz-btn">정답·해설 보기</button>' +
-        '<div class="qz-a" hidden><div class="qz-ans"><b>[정답]</b> <span class="ox">' + esc(x.a) + '</span></div>' +
-        '<div class="qz-why"><b>[상세 해설]</b> ' + x.why + '</div>' +
-        '<div class="qz-tip">💡 <b>실무 핵심 팁</b> — ' + x.tip + '</div></div></div>';
+      var ans = (x.a === true || x.a === 'O') ? 'O' : (x.a === false || x.a === 'X') ? 'X' : String(x.a || '');
+      var why = x.why || x.x || '';
+      var law = x.law || e.src || '';
+      var tip = x.tip || '';
+      return '<div class="qz" data-ans="' + ans + '"><div class="qz-q"><b>[문제 ' + (i + 1) + ']</b> ' + x.q + '</div>' +
+        '<div class="qz-pick"><button type="button" class="ox-b" data-ox="O">O</button>' +
+        '<button type="button" class="ox-b" data-ox="X">X</button>' +
+        '<button type="button" class="qz-btn" style="margin-top:0">정답·해설 보기</button>' +
+        '<span class="qz-vd"></span></div>' +
+        '<div class="qz-a" hidden>' +
+          '<div class="qz-ans"><b>[정답]</b> <span class="ox">' + esc(ans) + '</span></div>' +
+          '<div class="qz-why"><b class="h">왜 이 답일까요</b>' + why + '</div>' +
+          (law ? '<div class="qz-law"><b class="h">근거 조문·자료</b>' + esc(law) + '</div>' : '') +
+          (tip ? '<div class="qz-tip"><b class="h">💡 실무 핵심 팁</b>' + tip + '</div>' : '') +
+        '</div></div>';
     }).join('');
     if (e.guide && e.guide.length) {
       h += '<p class="gd-n" style="margin-top:9px">📎 해설의 실무 기준은 <b>' +
@@ -258,7 +279,9 @@
     var h = '';
     if (e.laws && e.laws.length) {
       h += '<div class="a-chk">' + e.laws.map(function (L) {
-        return '<a href="https://www.law.go.kr/법령/' + encodeURIComponent(L.n.replace(/\s/g, '')) + '/' + encodeURIComponent(L.a) + '" target="_blank" rel="noopener">⟳ ' + esc(L.n + ' ' + L.a) + ' 현행본</a>';
+        if (L.u) return '<a href="' + L.u + '" target="_blank" rel="noopener">⟳ ' + esc(L.n) + ' 현행본</a>';
+        if (!L.a) return '<a href="https://www.law.go.kr/법령/' + encodeURIComponent(String(L.n).replace(/\s/g, '')) + '" target="_blank" rel="noopener">⟳ ' + esc(L.n) + ' 현행본</a>';
+        return '<a href="https://www.law.go.kr/법령/' + encodeURIComponent(String(L.n).replace(/\s/g, '')) + '/' + encodeURIComponent(L.a) + '" target="_blank" rel="noopener">⟳ ' + esc(L.n + ' ' + L.a) + ' 현행본</a>';
       }).join('') + '</div>';
     }
     var acts = '<button type="button" class="chip-q rel" data-q="' + esc(e.kw[0]) + ' 적법성 검토해줘">🔍 실무 검토 받기</button>' +
@@ -315,8 +338,19 @@
   function ask(t) { add('me', esc(t)); setTimeout(function () { answer(t); }, 160); }
   chips.addEventListener('click', function (ev) { var b = ev.target.closest('.chip-q'); if (b) ask(b.dataset.q || b.textContent); });
   chat.addEventListener('click', function (ev) {
+    var ox = ev.target.closest('.ox-b');
+    if (ox) {
+      var card = ox.closest('.qz'), pick = ox.dataset.ox, correct = card.dataset.ans;
+      Array.prototype.forEach.call(card.querySelectorAll('.ox-b'), function (b) { b.classList.toggle('sel', b === ox); });
+      var vd = card.querySelector('.qz-vd');
+      vd.textContent = pick === correct ? '정답이에요!' : '아쉬워요 — 정답은 ' + correct + '예요.';
+      vd.className = 'qz-vd ' + (pick === correct ? 'good' : 'miss');
+      var bx = card.querySelector('.qz-a'), bt = card.querySelector('.qz-btn');
+      bx.hidden = false; if (bt) bt.textContent = '해설 접기';
+      return;
+    }
     var qb = ev.target.closest('.qz-btn');
-    if (qb) { var box = qb.nextElementSibling; box.hidden = !box.hidden; qb.textContent = box.hidden ? '정답·해설 보기' : '해설 접기'; return; }
+    if (qb) { var box = qb.closest('.qz').querySelector('.qz-a'); box.hidden = !box.hidden; qb.textContent = box.hidden ? '정답·해설 보기' : '해설 접기'; return; }
     var b = ev.target.closest('.chip-q'); if (b) ask(b.dataset.q || b.textContent);
   });
   document.getElementById('form').addEventListener('submit', function (ev) {
