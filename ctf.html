@@ -3,35 +3,320 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>CTF로 배우는 개인정보 보호 · 혼디지킴이</title>
-<meta name="description" content="공공부문 실무형 개인정보 보호·정보보안 CTF 200제. 사건을 수사하듯 수집·이용·제공·파기·영상정보·유출대응·영향평가·안전조치·AI를 풀며 익혀요.">
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<title>제주 오름 정복 CTF 200 · 혼디지킴이</title>
+<meta name="description" content="제주 오름 200곳을 오르며 개인정보 보호 150제와 사이버 보안 49제를 익히는 CTF. 200번은 한라산 백록담 융합 최종보스.">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700&display=swap">
 <link rel="stylesheet" href="assets/css/style.css">
+<style>
+  .om-wrap { max-width: 980px; margin: 0 auto; padding: 0 16px 64px; }
+  /* 현황판 */
+  .board { position: sticky; top: 0; z-index: 20; background: var(--bg); padding: 12px 0 10px; border-bottom: 1px solid var(--line); }
+  .b-head { display: flex; flex-wrap: wrap; gap: 8px; align-items: baseline; }
+  .b-title { font-family: var(--f-display); font-weight: 800; font-size: 15px; }
+  .b-cnt { font-family: var(--f-mono, "JetBrains Mono", monospace); font-size: 13px; color: var(--cipher); font-weight: 700; }
+  .b-sp { flex: 1; }
+  .b-btn { font: inherit; font-size: 12px; font-weight: 600; padding: 5px 11px; border: 1px solid var(--line); background: var(--surface-2); color: var(--ink); border-radius: 8px; cursor: pointer; }
+  .bar { display: flex; gap: 3px; margin: 8px 0 4px; }
+  .bar i { flex: 1; height: 10px; border-radius: 3px; background: var(--surface-2); border: 1px solid var(--line); font-style: normal; }
+  .bar i.on { background: linear-gradient(180deg, #34a853, #1e7e34); border-color: #1e7e34; }
+  .bar i.part { background: linear-gradient(90deg, #34a853 var(--p), var(--surface-2) var(--p)); }
+  .b-pct { font-size: 11.5px; color: var(--muted); }
+  /* 지도 */
+  .jmap { position: relative; margin: 12px 0 0; border: 1px solid var(--line); border-radius: 14px; background:
+      radial-gradient(120% 140% at 50% 120%, #cfe6d4 0%, #e8f1ea 45%, #eaf2f7 100%); overflow: hidden; }
+  html[data-theme="dark"] .jmap { background: radial-gradient(120% 140% at 50% 120%, #16302a 0%, #142029 45%, #101820 100%); }
+  .jmap svg { display: block; width: 100%; height: auto; }
+  .pin { cursor: pointer; }
+  .pin circle { transition: r .2s, fill .2s; }
+  .pin:hover circle { r: 6.5; }
+  .pin.done circle { fill: #d93025; }
+  .pin.now circle { fill: #f9ab00; }
+  .pin text { font-size: 7px; pointer-events: none; }
+  .mlegend { display: flex; gap: 12px; flex-wrap: wrap; font-size: 11.5px; color: var(--muted); padding: 8px 12px 10px; }
+  .mlegend b { font-weight: 700; }
+  /* 문제 카드 */
+  .q { border: 1px solid var(--line); border-radius: 14px; background: var(--surface); padding: 16px 18px; margin-top: 14px; }
+  .q-top { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; margin-bottom: 4px; }
+  .q-no { font-family: var(--f-mono, monospace); font-size: 12px; font-weight: 700; color: #fff; background: var(--cipher); border-radius: 6px; padding: 2px 8px; }
+  .q-or { font-family: var(--f-display); font-weight: 800; font-size: 17px; }
+  .q-d { font-size: 11px; font-weight: 700; border-radius: 10px; padding: 2px 9px; }
+  .d-하 { background: #e6f4ea; color: #1e7e34; } .d-중 { background: #fef7e0; color: #a8560f; } .d-상 { background: #fce8e6; color: #c5221f; }
+  .d-최종 { background: linear-gradient(135deg,#5b3fa8,#8e44ad); color: #fff; }
+  .q-area { font-size: 11px; font-weight: 700; border-radius: 10px; padding: 2px 9px; background: var(--surface-2); color: var(--muted); border: 1px solid var(--line); }
+  html[data-theme="dark"] .d-하 { background: #14321f; color: #7ddc9b; }
+  html[data-theme="dark"] .d-중 { background: #332710; color: #f0c98a; }
+  html[data-theme="dark"] .d-상 { background: #3a1a18; color: #f0a39d; }
+  .q-loc { font-size: 11.5px; color: var(--muted); }
+  .q-title { font-family: var(--f-display); font-size: 15px; font-weight: 700; margin: 10px 0 2px; }
+  .q-sec { font-size: 12.5px; font-weight: 700; color: var(--muted); margin: 14px 0 5px; }
+  .q-scene { font-size: 13.5px; line-height: 1.8; }
+  pre.ev { background: #0f1724; color: #d7e3f4; border-radius: 10px; padding: 12px 14px; overflow-x: auto;
+           font-family: var(--f-mono, "JetBrains Mono", monospace); font-size: 12px; line-height: 1.75; margin: 0; }
+  pre.ev b { color: #ffd479; }
+  .q-mis { background: var(--cipher-soft); border-left: 3px solid var(--cipher); border-radius: 8px; padding: 10px 13px; font-size: 13px; line-height: 1.7; }
+  .ansrow { display: flex; gap: 8px; margin-top: 12px; flex-wrap: wrap; }
+  .ansrow input { flex: 1; min-width: 200px; font: inherit; font-family: var(--f-mono, monospace); font-size: 14px; padding: 10px 13px; border: 1px solid var(--line); border-radius: 10px; background: var(--surface-2); color: var(--ink); }
+  .ansrow button { font: inherit; font-weight: 700; font-size: 14px; padding: 10px 20px; border: 1px solid var(--cipher); background: var(--cipher); color: #fff; border-radius: 10px; cursor: pointer; }
+  .ansrow button.ghost { background: transparent; color: var(--cipher); }
+  .verdict { margin-top: 10px; font-size: 13.5px; font-weight: 700; display: none; }
+  .verdict.bad { color: #c5221f; display: block; }
+  .hintbox { margin-top: 10px; font-size: 12.5px; line-height: 1.75; }
+  .hintbox div { background: var(--surface-2); border-radius: 8px; padding: 8px 11px; margin-top: 5px; }
+  /* 해설 */
+  .wu { margin-top: 14px; border: 1px solid var(--line); border-radius: 12px; overflow: hidden; display: none; }
+  .wu.show { display: block; animation: pop .4s ease; }
+  @keyframes pop { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: none; } }
+  .wu-h { background: linear-gradient(135deg, #1e7e34, #34a853); color: #fff; padding: 12px 16px; font-family: var(--f-display); font-weight: 800; font-size: 16px; }
+  .wu-b { padding: 14px 16px; }
+  .wu-b dl { display: grid; grid-template-columns: 104px 1fr; gap: 7px 12px; font-size: 13px; margin: 0; }
+  .wu-b dt { color: var(--muted); font-weight: 700; }
+  .wu-b dd { margin: 0; line-height: 1.75; }
+  .wu-b dd.flagv { font-family: var(--f-mono, monospace); font-weight: 700; color: var(--cipher); }
+  .wu-next { margin-top: 14px; display: flex; gap: 8px; flex-wrap: wrap; }
+  .wu-next button, .wu-next a { font: inherit; font-size: 13px; font-weight: 700; padding: 9px 18px; border-radius: 10px; cursor: pointer; text-decoration: none; border: 1px solid var(--cipher); background: var(--cipher); color: #fff; }
+  .wu-next a.sub { background: transparent; color: var(--cipher); }
+  /* 완등 */
+  .fin { text-align: center; padding: 28px 16px; }
+  .fin h2 { font-family: var(--f-display); font-size: 22px; margin: 8px 0; }
+  .fin .fw { font-size: 34px; letter-spacing: 4px; animation: fw 1.4s ease infinite alternate; }
+  @keyframes fw { from { transform: scale(1); } to { transform: scale(1.12); } }
+  /* 목록 */
+  .list { display: none; margin-top: 14px; }
+  .list.show { display: block; }
+  .lgrid { display: grid; grid-template-columns: repeat(auto-fill, minmax(118px, 1fr)); gap: 6px; }
+  .lg { border: 1px solid var(--line); border-radius: 8px; padding: 6px 8px; font-size: 11.5px; background: var(--surface); cursor: pointer; text-align: left; font-family: inherit; color: var(--ink); }
+  .lg.done { background: #e6f4ea; border-color: #9cd3ae; }
+  html[data-theme="dark"] .lg.done { background: #14321f; border-color: #2e5c3e; }
+  .lg b { display: block; font-size: 12px; }
+  .lg span { color: var(--muted); }
+  @media (prefers-reduced-motion: reduce) { .wu.show, .fin .fw { animation: none; } }
+  @media (max-width: 640px) { .wu-b dl { grid-template-columns: 1fr; } .wu-b dt { margin-top: 6px; } .q { padding: 14px; } }
+</style>
 </head>
 <body>
-<div class="topbar">
-  <a class="icon-btn" href="index.html" aria-label="포털 홈으로">← 포털</a>
-  <span class="brand">CTF로 배우는 개인정보 보호</span>
-  <a class="icon-btn" href="learn.html" style="margin-left:auto">📚 학습 레슨</a>
-</div>
-<main id="cdApp" class="cd-wrap" aria-live="polite"></main>
+<div class="om-wrap">
+  <div class="sp-top"><a class="back" href="index.html">← 혼디지킴이 포털</a><span class="brand">제주 오름 정복 CTF 200</span></div>
 
-<section class="cd-wrap" style="padding-top:0">
-  <h2 style="font-family:var(--f-display);font-size:16px;margin:4px 0 8px">심화 문제 — 조문·실무 시연형</h2>
-  <nav style="display:grid;gap:9px;grid-template-columns:repeat(auto-fit,minmax(260px,1fr))">
-    <a href="ctf-collect-15-1.html" style="display:block;border:1px solid var(--line);border-radius:10px;padding:12px 14px;background:var(--surface);text-decoration:none;color:inherit">
-      <b style="font-size:14px">⚖ 개인정보의 수집 — 법 제15조제1항</b>
-      <p style="margin:5px 0 0;font-size:12.5px;color:var(--muted);line-height:1.6">제2호~제7호를 호(號)별로 1문제씩, 난이도 하·중·상으로. 상황을 읽고 어느 호에 해당하는지 판단해요.</p>
-    </a>
-    <a href="ctf-tech-accesslog.html" style="display:block;border:1px solid var(--line);border-radius:10px;padding:12px 14px;background:var(--surface);text-decoration:none;color:inherit">
-      <b style="font-size:14px">🖥 접속기록 분석 시연</b>
-      <p style="margin:5px 0 0;font-size:12.5px;color:var(--muted);line-height:1.6">총괄부서가 일일 점검에서 이상행위를 탐지한 상황. 로그 보는 법·로그 구조·위반 시 처벌·관리대장 작성 예시까지.</p>
-    </a>
-  </nav>
-</section>
-<script src="assets/data/ctf200.js"></script>
-<script src="assets/js/labs-ctf200.js"></script>
+  <div class="board">
+    <div class="b-head">
+      <span class="b-title">🗺️ 제주 오름 정복 현황</span>
+      <span class="b-cnt" id="cnt">[ 0 / 200 ]</span>
+      <span class="b-sp"></span>
+      <button class="b-btn" id="btnList">⛰️ 200 목록</button>
+      <button class="b-btn" id="btnReset">처음부터</button>
+    </div>
+    <div class="bar" id="bar"></div>
+    <div class="b-pct" id="pct">아직 첫 봉우리에 오르지 않았어요. 출발해 볼까요?</div>
+  </div>
+
+  <div class="jmap">
+    <svg viewBox="0 0 400 190" role="img" aria-label="제주도 오름 지도">
+      <defs><filter id="sh"><feDropShadow dx="0" dy="1" stdDeviation="1" flood-opacity=".3"/></filter></defs>
+      <path id="isle" d="M34 100 C54 72 98 54 146 48 C196 42 250 44 300 54 C340 62 370 78 374 95
+               C378 113 352 134 312 146 C262 160 202 164 150 158 C102 152 56 134 38 118 Z"
+            fill="#9fcfae" stroke="#5d9b6f" stroke-width="1.6" opacity=".9"/>
+      <g id="pins"></g>
+      <g id="halla"></g>
+    </svg>
+    <div class="mlegend">
+      <span>⛰️ 미정복(개인정보)</span><span>🔵 미정복(사이버)</span><span>🚩 정복 완료</span><span>🟡 현재 목표</span>
+      <span style="margin-left:auto">위치는 실제 좌표 기반 <b>개략 배치</b>예요</span>
+    </div>
+  </div>
+
+  <div class="list" id="list"><div class="lgrid" id="lgrid"></div></div>
+  <div id="stage"></div>
+
+  <p style="margin-top:22px;font-size:11.5px;color:var(--muted);line-height:1.75">
+    <b>제1구간(No.1~150)</b>은 법제처 국가법령정보센터 현행본(개인정보 보호법 시행 2026-09-11 · 시행령 2026-11-10),
+    <b>개인정보 영향평가 수행안내서</b>, <b>개인정보의 안전성 확보조치 기준</b>, <b>질의응답 모음집(2025.12.)</b>,
+    <b>2026년 공공기관 보호수준 평가 편람</b>, <b>개인정보보호위원회 처분 사례</b>(2026.3.·2026.5. 의결, 언론 보도)를 근거로 했어요.<br>
+    <b>제2구간(No.151~199)</b>은 <b>국가 사이버보안 기본지침(2026.5.1.)</b>, <b>2026 주요정보통신기반시설 기술적 /
+    관리·물리적 취약점 분석·평가 가이드</b>, <b>국가·공공기관 AI보안 가이드북</b>, <b>KISA AI 보안 위협 대응 매뉴얼</b> 및
+    <b>AI 보안 레드티밍 가이드(2026.7.)</b>, <b>소프트웨어 개발보안 가이드</b>, <b>IP카메라 설치·운영 보안 가이드(2025.11.)</b>를 근거로 했어요.
+    <b>No.200</b>은 두 구간을 결합한 융합 침해사고 대응 문제예요.
+    진행 상황은 <b>이 브라우저에만</b> 저장되고 서버로 전송되지 않아요.
+  </p>
+</div>
+
+<script src="assets/data/ctf-oreum.js"></script>
+<script>
+(function () {
+  var P = window.OREUM200 || window.OREUM150 || [], KEY = 'oreum200';
+  var $ = function (s) { return document.querySelector(s); };
+  function esc(s) { return String(s == null ? '' : s).replace(/[&<>]/g, function (c) { return ({ '&': '&amp;', '<': '&lt;', '>': '&gt;' })[c]; }); }
+
+  var done = {};
+  try { done = JSON.parse(localStorage.getItem(KEY) || '{}') || {}; } catch (e) { done = {}; }
+  function save() { try { localStorage.setItem(KEY, JSON.stringify(done)); } catch (e) {} }
+  function cleared() { return P.filter(function (p) { return done[p.no]; }).length; }
+  function seg(no) { return no > 199 ? '최종 보스' : (no > 150 ? '제2구간 · 사이버 보안' : '제1구간 · 개인정보 보호'); }
+  function nextNo() { for (var i = 0; i < P.length; i++) if (!done[P[i].no]) return P[i].no; return null; }
+
+  /* 지도 좌표 → SVG (제주 경위도 범위 기준 개략 배치) */
+  var LAT0 = 33.17, LAT1 = 33.58, LON0 = 126.14, LON1 = 126.98;
+  function xy(p, i) {
+    var lat = parseFloat(p.lat), lon = parseFloat(p.lon);
+    if (!isFinite(lat) || !isFinite(lon)) {           // 좌표 미확인 → 읍면동 + 오름명 기준 의사배치
+      var s = (p.town || p.city || '') + '|' + p.oreum, h1 = 7, h2 = 13;
+      for (var k = 0; k < s.length; k++) { h1 = (h1 * 131 + s.charCodeAt(k)) % 9973; h2 = (h2 * 37 + s.charCodeAt(k) * 11) % 9967; }
+      h2 = (h2 + i * 613) % 9967;
+      lon = LON0 + 0.06 * (LON1 - LON0) + (h1 / 9973) * 0.88 * (LON1 - LON0);
+      lat = LAT0 + 0.10 * (LAT1 - LAT0) + (h2 / 9967) * 0.78 * (LAT1 - LAT0);
+    }
+    return { x: 30 + (lon - LON0) / (LON1 - LON0) * 342, y: 170 - (lat - LAT0) / (LAT1 - LAT0) * 128 };
+  }
+
+  function drawMap() {
+    var nn = nextNo(), g = '', hg = '', placed = [];
+    function spread(c) {                              // 핀이 겹치지 않게 최소 간격 확보
+      for (var t = 0; t < 24; t++) {
+        var hit = false;
+        for (var j = 0; j < placed.length; j++) {
+          var dx = c.x - placed[j].x, dy = c.y - placed[j].y;
+          if (dx * dx + dy * dy < 30) { hit = true; break; }
+        }
+        if (!hit) break;
+        var a = t * 2.4, r = 2.4 + t * 0.9;
+        c = { x: c.x + Math.cos(a) * r, y: c.y + Math.sin(a) * r * 0.55 };
+      }
+      c.x = Math.max(26, Math.min(376, c.x)); c.y = Math.max(28, Math.min(166, c.y));
+      placed.push(c); return c;
+    }
+    P.forEach(function (p, i) {
+      var c = spread(xy(p, i)), isD = !!done[p.no], isN = p.no === nn, last = p.no === 200;
+      var cls = 'pin' + (isD ? ' done' : '') + (isN ? ' now' : '');
+      var fill = isD ? '#d93025' : (isN ? '#f9ab00' : (p.no > 150 ? '#4a6fa5' : '#6b8f78'));
+      var r = last ? 6 : (isN ? 5.5 : 3.4);
+      var node = '<g class="' + cls + '" data-no="' + p.no + '" filter="url(#sh)">' +
+        '<circle cx="' + c.x.toFixed(1) + '" cy="' + c.y.toFixed(1) + '" r="' + r + '" fill="' + fill + '" stroke="#fff" stroke-width="1"/>' +
+        '<title>No.' + p.no + ' ' + p.oreum + (isD ? ' 🚩 정복' : '') + '</title></g>';
+      if (last) hg += node + '<text x="' + (c.x + 8).toFixed(1) + '" y="' + (c.y + 3).toFixed(1) + '" fill="#5d4037" font-weight="700">한라산</text>';
+      else g += node;
+    });
+    $('#pins').innerHTML = g; $('#halla').innerHTML = hg;
+    Array.prototype.forEach.call(document.querySelectorAll('.pin'), function (el) {
+      el.addEventListener('click', function () { show(+el.dataset.no); });
+    });
+  }
+
+  function drawBoard() {
+    var c = cleared(), pct = c / 200 * 100;
+    $('#cnt').textContent = '[ ' + c + ' / 200 ]';
+    var html = '';
+    for (var i = 0; i < 10; i++) {
+      var lo = i * 20, f = Math.max(0, Math.min(20, c - lo)) / 20;
+      html += f >= 1 ? '<i class="on"></i>' : (f > 0 ? '<i class="part" style="--p:' + (f * 100).toFixed(0) + '%"></i>' : '<i></i>');
+    }
+    $('#bar').innerHTML = html;
+    $('#pct').innerHTML = c === 0 ? '아직 첫 봉우리에 오르지 않았어요. <b>출발해 볼까요?</b>'
+      : (c >= 200 ? '<b>🏆 200 완등!</b> 섬의 모든 능선을 밟았어요.'
+      : '진행률 <b>' + pct.toFixed(1) + '%</b> · 남은 오름 <b>' + (200 - c) + '곳</b> · ' + seg(c + 1) + ' 구간을 걷고 있어요.');
+    drawMap(); drawList();
+  }
+
+  function drawList() {
+    $('#lgrid').innerHTML = P.map(function (p) {
+      return '<button class="lg' + (done[p.no] ? ' done' : '') + '" data-no="' + p.no + '">' +
+        '<b>' + (done[p.no] ? '🚩' : '⛰️') + ' ' + p.no + '. ' + esc(p.oreum) + '</b>' +
+        '<span>' + (p.no > 150 ? '🛡️ ' : '') + esc(p.diff) + ' · ' + esc(p.town || p.city) + '</span></button>';
+    }).join('');
+    Array.prototype.forEach.call(document.querySelectorAll('.lg'), function (el) {
+      el.addEventListener('click', function () { show(+el.dataset.no); $('#list').classList.remove('show'); });
+    });
+  }
+
+  function norm(s) { return String(s || '').trim().replace(/\s+/g, '').replace(/[·ㆍ]/g, '').toUpperCase(); }
+
+  function show(no) {
+    var p = P.filter(function (x) { return x.no === no; })[0];
+    if (!p) return;
+    var ev = p.ev.map(function (l) { return l.replace(/<b>/g, '\u0001').replace(/<\/b>/g, '\u0002'); }).join('\n');
+    ev = esc(ev).replace(/\u0001/g, '<b>').replace(/\u0002/g, '</b>');
+
+    $('#stage').innerHTML =
+      '<div class="q">' +
+        '<div class="q-top"><span class="q-no">No.' + p.no + '</span>' +
+          '<span class="q-or">' + (done[p.no] ? '🚩 ' : '⛰️ ') + esc(p.oreum) + '</span>' +
+          '<span class="q-d d-' + p.diff + '">' + (p.diff === '최종' ? '최종 보스' : '난이도 ' + p.diff) + '</span>' +
+          '<span class="q-area">' + esc(p.area || seg(p.no)) + '</span>' +
+          '<span class="q-loc">' + esc([p.city, p.town, p.village].filter(Boolean).join(' ')) + (p.el ? ' · 표고 ' + p.el + 'm' : '') + '</span></div>' +
+        '<div class="q-title">🚩 ' + esc(p.title) + '</div>' +
+        '<div class="q-sec">📖 1. 사건 시나리오</div><div class="q-scene">' + p.scene + '</div>' +
+        '<div class="q-sec">🔍 2. 실무·기술 단서</div><pre class="ev">' + ev + '</pre>' +
+        '<div class="q-sec">❓ 3. 미션 및 FLAG 제출</div><div class="q-mis">' + p.mission + '</div>' +
+        '<div class="ansrow"><input id="ans" placeholder="FLAG{...}" autocomplete="off" spellcheck="false">' +
+          '<button id="sub">제출하기</button><button class="ghost" id="hint">힌트</button></div>' +
+        '<div class="verdict" id="vd"></div><div class="hintbox" id="hb"></div>' +
+      '</div>' +
+      '<div class="wu" id="wu"></div>';
+
+    var hi = 0;
+    $('#hint').onclick = function () {
+      if (hi >= p.hint.length) return;
+      $('#hb').insertAdjacentHTML('beforeend', '<div>💡 힌트 ' + (hi + 1) + '. ' + p.hint[hi] + '</div>');
+      hi++; if (hi >= p.hint.length) $('#hint').disabled = true;
+    };
+    $('#sub').onclick = check;
+    $('#ans').addEventListener('keydown', function (e) { if (e.key === 'Enter') check(); });
+    $('#ans').focus();
+    if (done[p.no]) writeup(p, true);
+
+    function check() {
+      var v = norm($('#ans').value), t = norm(p.flag);
+      var inner = t.replace(/^FLAG\{/, '').replace(/\}$/, '');
+      if (!v) return;
+      if (v === t || v === inner) {
+        done[p.no] = 1; save(); drawBoard(); writeup(p, false);
+        $('#vd').style.display = 'none';
+        document.getElementById('wu').scrollIntoView({ behavior: 'smooth', block: 'start' });
+      } else {
+        $('#vd').className = 'verdict bad';
+        $('#vd').textContent = '아직이에요. 단서를 다시 한 줄씩 비교해 보세요. (힌트를 눌러 보세요)';
+      }
+    }
+  }
+
+  function writeup(p, quiet) {
+    var last = p.no === 200, nn = nextNo();
+    var head = last
+      ? '<div class="fin"><div class="fw">🎉 🎊 🎆 🎊 🎉</div>' +
+        '<h2>🏆 제주 오름 200 완등!</h2>' +
+        '<p style="font-size:15px;line-height:1.85">당신을 <b>진정한 통합 보안 마스터</b>로 임명합니다.<br>' +
+        '새별오름에서 백록담까지, 개인정보 보호 150개 능선과 사이버 보안 49개 능선을 모두 밟았어요.<br>' +
+        '이제 그 200개의 점검 포인트가 당신의 체크리스트예요.</p>' +
+        '<div class="fw" style="font-size:26px">🎊 🎉 🎆 🎉 🎊</div></div>'
+      : '<div class="wu-h">🚩 [' + esc(p.oreum) + ' 정복 완료!] 🎉</div>';
+
+    document.getElementById('wu').innerHTML = head +
+      '<div class="wu-b">' +
+        '<div class="q-sec" style="margin-top:0">💡 정답 및 실무 해설 (Write-up)</div>' +
+        '<dl>' +
+          '<dt>정답 (FLAG)</dt><dd class="flagv">' + esc(p.flag) + '</dd>' +
+          '<dt>해설</dt><dd>' + p.ans + '</dd>' +
+          '<dt>조문 근거</dt><dd>' + esc(p.law) + ' <span style="color:var(--muted)">(법제처 현행본 기준)</span></dd>' +
+          '<dt>실제 처분·리스크</dt><dd>' + p.real + '<br><span style="color:var(--muted)">이 사안의 제재:</span> ' + p.risk + '</dd>' +
+          '<dt>실무 조치</dt><dd>' + p.fix + '</dd>' +
+        '</dl>' +
+        '<div class="wu-next">' +
+          (nn ? '<button id="go">다음 오름으로 ⛰️ (No.' + nn + ')</button>' : '') +
+          (p.map ? '<a class="sub" href="' + esc(p.map) + '" target="_blank" rel="noopener">지도에서 ' + esc(p.oreum) + ' 보기 ↗</a>' : '') +
+        '</div>' +
+      '</div>';
+    document.getElementById('wu').classList.add('show');
+    if ($('#go')) $('#go').onclick = function () { show(nn); window.scrollTo({ top: 0, behavior: 'smooth' }); };
+  }
+
+  $('#btnList').onclick = function () { $('#list').classList.toggle('show'); };
+  $('#btnReset').onclick = function () {
+    if (!confirm('정복 기록을 모두 지우고 1번부터 다시 시작할까요?')) return;
+    done = {}; save(); drawBoard(); show(1); window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
+
+  drawBoard();
+  show(nextNo() || 200);
+  window.__OM = { P: P, done: done, show: show };
+})();
+</script>
 </body>
 </html>
