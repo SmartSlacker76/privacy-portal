@@ -3,13 +3,13 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>포트번호 조회 · 혼디지킴이</title>
-<meta name="description" content="포트 번호나 서비스 이름을 입력하면 프로토콜·기능과 연관 CVE·공격 취약점을 한눈에 보여주고, IANA·NVD·CVE·MITRE ATT&CK·SpeedGuide·Criminal IP로 바로 연결합니다.">
+<title>포트번호 조회 · 구동 원리 · 혼디지킴이</title>
+<meta name="description" content="포트 번호나 서비스 이름을 입력하면 프로토콜·기능과 연관 CVE를 보여주고, 연결 수립부터 인증·데이터 교환까지 패킷 흐름을 애니메이션으로 따라가 볼 수 있습니다.">
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700&display=swap">
 <link rel="stylesheet" href="assets/css/style.css">
 <style>
-  .sp-wrap.wide { max-width: 1000px; }
+  .sp-wrap.wide { max-width: 1180px; }
   .search-bar { display:flex; gap:8px; margin:12px 0 8px; }
   .search-bar input { flex:1; font:inherit; font-size:16px; padding:12px 15px; border:1px solid var(--line); border-radius:10px; background:var(--surface-2); color:var(--ink); }
   .quick { display:flex; flex-wrap:wrap; gap:6px; margin-bottom:6px; }
@@ -29,41 +29,140 @@
   .p-body .row b { color:var(--cipher); }
   .p-cve { background:var(--surface-2); border-radius:8px; padding:8px 11px; font-size:12.5px; }
   .p-cve .cid { font-family:var(--f-mono); font-weight:700; color:#c4321b; }
-  .p-links { display:flex; flex-wrap:wrap; gap:7px; padding:0 15px 13px; }
+  .p-links { display:flex; flex-wrap:wrap; gap:7px; padding:0 15px 13px; align-items:center; }
   .p-links a { font-size:11.5px; font-weight:600; text-decoration:none; color:#1e3a8a; border:1px solid #c7d4ef; border-radius:8px; padding:4px 10px; }
   .p-links a:hover { background:#eef2fb; }
+  html[data-theme="dark"] .p-links a { color:#aecbff; border-color:#30405c; }
+  html[data-theme="dark"] .p-links a:hover { background:#1b2740; }
+  .seebtn { font:inherit; font-size:11.5px; font-weight:700; border:0; border-radius:8px; padding:5px 11px; cursor:pointer; background:#0d6cf2; color:#fff; }
+  .seebtn:hover { background:#0a57c2; }
   .note { font-size:12px; color:var(--muted); }
   .empty { text-align:center; color:var(--muted); padding:34px 10px; font-size:14px; }
+
+  /* ───────── 프로토콜 구동 원리 탐색기 ───────── */
+  .px { --pxbg:#0b1120; --pxpanel:#111b2e; --pxline:#24334d; --pxink:#e8eefc; --pxmut:#8ea0bd; --pxacc:#4ea1ff;
+        margin-top:30px; background:var(--pxbg); border:1px solid var(--pxline); border-radius:18px; overflow:hidden; color:var(--pxink); }
+  .px-bar { display:flex; align-items:center; gap:10px; flex-wrap:wrap; padding:13px 18px; border-bottom:1px solid var(--pxline); background:linear-gradient(90deg,#101b30,#0b1120); }
+  .px-bar h2 { font-family:var(--f-display); font-size:16px; margin:0; color:#fff; font-weight:800; letter-spacing:.01em; }
+  .px-bar .px-sub { font-size:12px; color:var(--pxmut); }
+  .px-bar .px-now { margin-left:auto; font-family:var(--f-mono); font-size:12px; color:var(--pxacc); background:#13233c; border:1px solid var(--pxline); border-radius:8px; padding:4px 10px; }
+  .px-grid { display:grid; grid-template-columns:236px minmax(0,1fr) 272px; }
+  .px-list { border-right:1px solid var(--pxline); max-height:560px; overflow-y:auto; padding:8px; }
+  .px-list .gh { font-size:10.5px; font-weight:700; letter-spacing:.08em; color:var(--pxmut); padding:11px 9px 5px; }
+  .px-it { display:flex; align-items:center; gap:8px; width:100%; text-align:left; border:0; background:transparent; color:var(--pxink);
+           font:inherit; font-size:12.5px; padding:7px 9px; border-radius:8px; cursor:pointer; }
+  .px-it:hover { background:#17233c; }
+  .px-it.on { background:#163058; box-shadow:inset 2px 0 0 var(--pxacc); }
+  .px-it .dot { width:7px; height:7px; border-radius:50%; flex:0 0 auto; }
+  .px-it .pn { font-family:var(--f-mono); font-size:11px; color:var(--pxmut); margin-left:auto; }
+  .px-it.on .pn { color:#bcd6ff; }
+  .px-stage { min-width:0; display:flex; flex-direction:column; }
+  .px-tabs { display:flex; gap:6px; padding:10px 14px 0; }
+  .px-tabs button { font:inherit; font-size:12px; font-weight:600; color:var(--pxmut); background:transparent; border:1px solid transparent; border-radius:8px; padding:5px 12px; cursor:pointer; }
+  .px-tabs button.on { color:#fff; background:#19294a; border-color:#2b4473; }
+  .px-view { padding:4px 10px 0; min-height:300px; }
+  .px-view svg { width:100%; height:auto; display:block; }
+  .px-seqwrap { max-height:400px; overflow-y:auto; }
+  .px-narr { margin:6px 12px 0; border-radius:10px; background:#13203a; border:1px solid var(--pxline); padding:10px 13px; font-size:13px; line-height:1.65; min-height:44px; }
+  .px-narr .k { font-weight:700; color:#fff; }
+  .px-narr .leak { display:block; margin-top:5px; color:#ffb4b4; font-size:12.5px; }
+  .px-ctl { display:flex; align-items:center; gap:7px; padding:11px 13px 13px; flex-wrap:wrap; }
+  .px-ctl button { font:inherit; font-size:12.5px; font-weight:600; color:var(--pxink); background:#17243d; border:1px solid var(--pxline); border-radius:9px; padding:7px 12px; cursor:pointer; }
+  .px-ctl button:hover { border-color:var(--pxacc); }
+  .px-ctl button.play { background:#0d6cf2; border-color:#0d6cf2; color:#fff; flex:1; min-width:120px; }
+  .px-ctl button.play:hover { background:#0a57c2; }
+  .px-ctl select { font:inherit; font-size:12px; color:var(--pxink); background:#17243d; border:1px solid var(--pxline); border-radius:9px; padding:7px 9px; }
+  .px-info { border-left:1px solid var(--pxline); padding:14px; max-height:560px; overflow-y:auto; }
+  .px-info h3 { font-family:var(--f-display); font-size:21px; margin:0; color:#fff; font-weight:800; }
+  .px-info .full { font-size:11.5px; color:var(--pxmut); margin:3px 0 10px; }
+  .px-info .desc { font-size:12.5px; line-height:1.75; color:#cfdcf2; margin:0 0 12px; }
+  .px-spec { width:100%; border-collapse:collapse; font-size:12px; }
+  .px-spec th, .px-spec td { border-top:1px solid var(--pxline); padding:7px 4px; text-align:left; vertical-align:top; line-height:1.55; }
+  .px-spec th { color:var(--pxmut); font-weight:600; width:72px; }
+  .px-spec td { color:#dfe8fa; font-family:var(--f-mono); font-size:11.5px; }
+  .px-box { margin-top:13px; border-radius:10px; padding:10px 12px; font-size:12.5px; line-height:1.7; }
+  .px-box b { display:block; margin-bottom:3px; font-size:11.5px; letter-spacing:.03em; }
+  .px-risk { background:#2a1620; border:1px solid #522a3a; color:#ffc9cd; }
+  .px-risk b { color:#ff8e95; }
+  .px-guard { background:#0f2622; border:1px solid #23503f; color:#bfeedd; }
+  .px-guard b { color:#59dda8; }
+  .px-pk { border-top:1px solid var(--pxline); }
+  .px-leg { display:flex; gap:12px; flex-wrap:wrap; align-items:center; padding:10px 16px 6px; font-size:11.5px; color:var(--pxmut); }
+  .px-leg span { display:inline-flex; align-items:center; gap:5px; }
+  .px-leg i { width:9px; height:9px; border-radius:2px; display:inline-block; }
+  .px-tbl { max-height:230px; overflow-y:auto; }
+  .px-tbl table { width:100%; border-collapse:collapse; font-size:11.5px; font-family:var(--f-mono); }
+  .px-tbl th { position:sticky; top:0; background:#101a2d; color:var(--pxmut); font-weight:600; text-align:left; padding:7px 10px; border-bottom:1px solid var(--pxline); z-index:1; }
+  .px-tbl td { padding:6px 10px; border-bottom:1px solid #18243a; color:#cad7ee; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+  .px-tbl td.inf { max-width:360px; white-space:normal; font-size:11px; line-height:1.5; }
+  .px-tbl tr { cursor:pointer; }
+  .px-tbl tr:hover td { background:#16243c; }
+  .px-tbl tr.on td { background:#1a3561; color:#fff; }
+  .px-tbl .pb { display:inline-block; width:8px; height:8px; border-radius:2px; margin-right:6px; vertical-align:-1px; }
+  .px-tbl .lk { color:#ff8e95; }
+  @media (max-width:1040px){ .px-grid { grid-template-columns:1fr; } .px-list { max-height:190px; border-right:0; border-bottom:1px solid var(--pxline); display:grid; grid-template-columns:repeat(auto-fill,minmax(150px,1fr)); gap:2px; } .px-list .gh { grid-column:1/-1; } .px-info { border-left:0; border-top:1px solid var(--pxline); max-height:none; } }
 </style>
 </head>
 <body>
 <div class="sp-wrap wide">
   <div class="sp-top"><a class="back" href="index.html">← 혼디지킴이 포털</a><span class="brand">포트번호 조회</span></div>
   <div class="sp-head">
-    <h1>🔌 포트 번호 조회</h1>
-    <p class="lead"><b>포트 번호(예: 445)</b>나 <b>서비스 이름(예: rdp, smb)</b>을 입력하면 <b>프로토콜·기능</b>과 <b>대표 취약점·공격(CVE)</b>을 한눈에 보여줘요. 모든 포트는 <b>IANA·NVD·CVE·MITRE ATT&amp;CK·SpeedGuide·Criminal IP</b> 공식 자료로 바로 연결돼요. (방어·점검용 정보)</p>
+    <h1>🔌 포트 번호 조회 · 구동 원리</h1>
+    <p class="lead"><b>포트 번호(예: 445)</b>나 <b>서비스 이름(예: rdp, smb)</b>을 입력하면 <b>프로토콜·기능</b>과 <b>대표 취약점·공격(CVE)</b>을 보여주고, 아래 <b>구동 원리 탐색기</b>에서 그 포트가 실제로 어떻게 연결되고 무엇이 흐르는지 <b>패킷 한 줄씩</b> 따라가 볼 수 있어요. (방어·점검용 정보)</p>
   </div>
 
   <div class="sp-card">
     <div class="search-bar"><input id="q" type="search" placeholder="포트 번호 또는 서비스 이름 (예: 3389, rdp, 23, telnet, redis)" autocomplete="off" autofocus></div>
     <div class="quick"><b>자주 노출되는 위험 포트</b>
-      <button class="qp" data-q="23">23 Telnet</button><button class="qp" data-q="445">445 SMB</button>
-      <button class="qp" data-q="3389">3389 RDP</button><button class="qp" data-q="6379">6379 Redis</button>
-      <button class="qp" data-q="9200">9200 Elasticsearch</button><button class="qp" data-q="27017">27017 MongoDB</button>
-      <button class="qp" data-q="2375">2375 Docker</button><button class="qp" data-q="5900">5900 VNC</button>
-      <button class="qp" data-q="161">161 SNMP</button>
+      <button class="qp" data-q="23">23 Telnet</button><button class="qp" data-q="445">445 SMB</button><button class="qp" data-q="3389">3389 RDP</button><button class="qp" data-q="554">554 RTSP·CCTV</button><button class="qp" data-q="3306">3306 MySQL</button><button class="qp" data-q="6379">6379 Redis</button><button class="qp" data-q="27017">27017 MongoDB</button><button class="qp" data-q="161">161 SNMP</button><button class="qp" data-q="2375">2375 Docker</button><button class="qp" data-q="21">21 FTP</button>
     </div>
-    <div class="stat" id="stat">포트 번호나 서비스 이름을 입력하세요.</div>
+    <p class="stat" id="stat">포트 번호나 서비스 이름을 입력하세요.</p>
     <div class="res" id="res"></div>
   </div>
 
-  <p class="notice" style="margin-top:14px;font-size:12px;color:var(--muted)">주요·고위험 포트는 교육용으로 정리한 요약이며, 대표 CVE는 ‘예시’예요. 전체 등록 서비스·최신 취약점은 각 결과의 <b>IANA·NVD·CVE·MITRE·SpeedGuide·Criminal IP</b> 링크에서 확인하세요. 이 도구는 <b>방어·점검</b> 목적의 정보 제공이며 공격 수단을 제공하지 않아요.</p>
+  <!-- ───────── 프로토콜 구동 원리 탐색기 ───────── -->
+  <section class="px" id="px">
+    <div class="px-bar">
+      <h2>⚙ 프로토콜 구동 원리</h2>
+      <span class="px-sub">연결 수립 → 인증 → 데이터 교환까지, 패킷 한 줄씩</span>
+      <span class="px-now" id="pxNow">HTTP · 80/TCP</span>
+    </div>
+    <div class="px-grid">
+      <aside class="px-list" id="pxList"></aside>
+      <main class="px-stage">
+        <div class="px-tabs">
+          <button class="on" data-v="net" type="button">🖧 네트워크</button>
+          <button data-v="seq" type="button">⇄ 시퀀스</button>
+        </div>
+        <div class="px-view" id="pxNet"></div>
+        <div class="px-view px-seqwrap" id="pxSeq" hidden></div>
+        <div class="px-narr" id="pxNarr">▶ 재생을 누르면 이 포트의 통신이 처음부터 흘러갑니다.</div>
+        <div class="px-ctl">
+          <button id="pxPrev" type="button" title="이전 단계">◀</button>
+          <button class="play" id="pxPlay" type="button">▶ 재생</button>
+          <button id="pxStep" type="button">한 단계 ▶</button>
+          <button id="pxReset" type="button" title="처음부터">↺</button>
+          <select id="pxSpeed" aria-label="재생 속도">
+            <option value="0.5">0.5×</option><option value="1" selected>1×</option><option value="2">2×</option><option value="4">4×</option>
+          </select>
+        </div>
+      </main>
+      <aside class="px-info" id="pxInfo"></aside>
+    </div>
+    <div class="px-pk">
+      <div class="px-leg" id="pxLeg"></div>
+      <div class="px-tbl"><table><thead><tr><th style="width:62px">시간</th><th style="width:118px">출발지</th><th style="width:118px">목적지</th><th style="width:84px">프로토콜</th><th>정보</th><th style="width:62px">길이</th></tr></thead><tbody id="pxBody"></tbody></table></div>
+    </div>
+  </section>
+
+  <p class="notice" style="margin-top:14px;font-size:12px;color:var(--muted)">구동 원리 시나리오는 각 프로토콜의 표준 동작을 <b>교육용으로 단순화</b>한 예시이고, 주소·시간·패킷 길이는 설명을 위한 값이에요. 개별 시나리오가 없는 포트는 <b>일반 TCP/UDP 동작</b>으로 보여줘요. 대표 CVE도 ‘예시’이니 전체 등록 서비스·최신 취약점은 각 결과의 <b>IANA·NVD·CVE·MITRE·SpeedGuide·Criminal IP</b> 링크에서 확인하세요. 이 도구는 <b>방어·점검</b> 목적의 정보 제공이며 공격 수단을 제공하지 않아요.</p>
 </div>
 
+<script src="assets/data/proto-flows.js"></script>
 <script>
 (function(){
   var $ = s => document.querySelector(s);
-  var esc = s => (s||'').replace(/[&<>]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;'}[c]));
+  var esc = s => (s==null?'':String(s)).replace(/[&<>]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;'}[c]));
   // 큐레이션 포트 DB (p:포트, pr:프로토콜, s:서비스, a:별칭, f:기능, r:위험, k:위험도3/2/1, c:대표취약점/공격, m:[MITRE명,URL], d:방어)
   var DB = [
     {p:20,pr:'TCP',s:'FTP-DATA',a:'ftp',f:'파일전송 데이터 채널',r:'평문 전송(도청)',k:2,c:'평문 자격증명 노출',d:'SFTP/FTPS로 대체'},
@@ -167,7 +266,7 @@
         (e.c?'<div class="p-cve">⚠ <b>대표 취약점·공격</b>: '+e.c+'</div>':'')+
         (e.m?'<div class="row note">🎯 MITRE ATT&CK: '+esc(e.m[0])+'</div>':'')+
         (e.d?'<div class="row"><b>방어</b> · '+esc(e.d)+'</div>':'')+
-      '</div><div class="p-links">'+links(e)+'</div></div>';
+      '</div><div class="p-links">'+links(e)+'<button class="seebtn" type="button" data-see="'+e.p+'">▶ 구동 원리 보기</button></div></div>';
   }
   function unknownCard(q){
     var isNum = /^\d+$/.test(q.trim());
@@ -186,6 +285,7 @@
     if(hits.length){
       $('#stat').innerHTML = '<b>'+hits.length+'</b>건';
       $('#res').innerHTML = hits.map(card).join('');
+      $('#res').querySelectorAll('[data-see]').forEach(function(b){ b.addEventListener('click', function(){ selectPort(+b.dataset.see, true); }); });
     } else {
       $('#stat').innerHTML = '큐레이션 DB에 없음 — 공식 자료 링크로 안내';
       $('#res').innerHTML = unknownCard(q);
@@ -193,6 +293,276 @@
   }
   var deb; $('#q').addEventListener('input', ()=>{ clearTimeout(deb); deb=setTimeout(run,150); });
   document.querySelectorAll('.qp').forEach(b=> b.addEventListener('click', ()=>{ $('#q').value=b.dataset.q; run(); }));
+  /* ═══════════ 프로토콜 구동 원리 탐색기 ═══════════ */
+  var FL = window.PROTO_FLOWS || {}, PM = window.PROTO_MAP || {}, PH = window.PROTO_PHASES || {};
+  var PX = { key:'HTTP', ent:null, cur:-1, playing:false, speed:1, view:'net', timer:null, raf:null };
+
+  function flowKeyFor(e){ return (e && PM[e.p]) || (!e ? '_TCP' : (/TCP/.test(e.pr) ? '_TCP' : '_UDP')); }
+  function curFlow(){ return FL[PX.key] || FL._TCP; }
+  function phColor(p){ return (PH[p] && PH[p][1]) || '#8ea0bd'; }
+  function phName(p){ return (PH[p] && PH[p][0]) || p; }
+
+  /* ── 좌측 목록 ── */
+  function buildList(){
+    var groups = [[3,'고위험 · 즉시 점검','#ff5d5d'],[2,'주의 · 설정 확인','#f2a33c'],[1,'낮음 · 암호화 서비스','#2fd48a']];
+    var h = '';
+    groups.forEach(function(g){
+      var items = DB.filter(function(e){ return e.k === g[0]; });
+      if(!items.length) return;
+      h += '<div class="gh" style="color:'+g[2]+'">'+g[1]+' · '+items.length+'</div>';
+      items.forEach(function(e){
+        h += '<button class="px-it" type="button" data-p="'+e.p+'">'+
+             '<span class="dot" style="background:'+g[2]+'"></span>'+
+             '<span>'+esc(e.s)+'</span><span class="pn">'+e.p+'</span></button>';
+      });
+    });
+    $('#pxList').innerHTML = h;
+    $('#pxList').querySelectorAll('.px-it').forEach(function(b){
+      b.addEventListener('click', function(){ selectPort(+b.dataset.p, false); });
+    });
+  }
+  function markList(){
+    $('#pxList').querySelectorAll('.px-it').forEach(function(b){
+      b.classList.toggle('on', PX.ent && +b.dataset.p === PX.ent.p);
+    });
+  }
+
+  /* ── 우측 개요 ── */
+  function renderInfo(){
+    var f = curFlow(), e = PX.ent;
+    var rows = [['계층',f.layer],['기본 포트',f.port],['전송 계층',f.transport],['데이터 형식',f.fmt],['주요 명령',f.cmds],['정의 문서',f.rfc]];
+    var h = '<h3>'+esc(f.name)+'</h3><p class="full">'+esc(f.full)+'</p>'+
+            '<p class="desc">'+esc(f.desc)+'</p><table class="px-spec"><tbody>'+
+            rows.map(function(r){ return '<tr><th>'+r[0]+'</th><td>'+esc(r[1])+'</td></tr>'; }).join('')+
+            '</tbody></table>'+
+            '<div class="px-box px-risk"><b>⚠ 이 포트가 위험한 이유</b>'+esc(f.risk)+'</div>'+
+            '<div class="px-box px-guard"><b>🛡 점검·대응</b>'+esc(f.guard)+'</div>';
+    if(e && e.c) h += '<div class="px-box px-risk" style="background:#1c1830;border-color:#3b3360;color:#d6cdfa"><b style="color:#b7a6ff">🧪 대표 취약점</b>'+e.c+'</div>';
+    $('#pxInfo').innerHTML = h;
+    $('#pxNow').textContent = (e ? e.p + ' · ' + e.s : f.name) + (e ? ' / ' + e.pr : '');
+  }
+
+  /* ── 네트워크 뷰 ── */
+  var NPOS = { c:[118,252], r:[328,252], cloud:[540,252], d:[648,104], s:[806,252] };
+  var NPAR = { c:null, r:'c', cloud:'r', d:'cloud', s:'cloud' };
+  function chainUp(id){ var a=[], x=id; while(x){ a.push(x); x = NPAR[x]; } return a; }
+  function routeOf(a,b){
+    if(a===b) return [NPOS[a]];
+    var ca = chainUp(a), cb = chainUp(b), common = null;
+    for(var i=0;i<ca.length;i++){ if(cb.indexOf(ca[i])>=0){ common = ca[i]; break; } }
+    var up = ca.slice(0, ca.indexOf(common)+1);
+    var dn = cb.slice(0, cb.indexOf(common)).reverse();
+    return up.concat(dn).map(function(id){ return NPOS[id]; });
+  }
+  function shape(kind, lbl, ip, id){
+    var p = NPOS[id], x = p[0], y = p[1], g = '';
+    if(kind==='client') g = '<rect x="-36" y="-34" width="72" height="46" rx="4"/><rect x="-28" y="-27" width="56" height="32" rx="2" class="scr"/><path d="M-46 18 L-36 12 L36 12 L46 18 Z"/>';
+    else if(kind==='router') g = '<rect x="-34" y="-10" width="68" height="26" rx="6"/><path d="M-18 -10 L-26 -30 M18 -10 L26 -30"/><circle cx="-16" cy="3" r="2.5" class="led"/><circle cx="-6" cy="3" r="2.5" class="led"/><circle cx="4" cy="3" r="2.5" class="led"/>';
+    else g = '<rect x="-28" y="-40" width="56" height="22" rx="3"/><rect x="-28" y="-14" width="56" height="22" rx="3"/><rect x="-28" y="12" width="56" height="22" rx="3"/>'+
+             '<circle cx="-18" cy="-29" r="2.5" class="led"/><circle cx="-18" cy="-3" r="2.5" class="led"/><circle cx="-18" cy="23" r="2.5" class="led"/>'+
+             '<path d="M-8 -29 H18 M-8 -3 H18 M-8 23 H18"/>';
+    return '<g class="nd" id="nd-'+id+'" transform="translate('+x+','+y+')">'+g+
+           '<text class="nl" y="62">'+esc(lbl)+'</text>'+(ip?'<text class="ni" y="78">'+esc(ip)+'</text>':'')+'</g>';
+  }
+  function renderNet(){
+    var f = curFlow(), ids = f.nodes.map(function(n){ return n.id; });
+    var edges = [['c','r']]; 
+    edges.push(['r','cloud']);
+    if(ids.indexOf('d')>=0) edges.push(['cloud','d']);
+    if(ids.indexOf('s')>=0) edges.push(['cloud','s']);
+    var h = '<svg viewBox="0 0 920 340" role="img" aria-label="네트워크 구성도">'+
+      '<defs><filter id="glow"><feGaussianBlur stdDeviation="3.5" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter></defs>'+
+      '<style>'+
+      '.nd rect,.nd path,.nd circle{fill:none;stroke:#3f5a86;stroke-width:1.6;stroke-linejoin:round;stroke-linecap:round}'+
+      '.nd .scr{fill:#16233c;stroke:#2d4a78}'+
+      '.nd .led{fill:#4ea1ff;stroke:none}'+
+      '.nd .nl{fill:#cfdcf2;font-size:13px;font-weight:700;text-anchor:middle}'+
+      '.nd .ni{fill:#7b8dab;font-size:10.5px;text-anchor:middle;font-family:ui-monospace,monospace}'+
+      '.nd.act rect,.nd.act path,.nd.act circle{stroke:#4ea1ff}'+
+      '.nd.act .nl{fill:#ffffff}'+
+      '.eg{fill:none;stroke:#22324d;stroke-width:1.4;stroke-dasharray:5 6}'+
+      '.cl path{fill:none;stroke:#35507a;stroke-width:1.6}'+
+      '.cl text{fill:#7b8dab;font-size:11px;text-anchor:middle}'+
+      '</style>';
+    edges.forEach(function(e){
+      var a = NPOS[e[0]], b = NPOS[e[1]];
+      h += '<path class="eg" d="M'+a[0]+' '+a[1]+' L'+b[0]+' '+b[1]+'"/>';
+    });
+    h += '<g class="cl" transform="translate(540,252)"><path d="M-34 10 a16 16 0 0 1 3 -31 a20 20 0 0 1 38 -5 a15 15 0 0 1 5 29 Z"/><circle cx="0" cy="-4" r="9" fill="none" stroke="#35507a" stroke-width="1.3"/><path d="M-9 -4 H9 M0 -13 a13 9 0 0 0 0 18 a13 9 0 0 0 0 -18"/><text y="30">인터넷</text></g>';
+    f.nodes.forEach(function(n){ h += shape(n.kind, n.label, n.ip, n.id); });
+    h += '<g id="pxPkt" opacity="0"><rect x="-54" y="-32" width="108" height="19" rx="5" fill="#0d6cf2"/>'+
+         '<text id="pxPktT" y="-18.5" fill="#fff" font-size="11" font-weight="700" text-anchor="middle"></text>'+
+         '<circle r="7" fill="#4ea1ff" filter="url(#glow)"/></g>';
+    h += '</svg>';
+    $('#pxNet').innerHTML = h;
+  }
+
+  /* ── 시퀀스 뷰 ── */
+  function seqCols(){
+    var f = curFlow(), used = {};
+    f.steps.forEach(function(s){ used[s.f]=1; used[s.to]=1; });
+    return f.nodes.filter(function(n){ return used[n.id]; });
+  }
+  function renderSeq(){
+    var f = curFlow(), cols = seqCols(), n = cols.length;
+    var W = 880, L = 112, R = 62, span = n>1 ? (W-L-R)/(n-1) : 0;
+    var xs = {}; cols.forEach(function(c,i){ xs[c.id] = n>1 ? L + i*span : (W/2); });
+    var H = 74 + f.steps.length*36 + 16;
+    var h = '<svg viewBox="0 0 '+W+' '+H+'" role="img" aria-label="시퀀스 다이어그램"><style>'+
+      '.lf{stroke:#24324b;stroke-width:1;stroke-dasharray:3 6}'+
+      '.hn{fill:#e8eefc;font-size:13px;font-weight:700;text-anchor:middle}'+
+      '.hi{fill:#7b8dab;font-size:10.5px;text-anchor:middle;font-family:ui-monospace,monospace}'+
+      '.tm{fill:#60738f;font-size:9.5px;font-family:ui-monospace,monospace}'+
+      '.pg{font-size:10px;font-weight:700}'+
+      '.al{font-size:11px;font-weight:700;text-anchor:middle}'+
+      '.row.on .al{fill:#fff!important}'+
+      '.hl{fill:#1a3561;opacity:0}.row.on .hl{opacity:.75}'+
+      '.ar{stroke-width:1.6}.row.on .ar{stroke-width:3}'+
+      '</style><defs>';
+    Object.keys(PH).forEach(function(k){
+      h += '<marker id="mk-'+k+'" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 z" fill="'+PH[k][1]+'"/></marker>';
+    });
+    h += '</defs>';
+    cols.forEach(function(c){
+      h += '<text class="hn" x="'+xs[c.id]+'" y="20">'+esc(c.label)+'</text>'+
+           (c.ip?'<text class="hi" x="'+xs[c.id]+'" y="35">'+esc(c.ip)+'</text>':'')+
+           '<path class="lf" d="M'+xs[c.id]+' 46 V'+(H-10)+'"/>';
+    });
+    var last = null;
+    f.steps.forEach(function(s,i){
+      var y = 74 + i*36, col = phColor(s.ph), a = xs[s.f], b = xs[s.to];
+      h += '<g class="row" id="sq-'+i+'" data-i="'+i+'" style="cursor:pointer">'+
+           '<rect class="hl" x="0" y="'+(y-22)+'" width="'+W+'" height="32"/>';
+      if(s.ph !== last){ h += '<text class="pg" x="8" y="'+(y-12)+'" fill="'+col+'">'+phName(s.ph)+'</text>'; last = s.ph; }
+      h += '<text class="tm" x="8" y="'+(y+4)+'">'+(s.t/1000).toFixed(3)+'s</text>';
+      if(a === b){
+        h += '<path class="ar" fill="none" stroke="'+col+'" marker-end="url(#mk-'+s.ph+')" d="M'+a+' '+(y-6)+' h34 a10 10 0 0 1 0 20 h-34"/>'+
+             '<text class="al" x="'+(a+72)+'" y="'+(y-10)+'" fill="'+col+'" text-anchor="start">'+esc(s.l)+(s.pi?' 🔓':'')+'</text>';
+      } else {
+        h += '<path class="ar" fill="none" stroke="'+col+'" marker-end="url(#mk-'+s.ph+')" d="M'+a+' '+y+' L'+b+' '+y+'"/>'+
+             '<text class="al" x="'+((a+b)/2)+'" y="'+(y-7)+'" fill="'+col+'">'+esc(s.l)+(s.pi?' 🔓':'')+'</text>';
+      }
+      h += '</g>';
+    });
+    h += '</svg>';
+    $('#pxSeq').innerHTML = h;
+    $('#pxSeq').querySelectorAll('.row').forEach(function(g){
+      g.addEventListener('click', function(){ pause(); goTo(+g.dataset.i); });
+    });
+  }
+
+  /* ── 패킷 표·범례 ── */
+  function renderPkts(){
+    var f = curFlow(), nm = {};
+    f.nodes.forEach(function(n){ nm[n.id] = n.ip || n.label; });
+    $('#pxBody').innerHTML = f.steps.map(function(s,i){
+      return '<tr data-i="'+i+'"><td>'+(s.t/1000).toFixed(3)+'</td><td>'+esc(nm[s.f])+'</td><td>'+esc(nm[s.to])+'</td>'+
+             '<td><span class="pb" style="background:'+phColor(s.ph)+'"></span>'+esc(s.p)+'</td>'+
+             '<td class="inf">'+(s.pi?'<span class="lk">🔓 </span>':'')+esc(s.i)+'</td><td>'+(s.n||'-')+'</td></tr>';
+    }).join('');
+    $('#pxBody').querySelectorAll('tr').forEach(function(tr){
+      tr.addEventListener('click', function(){ pause(); goTo(+tr.dataset.i); });
+    });
+    var used = {}; f.steps.forEach(function(s){ used[s.ph]=1; });
+    $('#pxLeg').innerHTML = Object.keys(PH).filter(function(k){ return used[k]; })
+      .map(function(k){ return '<span><i style="background:'+PH[k][1]+'"></i>'+PH[k][0]+'</span>'; }).join('')+
+      '<span style="margin-left:auto">🔓 개인정보가 보호 없이 흐르는 구간</span>';
+  }
+
+  /* ── 단계 이동 ── */
+  function animatePacket(s){
+    var g = document.getElementById('pxPkt'); if(!g) return;
+    var pts = routeOf(s.f, s.to), t0 = performance.now(), dur = 560 / PX.speed;
+    document.getElementById('pxPktT').textContent = s.l.length > 16 ? s.l.slice(0,15)+'…' : s.l;
+    g.querySelector('rect').setAttribute('fill', phColor(s.ph));
+    g.querySelector('circle').setAttribute('fill', phColor(s.ph));
+    if(pts.length === 1){
+      g.setAttribute('transform','translate('+pts[0][0]+','+(pts[0][1]-46)+')'); g.setAttribute('opacity','1');
+      PX.raf = setTimeout(function(){ g.setAttribute('opacity','0'); }, dur);
+      return;
+    }
+    var segs = [], total = 0;
+    for(var i=1;i<pts.length;i++){
+      var dx = pts[i][0]-pts[i-1][0], dy = pts[i][1]-pts[i-1][1], d = Math.hypot(dx,dy);
+      segs.push(d); total += d;
+    }
+    cancelAnimationFrame(PX.raf);
+    g.setAttribute('opacity','1');
+    (function tick(now){
+      var k = Math.min(1, (now - t0) / dur), want = k * total, acc = 0, i = 0;
+      while(i < segs.length-1 && acc + segs[i] < want){ acc += segs[i]; i++; }
+      var u = segs[i] ? (want - acc) / segs[i] : 0;
+      var x = pts[i][0] + (pts[i+1][0]-pts[i][0]) * u, y = pts[i][1] + (pts[i+1][1]-pts[i][1]) * u;
+      g.setAttribute('transform','translate('+x.toFixed(1)+','+y.toFixed(1)+')');
+      if(k < 1) PX.raf = requestAnimationFrame(tick); else g.setAttribute('opacity','0');
+    })(t0);
+  }
+  function goTo(i){
+    var f = curFlow();
+    if(i < 0) i = -1;
+    if(i >= f.steps.length){ pause(); i = f.steps.length - 1; }
+    PX.cur = i;
+    $('#pxBody').querySelectorAll('tr').forEach(function(tr,j){ tr.classList.toggle('on', j===i); });
+    $('#pxSeq').querySelectorAll('.row').forEach(function(g,j){ g.classList.toggle('on', j===i); });
+    $('#pxNet').querySelectorAll('.nd').forEach(function(g){ g.classList.remove('act'); });
+    if(i < 0){ $('#pxNarr').innerHTML = '▶ 재생을 누르면 이 포트의 통신이 처음부터 흘러갑니다.'; return; }
+    var s = f.steps[i], nm = {};
+    f.nodes.forEach(function(n){ nm[n.id] = n.label; });
+    ['nd-'+s.f,'nd-'+s.to].forEach(function(id){ var el = document.getElementById(id); if(el) el.classList.add('act'); });
+    $('#pxNarr').innerHTML = '<span class="k" style="color:'+phColor(s.ph)+'">'+(i+1)+'. '+esc(s.l)+'</span> — '+
+      esc(nm[s.f])+' → '+esc(nm[s.to])+' · '+esc(s.p)+'<br>'+esc(s.i)+
+      (s.note ? '<span class="leak">🔓 '+esc(s.note)+'</span>' : '');
+    if(PX.view === 'net') animatePacket(s);
+    else { var row = document.getElementById('sq-'+i); if(row && row.scrollIntoView) row.scrollIntoView({block:'nearest'}); }
+    var tr = $('#pxBody').querySelector('tr[data-i="'+i+'"]');
+    if(tr && tr.scrollIntoView) tr.scrollIntoView({block:'nearest'});
+  }
+  function play(){
+    var f = curFlow();
+    if(PX.cur >= f.steps.length - 1) PX.cur = -1;
+    PX.playing = true; $('#pxPlay').textContent = '⏸ 일시정지';
+    clearInterval(PX.timer);
+    var adv = function(){
+      if(PX.cur >= f.steps.length - 1){ pause(); return; }
+      goTo(PX.cur + 1);
+    };
+    adv();
+    PX.timer = setInterval(adv, 1000 / PX.speed);
+  }
+  function pause(){ PX.playing = false; clearInterval(PX.timer); $('#pxPlay').textContent = '▶ 재생'; }
+  function reset(){ pause(); goTo(-1); }
+
+  /* ── 포트 선택 ── */
+  function selectPort(port, scroll){
+    var e = DB.filter(function(x){ return x.p === port; })[0] || null;
+    PX.ent = e; PX.key = flowKeyFor(e);
+    pause();
+    renderInfo(); renderNet(); renderSeq(); renderPkts(); markList(); goTo(-1);
+    if(scroll) document.getElementById('px').scrollIntoView({behavior:'smooth', block:'start'});
+  }
+
+  function initPX(){
+    if(!window.PROTO_FLOWS){ document.getElementById('px').hidden = true; return; }
+    buildList();
+    document.querySelectorAll('.px-tabs button').forEach(function(b){
+      b.addEventListener('click', function(){
+        document.querySelectorAll('.px-tabs button').forEach(function(x){ x.classList.remove('on'); });
+        b.classList.add('on'); PX.view = b.dataset.v;
+        $('#pxNet').hidden = PX.view !== 'net'; $('#pxSeq').hidden = PX.view !== 'seq';
+        if(PX.cur >= 0) goTo(PX.cur);
+      });
+    });
+    $('#pxPlay').addEventListener('click', function(){ PX.playing ? pause() : play(); });
+    $('#pxStep').addEventListener('click', function(){ pause(); goTo(PX.cur + 1); });
+    $('#pxPrev').addEventListener('click', function(){ pause(); goTo(Math.max(-1, PX.cur - 1)); });
+    $('#pxReset').addEventListener('click', reset);
+    $('#pxSpeed').addEventListener('change', function(){
+      PX.speed = parseFloat(this.value) || 1;
+      if(PX.playing) play();
+    });
+    selectPort(80, false);
+  }
+  initPX();
 })();
 </script>
 </body>
