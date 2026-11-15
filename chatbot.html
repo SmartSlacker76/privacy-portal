@@ -204,8 +204,8 @@
     if (!e.guide || !e.guide.length) return '';
     return '<hr class="a-hr"><div class="gd"><h4>📎 첨부 가이드 기준</h4>' +
       '<p class="gd-n">아래는 기관에 등록된 <b>안내서·지침 파일</b>에서 직접 인용한 기준이에요. 법령과 함께 <b>우선 적용</b>해 주세요.</p>' +
-      e.guide.map(function (g) {
-        return '<div class="gd-i"><div class="gd-s">' + esc(g.s) + '</div><div class="gd-t">' + g.t + '</div></div>';
+      e.guide.map(function (g0) { var g = gnorm(g0);
+        return '<div class="gd-i"><div class="gd-s">' + esc(g.s) + '</div>' + (g.t ? '<div class="gd-t">' + g.t + '</div>' : '') + '</div>';
       }).join('') + '</div>';
   }
 
@@ -221,7 +221,7 @@
       '<dl class="rv-dl">' +
       '<dt>검토 결론</dt><dd>아래 <b>3가지 조건</b>을 모두 충족하면 <b class="ok">적법</b>, 하나라도 비면 <b class="cond">조건부 가능</b>, 법령 근거도 별도 동의도 없으면 <b class="bad">부적법(위반 소지 높음)</b>이에요. 규칙 기반 도구라 <b>최종 판정은 담당자가</b> 아래 기준으로 확정해 주세요.</dd>' +
       (e.guide && e.guide.length
-        ? '<dt>첨부 가이드 대조</dt><dd>' + e.guide.slice(0, 2).map(function (g) { return '· <b>' + esc(g.s) + '</b> — ' + g.t; }).join('<br>') + '</dd>'
+        ? '<dt>첨부 가이드 대조</dt><dd>' + e.guide.slice(0, 2).map(function (g0) { var g = gnorm(g0); return '· <b>' + esc(g.s) + '</b>' + (g.t ? ' — ' + g.t : ''); }).join('<br>') + '</dd>'
         : '') +
       '<dt>법적 근거 대조</dt><dd>' + (e.sections.filter(function (x) { return x.n === 3; })[0] || { items: [] }).items.slice(0, 3).map(function (i) { return '· ' + i; }).join('<br>') + '</dd>' +
       '<dt>예상 리스크</dt><dd>' + (e.sections.filter(function (x) { return x.n === 5; })[0] || { items: [] }).items.slice(0, 3).map(function (i) { return '· ' + i; }).join('<br>') + '</dd>' +
@@ -232,6 +232,7 @@
     return h;
   }
 
+  function gnorm(g) { return (typeof g === 'string') ? { s: g, t: '' } : (g || { s: '', t: '' }); }
   /* ── 모드 3: 교육 퀴즈 ──────────────────────────────────── */
   function render3(e, n) {
     var qs = (e.quiz || []).slice(0, n || 3);
@@ -256,7 +257,7 @@
     }).join('');
     if (e.guide && e.guide.length) {
       h += '<p class="gd-n" style="margin-top:9px">📎 해설의 실무 기준은 <b>' +
-        e.guide.map(function (g) { return esc(g.s); }).filter(function (v, i, a) { return a.indexOf(v) === i; }).slice(0, 3).join('</b>, <b>') +
+        e.guide.map(function (g0) { return esc(gnorm(g0).s); }).filter(function (v, i, a) { return a.indexOf(v) === i; }).slice(0, 3).join('</b>, <b>') +
         '</b> 등 등록된 안내서를 함께 참조했어요.</p>';
     }
     return h + tailer(e);
