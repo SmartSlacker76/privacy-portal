@@ -12,10 +12,10 @@
     { h:'chatbot.html',     t:'고팡 도우미',     g:'점검·도구' },
     { h:'cyber-guide.html', t:'사이버 보안',     g:'보안' },
     { h:'n2sf-guide.html',  t:'N2SF',         g:'보안' },
-    { h:'port-lookup.html', t:'포트 조회',      g:'보안' },
+    { h:'port-lookup.html', t:'포트·프로토콜 조회', g:'보안' },
     { h:'grow.html',        t:'나의 성장',      g:'보안' }
   ];
-  var TOP = ['learn.html','ctf.html','policy.html','law-search.html','grow.html'];
+  var TOP = ['chatbot.html','ctf.html','policy.html','law-search.html','port-lookup.html'];
   var here = (location.pathname.split('/').pop() || 'index.html').toLowerCase() || 'index.html';
   var cur = NAV.filter(function (n) { return n.h === here; })[0];
 
@@ -48,7 +48,7 @@
       '<span class="tx"><b>혼디지킴이<span class="brand-dot">.</span></b><span>정보보호 배움터</span></span></a>' +
       '<button class="g-burger" type="button" id="gBurger" aria-expanded="false" aria-label="전체 메뉴 열기">☰</button>' +
       '<nav class="g-gnb" id="gGnb" aria-label="주요 메뉴">' + gnb + '</nav>' +
-      '<div class="g-tools"><a class="header-assistant" href="chatbot.html">고팡 도우미 ↗</a><div class="g-tt" role="group" aria-label="화면 테마">' +
+      '<div class="g-tools"><div class="g-tt" role="group" aria-label="화면 테마">' +
         '<button type="button" data-theme="system">시스템</button>' +
         '<button type="button" data-theme="light">밝게</button>' +
         '<button type="button" data-theme="dark">어둡게</button>' +
