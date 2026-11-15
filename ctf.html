@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css">
 <script src="assets/js/theme.js"></script>
-<title>정보보호 비밀의 방 · 블록형 CTF 200제</title>
+<title>행정정보 실종사건 · 정보보호 비밀의 방 200제</title>
 <meta name="description" content="간세다리와 함께 200개의 방을 탈출하는 개인정보 보호·사이버보안 CTF. 블록을 골라 조립하면 자물쇠가 열립니다. 한 문제 3분.">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700&display=swap">
 <link rel="stylesheet" href="assets/css/style.css">
@@ -119,6 +119,19 @@
   .q-top { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; margin-bottom: 9px; }
   .q-no { font-family: var(--f-mono, monospace); font-size: 12px; font-weight: 700; color: #fff; background: var(--cipher); border-radius: 6px; padding: 2px 8px; }
   .q-room { font-family: var(--f-display); font-weight: 800; font-size: 17px; }
+  .q-case { font-family: var(--f-mono); font-size: 12px; font-weight: 700; letter-spacing: .06em; color: #c2410c;
+            background: #fff1e7; border: 1px solid #fcd9c2; border-radius: 6px; padding: 2px 9px; }
+  html[data-theme="dark"] .q-case { color: #ffb384; background: #2a1a12; border-color: #52341f; }
+  .chap { margin: 0 0 12px; border: 1px solid var(--line); border-left: 4px solid #c2410c; border-radius: 12px;
+          background: var(--surface-2); padding: 14px 17px; }
+  .chap .ch-t { display: flex; align-items: center; gap: 9px; flex-wrap: wrap; font-family: var(--f-display);
+                font-size: 15.5px; font-weight: 800; margin: 0 0 7px; }
+  .chap .ch-t .n { font-size: 11.5px; font-weight: 800; color: #fff; background: #c2410c; border-radius: 6px; padding: 2px 9px; }
+  .chap .ch-t .sub { color: #c2410c; }
+  html[data-theme="dark"] .chap .ch-t .sub { color: #ff9a62; }
+  .chap p { font-size: 13px; line-height: 1.82; color: var(--ink); margin: 0 0 7px; }
+  .chap .clue { font-size: 12.5px; line-height: 1.7; color: var(--muted); border-top: 1px dashed var(--line); padding-top: 7px; margin: 0; }
+  .chap .clue b { color: var(--ink); }
   .chip { font-size: 11px; font-weight: 700; border-radius: 10px; padding: 2px 9px; background: var(--surface-2); color: var(--muted); border: 1px solid var(--line); }
   .d-하{background:#e6f4ea;color:#1e7e34;border-color:#bfe3cb}.d-중{background:#fef7e0;color:#a8560f;border-color:#eeda9e}
   .d-상{background:#fce8e6;color:#c5221f;border-color:#f0c4bf}.d-최종{background:linear-gradient(135deg,#5b3fa8,#8e44ad);color:#fff;border-color:#4a3290}
@@ -324,11 +337,11 @@
 </head>
 <body>
 <div class="es">
-  <div class="sp-top"><a class="back" href="index.html">← 혼디지킴이 포털</a><span class="brand">정보보호 비밀의 방</span></div>
+  <div class="sp-top"><a class="back" href="index.html">← 혼디지킴이 포털</a><span class="brand">행정정보 실종사건</span></div>
 
   <div class="board">
     <div class="b-head">
-      <span class="b-title">🔐 탈출 현황</span>
+      <span class="b-title">🕵️ 수사 진행</span>
       <span class="b-cnt" id="cnt">[ 0 / 200 ]</span>
       <span class="timer" id="timer">⏱ 3:00</span>
       <span class="strikes" id="strikes"></span>
@@ -341,7 +354,7 @@
       <span class="flagend">🏁</span>
       <div class="walker" id="walker"></div>
     </div>
-    <div class="b-pct" id="pct">출발선이에요. 첫 번째 방의 자물쇠를 풀어 볼까요?</div>
+    <div class="b-pct" id="pct">익명의 제보로 수사가 시작됐어요. 첫 번째 현장의 자물쇠를 풀어 볼까요?</div>
   </div>
 
   <div class="maze">
@@ -513,13 +526,23 @@
 
     var fieldsHtml = q.fields.map(function (f, i) { return '<div class="fld"><i>' + (i + 1) + '</i>' + f + '</div>'; }).join('');
 
+    var CH = (window.CTF_CHAPTERS || {})[String(q.area)] || null;
+    var prev = Q[q.no - 2];
+    var newChap = CH && (!prev || prev.area !== q.area);
     $('#stage').innerHTML =
       stage(q) +
+      (newChap
+        ? '<div class="chap"><div class="ch-t"><span class="n">제' + q.area + '장</span>' +
+            esc(q.areaName) + ' <span class="sub">— ' + esc(CH.sub) + '</span></div>' +
+            '<p>' + esc(CH.intro) + '</p>' +
+            '<p class="clue">🔎 <b>단서</b> — ' + esc(CH.clue) + '</p></div>'
+        : '') +
       '<div class="card under">' +
-        '<div class="q-top"><span class="q-no">ROOM ' + q.no + '</span>' +
+        '<div class="q-top"><span class="q-case">사건 ' + ('00' + q.no).slice(-3) + '</span>' +
+          '<span class="q-no">ROOM ' + q.no + '</span>' +
           '<span class="q-room">🔒 ' + esc(q.room) + '</span>' +
           '<span class="chip d-' + q.diff + '">' + (q.diff === '최종' ? '최종 관문' : '난이도 ' + q.diff) + '</span>' +
-          '<span class="chip">Part ' + esc(q.part) + ' · ' + esc(q.area) + '. ' + esc(q.areaName) + '</span>' +
+          '<span class="chip">Part ' + esc(q.part) + ' · 제' + esc(q.area) + '장</span>' +
           '<span class="chip">' + esc(q.icon) + ' ' + esc(q.zone) + '</span></div>' +
         '<div class="q-desc">' + q.desc + '</div>' +
         '<div class="talk">' +
@@ -666,7 +689,7 @@
       var last = q.no === N, nn = nextNo();
       if (ok && last) confetti();
       var head = (ok && last)
-        ? '<div class="fin"><div class="fw">🎉 🎊 🎆 🎊 🎉</div><h2>🏆 정보보호 비밀의 방 200 완전 탈출!</h2>' +
+        ? '<div class="fin"><div class="fw">🎉 🎊 🎆 🎊 🎉</div><h2>🏆 행정정보 실종사건 — 200개 단서 전부 해결!</h2>' +
           '<p style="font-size:15px;line-height:1.85">당신을 <b>진정한 통합 보안 마스터</b>로 임명합니다.<br>' +
           '개인정보 보호 150문항과 사이버보안 50문항을 모두 풀어냈어요.</p></div>'
         : '<h2>✅ 정답 &amp; 해설</h2>';
