@@ -39,7 +39,7 @@
   .track .walker svg { display: block; width: 28px; height: 28px; }
   .walking { animation: bob .42s ease-in-out 5; }
   @keyframes bob { 0%,100% { transform: translateY(0) rotate(0); } 30% { transform: translateY(-5px) rotate(-7deg); } 60% { transform: translateY(-2px) rotate(6deg); } }
-  .b-pct { font-size: 11.5px; color: var(--muted); }
+  .b-pct { font-size: 12.5px; color: var(--muted); }
 
   /* ── 미로 지도 ────────────────────────────── */
   .maze { margin-top: 10px; border: 1px solid var(--line); border-radius: 14px; background: var(--surface); padding: 10px 12px; }
@@ -57,7 +57,7 @@
   .cell.now { background: #f9ab00; border-color: #b06b00; box-shadow: 0 0 0 2px rgba(249,171,0,.45); animation: glow 1.5s ease-in-out infinite; }
   @keyframes glow { 0%,100% { box-shadow: 0 0 0 2px rgba(249,171,0,.45); } 50% { box-shadow: 0 0 0 5px rgba(249,171,0,.18); } }
   .cell.last { border-radius: 50%; background: linear-gradient(135deg,#5b3fa8,#8e44ad); border-color: #4a3290; }
-  .mz-legend { display: flex; gap: 10px; flex-wrap: wrap; font-size: 11px; color: var(--muted); padding-top: 9px; }
+  .mz-legend { display: flex; gap: 10px; flex-wrap: wrap; font-size: 12.5px; color: var(--muted); padding-top: 9px; }
   .mz-legend b { color: var(--ink); font-weight: 700; }
 
 
@@ -72,7 +72,7 @@
   .stage svg { position: absolute; inset: 0; width: 100%; height: 100%; }
   .stage .sc { position: absolute; left: 16px; right: 16px; bottom: 12px; color: #cfe0f5; font-size: 13.5px; line-height: 1.6; }
   .stage .sc b { color: #ffd479; }
-  .stage .tag { position: absolute; right: 13px; top: 11px; font-size: 10.5px; letter-spacing: .08em;
+  .stage .tag { position: absolute; right: 13px; top: 11px; font-size: 12px; letter-spacing: .08em;
                 font-family: var(--f-mono, monospace); color: #6ea8ff; border: 1px solid rgba(110,168,255,.4);
                 border-radius: 999px; padding: 3px 10px; background: rgba(110,168,255,.08); }
   .nd { fill: none; stroke: #6ea8ff; stroke-width: 1.8; stroke-linejoin: round; stroke-linecap: round; }
@@ -126,13 +126,13 @@
           background: var(--surface-2); padding: 14px 17px; }
   .chap .ch-t { display: flex; align-items: center; gap: 9px; flex-wrap: wrap; font-family: var(--f-display);
                 font-size: 15.5px; font-weight: 800; margin: 0 0 7px; }
-  .chap .ch-t .n { font-size: 11.5px; font-weight: 800; color: #fff; background: #c2410c; border-radius: 6px; padding: 2px 9px; }
+  .chap .ch-t .n { font-size: 12.5px; font-weight: 800; color: #fff; background: #c2410c; border-radius: 6px; padding: 2px 9px; }
   .chap .ch-t .sub { color: #c2410c; }
   html[data-theme="dark"] .chap .ch-t .sub { color: #ff9a62; }
   .chap p { font-size: 13px; line-height: 1.82; color: var(--ink); margin: 0 0 7px; }
   .chap .clue { font-size: 12.5px; line-height: 1.7; color: var(--muted); border-top: 1px dashed var(--line); padding-top: 7px; margin: 0; }
   .chap .clue b { color: var(--ink); }
-  .chip { font-size: 11px; font-weight: 700; border-radius: 10px; padding: 2px 9px; background: var(--surface-2); color: var(--muted); border: 1px solid var(--line); }
+  .chip { font-size: 12.5px; font-weight: 700; border-radius: 10px; padding: 2px 9px; background: var(--surface-2); color: var(--muted); border: 1px solid var(--line); }
   .d-하{background:#e6f4ea;color:#1e7e34;border-color:#bfe3cb}.d-중{background:#fef7e0;color:#a8560f;border-color:#eeda9e}
   .d-상{background:#fce8e6;color:#c5221f;border-color:#f0c4bf}.d-최종{background:linear-gradient(135deg,#5b3fa8,#8e44ad);color:#fff;border-color:#4a3290}
   html[data-theme="dark"] .d-하{background:#14321f;color:#7ddc9b;border-color:#2e5c3e}
@@ -160,21 +160,21 @@
   .bub:nth-child(3) { animation-delay: .3s; }
   @keyframes say { from { opacity: 0; transform: translateX(-10px) scale(.97); } to { opacity: 1; transform: none; } }
   .bub b, .bub strong { display: inline; font-size: inherit; line-height: inherit; }
-  .bub .who { display: block; font-size: 11px; font-weight: 700; color: var(--muted); margin-bottom: 3px; }
+  .bub .who { display: block; font-size: 12.5px; font-weight: 700; color: var(--muted); margin-bottom: 3px; }
   .bub.mission { background: #fff6ea; border-color: #e9c89f; }
   .bub.mission::before { border-color: #e9c89f; }
   .bub.mission b { color: #c9631a; }
   .bub.howto { background: var(--cipher-soft); border-color: var(--line); }
   html[data-theme="dark"] .bub.mission { background: #33270f; }
   .bub .tick { display: inline-flex; align-items: center; gap: 5px; font-family: var(--f-mono, monospace);
-               font-size: 11.5px; font-weight: 700; color: #c4321b; background: #fdecea; border: 1px solid #e6b3a8;
+               font-size: 12.5px; font-weight: 700; color: #c4321b; background: #fdecea; border: 1px solid #e6b3a8;
                border-radius: 999px; padding: 2px 9px; margin-left: 6px; animation: tick 1.2s steps(2) infinite; }
   html[data-theme="dark"] .bub .tick { background: #3a1a18; }
   @media (max-width: 560px) { .talk .ava { width: 44px; height: 44px; } }
 
   .bh { display: grid; grid-template-columns: repeat(4, 1fr); gap: 1px; background: var(--line); border: 1px solid var(--line); border-radius: 10px; overflow: hidden; margin-top: 11px; }
   .bh div { background: var(--surface-2); padding: 8px 11px; font-size: 12px; }
-  .bh div b { display: block; color: var(--muted); font-weight: 600; font-size: 10.5px; margin-bottom: 2px; }
+  .bh div b { display: block; color: var(--muted); font-weight: 600; font-size: 12px; margin-bottom: 2px; }
   @media (max-width: 720px) { .bh { grid-template-columns: repeat(2, 1fr); } }
 
   .toolbar { display: flex; gap: 7px; flex-wrap: wrap; margin-top: 10px; }
@@ -186,7 +186,7 @@
   @media (max-width: 560px) { .fields { grid-template-columns: 1fr; } }
   .fld { background: var(--surface-2); border: 1px solid var(--line); border-radius: 9px; padding: 8px 11px; font-size: 12.5px; line-height: 1.65; }
   .fld i { font-style: normal; display: inline-block; width: 18px; height: 18px; line-height: 18px; text-align: center; border-radius: 50%;
-           background: var(--cipher); color: #fff; font-size: 11px; font-weight: 700; margin-right: 6px; }
+           background: var(--cipher); color: #fff; font-size: 12.5px; font-weight: 700; margin-right: 6px; }
   .reg { background: var(--cipher-soft); border: 1px solid var(--line); border-left: 3px solid var(--cipher); border-radius: 9px; padding: 9px 12px; font-size: 12.5px; line-height: 1.75; }
 
   .tray { min-height: 50px; border: 2px dashed var(--line); border-radius: 11px; padding: 9px; display: flex; flex-wrap: wrap; gap: 7px; align-items: center; background: var(--surface-2); }
@@ -195,7 +195,7 @@
   .pick { display: inline-flex; align-items: center; gap: 7px; background: var(--cipher); color: #fff; border: none; border-radius: 9px;
           padding: 9px 13px; font: inherit; font-size: 14.5px; font-weight: 600; cursor: pointer; animation: pop .22s ease; }
   @keyframes pop { from { transform: scale(.8); opacity: 0; } to { transform: none; opacity: 1; } }
-  .pick .ord { background: rgba(255,255,255,.25); border-radius: 50%; width: 18px; height: 18px; font-size: 11px; display: inline-flex; align-items: center; justify-content: center; }
+  .pick .ord { background: rgba(255,255,255,.25); border-radius: 50%; width: 18px; height: 18px; font-size: 12.5px; display: inline-flex; align-items: center; justify-content: center; }
   .pick .x { opacity: .75; font-size: 14px; }
 
   /* 블록 — 카드 하단 */
@@ -206,7 +206,7 @@
          transition: transform .12s, border-color .15s, background .15s; }
   .blk:hover { transform: translateY(-2px); border-color: var(--cipher); }
   .blk .n { position: absolute; left: 11px; top: 11px; width: 21px; height: 21px; border-radius: 50%; background: var(--surface-2);
-            border: 1px solid var(--line); font-size: 11.5px; font-weight: 700; color: var(--muted); display: flex; align-items: center; justify-content: center; }
+            border: 1px solid var(--line); font-size: 12.5px; font-weight: 700; color: var(--muted); display: flex; align-items: center; justify-content: center; }
   .blk b { font-size: inherit; display: inline; }
   .blk.sel { background: var(--cipher-soft); border-color: var(--cipher); }
   .blk.sel .n { background: var(--cipher); color: #fff; border-color: var(--cipher); }
@@ -262,10 +262,10 @@
 
   .list { display: none; margin-top: 13px; } .list.open { display: block; }
   .lgrid { display: grid; grid-template-columns: repeat(auto-fill, minmax(132px, 1fr)); gap: 6px; }
-  .lg { border: 1px solid var(--line); border-radius: 8px; padding: 6px 8px; font-size: 11.5px; background: var(--surface); cursor: pointer; text-align: left; font-family: inherit; color: var(--ink); }
+  .lg { border: 1px solid var(--line); border-radius: 8px; padding: 6px 8px; font-size: 12.5px; background: var(--surface); cursor: pointer; text-align: left; font-family: inherit; color: var(--ink); }
   .lg.esdone { background: #e8f6ee; border-color: #9cd3ae; } html[data-theme="dark"] .lg.esdone { background: #14321f; border-color: #2e5c3e; }
   .lg b { display: block; font-size: 12px; } .lg span { color: var(--muted); }
-  .srcs { margin-top: 20px; font-size: 11.5px; color: var(--muted); line-height: 1.85; } .srcs b { color: var(--ink); }
+  .srcs { margin-top: 20px; font-size: 12.5px; color: var(--muted); line-height: 1.85; } .srcs b { color: var(--ink); }
 
   /* ── 가독성 / 다크모드 대비 보정 ──────────── */
   .es { --mut2: var(--muted); }
@@ -275,7 +275,7 @@
   .b-pct, .mz-legend, .mz-head, .chip, .q-zone, .tray .ph, .srcs, .lg span,
   .bub .who, .hb, .blk2 h3 + p, .fld { color: var(--mut2); }
   .b-pct, .mz-legend, .srcs { font-size: 12px; }
-  .chip { font-size: 11.5px; }
+  .chip { font-size: 12.5px; }
   .tray .ph { font-size: 13.5px; }
   .hb { font-size: 13px; }
   .fld { font-size: 13.5px; }
@@ -539,11 +539,9 @@
         : '') +
       '<div class="card under">' +
         '<div class="q-top"><span class="q-case">사건 ' + ('00' + q.no).slice(-3) + '</span>' +
-          '<span class="q-no">ROOM ' + q.no + '</span>' +
           '<span class="q-room">🔒 ' + esc(q.room) + '</span>' +
           '<span class="chip d-' + q.diff + '">' + (q.diff === '최종' ? '최종 관문' : '난이도 ' + q.diff) + '</span>' +
-          '<span class="chip">Part ' + esc(q.part) + ' · 제' + esc(q.area) + '장</span>' +
-          '<span class="chip">' + esc(q.icon) + ' ' + esc(q.zone) + '</span></div>' +
+          '<span class="chip">Part ' + esc(q.part) + ' · 제' + esc(q.area) + '장</span></div>' +
         '<div class="q-desc">' + q.desc + '</div>' +
         '<div class="talk">' +
           '<div class="ava">' + GANSE + '</div>' +

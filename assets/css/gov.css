@@ -48,14 +48,14 @@ body { font-family:var(--g-sans); }
 .g-brand { display:flex; align-items:center; gap:11px; text-decoration:none; color:inherit; flex:0 0 auto; }
 .g-brand .em { width:36px; height:36px; border-radius:9px; background:var(--g-pri-l); display:grid; place-items:center; font-size:19px; }
 .g-brand .tx b { display:block; font-size:16px; font-weight:800; letter-spacing:-.02em; line-height:1.2; }
-.g-brand .tx span { display:block; font-size:11px; color:var(--g-mut); margin-top:2px; }
+.g-brand .tx span { display:block; font-size:12.5px; color:var(--g-mut); margin-top:2px; }
 .g-gnb { margin-left:auto; display:flex; gap:2px; }
 .g-gnb a { font-size:14px; font-weight:600; color:var(--g-ink-2); text-decoration:none; padding:9px 13px; border-radius:var(--g-r); white-space:nowrap; }
 .g-gnb a:hover { background:var(--g-bg-3); color:var(--g-ink); }
 .g-gnb a[aria-current="page"] { color:var(--g-pri); background:var(--g-pri-l); }
 .g-tools { display:flex; align-items:center; gap:6px; flex:0 0 auto; }
 .g-tt { display:inline-flex; border:1px solid var(--g-line); border-radius:999px; overflow:hidden; }
-.g-tt button { font:inherit; font-size:11.5px; font-weight:600; border:0; background:transparent; color:var(--g-mut); padding:5px 10px; cursor:pointer; }
+.g-tt button { font:inherit; font-size:12.5px; font-weight:600; border:0; background:transparent; color:var(--g-mut); padding:5px 10px; cursor:pointer; }
 .g-tt button[aria-pressed="true"] { background:var(--g-pri); color:#fff; }
 .g-burger { display:none; font:inherit; font-size:20px; line-height:1; border:1px solid var(--g-line); background:var(--g-bg); color:var(--g-ink); border-radius:var(--g-r); padding:6px 11px; cursor:pointer; }
 @media (max-width:1000px){
@@ -149,7 +149,7 @@ html[data-theme="dark"] .h-visual { background:linear-gradient(104deg,#18243C 0%
 .h-cards a:hover { border-color:var(--g-pri); box-shadow:0 4px 14px rgba(29,78,216,.1); }
 .h-cards .t { display:flex; align-items:center; gap:9px; margin:0 0 10px; }
 .h-cards .t .ic { font-size:19px; }
-.h-cards .t .tag { margin-left:auto; font-size:11px; font-weight:700; color:var(--g-pri); background:var(--g-pri-l); border-radius:999px; padding:3px 9px; }
+.h-cards .t .tag { margin-left:auto; font-size:12.5px; font-weight:700; color:var(--g-pri); background:var(--g-pri-l); border-radius:999px; padding:3px 9px; }
 .h-cards h4 { font-size:15.5px; font-weight:800; line-height:1.4; margin:0 0 8px; letter-spacing:-.01em; }
 .h-cards p { font-size:13px; line-height:1.72; color:var(--g-mut); margin:0 0 14px; flex:1; }
 .h-cards p b { color:var(--g-ink-2); font-weight:600; }
@@ -163,14 +163,14 @@ html[data-theme="dark"] .h-visual { background:linear-gradient(104deg,#18243C 0%
 .h-box ul { list-style:none; margin:0; padding:0; }
 .h-box li { display:flex; gap:10px; align-items:baseline; font-size:13px; line-height:1.75; padding:7px 0; border-top:1px solid var(--g-line-2); }
 .h-box li:first-child { border-top:0; padding-top:0; }
-.h-box li .dt { flex:0 0 auto; font-size:11.5px; font-weight:700; color:var(--g-pri); font-variant-numeric:tabular-nums; }
+.h-box li .dt { flex:0 0 auto; font-size:12.5px; font-weight:700; color:var(--g-pri); font-variant-numeric:tabular-nums; }
 .h-box li .nm { color:var(--g-ink-2); }
-.h-box li .nm small { display:block; color:var(--g-mut); font-size:11.5px; margin-top:2px; }
+.h-box li .nm small { display:block; color:var(--g-mut); font-size:12.5px; margin-top:2px; }
 .h-links { display:grid; grid-template-columns:1fr 1fr; gap:8px; }
 .h-links a { display:flex; align-items:center; gap:8px; font-size:13px; font-weight:600; text-decoration:none; color:var(--g-ink-2);
   border:1px solid var(--g-line); border-radius:var(--g-r); padding:10px 12px; background:var(--g-bg-2); }
 .h-links a:hover { border-color:var(--g-pri); color:var(--g-pri); }
-.h-links a span.ex { margin-left:auto; font-size:11px; color:var(--g-mut); }
+.h-links a span.ex { margin-left:auto; font-size:12.5px; color:var(--g-mut); }
 .h-note { margin:14px 0 0; font-size:12.5px; line-height:1.8; color:var(--g-mut); background:var(--g-bg-3); border-radius:var(--g-r); padding:13px 15px; }
 .h-note b { color:var(--g-ink-2); }
 
@@ -214,7 +214,7 @@ html[data-theme="dark"] .h-chat .r { background:linear-gradient(150deg,#18243C,#
 .h-helper { border:1px solid var(--g-line); border-radius:var(--g-r-l); background:var(--g-bg-2); padding:20px 22px 22px; }
 html[data-theme="dark"] .h-helper { background:var(--g-bg-3); }
 .h-helper > h3 { display:flex; align-items:center; gap:9px; font-size:15.5px; font-weight:800; margin:0 0 4px; }
-.h-helper > h3 .bx { font-size:11px; font-weight:800; color:var(--g-pri); background:var(--g-pri-l); border-radius:6px; padding:3px 9px; }
+.h-helper > h3 .bx { font-size:12.5px; font-weight:800; color:var(--g-pri); background:var(--g-pri-l); border-radius:6px; padding:3px 9px; }
 .h-helper > p.d { font-size:12.5px; color:var(--g-mut); margin:0 0 16px; line-height:1.7; }
 .h-helper .set { display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:11px; }
 @media (max-width:760px){ .h-helper .set { grid-template-columns:1fr; } }
@@ -228,3 +228,67 @@ html[data-theme="dark"] .h-helper { background:var(--g-bg-3); }
 .h-etc a { font-size:12.5px; font-weight:600; text-decoration:none; color:var(--g-ink-2);
   border:1px solid var(--g-line); border-radius:999px; padding:6px 14px; background:var(--g-bg); }
 .h-etc a:hover { border-color:var(--g-pri); color:var(--g-pri); }
+
+/* ═══════════════════════════════════════════════════════════
+   정리 레이어 — 토큰 단일화 · 타이포 스케일 · 시인성
+   style.css 뒤에 와서 두 벌로 나뉘어 있던 색/크기를 하나로 맞춘다.
+   ═══════════════════════════════════════════════════════════ */
+:root, :root[data-theme="light"] {
+  --bg:var(--g-bg-2); --surface:var(--g-bg); --surface-2:var(--g-bg-2);
+  --ink:var(--g-ink); --muted:var(--g-mut); --line:var(--g-line);
+  --cipher:var(--g-pri); --cipher-soft:var(--g-pri-l);
+  --plain:var(--g-bad); --ok:var(--g-ok); --warn:var(--g-warn);
+  --stage:var(--g-bg-2); --grid:var(--g-line-2);
+  --shadow-sm:var(--g-sh); --shadow-md:0 6px 20px rgba(22,24,29,.09);
+}
+:root[data-theme="dark"] {
+  --bg:var(--g-bg-2); --surface:var(--g-bg); --surface-2:var(--g-bg-3);
+  --ink:var(--g-ink); --muted:var(--g-mut); --line:var(--g-line);
+  --cipher:var(--g-pri); --cipher-soft:var(--g-pri-l);
+  --plain:var(--g-bad); --ok:var(--g-ok); --warn:var(--g-warn);
+  --stage:var(--g-bg-3); --grid:var(--g-line-2);
+  --shadow-sm:var(--g-sh); --shadow-md:0 6px 20px rgba(0,0,0,.4);
+}
+
+/* ── 타이포 스케일: 최소 크기와 줄간격을 한 벌로 ── */
+body { font-size:15px; line-height:1.7; letter-spacing:-.003em; }
+h1,h2,h3,h4,h5 { letter-spacing:-.02em; line-height:1.35; }
+p, li, td, th, dd, dt { line-height:1.75; }
+/* 12px 미만을 쓰지 않는다 — 보조 텍스트의 하한 */
+small, .note, .hint, .kd, .muted, figcaption { font-size:12.5px; line-height:1.65; }
+/* 보조 텍스트도 읽히도록 대비를 올린다 */
+:root { --g-mut:#565D68; }
+html[data-theme="dark"] { --g-mut:#A3ADBB; }
+
+/* ── 반복되는 작은 글씨 상향 ── */
+.chip, .tag, .badge, .pill { font-size:12.5px; }
+.g-crumb { font-size:13px; }
+.pc-src, .pc-f .hint, .h-box li, .h-cards p, .h-five p { font-size:13px; }
+
+/* ── 면·모서리·그림자 통일 ── */
+.card, .panel, .sp-card, .pc-card, .h-box, .box { border-radius:14px; box-shadow:var(--g-sh); }
+
+/* ── 표 가독성 ── */
+table { border-collapse:collapse; }
+th { font-weight:700; }
+tbody tr + tr td { border-top:1px solid var(--g-line-2); }
+
+/* ── 링크·포커스 ── */
+a { color:var(--g-pri); }
+a:hover { text-decoration-thickness:2px; }
+
+/* ── 접히는 보조 설명 공통 ── */
+.fold { border:1px solid var(--g-line); border-radius:12px; background:var(--g-bg); margin:0 0 14px; }
+.fold > summary { cursor:pointer; list-style:none; padding:12px 16px; font-size:13.5px; font-weight:700; color:var(--g-ink); display:flex; align-items:center; gap:8px; }
+.fold > summary::-webkit-details-marker { display:none; }
+.fold > summary::after { content:"▾"; margin-left:auto; color:var(--g-mut); font-size:12px; transition:transform .15s; }
+.fold[open] > summary::after { transform:rotate(180deg); }
+.fold > summary:hover { color:var(--g-pri); }
+.fold .fd { padding:0 16px 15px; font-size:13.5px; line-height:1.85; color:var(--g-ink-2); border-top:1px solid var(--g-line-2); padding-top:13px; }
+.fold .fd b { color:var(--g-ink); }
+
+/* ── 공통 크롬 글자 하한 ── */
+.g-tt button { font-size:12.5px; }
+.g-brand .tx span { font-size:12px; }
+.g-strip { font-size:13px; }
+.g-foot p, .g-foot .note { font-size:13px; }
