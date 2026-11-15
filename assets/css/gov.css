@@ -292,3 +292,82 @@ a:hover { text-decoration-thickness:2px; }
 .g-brand .tx span { font-size:12px; }
 .g-strip { font-size:13px; }
 .g-foot p, .g-foot .note { font-size:13px; }
+
+/* ═══════════════════════════════════════════════════════════
+   메인 — 에디토리얼 그리드(cssdesignawards.com 톤)
+   오프화이트 캔버스 · 테두리 없는 플랫 카드 · 썸네일 중심
+   ═══════════════════════════════════════════════════════════ */
+.cda { --paper:#F7F6F3; --ink:#111112; --ink2:#55565A; --hair:#E3E1DC;
+       --mark:#D9D3F5; --plate:#EEEBE4; max-width:1240px; margin:0 auto; padding:0 26px; }
+html[data-theme="dark"] .cda { --paper:#0E1016; --ink:#F2F3F5; --ink2:#9AA0AB; --hair:#242731; --mark:#3B3570; --plate:#171A22; }
+body:has(.cda) { background:var(--paper, #F7F6F3); }
+html[data-theme="dark"] body:has(.cda) { background:#0E1016; }
+
+/* 소제목: 대문자 · 넓은 자간 · 형광펜 · 화살표 */
+.cda-eye { display:flex; align-items:center; gap:12px; margin:0 0 22px; }
+.cda-eye h2 { font-size:12.5px; font-weight:800; letter-spacing:.24em; text-transform:uppercase;
+  color:var(--ink); margin:0; position:relative; display:inline-block; }
+.cda-eye h2 .mk { background:linear-gradient(transparent 58%, var(--mark) 58%, var(--mark) 92%, transparent 92%);
+  padding:0 2px; box-decoration-break:clone; -webkit-box-decoration-break:clone; }
+.cda-eye .ar { font-size:13px; color:var(--ink2); }
+.cda-eye .rt { margin-left:auto; font-size:12.5px; letter-spacing:.1em; text-transform:uppercase; color:var(--ink2); }
+
+/* 히어로 */
+.cda-hero { padding:46px 0 10px; }
+.cda-kicker { font-size:12.5px; font-weight:700; letter-spacing:.26em; text-transform:uppercase; color:var(--ink2); margin:0 0 20px; }
+.cda-feat { display:grid; grid-template-columns:minmax(0,1.55fr) minmax(0,1fr); gap:38px; align-items:start; }
+@media(max-width:900px){ .cda-feat { grid-template-columns:1fr; gap:24px; } }
+.cda-shot { display:block; border-radius:3px; overflow:hidden; background:var(--plate); line-height:0; text-decoration:none; }
+.cda-shot img { width:100%; height:auto; display:block; transition:transform .5s cubic-bezier(.2,.8,.2,1); }
+.cda-shot:hover img { transform:scale(1.025); }
+.cda-meta h1 { font-size:clamp(22px,2.4vw,30px); font-weight:800; letter-spacing:-.025em; line-height:1.25; margin:0 0 8px; color:var(--ink); }
+.cda-meta .by { font-size:13.5px; color:var(--ink2); margin:0 0 20px; }
+.cda-note { background:var(--plate); padding:18px 20px; font-size:14px; line-height:1.85; color:var(--ink);
+  font-style:italic; margin:0 0 22px; }
+html[data-theme="dark"] .cda-note { color:var(--ink); }
+.cda-seal { width:92px; height:92px; border-radius:50%; border:1px solid var(--hair); display:grid; place-items:center;
+  text-align:center; font-size:12.5px; font-weight:800; letter-spacing:.1em; color:var(--ink2); line-height:1.5; margin:0 0 18px; }
+.cda-score { display:grid; grid-template-columns:repeat(4,1fr); gap:10px; border-top:1px solid var(--hair); padding-top:20px; }
+@media(max-width:620px){ .cda-score { grid-template-columns:repeat(2,1fr); row-gap:20px; } }
+.cda-score div { text-align:center; }
+.cda-score .ic { font-size:17px; display:block; margin:0 0 7px; }
+.cda-score .lb { display:block; font-size:12px; font-weight:700; letter-spacing:.13em; text-transform:uppercase; color:var(--ink2); margin:0 0 5px; }
+.cda-score .vl { display:block; font-size:19px; font-weight:800; color:var(--ink); letter-spacing:-.02em; }
+
+/* 카드 그리드 */
+.cda-sec { padding:54px 0 0; }
+.cda-grid { display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:34px 26px; }
+@media(max-width:980px){ .cda-grid { grid-template-columns:repeat(2,minmax(0,1fr)); } }
+@media(max-width:600px){ .cda-grid { grid-template-columns:1fr; } }
+.cda-card { display:block; text-decoration:none; color:inherit; }
+.cda-card .sh { border-radius:3px; overflow:hidden; background:var(--plate); line-height:0; }
+.cda-card .sh img { width:100%; height:auto; display:block; transition:transform .5s cubic-bezier(.2,.8,.2,1); }
+.cda-card:hover .sh img { transform:scale(1.03); }
+.cda-card h3 { font-size:13.5px; font-weight:800; letter-spacing:.08em; text-transform:uppercase;
+  margin:15px 0 9px; color:var(--ink); line-height:1.5; }
+.cda-card p { font-size:13.5px; line-height:1.8; color:var(--ink2); margin:0 0 11px; }
+.cda-tags { display:flex; gap:14px; flex-wrap:wrap; font-size:12px; font-weight:700; letter-spacing:.1em;
+  text-transform:uppercase; color:var(--ink2); }
+.cda-tags span::before { content:"▽ "; opacity:.5; }
+
+/* 하단 목록형 */
+.cda-list { border-top:1px solid var(--hair); }
+.cda-list a { display:grid; grid-template-columns:34px minmax(0,1fr) auto; gap:18px; align-items:baseline;
+  padding:19px 2px; border-bottom:1px solid var(--hair); text-decoration:none; color:inherit; }
+.cda-list a:hover h3 { color:var(--g-pri); }
+.cda-list .no { font-size:12px; font-weight:700; letter-spacing:.1em; color:var(--ink2); }
+.cda-list h3 { font-size:15px; font-weight:800; letter-spacing:-.01em; margin:0 0 5px; color:var(--ink); }
+.cda-list p { font-size:13.5px; line-height:1.75; color:var(--ink2); margin:0; }
+.cda-list .go { font-size:12px; font-weight:700; letter-spacing:.14em; text-transform:uppercase; color:var(--ink2); white-space:nowrap; }
+
+/* 기준 자료 */
+.cda-refs { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:0 40px; border-top:1px solid var(--hair); margin-top:4px; }
+@media(max-width:800px){ .cda-refs { grid-template-columns:1fr; } }
+.cda-refs div { display:flex; gap:14px; align-items:baseline; padding:14px 0; border-bottom:1px solid var(--hair); }
+.cda-refs .dt { font-size:12px; font-weight:800; letter-spacing:.08em; color:var(--ink); white-space:nowrap; font-variant-numeric:tabular-nums; }
+.cda-refs .nm { font-size:13.5px; line-height:1.7; color:var(--ink2); }
+.cda-out { display:flex; gap:10px; flex-wrap:wrap; margin:26px 0 0; }
+.cda-out a { font-size:12.5px; font-weight:700; letter-spacing:.1em; text-transform:uppercase; text-decoration:none;
+  color:var(--ink); border:1px solid var(--hair); border-radius:2px; padding:10px 16px; }
+.cda-out a:hover { border-color:var(--ink); }
+.cda-fine { font-size:13px; line-height:1.85; color:var(--ink2); margin:30px 0 0; padding:18px 0 0; border-top:1px solid var(--hair); }
