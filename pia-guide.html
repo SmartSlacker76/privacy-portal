@@ -17,7 +17,7 @@
   .stx { flex:1; min-width:120px; text-align:center; font-size: 12.5px; color:var(--muted); border-top:3px solid var(--line); padding-top:6px; cursor:pointer; }
   .stx b { display:block; font-size:12.5px; color:var(--ink); }
   .stx.on { border-top-color:var(--cipher); } .stx.on b { color:var(--cipher); }
-  .stx.done { border-top-color:#1d8f5b; }
+  .stx.done { border-top-color:var(--ok-ink); }
   .step { display:none; } .step.on { display:block; }
   .teach { background:var(--cipher-soft); border:1px solid var(--line); border-left:4px solid var(--cipher); border-radius:10px; padding:12px 15px; margin:10px 0; font-size:13px; line-height:1.7; }
   .teach h3 { margin:0 0 5px; font-family:var(--f-display); font-size:14.5px; color:var(--cipher); }
@@ -45,7 +45,7 @@
   .dg summary { padding:10px 13px; cursor:pointer; font-weight:600; font-size:13.5px; display:flex; align-items:center; gap:9px; list-style:none; }
   .dg summary::-webkit-details-marker { display:none; }
   .dg summary .chk { width:20px; height:20px; border:2px solid var(--line); border-radius:6px; flex:none; display:inline-flex; align-items:center; justify-content:center; font-size:13px; }
-  .dg.ok summary .chk { background:#1d8f5b; border-color:#1d8f5b; color:#fff; }
+  .dg.ok summary .chk { background:var(--ok-solid); border-color:var(--ok-ink); color:#fff; }
   .dg .dgb { padding:0 13px 11px 42px; font-size:12.5px; color:var(--muted); line-height:1.65; }
   .areahead { font-family:var(--f-display); font-weight:800; font-size:14.5px; margin:14px 0 6px; color:var(--cipher); }
   .navbtns { display:flex; justify-content:space-between; margin-top:16px; }
@@ -57,12 +57,12 @@
   @media(max-width:600px){ .ex2 { grid-template-columns:1fr; } }
   .ex { border-radius:8px; padding:7px 10px; font-size:12px; line-height:1.55; border-left:3px solid var(--line); background:var(--surface); }
   .ex b { display:block; font-size: 12.5px; margin-bottom:2px; }
-  .ex.good { border-left-color:#1d8f5b; background:color-mix(in srgb,#1d8f5b 7%,var(--surface)); } .ex.good b { color:#1d8f5b; }
+  .ex.good { border-left-color:var(--ok-ink); background:color-mix(in srgb,var(--ok-solid) 7%,var(--surface)); } .ex.good b { color:var(--ok-ink); }
   .ex.bad { border-left-color:#c4321b; background:color-mix(in srgb,#c4321b 7%,var(--surface)); } .ex.bad b { color:#c4321b; }
   .ex.tmpl { border-left-color:#1d5bc0; background:var(--surface-2); font-family:var(--f-mono); font-size: 12.5px; } .ex.tmpl b { color:#1d5bc0; font-family:var(--f-display); }
   .exrow { display:grid; grid-template-columns:1fr 1fr 1fr; gap:7px; margin-top:7px; }
   @media(max-width:600px){ .exrow { grid-template-columns:1fr; } }
-  .ex.note { border-left-color:#d9731f; } .ex.note b { color:#d9731f; }
+  .ex.note { border-left-color:var(--warn-ink); } .ex.note b { color:var(--warn-ink); }
   .ex.pen { border-left-color:#7c3aed; } .ex.pen b { color:#7c3aed; }
   .ex.risk { border-left-color:#c4321b; } .ex.risk b { color:#c4321b; }
   .metbar { margin-top:9px; padding-top:8px; border-top:1px dashed var(--line); }
@@ -92,7 +92,7 @@
         <div class="mini"><div class="big">50만+</div><div class="lbl">내부·외부 시스템과 <b>연계</b>, 연계 결과 50만 명 이상</div></div>
         <div class="mini"><div class="big">100만+</div><div class="lbl">정보주체 수 <b>100만 명 이상</b>인 개인정보파일</div></div>
       </div>
-      <div class="teach" style="border-left-color:#d9731f;background:var(--surface-2)"><h3 style="color:#d9731f">📣 적용 확대 방향 — 참고</h3>
+      <div class="teach" style="border-left-color:var(--warn-ink);background:var(--surface-2)"><h3 style="color:var(--warn-ink)">📣 적용 확대 방향 — 참고</h3>
         원칙적으로 영향평가 의무는 위 <b>5만/50만/100만 명</b> 및 <b>운용 체계(시스템) 변경</b> 시에 한정돼요. 다만 최근에는 <b>개인정보를 처리하는 경우 폭넓게 영향평가를 실시</b>하는 방향으로 확대 적용되는 추세예요. 그러니 의무 대상이 아니더라도 <b>새 업무로 개인정보를 처리한다면 이 길라잡이로 미리 점검</b>하는 것을 권장해요.</div>
       <h3 style="font-size:14px;margin:14px 0 6px">수행 절차 3단계</h3>
       <div class="flowdia">
@@ -244,7 +244,7 @@
   addRow('tWork'); addRow('tFlow');
 
   // risk calc
-  function riskLabel(v){ return v<=6?['낮음','#1d8f5b']:v<=12?['보통','#d9731f']:['높음','#c4321b']; }
+  function riskLabel(v){ return v<=6?['낮음','var(--ok-solid)']:v<=12?['보통','var(--warn-solid)']:['높음','#c4321b']; }
   function calcRisk(){
     var v=+$('#rv').value*+$('#rt').value*+$('#rk').value; var L=riskLabel(v);
     var o=$('#rout'); o.textContent='위험도 '+v+' · '+L[0]; o.style.background=L[1]; return {v:v,L:L};
@@ -347,14 +347,14 @@
     var met=$$('#diag .met:checked').length;
     var pct=Math.round(met/total*100);
     $('#rScore').textContent=pct; $('#rDone').textContent=met; $('#rTot').textContent=total;
-    var g = pct>=85?['우수 — 영향평가 준비 양호','#1d8f5b'] : pct>=60?['보통 — 일부 보완 필요','#1d5bc0'] : pct>=35?['미흡 — 개선계획 필요','#d9731f'] : ['취약 — 전면 점검 필요','#c4321b'];
+    var g = pct>=85?['우수 — 영향평가 준비 양호','var(--ok-solid)'] : pct>=60?['보통 — 일부 보완 필요','#1d5bc0'] : pct>=35?['미흡 — 개선계획 필요','var(--warn-solid)'] : ['취약 — 전면 점검 필요','#c4321b'];
     $('#rGrade').textContent=g[0]; $('#rGrade').style.color=g[1];
     var r=calcRisk(); $('#rRisk').textContent='최고 위험도 '+r.v+' · '+r.L[0]; $('#rRisk').style.background=r.L[1];
     var miss=[];
     DIAG.forEach((a,ai)=>a.items.forEach((it,ii)=>{}));
     var idx=0, missList=[];
     DIAG.forEach(a=>a.items.forEach(it=>{ var id='d'+idx; var el=document.querySelector('#'+id+' .met'); if(el && !el.checked) missList.push(it.q+' <span style="color:var(--muted)">('+it.reg+')</span>'); idx++; }));
-    $('#rMiss').innerHTML = missList.length? missList.map(m=>'<li>'+m+'</li>').join('') : '<li style="color:#1d8f5b">모든 평가항목을 충족했어요! 🎉</li>';
+    $('#rMiss').innerHTML = missList.length? missList.map(m=>'<li>'+m+'</li>').join('') : '<li style="color:var(--ok-ink)">모든 평가항목을 충족했어요! 🎉</li>';
   }
 })();
 </script>

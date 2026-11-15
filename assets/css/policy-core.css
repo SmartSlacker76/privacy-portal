@@ -1,6 +1,6 @@
 /* 개인정보 처리방침 점검 — 참고 구현(github.com/smarts19cker/privacy-checker, MIT)의 스타일을
    .pchk 영역으로 한정해 이식. 원 저작권 고지: assets/policy/LICENSE-privacy-checker */
-.pchk{--bg:#f4f5f2; --surface:#fcfcfb; --ink:#0b0b0b; --ink2:#52514e; --muted:#8a8984;
+.pchk{--bg:#f4f5f2; --surface:#fcfcfb; --ink:#0b0b0b; --ink2:#52514e; --muted:#6d6c67;
   --line:#e1e0d9; --axis:#c3c2b7; --brand:#1d4ed8; --brand-ink:#ffffff; --brand-soft:#e8eefc;
   --good:#0ca30c; --warn:#fab219; --bad:#d03b3b; --na:#8f8e87; --good-ink:#006300;
   --radius:12px; --shadow:0 1px 2px rgba(0,0,0,.05),0 4px 16px rgba(0,0,0,.04);}
@@ -23,7 +23,7 @@
 .pchk main{padding:20px 16px 40px}
 .pchk .card{background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);box-shadow:var(--shadow);padding:20px;margin-bottom:16px}
 .pchk h2.step{font-size:17px;margin:0 0 14px;display:flex;align-items:center;gap:8px}
-.pchk h2.step span{display:inline-grid;place-items:center;width:26px;height:26px;border-radius:50%;background:var(--brand);color:#fff;font-size:14px}
+.pchk h2.step span{display:inline-grid;place-items:center;width:26px;height:26px;border-radius:50%;background:var(--brand-solid);color:#fff;font-size:14px}
 .pchk label{display:block;font-weight:500;font-size:14px;margin-bottom:12px;color:var(--ink2)}
 .pchk input, .pchk select, .pchk textarea{display:block;width:100%;margin-top:6px;padding:11px 12px;border:1px solid var(--axis);border-radius:8px;font:inherit;color:var(--ink);background:#fff}
 .pchk input:focus, .pchk select:focus, .pchk textarea:focus{outline:2px solid var(--brand);outline-offset:1px}
@@ -35,7 +35,7 @@
 .pchk .row{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
 .pchk .btn{border:1px solid var(--axis);background:#fff;color:var(--ink);padding:10px 16px;border-radius:8px;font:inherit;font-weight:500;cursor:pointer}
 .pchk .btn:hover{background:#f1f1ee}
-.pchk .btn.primary{background:var(--brand);border-color:var(--brand);color:#fff}
+.pchk .btn.primary{background:var(--brand-solid);border-color:var(--brand);color:#fff}
 .pchk .btn.primary:hover{background:#1a43bb}
 .pchk .btn.ghost{background:transparent}
 .pchk .btn:disabled{opacity:.5;cursor:not-allowed}

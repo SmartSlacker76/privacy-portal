@@ -47,7 +47,7 @@
 .neo .side-footer-title{color:var(--amber);font-size:12px;font-weight:800}
 .neo .reset-button{background:none;border:0;text-decoration:underline;color:#849bb6;font-size:12.5px;padding:10px 0}
 .neo .main{padding:32px clamp(18px,4%,56px) 65px;min-width:0}
-.neo .footer{border-top:1px solid var(--border);padding:17px 26px;color:#65788f;font-size:12px;letter-spacing:.07em;display:flex;justify-content:space-between;flex-wrap:wrap;gap:10px}
+.neo .footer{border-top:1px solid var(--border);padding:17px 26px;color:#8ea2bb;font-size:12px;letter-spacing:.07em;display:flex;justify-content:space-between;flex-wrap:wrap;gap:10px}
 .neo .eyebrow{color:var(--cyan);font-size:12.5px;font-weight:800;letter-spacing:.16em}
 .neo .title{font-size:clamp(27px,3vw,43px);letter-spacing:-.07em;line-height:1.28;margin:12px 0 15px}
 .neo .lead{max-width:770px;color:#bbcbdf;font-size:15px;line-height:1.85}

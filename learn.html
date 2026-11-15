@@ -1110,7 +1110,7 @@
     }
     host.addEventListener('change', ev); ev();
   }
-  var G3 = [{min:100,n:'완벽',c:'#1d8f5b'},{min:70,n:'양호',c:'#1d5bc0'},{min:40,n:'보완 필요',c:'#d9731f'},{min:0,n:'위험',c:'#c4321b'}];
+  var G3 = [{min:100,n:'완벽',c:'var(--ok-solid)'},{min:70,n:'양호',c:'#1d5bc0'},{min:40,n:'보완 필요',c:'var(--warn-solid)'},{min:0,n:'위험',c:'#c4321b'}];
 
   selfCheck('authzCheck', [
     '접근 권한을 업무에 필요한 <b>최소한</b>으로 차등 부여하고 있다',
@@ -1141,7 +1141,7 @@
     '비밀번호를 복잡하게·사이트마다 다르게 쓰고 주기적으로 바꾼다',
     '중요문서는 <b>암호 설정 + 정기 백업</b>한다(랜섬웨어 대비)',
     '출처 불명 메일 <b>첨부·링크를 실행하지 않고</b> 정품 SW만 쓴다'
-  ], [{min:100,n:'내 PC 완벽 방역',c:'#1d8f5b'},{min:80,n:'안전',c:'#1d5bc0'},{min:50,n:'보완 필요',c:'#d9731f'},{min:0,n:'위험',c:'#c4321b'}]);
+  ], [{min:100,n:'내 PC 완벽 방역',c:'var(--ok-solid)'},{min:80,n:'안전',c:'#1d5bc0'},{min:50,n:'보완 필요',c:'var(--warn-solid)'},{min:0,n:'위험',c:'#c4321b'}]);
 })();
 </script>
 <script src="assets/js/gov.js"></script>

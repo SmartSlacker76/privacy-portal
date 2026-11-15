@@ -16,29 +16,29 @@
   .stepper { display:flex; gap:4px; margin:10px 0 14px; flex-wrap:wrap; }
   .stx { flex:1; min-width:110px; text-align:center; font-size: 12.5px; color:var(--muted); border-top:3px solid var(--line); padding-top:6px; cursor:pointer; }
   .stx b { display:block; font-size:12.5px; color:var(--ink); }
-  .stx.on { border-top-color:#1e3a8a; } .stx.on b { color:#1e3a8a; }
-  .stx.done { border-top-color:#1d8f5b; }
+  .stx.on { border-top-color:var(--info-ink); } .stx.on b { color:var(--info-ink); }
+  .stx.done { border-top-color:var(--ok-ink); }
   .step { display:none; } .step.on { display:block; }
-  .teach { background:#eef2fb; border:1px solid #c7d4ef; border-left:4px solid #1e3a8a; border-radius:10px; padding:12px 15px; margin:10px 0; font-size:13px; line-height:1.7; }
+  .teach { background:#eef2fb; border:1px solid #c7d4ef; border-left:4px solid var(--info-solid); border-radius:10px; padding:12px 15px; margin:10px 0; font-size:13px; line-height:1.7; }
   html[data-theme="dark"] .teach, :root[data-theme="dark"] .teach { background:#1a2336; border-color:#2d3a5a; }
-  .teach h3 { margin:0 0 5px; font-family:var(--f-display); font-size:14.5px; color:#1e3a8a; }
+  .teach h3 { margin:0 0 5px; font-family:var(--f-display); font-size:14.5px; color:var(--info-ink); }
   html[data-theme="dark"] .teach h3 { color:#93b0ef; }
   .reg { font-size: 12.5px; color:var(--muted); } .reg b { color:var(--ink); }
   .cards3 { display:grid; grid-template-columns:repeat(3,1fr); gap:9px; margin:8px 0; }
   @media(max-width:640px){ .cards3 { grid-template-columns:1fr; } }
   .mini { border:1px solid var(--line); border-radius:10px; padding:11px 13px; background:var(--surface); }
-  .mini .big { font-family:var(--f-display); font-size:19px; font-weight:800; color:#1e3a8a; }
+  .mini .big { font-family:var(--f-display); font-size:19px; font-weight:800; color:var(--info-ink); }
   .mini .lbl { font-size:12px; color:var(--muted); }
   .dg { border:1px solid var(--line); border-radius:10px; margin:7px 0; overflow:hidden; }
   .dg summary { padding:10px 13px; cursor:pointer; font-size:13.5px; display:flex; align-items:center; gap:9px; list-style:none; }
   .dg summary::-webkit-details-marker { display:none; }
   .dg summary .chk { width:20px; height:20px; border:2px solid var(--line); border-radius:6px; flex:none; display:inline-flex; align-items:center; justify-content:center; font-size:13px; color:transparent; }
-  .dg.ok summary .chk { background:#1d8f5b; border-color:#1d8f5b; color:#fff; }
+  .dg.ok summary .chk { background:var(--ok-solid); border-color:var(--ok-ink); color:#fff; }
   .dg summary .q { flex:1; }
-  .dg summary .pt { font-family:var(--f-mono); font-size: 12.5px; font-weight:700; color:#fff; background:#1e3a8a; padding:2px 7px; border-radius:10px; flex:none; }
+  .dg summary .pt { font-family:var(--f-mono); font-size: 12.5px; font-weight:700; color:#fff; background:var(--info-solid); padding:2px 7px; border-radius:10px; flex:none; }
   .dg .dgb { padding:0 13px 11px 42px; font-size:12.5px; color:var(--muted); line-height:1.65; }
   .dg .dgb label { display:inline-flex; gap:6px; margin-top:6px; cursor:pointer; color:var(--ink); }
-  .areahead { font-family:var(--f-display); font-weight:800; font-size:15px; margin:4px 0 8px; color:#1e3a8a; display:flex; align-items:center; gap:8px; }
+  .areahead { font-family:var(--f-display); font-weight:800; font-size:15px; margin:4px 0 8px; color:var(--info-ink); display:flex; align-items:center; gap:8px; }
   .areahead .ap { font-size: 12.5px; color:var(--muted); font-family:var(--f-mono); }
   .navbtns { display:flex; justify-content:space-between; margin-top:16px; }
   .scorebox { display:flex; gap:16px; align-items:center; flex-wrap:wrap; }
@@ -47,18 +47,18 @@
   .gauge i { display:block; height:100%; border-radius:8px; transition:width .5s; }
   .areabar { display:grid; gap:7px; margin:8px 0; }
   .ab { display:grid; grid-template-columns:120px 1fr 56px; gap:8px; align-items:center; font-size:12.5px; }
-  .ab .abar { height:9px; background:var(--surface-2); border-radius:5px; overflow:hidden; } .ab .abar i { display:block; height:100%; background:#1e3a8a; }
+  .ab .abar { height:9px; background:var(--surface-2); border-radius:5px; overflow:hidden; } .ab .abar i { display:block; height:100%; background:var(--info-solid); }
   .result-list li { margin-bottom:4px; }
   .ex2 { display:grid; grid-template-columns:1fr 1fr; gap:7px; margin:7px 0; }
   @media(max-width:600px){ .ex2 { grid-template-columns:1fr; } }
   .ex { border-radius:8px; padding:7px 10px; font-size:12px; line-height:1.55; border-left:3px solid var(--line); background:var(--surface); }
   .ex b { display:block; font-size: 12.5px; margin-bottom:2px; }
-  .ex.good { border-left-color:#1d8f5b; background:color-mix(in srgb,#1d8f5b 7%,var(--surface)); } .ex.good b { color:#1d8f5b; }
+  .ex.good { border-left-color:var(--ok-ink); background:color-mix(in srgb,var(--ok-solid) 7%,var(--surface)); } .ex.good b { color:var(--ok-ink); }
   .ex.bad { border-left-color:#c4321b; background:color-mix(in srgb,#c4321b 7%,var(--surface)); } .ex.bad b { color:#c4321b; }
   .ex.tmpl { border-left-color:#1d5bc0; background:var(--surface-2); } .ex.tmpl b { color:#1d5bc0; }
   .exrow { display:grid; grid-template-columns:1fr 1fr 1fr; gap:7px; margin-top:7px; }
   @media(max-width:600px){ .exrow { grid-template-columns:1fr; } }
-  .ex.note { border-left-color:#d9731f; } .ex.note b { color:#d9731f; }
+  .ex.note { border-left-color:var(--warn-ink); } .ex.note b { color:var(--warn-ink); }
   .ex.pen { border-left-color:#7c3aed; } .ex.pen b { color:#7c3aed; }
   .ex.risk { border-left-color:#c4321b; } .ex.risk b { color:#c4321b; }
   .metbar { margin-top:9px; padding-top:8px; border-top:1px dashed var(--line); }
@@ -99,8 +99,8 @@
     <section class="step" data-s="5">
       <h2 style="font-family:var(--f-display);font-size:18px;margin:0 0 6px">진단 결과</h2>
       <div class="sp-card" style="margin:0">
-        <div class="scorebox"><div class="big" id="rScore" style="color:#1e3a8a">0</div><div style="font-size:14px;color:var(--muted)">/ 100점</div>
-          <div class="gauge"><i id="rGauge" style="width:0;background:#1e3a8a"></i></div>
+        <div class="scorebox"><div class="big" id="rScore" style="color:var(--info-ink)">0</div><div style="font-size:14px;color:var(--muted)">/ 100점</div>
+          <div class="gauge"><i id="rGauge" style="width:0;background:var(--info-solid)"></i></div>
           <div id="rGrade" style="font-weight:800;font-size:16px">—</div>
         </div>
         <div class="areabar" id="rAreas" style="margin-top:14px"></div>
@@ -108,16 +108,16 @@
         <ul class="result-list" id="rMiss" style="font-size:13px;color:var(--muted)"></ul>
         <h3 style="font-size:14px;margin:12px 0 5px">함께 보면 좋아요</h3>
         <ul style="font-size:13px;line-height:1.7">
-          <li>서버 <b>기본포트 변경·취약 서비스 차단</b>은 <a href="port-lookup.html" style="color:#1e3a8a;font-weight:700">🔌 포트 조회</a>로 위험 포트 확인</li>
-          <li>접근통제·암호화·접속기록은 <a href="learn.html#access" style="color:#1e3a8a;font-weight:700">학습(CTF)</a>의 안전조치 레슨 참고</li>
-          <li>개인정보 영향평가는 <a href="pia-guide.html" style="color:#1e3a8a;font-weight:700">개인정보 보호 길라잡이</a>로</li>
+          <li>서버 <b>기본포트 변경·취약 서비스 차단</b>은 <a href="port-lookup.html" style="color:var(--info-ink);font-weight:700">🔌 포트 조회</a>로 위험 포트 확인</li>
+          <li>접근통제·암호화·접속기록은 <a href="learn.html#access" style="color:var(--info-ink);font-weight:700">학습(CTF)</a>의 안전조치 레슨 참고</li>
+          <li>개인정보 영향평가는 <a href="pia-guide.html" style="color:var(--info-ink);font-weight:700">개인정보 보호 길라잡이</a>로</li>
         </ul>
       </div>
     </section>
 
     <div class="navbtns">
       <button class="btn" id="prev" type="button">← 이전</button>
-      <button class="btn primary" id="next" type="button" style="background:#1e3a8a;border-color:#1e3a8a">다음 →</button>
+      <button class="btn primary" id="next" type="button" style="background:var(--info-solid);border-color:var(--info-ink)">다음 →</button>
     </div>
   </div>
 
@@ -258,7 +258,7 @@
       var el=document.querySelector('#c'+ai+'_'+ii+' .met'); if(el&&el.checked){ gain+=it.pt; areaPt[ai][0]+=it.pt; } }));
     var score=Math.round(gain/totalPt*100);
     $('#rScore').textContent=score;
-    var g=score>=90?['매우 우수','#1d8f5b']:score>=75?['우수','#1d5bc0']:score>=55?['보통 — 보완 필요','#d9731f']:['미흡 — 개선 필요','#c4321b'];
+    var g=score>=90?['매우 우수','var(--ok-solid)']:score>=75?['우수','#1d5bc0']:score>=55?['보통 — 보완 필요','var(--warn-solid)']:['미흡 — 개선 필요','#c4321b'];
     $('#rGrade').textContent=g[0]; $('#rGrade').style.color=g[1];
     $('#rGauge').style.width=score+'%'; $('#rGauge').style.background=g[1];
     $('#rAreas').innerHTML=AREAS.map((a,ai)=>{ var p=Math.round(areaPt[ai][0]/areaPt[ai][1]*100);
@@ -266,7 +266,7 @@
     var miss=[];
     AREAS.forEach((a,ai)=>a.items.forEach((it,ii)=>{ var el=document.querySelector('#c'+ai+'_'+ii+' .met'); if(el&&!el.checked) miss.push({q:it.q,pt:it.pt,reg:it.reg}); }));
     miss.sort((x,y)=>y.pt-x.pt);
-    $('#rMiss').innerHTML = miss.length? miss.slice(0,10).map(m=>'<li><b style="color:#c4321b">'+m.pt+'점</b> · '+m.q+' <span style="color:var(--muted)">('+m.reg+')</span></li>').join('') : '<li style="color:#1d8f5b">모든 항목을 충족했어요! 🎉</li>';
+    $('#rMiss').innerHTML = miss.length? miss.slice(0,10).map(m=>'<li><b style="color:#c4321b">'+m.pt+'점</b> · '+m.q+' <span style="color:var(--muted)">('+m.reg+')</span></li>').join('') : '<li style="color:var(--ok-ink)">모든 항목을 충족했어요! 🎉</li>';
   }
 })();
 </script>

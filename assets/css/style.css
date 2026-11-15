@@ -142,9 +142,9 @@ textarea.input { font-family: var(--f-mono); font-size: 13px; resize: vertical; 
   transition: border-color .15s, background-color .15s, filter .15s;
 }
 .btn:hover { border-color: var(--muted); }
-.btn.primary { background: var(--cipher); border-color: var(--cipher); color: #fff; }
+.btn.primary { background:var(--pri-solid); border-color: var(--cipher); color: #fff; }
 .btn.primary:hover { filter: brightness(1.07); }
-.btn.danger { background: var(--plain); border-color: var(--plain); color: #fff; }
+.btn.danger { background:var(--bad-solid); border-color: var(--plain); color: #fff; }
 .btn[disabled] { opacity: .45; cursor: not-allowed; }
 .seg { display: inline-flex; border: 1px solid var(--line); border-radius: 9px; overflow: hidden; background: var(--surface-2); flex-wrap: wrap; }
 .seg button { border: 0; background: transparent; padding: 7px 13px; cursor: pointer; font-size: 13px; font-weight: 600; color: var(--muted); }
@@ -242,7 +242,7 @@ svg .blocked { stroke: var(--plain); stroke-width: 3; }
 /* ---------- 실습 전용 ---------- */
 .disk { display: grid; grid-template-columns: repeat(16, minmax(0, 1fr)); gap: 3px; }
 .disk div { aspect-ratio: 1; border-radius: 3px; background: var(--grid); font: 700 9px/1 var(--f-mono); display: grid; place-items: center; color: transparent; transition: background .25s; max-width: 100%; }
-.disk div.used { background: var(--plain); color: #fff; }
+.disk div.used { background:var(--bad-solid); color: #fff; }
 .disk div.orphan { background: var(--plain-soft); color: var(--plain); outline: 1px dashed var(--plain); }
 .disk div.noise { background: var(--muted); opacity: .55; }
 .disk div.recovered { background: var(--warn); color: #fff; }
@@ -264,7 +264,7 @@ svg .blocked { stroke: var(--plain); stroke-width: 3; }
 .sql { font-family: var(--f-mono); font-size: 13px; background: var(--stage); border: 1px solid var(--line); border-radius: 8px; padding: 10px 12px; overflow-x: auto; white-space: pre-wrap; word-break: break-all; }
 .sql .kw { color: var(--cipher); font-weight: 700; }
 .sql .str { color: var(--ok); }
-.sql .inj { background: var(--plain); color: #fff; border-radius: 3px; padding: 0 2px; }
+.sql .inj { background:var(--bad-solid); color: #fff; border-radius: 3px; padding: 0 2px; }
 .sql .data { background: var(--ok-soft); color: var(--ok); border-radius: 3px; padding: 0 2px; }
 .sql .cmt { color: var(--muted); text-decoration: line-through; }
 
@@ -313,7 +313,7 @@ svg .blocked { stroke: var(--plain); stroke-width: 3; }
 /* 비밀번호 일방향 암호화 과정 */
 .pj-steps { list-style: none; counter-reset: pj; padding: 0; margin: 0; display: grid; gap: 14px; min-width: 0; }
 .pj-steps > li { counter-increment: pj; display: grid; grid-template-columns: 30px minmax(0, 1fr); gap: 12px; }
-.pj-n { width: 30px; height: 30px; border-radius: 50%; background: var(--cipher); color: #fff; font-weight: 700; font-size: 14px; display: grid; place-items: center; }
+.pj-n { width: 30px; height: 30px; border-radius: 50%; background:var(--pri-solid); color: #fff; font-weight: 700; font-size: 14px; display: grid; place-items: center; }
 .pj-steps b { display: block; font-size: 14.5px; margin-bottom: 2px; }
 .pj-p { font-size: 13px; color: var(--muted); margin: 0 0 7px; }
 .pj-chars { display: flex; flex-wrap: wrap; gap: 5px; }
@@ -379,7 +379,7 @@ svg .blocked { stroke: var(--plain); stroke-width: 3; }
 .ac-opts button { border: 0; background: var(--surface); padding: 7px 14px; cursor: pointer; font-size: 13px; font-weight: 600; color: var(--muted); border-left: 1px solid var(--line); }
 .ac-opts button:first-child { border-left: 0; }
 .ac-opts button.on[data-v="y"] { background: var(--ok); color: #fff; }
-.ac-opts button.on[data-v="n"] { background: var(--plain); color: #fff; }
+.ac-opts button.on[data-v="n"] { background:var(--bad-solid); color: #fff; }
 .ac-opts button.on[data-v="na"] { background: var(--muted); color: #fff; }
 .ac-body { padding: 0 14px 14px; display: grid; gap: 10px; }
 .ac-block { border-radius: 8px; padding: 10px 12px; font-size: 13.5px; }
@@ -400,7 +400,7 @@ svg .blocked { stroke: var(--plain); stroke-width: 3; }
 .sc-prog { list-style: none; display: flex; gap: 4px; padding: 0; margin: 0 0 18px; overflow-x: auto; }
 .sc-prog li { flex: 1; min-width: 70px; display: flex; flex-direction: column; align-items: center; gap: 4px; font-size: 12.5px; color: var(--muted); position: relative; padding-top: 4px; }
 .sc-prog li span { width: 26px; height: 26px; border-radius: 50%; display: grid; place-items: center; background: var(--surface-2); border: 1px solid var(--line); font-weight: 700; font-size: 12px; }
-.sc-prog li.on span { background: var(--cipher); color: #fff; border-color: var(--cipher); }
+.sc-prog li.on span { background:var(--pri-solid); color: #fff; border-color: var(--cipher); }
 .sc-prog li.done span { background: var(--ok); color: #fff; border-color: var(--ok); }
 .sc-prog li.on { color: var(--cipher); font-weight: 700; }
 .sc-prog li::after { content: ""; position: absolute; top: 17px; left: calc(50% + 16px); right: calc(-50% + 16px); height: 2px; background: var(--line); }
@@ -506,7 +506,7 @@ svg .pony-run .p-figure { animation: ponyBob .34s ease-in-out infinite; transfor
 /* ===== CTF 오름 단계 ===== */
 .ctf-stage { margin-top: 20px; }
 .ctf-stage-head { display: flex; align-items: center; gap: 12px; margin-bottom: 10px; padding-bottom: 8px; border-bottom: 2px solid var(--line); }
-.ctf-stage-head .ctf-dir { font-family: var(--f-mono); font-size: 12px; font-weight: 700; color: #fff; background: var(--cipher); padding: 4px 9px; border-radius: 6px; white-space: nowrap; }
+.ctf-stage-head .ctf-dir { font-family: var(--f-mono); font-size: 12px; font-weight: 700; color: #fff; background:var(--pri-solid); padding: 4px 9px; border-radius: 6px; white-space: nowrap; }
 .ctf-stage.done .ctf-stage-head .ctf-dir { background: var(--ok); }
 .ctf-stage.locked { opacity: .7; }
 .ctf-stage-head > div { flex: 1; min-width: 0; display: grid; }
@@ -610,7 +610,7 @@ svg .pony-run .p-figure { animation: ponyBob .34s ease-in-out infinite; transfor
 .sc-sub { font-size: 13.5px; color: var(--muted); margin: 0 0 12px; max-width: 72ch; }
 .sc-sdlc { display: flex; align-items: stretch; gap: 6px; overflow-x: auto; padding-bottom: 4px; }
 .sc-phase { flex: 1 0 150px; border: 1px solid var(--line); border-radius: 10px; padding: 10px 11px; background: var(--surface); position: relative; }
-.sc-pn { position: absolute; top: -9px; left: 10px; width: 20px; height: 20px; border-radius: 50%; background: var(--cipher); color: #fff; font-size: 12px; font-weight: 700; display: grid; place-items: center; }
+.sc-pn { position: absolute; top: -9px; left: 10px; width: 20px; height: 20px; border-radius: 50%; background:var(--pri-solid); color: #fff; font-size: 12px; font-weight: 700; display: grid; place-items: center; }
 .sc-phase b { display: block; font-family: var(--f-display); font-size: 14px; margin: 4px 0 2px; }
 .sc-phase em { display: block; font-style: normal; font-size: 12px; color: var(--cipher); font-weight: 600; margin-bottom: 4px; }
 .sc-phase p { margin: 0; font-size: 12.5px; color: var(--muted); line-height: 1.5; }
@@ -618,11 +618,11 @@ svg .pony-run .p-figure { animation: ponyBob .34s ease-in-out infinite; transfor
 .sc-tabs { display: flex; flex-wrap: wrap; gap: 6px; margin: 4px 0 14px; }
 .sc-tab { font-size: 12.5px; padding: 7px 11px; border: 1px solid var(--line); border-radius: 20px; background: var(--surface-2); cursor: pointer; color: var(--ink); }
 .sc-tab b { color: var(--cipher); font-family: var(--f-mono); }
-.sc-tab.on { background: var(--cipher); border-color: var(--cipher); color: #fff; font-weight: 700; }
+.sc-tab.on { background:var(--pri-solid); border-color: var(--cipher); color: #fff; font-weight: 700; }
 .sc-tab.on b { color: #fff; }
 .sc-detail { border: 1px solid var(--line); border-radius: 12px; padding: 16px; background: var(--surface); }
 .sc-dh { display: flex; align-items: baseline; gap: 8px; flex-wrap: wrap; }
-.sc-dno { font-family: var(--f-mono); font-size: 12px; font-weight: 700; color: #fff; background: var(--cipher); border-radius: 5px; padding: 2px 7px; }
+.sc-dno { font-family: var(--f-mono); font-size: 12px; font-weight: 700; color: #fff; background:var(--pri-solid); border-radius: 5px; padding: 2px 7px; }
 .sc-dh h3 { font-family: var(--f-display); font-size: 18px; margin: 0; }
 .sc-den { font-size: 12px; color: var(--muted); font-style: italic; }
 .sc-desc { font-size: 13.5px; color: var(--ink); margin: 8px 0 10px; line-height: 1.6; }
@@ -692,7 +692,7 @@ html[data-law-api="on"] .lawref::after { content: "▸"; font-size: .8em; color:
 .ctf-rank-list li { display: flex; align-items: center; gap: 10px; padding: 6px 8px; border-radius: 7px; font-size: 13.5px; }
 .ctf-rank-list li.me { background: var(--cipher-soft); border: 1px solid var(--cipher); }
 .ctf-rank-list .r-pos { flex: 0 0 24px; text-align: center; font-family: var(--f-mono); font-weight: 700; color: var(--muted); }
-.ctf-rank-list .r-pos.top { color: #fff; background: var(--cipher); border-radius: 50%; width: 22px; height: 22px; line-height: 22px; }
+.ctf-rank-list .r-pos.top { color: #fff; background:var(--pri-solid); border-radius: 50%; width: 22px; height: 22px; line-height: 22px; }
 .ctf-rank-list .r-nick { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .ctf-rank-list .r-bot { font-size: 12px; color: var(--muted); border: 1px solid var(--line); border-radius: 4px; padding: 0 3px; vertical-align: middle; }
 .ctf-rank-list .r-score { font-family: var(--f-mono); font-weight: 700; color: var(--cipher); }
@@ -704,7 +704,7 @@ html[data-law-api="on"] .lawref::after { content: "▸"; font-size: .8em; color:
 .lvl-badge { font-size: 12px; font-weight: 700; padding: 2px 7px; border-radius: 20px; color: #fff; }
 .lvl-badge.lvl1 { background: #1b7a4e; } .lvl-badge.lvl2 { background: #a8640a; } .lvl-badge.lvl3 { background: #c4321b; }
 .ctf-quiz-panel:not(:empty) { margin-top: 10px; }
-.ctf-toast { position: fixed; left: 50%; bottom: 26px; transform: translateX(-50%); background: var(--cipher); color: #fff; padding: 10px 18px; border-radius: 24px; font-size: 14px; box-shadow: 0 8px 24px rgba(0,0,0,.22); z-index: 120; animation: ctfToast .3s ease; }
+.ctf-toast { position: fixed; left: 50%; bottom: 26px; transform: translateX(-50%); background:var(--pri-solid); color: #fff; padding: 10px 18px; border-radius: 24px; font-size: 14px; box-shadow: 0 8px 24px rgba(0,0,0,.22); z-index: 120; animation: ctfToast .3s ease; }
 @keyframes ctfToast { from { opacity: 0; transform: translate(-50%, 10px); } to { opacity: 1; transform: translate(-50%, 0); } }
 
 /* AI 분야 트랙 액센트 */
