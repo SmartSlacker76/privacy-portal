@@ -5,7 +5,7 @@
     { h:'index.html',       t:'홈',            g:'' },
     { h:'pia-guide.html',   t:'영향평가 길라잡이', g:'학습' },
     { h:'learn.html',       t:'학습 자료',      g:'학습' },
-    { h:'ctf.html',         t:'CTF 200제',     g:'학습' },
+    { h:'ctf.html',         t:'CTF 사라진 7분', g:'학습' },
     { h:'policy.html',      t:'처리방침 진단',   g:'점검·도구' },
     { h:'consent.html',     t:'동의서 생성',     g:'점검·도구' },
     { h:'law-search.html',  t:'법령 검색',      g:'점검·도구' },
