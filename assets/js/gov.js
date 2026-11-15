@@ -12,7 +12,7 @@
     { h:'chatbot.html',     t:'고팡 도우미',     g:'점검·도구' },
     { h:'cyber-guide.html', t:'사이버 보안',     g:'보안' },
     { h:'n2sf-guide.html',  t:'N2SF',         g:'보안' },
-    { h:'port-lookup.html', t:'포트·프로토콜 조회', g:'보안' },
+    { h:'port-lookup.html', t:'패킷의 여행',       g:'보안' },
     { h:'grow.html',        t:'나의 성장',      g:'보안' }
   ];
   var TOP = ['chatbot.html','ctf.html','policy.html','law-search.html','port-lookup.html'];
