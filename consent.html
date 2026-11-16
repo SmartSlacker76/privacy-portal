@@ -83,8 +83,8 @@
     const el = $('#step');
     if (cur === 0) {
       el.innerHTML = `<h2>1. 사업(업무) 정보</h2><p class="hint">“무슨 업무 때문에, 누구의, 어떤 정보가 필요한가”를 한 문장으로 적어요. “업무 수행·서비스 제공” 같은 포괄 표현은 피해요.</p>
-        <div class="sp-field"><label>기관·사업자명</label><input type="text" id="f_org" value="${esc(S.org)}" placeholder="예: ○○시청 / △△주식회사"></div>
-        <div class="sp-field"><label>사업(업무)명 — 한 문장</label><input type="text" id="f_biz" value="${esc(S.biz)}" placeholder="예: ○○시 청년 월세 지원 신청 접수 및 선정 결과 안내"></div>
+        <div class="sp-field"><label>기관·사업자명</label><input type="text" id="f_org" value="${esc(S.org)}" placeholder="예: 간세다리청 / △△주식회사"></div>
+        <div class="sp-field"><label>사업(업무)명 — 한 문장</label><input type="text" id="f_biz" value="${esc(S.biz)}" placeholder="예: 간세다리청 청년 월세 지원 신청 접수 및 선정 결과 안내"></div>
         <div class="sp-field"><label>기관 유형</label><div class="seg">
           <label class="opt ${S.pub === 'public' ? 'on' : ''}"><input type="radio" name="pub" value="public" ${S.pub === 'public' ? 'checked' : ''}><span>공공기관 <small>법령상 의무·소관 사무 근거로 동의 없이 받을 수 있는 항목이 있어요</small></span></label>
           <label class="opt ${S.pub === 'private' ? 'on' : ''}"><input type="radio" name="pub" value="private" ${S.pub === 'private' ? 'checked' : ''}><span>민간 사업자 <small>계약 체결·이행에 필수인 정보는 동의 없이 받을 수 있어요(온·오프라인 구분 폐지)</small></span></label>

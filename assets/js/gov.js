@@ -129,4 +129,5 @@
     });
   });
   syncTheme();
+  (function(){function sync(){var h=document.querySelector('.g-head');if(h)document.documentElement.style.setProperty('--pa-head',Math.round(h.getBoundingClientRect().height)+'px');}addEventListener('load',sync);addEventListener('resize',sync);setTimeout(sync,0);})();
 })();
