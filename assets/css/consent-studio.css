@@ -68,3 +68,19 @@
 .a4-paper .guardian-box .attached-sign{margin-top:16px}
 .a4-paper .notice-to{text-align:center;margin-top:24px;font-size:1.05em}
 .a4-paper .notice-note{text-align:center;margin-top:8px;font-size:.9em}
+
+/* ---- 유형별 동의 확인란(□예 □아니요) · 각급학교 길잡이 서식 ---- */
+.a4-paper .yn-box{margin-top:24px;border:1px solid #1a2b22;padding:13px 15px;break-inside:avoid}
+.a4-paper .yn-lead{margin:0 0 10px;font-weight:bold}
+.a4-paper .yn-row{display:flex;align-items:baseline;gap:10px;margin:7px 0}
+.a4-paper .yn-row .yn-label{flex:1 1 auto}
+.a4-paper .yn-row .yn-opt{flex:0 0 auto;min-width:68px}
+.a4-paper .yn-note{margin:9px 0 0;font-size:.9em}
+.a4-paper .sub-h{margin:0}
+.step-div{border:0;border-top:1px solid var(--cs-line);margin:22px 0 14px}
+.sub-h{font-size:14px;margin:0 0 6px}
+.a4-paper .abroad-box{margin-top:24px;border:1px solid #1a2b22;padding:13px 15px;break-inside:avoid}
+.a4-paper .abroad-box h3{margin:0 0 8px}
+.a4-paper .abroad-box table{margin:8px 0 0}
+.a4-paper .abroad-box th{width:auto;text-align:center;font-size:.92em}
+.a4-paper .abroad-box td{font-size:.95em}
