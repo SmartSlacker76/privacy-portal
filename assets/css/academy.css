@@ -28,3 +28,22 @@ html{scroll-behavior:smooth;scroll-padding-top:110px}body{letter-spacing:-.025em
 .g-gnb a:hover,.g-gnb a:focus-visible,.academy-home .g-gnb a:hover,.academy-home .g-gnb a:focus-visible{background:var(--ac-accbg);color:#fff;border-radius:7px}
 .g-gnb a[aria-current]:hover,.academy-home .g-gnb a[aria-current]:hover{background:var(--ac-accbg);color:#fff;border-bottom-color:var(--ac-accbg)}
 .g-foot .links a:hover,.header-assistant:hover,.quick-nav a:hover b{color:var(--ac-acc);text-decoration:underline}
+
+/* ---- 챗봇: 질의응답 모음집 형식(○ / ※) + 5주제 버튼 ---- */
+.bubble p.o{margin:.35rem 0;line-height:1.7}
+.bubble p.o-sub{margin-left:1.1rem;color:var(--ac-mut,var(--mut))}
+.bubble p.note-x{margin:.5rem 0 0;font-size:.92em;color:var(--ac-mut,var(--mut));line-height:1.65}
+.bubble p.rul{margin:.5rem 0 0;font-size:.92em}
+.bubble .rul-box{margin:.7rem 0 0;border:1px solid var(--line);border-radius:10px;padding:.6rem .75rem;background:var(--surface-2)}
+.bubble .rul-box .rul-h{font-weight:700;margin:0 0 .35rem;font-size:.95em}
+.t5{display:flex;flex-wrap:wrap;gap:6px;margin:.85rem 0 .15rem}
+.t5-b{border:1px solid var(--t5-line);background:var(--surface);color:var(--t5-ink);
+  border-radius:999px;padding:7px 12px;font-size:13px;font-weight:600;cursor:pointer;line-height:1.3}
+.t5-b:hover,.t5-b:focus-visible{background:var(--pri-solid,#176653);color:#fff}
+.t5-b.quiz{border-style:dashed}
+.bubble p.warnline{margin:0 0 .6rem;padding:.5rem .65rem;border-radius:8px;
+  background:var(--surface-2);border:1px solid var(--line);font-size:.92em;line-height:1.6}
+/* 5주제 버튼: 글자색은 테마별로 뒤집어 대비 확보 */
+:root{--t5-ink:#135244;--t5-line:#176653}
+:root[data-theme="dark"]{--t5-ink:#9fdcbe;--t5-line:#4f8f74}
+.t5-b:hover,.t5-b:focus-visible{background:var(--t5-line);color:#ffffff}

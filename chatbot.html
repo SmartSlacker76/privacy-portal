@@ -163,7 +163,7 @@
 
 <script src="assets/config.js"></script>
 <script src="assets/js/law.js"></script>
-<script src="assets/data/chatbot-kb.js"></script>
+<script src="assets/data/qa-collection.js"></script><script src="assets/data/chatbot-kb.js"></script>
 <script src="assets/data/chatbot-qna.js"></script>
 <script>
 (function () {
@@ -190,7 +190,20 @@
       }
       if (sc > sc0) { sc0 = sc; best = e; }
     });
-    return sc0 > 0 ? best : null;
+    if (!(sc0 > 0)) return null;
+    /* 동문서답 방지: 질문 토큰 가운데 이 주제가 실제로 다루는 비중이 낮으면 '불확실'로 표시합니다. */
+    var qt = tokens(q), covered = 0, total = 0;
+    var hay = qaNorm((best.title || '') + ' ' + (best.kw || []).join(' ') + ' ' + (best.intro || '')
+      + ' ' + (best.sum2 || []).join(' ') + ' ' + (best.src || '')
+      + ' ' + (best.sections || []).map(function (x) { return (x.h || '') + ' ' + (x.items || []).join(' '); }).join(' '));
+    for (var t = 0; t < qt.length; t++) {
+      if (qt[t].length < 2) continue;
+      total += qt[t].length;
+      if (hay.indexOf(qt[t]) >= 0) covered += qt[t].length;
+    }
+    best = Object.create(best);
+    best.weak = total > 0 && (covered / total) < 0.34;
+    return best;
   }
 
   /* ── 모드 판별 ─────────────────────────────────────────── */
@@ -334,19 +347,174 @@
     if (/[a-zA-Z]$/.test(t)) return /[lmnr]$/i.test(t) ? '이' : '가';
     return '가';
   }
-  function renderTopic(e, q) {
-    var used = {};
-    var tbl = coreTable(e, used);
-    if (e.intro) used[plain(e.intro)] = 1;
-    var cmp = e.cmpTable || /차이|비교|다른 점|다른점|구분|vs/.test(String(q || '') + ' ' + String(e.title || ''));
-    var tblT = cmp ? '💡 한눈에 보는 핵심 차이점' : '💡 한눈에 보는 핵심';
-    return '<p class="greet">안녕하세요! <b>' + esc(e.title) + '</b>' + (cmp && !e.cmpTable ? josaGa(e.title) + ' 궁금하셨군요' : '에 대해 궁금하셨군요') + '. 😊</p>' +
-      '<p class="lead">' + (e.intro || ((e.sum2 || [])[0] || '')) + '</p>' +
-      (tbl ? '<details class="dt dt-core"><summary>' + tblT + '</summary><div class="dt-in">' + tbl + '</div></details>' : '') +
-      '<details class="dt"><summary>💡 조금 더 자세히 알아볼까요?</summary>' +
-      '<div class="dt-in">' + detailBody(e, used) + '</div></details>' +
-      quizBlock(e);
+
+  /* ───────── 질의응답 모음집(2025.12.) 99문항 ───────── */
+  var lastTopic = null;
+  /* 개인정보처리자 범위 질문에는 제주 행정시 의결을 함께 안내합니다.
+     개인정보보호위원회 의결 제2022-116-035호(2022. 9. 28.) */
+  function controllerNote(q) {
+    if (!/개인정보처리자|처리자에 해당|행정시|제주시|서귀포시|지방자치단체/.test(String(q || ''))) return '';
+    return '<div class="rul-box"><p class="rul-h">개인정보보호위원회 의결 제2022-116-035호 (2022. 9. 28.)</p>'
+      + '<p class="o">○ 제주특별자치도는 <b>개인정보처리자에 해당</b>하지만, 「제주특별법」 제10조에 따라 설치된 '
+      + '행정시(제주시·서귀포시)는 지방자치단체가 아니어서 <b>개인정보처리자에 해당하지 않는다</b>고 판단했어요.</p>'
+      + '<p class="o">○ 같은 의결은 도의 개인정보 보호책임자가 관할 행정시를 포함해 보호 업무를 <b>총괄할 수 있다</b>고 보았습니다.</p></div>';
   }
+  /* 모음집 단독 답변(포털 주제가 없을 때) */
+  /* 모음집 문항의 조문·키워드로 가장 가까운 포털 주제를 찾아 5개 버튼을 붙입니다. */
+  function nearTopic(hit){
+    var KB2 = window.CHATKB || [];
+    var arts = (hit.laws || []).map(function (L) { return (L.match(/제\d+조(?:의\d+)?/) || [''])[0]; }).filter(Boolean);
+    var best = null, bs = 0;
+    KB2.forEach(function (e) {
+      var sc = 0;
+      (e.laws || []).forEach(function (L) {
+        var a = String(L.a || L.n || '').match(/제\d+조(?:의\d+)?/);
+        if (a && arts.indexOf(a[0]) >= 0) sc += 3;
+      });
+      /* 태그가 같으면 가중 */
+      if (hit.tag && e.title && hit.tag.split('·').some(function(t){return t.length>1 && e.title.indexOf(t)>=0;})) sc += 2;
+      (e.kw || []).forEach(function (k) { if (k.length > 1 && hit.q.indexOf(k) >= 0) sc += k.length; });
+      if (sc > bs) { bs = sc; best = e; }
+    });
+    return bs >= 2 ? best : null;
+  }
+  function qaOnly(hit, q) {
+    var near = nearTopic(hit);
+    if (near) lastTopic = near;
+    return qaAnswer(hit) + controllerNote(q)
+      + '<p class="note-x">※ 출처: 개인정보보호위원회 「개인정보 질의응답 모음집」(2025. 12.) 제' + hit.no + '문항</p>'
+      + (near ? '<p class="note-x">관련 주제: ' + esc(near.title) + '</p>' + topicButtons(near.id) : '');
+  }
+  var QA = window.QA_COLLECTION || [];
+  function qaNorm(x){ return String(x||'').toLowerCase().replace(/[\s·.,?!()「」｢｣'"]/g,''); }
+  var QA_IDX = QA.map(function(it){ return {it:it, k:qaNorm(it.q)}; });
+  /* 조사·어미를 떼고 2글자 이상 토큰만 남겨 동문서답을 줄입니다. */
+  /* 어절 단위로 끊고 조사·어미를 떼어 2글자 이상 토큰만 남깁니다.
+     (공백을 지운 문자열에서 돌리면 질문 전체가 한 토큰이 되어 매칭이 깨집니다) */
+  function tokens(x){
+    return String(x||'').toLowerCase()
+      .replace(/[·.,?!()「」｢｣'"’“”]/g,' ')
+      .split(/\s+/)
+      .map(function(w){
+        return w.replace(/(이란|란|이|가|은|는|을|를|의|에|도|만|과|와|로|으로|에서|에게|부터|까지|인가요|하나요|합니까|할까요|되나요|있나요|여부)$/,'');
+      })
+      .filter(function(w){ return w.length>=2; });
+  }
+  function qaFind(q){
+    var nq=qaNorm(q); if(nq.length<2) return null;
+    var best=null, bs=0;
+    for(var i=0;i<QA_IDX.length;i++){
+      var k=QA_IDX[i].k, sc=0;
+      if(k===nq) sc=1000;
+      else if(k.indexOf(nq)>=0 && nq.length>=6) sc=400+nq.length;
+      else if(nq.indexOf(k)>=0 && k.length>=6) sc=380+k.length;
+      else {
+        /* 공통 토큰 길이 합 */
+        var a=tokens(q), b=tokens(QA_IDX[i].it.q), hit=0, tot=0;
+        for(var j=0;j<a.length;j++){ if(a[j].length<2) continue; tot+=a[j].length;
+          if(b.some(function(x){return x.indexOf(a[j])>=0||a[j].indexOf(x)>=0;})) hit+=a[j].length; }
+        if(tot) sc=Math.round(hit/tot*300)+(hit>=4?20:0);
+      }
+      if(sc>bs){bs=sc;best=QA_IDX[i].it;}
+    }
+    /* 근거 없이 아무 문항이나 내놓지 않습니다 */
+    return bs>=150 ? best : null;
+  }
+
+  /* ───────── 간결한 첫 답변 ───────── */
+  function oBullets(list){
+    return (list||[]).map(function(b){
+      var sub=/^—\s/.test(b);
+      return '<p class="o'+(sub?' o-sub':'')+'">'+(sub?'—':'○')+' '+(sub?esc(b.replace(/^—\s*/,'')):esc(b))+'</p>';
+    }).join('');
+  }
+  function noteLines(list){
+    return (list||[]).map(function(n){ return '<p class="note-x">※ '+esc(n)+'</p>'; }).join('');
+  }
+  /* "네! ○○에 대해 알려 드릴께요." — 보내주신 예시 형식 */
+  /* "…에 해당하나요?" → "…에 해당되는지" 처럼 명사절로 바꿔 인사말을 자연스럽게 만듭니다. */
+  function clause(x){
+    var t=String(x||'').trim().replace(/\?+$/,'');
+    var R=[[/해당하나요$/,'해당되는지'],[/해당합니까$/,'해당되는지'],[/해당되나요$/,'해당되는지'],
+      [/인가요$/,'인지'],[/입니까$/,'인지'],[/맞나요$/,'맞는지'],
+      [/있나요$/,'있는지'],[/없나요$/,'없는지'],[/되나요$/,'되는지'],[/될까요$/,'될지'],
+      [/가능한가요$/,'가능한지'],[/가능합니까$/,'가능한지'],
+      [/해야 하나요$/,'해야 하는지'],[/해야 합니까$/,'해야 하는지'],
+      [/하나요$/,'하는지'],[/합니까$/,'하는지'],[/할까요$/,'할지'],[/하는가요$/,'하는지']];
+    for(var i=0;i<R.length;i++) if(R[i][0].test(t)) return t.replace(R[i][0],R[i][1]);
+    return null;
+  }
+  function openLine(subject){
+    var c=clause(subject);
+    if(c) return '<p class="greet">네! '+esc(c)+' 알려 드릴께요.</p>';
+    return '<p class="greet">네! <b>'+esc(String(subject||'').replace(/\?+$/,''))+'</b>에 대해 알려 드릴께요.</p>';
+  }
+  function qaAnswer(it){
+    return openLine(it.q.replace(/\?$/,''))
+      + '<p class="lead">'+esc(it.lead)+'</p>'
+      + oBullets(it.bullets)
+      + noteLines(it.notes)
+      + (it.rulings && it.rulings.length ? '<p class="rul">관련 결정·판례: '+it.rulings.map(esc).join(' · ')+'</p>' : '');
+  }
+
+  /* ───────── 8개 상세 → 5개 주제로 통폐합 ───────── */
+  var TOPIC5 = [
+    { id:'core',  label:'① 한눈에 보는 핵심',        ask:'핵심 내용을 간단히 정리해 주세요.',              secs:[] },
+    { id:'legal', label:'② 정의·조문·판례·유권해석', ask:'정의와 조문 근거, 판례·유권해석을 알려 주세요.', secs:[1,7] },
+    { id:'case',  label:'③ 유형·공공사례·적법성',    ask:'주요 유형과 공공분야 사례, 적법성 판단 기준을 알려 주세요.', secs:[2,3] },
+    { id:'ctrl',  label:'④ 안전조치·제재·위반 사례', ask:'공공기관 안전조치와 법적 제재, 위반 사례를 알려 주세요.', secs:[4,5,6] },
+    { id:'check', label:'⑤ 체크리스트·교육 요약',    ask:'실무 체크리스트와 교육 핵심 요약을 알려 주세요.', secs:[8] }
+  ];
+  function renderTopic(e, q) {
+    /* 1) 첫 답변은 핵심만. 상세는 아래 5개 버튼으로 이어서 봅니다. */
+    var lead = e.intro || ((e.sum2 || [])[0] || '');
+    var extra = (e.sum2 || []).slice(e.intro ? 0 : 1, e.intro ? 2 : 3);
+    return (e.weak
+        ? '<p class="warnline">질문에 딱 맞는 항목을 찾지 못해 <b>가장 가까운 주제</b>로 답해 드릴게요. 찾으시는 내용이 아니면 아래 버튼이나 더 구체적인 법령 용어로 다시 물어봐 주세요.</p>'
+        : '')
+      + openLine(e.title)
+      + '<p class="lead">' + lead + '</p>'
+      + oBullets(extra.map(plain))
+      + (e.src ? '<p class="note-x">※ 근거: ' + esc(e.src) + '</p>' : '')
+      + controllerNote(q)
+      + topicButtons(e.id);
+  }
+  /* 버튼을 누르면 질문이 사용자 말풍선으로 전송되고, 답변이 이어서 쌓입니다. */
+  function topicButtons(topicId){
+    return '<div class="t5" data-topic="' + esc(topicId) + '">'
+      + TOPIC5.map(function(t){
+          return '<button type="button" class="t5-b" data-t5="' + t.id + '" data-for="' + esc(topicId) + '">'
+               + esc(t.label) + '</button>';
+        }).join('')
+      + '<button type="button" class="t5-b quiz" data-t5="quiz" data-for="' + esc(topicId) + '">교육 퀴즈 만들기</button>'
+      + '</div>';
+  }
+  function sectionHtml(e, nums){
+    var out = '';
+    (e.sections || []).forEach(function(sc){
+      if (nums.indexOf(sc.n) < 0) return;
+      var body = '';
+      if (sc.items && sc.items.length) body += '<ul>' + sc.items.map(function(x){ return '<li>' + x + '</li>'; }).join('') + '</ul>';
+      if (sc.check && sc.check.length) body += '<div class="chk-box"><div class="chk-h">실무 체크리스트</div><ul>'
+        + sc.check.map(function(x){ return '<li>' + x + '</li>'; }).join('') + '</ul></div>';
+      if (sc.summary) body += '<div class="sum-box">' + sc.summary + '</div>';
+      if (body) out += '<div class="a-sec"><h4>' + esc(sc.h) + '</h4>' + body + '</div>';
+    });
+    return out;
+  }
+  function topicAnswer(e, t5){
+    if (t5.id === 'core') {
+      var tb = coreTable(e, {});
+      return openLine('한눈에 보는 핵심')
+        + '<p class="lead">' + (e.intro || ((e.sum2 || [])[0] || '')) + '</p>'
+        + (tb || oBullets((e.sum2 || []).map(plain)));
+    }
+    var body = sectionHtml(e, t5.secs);
+    if (!body) return openLine(t5.label.replace(/^[①-⑤]\s*/, ''))
+      + '<p class="lead">이 주제에는 준비된 상세 내용이 없습니다. 없는 내용을 만들어 적지 않았습니다.</p>';
+    return openLine(t5.label.replace(/^[①-⑤]\s*/, '')) + body;
+  }
+
 
   /* ── 모드 3: 교육 퀴즈 ──────────────────────────────────── */
   function render3(e, n) {
@@ -424,7 +592,18 @@
 
   function answer(q) {
     var e = match(q);
+    lastTopic = e;
+    /* 질문이 모음집 문항과 거의 같으면 모음집 답을 먼저 보여 줍니다. */
+    var hit = qaFind(q);
+    if (e && hit && qaNorm(hit.q).indexOf(qaNorm(q)) >= 0 && qaNorm(q).length >= 8) {
+      return add('bot', qaAnswer(hit) + controllerNote(q)
+        + '<p class="note-x">※ 출처: 개인정보보호위원회 「개인정보 질의응답 모음집」(2025. 12.) 제' + hit.no + '문항</p>'
+        + topicButtons(e.id));
+    }
     if (!e) {
+      /* 포털 주제가 없더라도 질의응답 모음집(99문항)에 있으면 그 답을 드립니다. */
+      var only = qaFind(q);
+      if (only) return add('bot', qaOnly(only, q));
       var topics = KB.map(function (x) { return '<button type="button" class="chip-q rel" data-q="' + esc(x.kw[0]) + '">' + esc(x.title) + '</button>'; }).join('');
       return add('bot',
         '<p class="greet">안녕하세요! 😊 죄송해요, 이 질문에 딱 맞는 주제를 아직 못 찾았어요.</p>' +
@@ -475,6 +654,30 @@
     if (qb) { var box = qb.closest('.qz').querySelector('.qz-a'); box.hidden = !box.hidden; qb.textContent = box.hidden ? '정답·해설 보기' : '해설 접기'; return; }
     var b = ev.target.closest('.chip-q'); if (b) ask(b.dataset.q || b.textContent);
   });
+  var qEl = document.getElementById('q');
+  /* 5개 주제 버튼 — 누르면 질문이 입력창에 들어가 사용자 말풍선으로 전송되고,
+     답변이 아래에 이어서 쌓입니다(기존 대화는 지우지 않습니다). */
+  chat.addEventListener('click', function (ev) {
+    var b = ev.target.closest && ev.target.closest('.t5-b'); if (!b) return;
+    var tid = b.dataset.t5, forId = b.dataset.for;
+    var e = (window.CHATKB || []).filter(function (x) { return x.id === forId; })[0] || lastTopic;
+    if (!e) return;
+    if (tid === 'quiz') {
+      var qq = e.title + ' 교육 퀴즈를 만들어 주세요.';
+      if (qEl) qEl.value = qq;
+      add('me', esc(qq));
+      add('bot', openLine(e.title + ' 교육 퀴즈') + quizBlock(e) + topicButtons(e.id));
+      if (qEl) qEl.value = '';
+      return;
+    }
+    var t5 = TOPIC5.filter(function (x) { return x.id === tid; })[0]; if (!t5) return;
+    var ask = e.title + ' — ' + t5.ask;
+    if (qEl) qEl.value = ask;
+    add('me', esc(ask));
+    add('bot', topicAnswer(e, t5) + topicButtons(e.id));
+    if (qEl) qEl.value = '';
+  });
+
   document.getElementById('form').addEventListener('submit', function (ev) {
     ev.preventDefault(); var i = document.getElementById('q'), v = i.value.trim();
     if (!v) return; i.value = ''; ask(v);
