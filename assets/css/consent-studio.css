@@ -5,7 +5,7 @@
 .a4-paper .doc-title{word-break:keep-all;overflow-wrap:normal}
 
 
-@media screen and (min-width:1101px){body{height:100vh;overflow:hidden}.app-header{height:64px;padding:0 25px}main{max-width:none;padding:0;height:calc(100vh - 64px)}.workspace{display:grid;grid-template-columns:470px minmax(0,1fr);gap:0;height:100%}.builder{border:0;border-right:1px solid var(--ac-line);border-radius:0;height:100%;overflow-y:auto;padding:22px 24px;background:var(--ac-surf)}.builder .intro{padding-bottom:12px}.builder .intro h1{font-size:21px;letter-spacing:-.5px}.builder .intro h1 br{display:none}.builder .intro p{position:static;font-size:12px;line-height:1.65;margin:8px 0}.builder .intro .eyebrow{font-size:12px}.step-tabs{position:sticky;top:-22px;z-index:5;margin:0 -5px 18px}.step-tab{font-size:12px;padding:12px 5px}.step-content{padding:0}.step-content h2{font-size:17px}.step-navigation{position:sticky;bottom:-22px;background:var(--ac-surf);padding:15px 0;margin-top:20px}.preview{height:100%;overflow:auto;position:static;padding:25px 30px 45px;background:var(--ac-surf2);display:block}.preview-bar,.preview-hint{max-width:210mm;margin-left:auto;margin-right:auto}.a4-paper{width:210mm;min-height:297mm;margin:0 auto;padding:18mm 20mm;box-shadow:0 4px 14px #0002}.sources{position:static;display:none}.sector-drawer{padding:12px;margin-bottom:18px}.sector-drawer>summary{font-size:12px}.sector-drawer .sector-list{grid-template-columns:1fr}.sector-drawer-note{font-size:12px}.sector-drawer .sector-form .doc-title{font-size:17px}}
+@media screen and (min-width:1101px){body{height:100vh;overflow:hidden}.app-header{height:64px;padding:0 25px}main{max-width:none;padding:0}.workspace{display:grid;grid-template-columns:470px minmax(0,1fr);gap:0;align-items:start}.builder{border:0;border-right:1px solid var(--ac-line);border-radius:0;padding:22px 24px;background:var(--ac-surf)}.builder .intro{padding-bottom:12px}.builder .intro h1{font-size:21px;letter-spacing:-.5px}.builder .intro h1 br{display:none}.builder .intro p{position:static;font-size:12px;line-height:1.65;margin:8px 0}.builder .intro .eyebrow{font-size:12px}.step-tabs{position:sticky;top:-22px;z-index:5;margin:0 -5px 18px}.step-tab{font-size:12px;padding:12px 5px}.step-content{padding:0}.step-content h2{font-size:17px}.step-navigation{position:sticky;bottom:0;z-index:5;background:var(--ac-surf);border-top:1px solid var(--cs-line);padding:13px 0;margin-top:20px}.preview{position:sticky;top:calc(var(--pa-head,64px) + 12px);max-height:calc(100dvh - var(--pa-head,64px) - 24px);overflow:auto;padding:25px 30px 45px;background:var(--ac-surf2);display:block}.preview-bar,.preview-hint{max-width:210mm;margin-left:auto;margin-right:auto}.a4-paper{width:210mm;min-height:297mm;margin:0 auto;padding:18mm 20mm;box-shadow:0 4px 14px #0002}.sources{position:static;display:none}.sector-drawer{padding:12px;margin-bottom:18px}.sector-drawer>summary{font-size:12px}.sector-drawer .sector-list{grid-template-columns:1fr}.sector-drawer-note{font-size:12px}.sector-drawer .sector-form .doc-title{font-size:17px}}
 .field{padding:14px;border:1px solid var(--ac-line);border-radius:8px;background:var(--ac-surf)}.field>b{font-size:14px;color:var(--ac-ink)}.field small{font-size:12px;line-height:1.6}.step-content .hint{font-size:12px}.a4-paper{font:10.5pt/1.65 'Malgun Gothic','맑은 고딕',sans-serif}.a4-paper .legal-highlight,.a4-paper .special-highlight{font-size:13pt}.a4-paper.child-mode{font:11.5pt/1.75 NanumSquareRound,'Malgun Gothic',sans-serif}.a4-paper.teen-mode{font:11pt/1.65 Pretendard,'Malgun Gothic',sans-serif}.a4-paper.senior-mode{font:14pt/1.85 'Malgun Gothic','맑은 고딕',sans-serif;letter-spacing:-.3px}.a4-paper.child-mode .legal-highlight,.a4-paper.child-mode .special-highlight{font-size:14.5pt}.a4-paper.teen-mode .legal-highlight,.a4-paper.teen-mode .special-highlight{font-size:13.5pt}.a4-paper.senior-mode .legal-highlight,.a4-paper.senior-mode .special-highlight{font-size:17pt}.a4-paper .attached-consent{border:1.5px solid #222;padding:14px 16px;margin-bottom:18px}.a4-paper .attached-consent .doc-title{border:1.5px solid #222;padding:8px;background:var(--ac-surf);font-size:14.5pt;margin:0 0 18px}.a4-paper .attached-agree{border:1.5px solid #222;padding:10px 14px;margin:14px 0;background:var(--ac-surf);font-weight:700}.a4-paper .attached-to{font-size:13.5pt;letter-spacing:1px}@media screen and (max-width:1100px){.builder .intro{padding:20px}.builder .intro h1{font-size:25px}.builder .intro p{position:static}.builder .sector-drawer{margin:0 15px 20px}.a4-paper{width:100%;max-width:210mm}.workspace{grid-template-columns:1fr}.preview{position:static;padding:18px}.sources{display:block}.step-content{padding:22px}}
 @media print{.a4-paper{width:auto;min-height:0;font-size:10.5pt;line-height:1.65;padding:0}.a4-paper.child-mode{font-size:11.5pt}.a4-paper.teen-mode{font-size:11pt}.a4-paper.senior-mode{font-size:14pt}.a4-paper .attached-consent .doc-title{font-size:14.5pt!important}.preview{padding:0;overflow:visible;height:auto}.a4-paper .attached-consent{break-inside:auto}}
 :root{--cs-green:#1e3a8a}.a4-paper .legal-highlight{color:var(--ac-ink)}.a4-paper .special-highlight{color:var(--ac-ink2);background:var(--ac-surf)}.a4-paper.child-mode .legal-highlight{background:linear-gradient(transparent 55%,var(--ac-surf2) 55%)}.a4-paper.senior-mode .legal-highlight,.a4-paper.senior-mode .special-highlight{background:var(--ac-surf2);padding:2px 4px}
@@ -43,3 +43,28 @@
 .sector-card button,.sector-card input,.sector-card select{background:#f4f7f2;color:#1a2b22;border-color:#c9d5cd}
 .sector-card button.primary,.sector-card .primary{background:var(--cs-solid);color:#ffffff;border-color:var(--cs-solid)}
 .sector-tag{background:#e8f5ec;color:#0f4a3a}
+
+/* ---- 하단 내비: 긴 양식에서도 화면 하단에 붙어 항상 누를 수 있게 ---- */
+@media (min-width:901px){
+  .builder{padding-bottom:0}
+  .builder::after{content:'';display:block;height:1px}
+  .step-navigation{position:sticky;bottom:0;z-index:5;background:var(--ac-surf);
+    border-top:1px solid var(--cs-line);padding:13px 0;margin-top:20px;
+    box-shadow:0 -8px 14px -10px rgba(0,0,0,.18)}
+}
+@media (max-width:900px){
+  .step-navigation{position:sticky;bottom:0;z-index:5;background:var(--ac-surf);
+    border-top:1px solid var(--cs-line);padding:12px 0}
+}
+
+/* ---- 표준서식 하단 블록 · 법정대리인 동의란 ---- */
+.a4-paper .attached-sign{text-align:center;margin-top:26px;letter-spacing:.2px}
+.a4-paper .attached-sign .sign-name{display:inline-block;min-width:92px;border-bottom:1px solid #1a2b22;text-align:center}
+.a4-paper .attached-to{text-align:center;margin-top:16px;font-size:1.05em}
+.a4-paper .guardian-box{margin-top:26px;border:1.5px solid #1a2b22;padding:14px 16px;break-inside:avoid}
+.a4-paper .guardian-box h3{margin:0 0 8px}
+.a4-paper .guardian-box .gb-note{margin:0 0 10px;font-size:.92em}
+.a4-paper .guardian-box table{margin:0}
+.a4-paper .guardian-box .attached-sign{margin-top:16px}
+.a4-paper .notice-to{text-align:center;margin-top:24px;font-size:1.05em}
+.a4-paper .notice-note{text-align:center;margin-top:8px;font-size:.9em}
