@@ -84,3 +84,12 @@
 .a4-paper .abroad-box table{margin:8px 0 0}
 .a4-paper .abroad-box th{width:auto;text-align:center;font-size:.92em}
 .a4-paper .abroad-box td{font-size:.95em}
+
+/* ---- 민감·고유식별 유형 체크 ---- */
+.kind-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(188px,1fr));gap:6px;margin:8px 0 10px}
+.kind-grid .choice.kind{margin:0;padding:7px 9px;border:1px solid var(--cs-line);border-radius:8px;background:var(--ac-surf2)}
+.kind-grid .choice.kind small{display:block;color:var(--cs-muted);font-size:12px}
+.a4-paper .kind-box,.a4-paper .rrn-box{margin-top:24px;border:1px solid #1a2b22;padding:13px 15px;break-inside:avoid}
+.a4-paper .kind-box h3,.a4-paper .rrn-box h3{margin:0 0 8px}
+.a4-paper .rrn-box h4{margin:12px 0 6px}
+.a4-paper .kind-box th{width:52%;text-align:left}
