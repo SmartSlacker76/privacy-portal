@@ -1,0 +1,108 @@
+{
+  "checked": "2026-11-16",
+  "attached_sources": [
+    {
+      "file": "국가사이버보안기본지침.pdf",
+      "bytes": 1255400,
+      "sha256": "2641449f2ce05d6871d733a5a4a9e210d996b9153a9466a74edc73a386502945"
+    },
+    {
+      "file": "주요정보통신기반시설 관리·물리적 취약점 분석·평가 방법 안내서(1).pdf",
+      "bytes": 2369682,
+      "sha256": "65417fdf6684072d392daad4e5eebb606e0a889244647d9982a74590d490640b"
+    },
+    {
+      "file": "2026년도사이버보안실태평가지표.pdf",
+      "bytes": 371462,
+      "sha256": "a90fe0a927a97646283f285206e8ede65582b8e8572fb0f3476177b67e3829ce"
+    },
+    {
+      "file": "(게시용)_국가ㆍ공공기관_AI보안_가이드북(25.12.10).pdf",
+      "bytes": 20259751,
+      "sha256": "d4ed2902368dfd82e91209a1318de521ce82a64ffff05b2e349983f26299df9f"
+    },
+    {
+      "file": "kisa_security_simulator_all_in_one.txt",
+      "bytes": 48256,
+      "sha256": "364af294107d2b45f6b243a23c687d026be307c7b2fb421d45a658e469c9e0a0"
+    }
+  ],
+  "notes": "첨부 원문은 ZIP에 포함하지 않습니다. 소스와 PDF 실제 페이지 순서로 근거를 추적합니다.",
+  "references": [
+    {
+      "id": "N",
+      "title": "국가 사이버보안 기본지침",
+      "file": "국가사이버보안기본지침.pdf",
+      "edition": "첨부본 표지 2026.5.1.",
+      "kind": "지침",
+      "pages": 168,
+      "note": "첨부 판본 기준. 기관 적용 지침과 최신 개정 여부는 별도 확인합니다."
+    },
+    {
+      "id": "E",
+      "title": "2026년도 사이버보안 실태 평가지표",
+      "file": "2026년도사이버보안실태평가지표.pdf",
+      "edition": "2026년 / 주요 개정내용 포함",
+      "kind": "평가지표",
+      "pages": 14,
+      "note": "게임 점수·준비율과 공식 배점은 다릅니다. 본문에는 2025년 비교 행도 있으므로 2026년 행을 확인합니다."
+    },
+    {
+      "id": "M",
+      "title": "주요정보통신기반시설 관리·물리적 취약점 분석·평가방법 안내서",
+      "file": "주요정보통신기반시설 관리·물리적 취약점 분석·평가 방법 안내서(1).pdf",
+      "edition": "2026년",
+      "kind": "참고 안내서",
+      "pages": 332,
+      "note": "PDF 2쪽은 절대적 기준이 아닌 참조 자료이며 교육기관 등의 교육 자료 활용을 권장하지 않는다고 안내합니다. 원문 점검표를 재게시하지 않고 공통 원칙을 참고한 독자 창작 미션으로 구성했습니다."
+    },
+    {
+      "id": "A",
+      "title": "국가·공공기관 AI보안 가이드북",
+      "file": "(게시용)_국가ㆍ공공기관_AI보안_가이드북(25.12.10).pdf",
+      "edition": "문서이력 2025.12. / 2.0",
+      "kind": "가이드북",
+      "pages": 109,
+      "note": "AI 위협·대책을 독자 작성한 가상 상황에 연결합니다. 모든 AI 서비스가 입력을 학습한다는 뜻은 아니며 서비스별 정책 확인이 필요합니다."
+    },
+    {
+      "id": "T",
+      "title": "첨부 통합 취약점 실습실 예시",
+      "file": "kisa_security_simulator_all_in_one.txt",
+      "edition": "사용자 제공 코드",
+      "kind": "구현 참고",
+      "pages": null,
+      "note": "CLI·GUI·상황판의 구성만 참고했습니다. 이 텍스트를 공식 KISA 문서나 보안 기준으로 취급하지 않습니다."
+    },
+    {
+      "id": "S",
+      "title": "OWASP SQL Injection Prevention Cheat Sheet",
+      "url": "https://cheatsheetseries.owasp.org/cheatsheets/SQL_Injection_Prevention_Cheat_Sheet.html",
+      "kind": "기술 보충",
+      "note": "질의 구조와 입력값 분리, 최소 권한의 개념을 참고한 모형입니다."
+    },
+    {
+      "id": "X",
+      "title": "OWASP Cross Site Scripting Prevention Cheat Sheet",
+      "url": "https://cheatsheetseries.owasp.org/cheatsheets/Cross_Site_Scripting_Prevention_Cheat_Sheet.html",
+      "kind": "기술 보충",
+      "note": "출력 문맥에 맞는 보호와 안전한 출력 방식의 개념을 참고했습니다."
+    },
+    {
+      "id": "L1",
+      "title": "개인정보 보호법 제29조 · 안전조치의무",
+      "url": "https://www.law.go.kr/lsLinkCommonInfo.do?chrClsCd=010202&lsJoLnkSeq=1034292997",
+      "kind": "법률 보충",
+      "edition": "국가법령정보센터 조회 2026-11-16",
+      "note": "개인정보처리자의 기술적·관리적·물리적 안전조치 의무 개념을 다룹니다. 구체적 적용은 시행령·고시와 업무 상황을 함께 확인합니다."
+    },
+    {
+      "id": "L2",
+      "title": "정보통신기반 보호법 제9조 · 취약점의 분석·평가",
+      "url": "https://www.law.go.kr/LSW/lsLinkCommonInfo.do?lsJoLnkSeq=1031464413",
+      "kind": "법률 보충",
+      "edition": "국가법령정보센터 조회 2026-11-16",
+      "note": "소관 주요정보통신기반시설 관리기관의 분석·평가 의무와 적용 범위를 다룹니다. 공공기관 실태평가와 동일 절차로 간주하지 않습니다."
+    }
+  ]
+}
