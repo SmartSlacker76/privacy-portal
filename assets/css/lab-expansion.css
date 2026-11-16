@@ -18,3 +18,34 @@
 .lookup-external a{font-size:12.5px;font-weight:700;color:var(--ac-acc);text-decoration:none}
 .lookup-external a:hover{text-decoration:underline}
 .lookup-external span{display:block;margin-top:4px;font-size:12px;line-height:1.65;color:var(--ac-mut)}
+
+/* 포트·연결 확인 */
+.port-reach{margin-top:34px}
+.reach-heading{margin-bottom:16px}
+.reach-heading span{font-size:12px;letter-spacing:2px;color:var(--ac-mut)}
+.reach-heading h2{font-size:24px;letter-spacing:-.8px;margin-top:5px;color:var(--ac-ink)}
+.reach-heading h2 span{color:var(--ac-acc);letter-spacing:0}
+.reach-heading>p{margin-top:8px;font-size:12.5px;line-height:1.85;color:var(--ac-mut);max-width:80ch}
+.reach-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+.reach-card{border:1px solid var(--ac-line);border-radius:12px;padding:18px;background:var(--ac-surf)}
+.reach-tag{display:inline-block;font-size:12px;font-weight:700;padding:3px 9px;border-radius:999px;margin-bottom:9px}
+.reach-tag.in{background:var(--ac-surf2);color:var(--ac-acc)}
+.reach-tag.out{background:var(--ac-surf2);color:var(--info-ink)}
+.reach-card h3{font-size:16px;color:var(--ac-ink)}
+.reach-why{margin:6px 0 10px;font-size:12.5px;line-height:1.8;color:var(--ac-mut)}
+.reach-limit{border-left:3px solid var(--warn-ink);background:var(--ac-surf2);border-radius:0 8px 8px 0;
+  padding:10px 12px;font-size:12.5px;line-height:1.8;color:var(--ac-ink2);margin-bottom:12px}
+.reach-field{display:block;font-size:12px;font-weight:700;color:var(--ac-mut);margin-bottom:10px}
+.reach-field input{display:block;width:100%;margin-top:5px;padding:9px 11px;font-size:13px;
+  border:1px solid var(--ac-line);border-radius:8px;background:var(--ac-surf);color:var(--ac-ink)}
+.reach-actions{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin-bottom:9px}
+.reach-note{font-size:12px;line-height:1.7;color:var(--ac-mut)}
+.reach-src{list-style:none;margin:12px 0 0;padding:11px 0 0;border-top:1px solid var(--ac-line);display:grid;gap:6px}
+.reach-src li{font-size:12px;line-height:1.75;color:var(--ac-mut)}
+.reach-src b{color:var(--ac-ink2)}
+.reach-state{font-size:12px;font-weight:700;white-space:nowrap}
+.reach-state.ok{color:var(--ok-ink)}
+.reach-state.ng{color:var(--bad-ink)}
+.reach-state.busy{color:var(--warn-ink)}
+.reach-state.idle{color:var(--ac-mut)}
+@media(max-width:900px){.reach-grid{grid-template-columns:1fr}}
