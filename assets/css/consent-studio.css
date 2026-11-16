@@ -93,3 +93,58 @@
 .a4-paper .kind-box h3,.a4-paper .rrn-box h3{margin:0 0 8px}
 .a4-paper .rrn-box h4{margin:12px 0 6px}
 .a4-paper .kind-box th{width:52%;text-align:left}
+
+/* ---- 좌·우 패널 각자 스크롤 (--cs-top 은 consent-studio.js 가 실측해 넣습니다) ---- */
+@media (min-width:901px){
+  .workspace{align-items:start}
+  .builder{
+    max-height:calc(100dvh - var(--cs-top,150px));
+    overflow-y:auto;overflow-x:hidden;overscroll-behavior:contain;
+    scrollbar-width:thin;scrollbar-gutter:stable;
+    position:sticky;top:var(--cs-top,150px);
+  }
+  .builder::-webkit-scrollbar{width:10px}
+  .builder::-webkit-scrollbar-thumb{background:var(--cs-line);border-radius:6px}
+  .builder::-webkit-scrollbar-track{background:transparent}
+  .preview{
+    position:sticky;top:var(--cs-top,150px);
+    max-height:calc(100dvh - var(--cs-top,150px));overflow:auto;
+  }
+  /* 하단 내비는 스크롤되는 패널 안에서 바닥에 고정 */
+  .step-navigation{position:sticky;bottom:0;z-index:5;background:var(--ac-surf);
+    border-top:1px solid var(--cs-line);padding:13px 16px;margin-top:18px;
+    box-shadow:0 -8px 14px -10px rgba(0,0,0,.18)}
+}
+
+/* ═══ 표준 종이 동의서 출력 서식 ═══ */
+.a4-paper .p-title{text-align:center;font-size:1.45em;margin:0 0 14px;letter-spacing:-.3px}
+.a4-paper .p-lead{margin:0 0 18px;line-height:1.75}
+.a4-paper .p-h{margin:22px 0 7px;font-weight:700;font-size:1.03em}
+.a4-paper .p-h2{margin:0 0 6px;font-weight:700}
+.a4-paper .p-lead2{margin:0 0 8px;font-size:.96em}
+.a4-paper .p-sub{margin:12px 0 5px;font-weight:600;font-size:.98em}
+.a4-paper table.p-t{width:100%;border-collapse:collapse;margin:0;table-layout:fixed}
+.a4-paper table.p-t th{border:1px solid #1a2b22;background:#eceeed;padding:7px 8px;text-align:center;
+  font-weight:700;font-size:.95em;word-break:keep-all}
+.a4-paper table.p-t td{border:1px solid #1a2b22;padding:8px;text-align:center;font-size:.95em;
+  line-height:1.6;word-break:keep-all;overflow-wrap:anywhere}
+.a4-paper .p-note{margin:7px 0 0}
+.a4-paper .p-note p{margin:2px 0;font-size:.92em;line-height:1.65;text-indent:0}
+.a4-paper .p-note p + p{padding-left:1.1em}
+.a4-paper .p-ask{display:flex;align-items:center;gap:8px;margin:10px 0 4px;flex-wrap:wrap}
+.a4-paper .p-ask .p-q{flex:1 1 auto;font-size:.97em}
+.a4-paper .p-ask .p-box{flex:0 0 auto;display:inline-flex;align-items:center;gap:6px;font-size:.95em}
+.a4-paper .p-ask .p-box i{display:inline-block;width:44px;height:20px;border:1px solid #1a2b22}
+.a4-paper .p-dash{margin-top:22px;border:1px dashed #1a2b22;padding:12px 14px}
+.a4-paper .ph{color:#8a6a2a;background:#fdf6e6;padding:0 3px;border-radius:3px}
+@media print{ .a4-paper .ph{background:none;color:#555} }
+
+/* ---- 항목별 예시·유의사항·법적 근거 ---- */
+details.gbox{margin:6px 0 0;border:1px solid var(--cs-line);border-radius:8px;background:var(--ac-surf2)}
+details.gbox>summary{cursor:pointer;padding:6px 10px;font-size:12px;font-weight:600;color:var(--cs-muted)}
+details.gbox[open]>summary{border-bottom:1px solid var(--cs-line)}
+details.gbox p{margin:0;padding:7px 10px;font-size:12.5px;line-height:1.65}
+details.gbox p+p{border-top:1px dashed var(--cs-line)}
+details.gbox .g-ex b{color:var(--cs-green)}
+details.gbox.wide{margin:0 0 14px}
+details.gbox.wide>summary{font-size:13px;color:var(--cs-ink)}
