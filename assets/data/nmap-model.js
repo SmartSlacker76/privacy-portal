@@ -2,8 +2,8 @@
 (()=>{function buildScan(o){const udp=o.type==='udp',ports=udp?[53,123,161]:[22,23,80,443,3306];const events=[],rows=[];
  const push=(p,kind,message,why,state='')=>events.push({port:p,kind,message,why,state});
  for(const p of ports){const blocked=!udp&&[22,3306].includes(p)&&o.origin==='external'&&o.policy==='restricted';let status;
-  push(p,'out',udp?'UDP 탐사 데이터그램':'TCP SYN',`${p}번 접점에 ${udp?'UDP 서비스 요청':'TCP 연결 시작 신호'}를 보냅니다.`);
-  if(blocked){push(p,'drop','무응답 · 재시도/타임아웃 (요약)','가상 방화벽이 외부 관리·DB 요청을 버립니다. 실제 무응답은 손실·경로 문제도 가능해 로그 확인이 필요합니다.');status='filtered';}
+  push(p,'out',udp?'UDP 확인 메시지':'TCP SYN',`${p}번 접점에 ${udp?'UDP 서비스 요청':'TCP 연결 시작 신호'}를 보냅니다.`);
+  if(blocked){push(p,'drop','답이 없음 · 다시 보내 보다 포기 (요약)','가상 방화벽이 바깥에서 온 관리·데이터베이스 요청을 그냥 버립니다. 실제로 답이 없는 이유는 중간에 없어졌거나 길이 막혔을 수도 있어서, 서버 기록을 함께 봐야 해요.');status='filtered';}
   else if(!udp&&p===23){push(p,'in','TCP RST · 연결 거절','대상은 통신 가능하지만 이 TCP 접점에는 수신 서비스가 없습니다.');status='closed';}
   else if(udp&&p===161){push(p,'in','ICMP Destination Unreachable · Type 3 Code 3','목적지의 UDP 포트가 닫혀 있음을 알리는 IPv4 응답 예입니다.');status='closed';}
   else if(udp&&p===123){push(p,'drop','UDP 응답 없음 · 재시도/대기 (요약)','실습에서는 열린 서버가 이 요청에 응답하지 않는 상황입니다. 스캐너만으로 필터인지 열린 서비스인지 알 수 없습니다.');status='open|filtered';}

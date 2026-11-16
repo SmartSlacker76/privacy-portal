@@ -27,20 +27,21 @@
   host.innerHTML =
     '<div class="reach-heading"><div><span>CHECK YOUR OWN CONNECTION</span>' +
     '<h2>포트가 열려 있나요?<span>.</span></h2></div>' +
-    '<p>두 가지는 서로 다른 질문이에요. <b>밖에서 내 쪽으로 들어오는 길</b>이 열렸는지와, ' +
-    '<b>내 쪽에서 밖으로 나가는 길</b>이 열렸는지. 아래에서 나눠 확인합니다. ' +
-    '결과는 이 화면에서만 쓰이고 저장하거나 어디로도 보내지 않아요.</p></div>' +
+    '<p>“포트가 열렸다”는 말은 <b>두 가지 뜻</b>으로 쓰여요. 하나는 <b>바깥에서 우리 집 문으로 들어올 수 있나</b>, ' +
+    '다른 하나는 <b>우리가 밖으로 나갈 수 있나</b>. 전혀 다른 질문이라 아래에서 나눠 봅니다. ' +
+    '확인한 내용은 이 화면에서만 쓰고 어디에도 저장하거나 보내지 않아요.</p></div>' +
 
     '<div class="reach-grid">' +
 
     /* ① 인바운드 */
-    '<section class="reach-card"><div class="reach-tag in">① 들어오는 길 · 포트포워딩</div>' +
-    '<h3>밖에서 내 IP의 포트가 보이나요?</h3>' +
-    '<p class="reach-why">공유기에 포트포워딩을 걸었거나 서버를 열었을 때, <b>외부에서 실제로 닿는지</b>를 보는 검사예요.</p>' +
-    '<div class="reach-limit"><b>여기서는 직접 검사할 수 없어요.</b> 외부에서 내 IP로 접속을 시도하려면 ' +
-    '<b>우리 바깥에 서버</b>가 있어야 하는데, 이 누리집은 서버 없이 브라우저에서만 도는 정적 페이지예요. ' +
-    '브라우저에서 보낸 요청은 <b>내 네트워크 안에서 출발</b>하므로 “밖에서 보이는지”를 증명하지 못합니다. ' +
-    '그래서 검사는 전문 서비스로 넘깁니다.</div>' +
+    '<section class="reach-card"><div class="reach-tag in">① 밖에서 들어오는 길</div>' +
+    '<h3>밖에서 우리 집 문이 보이나요?</h3>' +
+    '<p class="reach-why">공유기에서 “이 번호로 들어오면 안쪽 컴퓨터로 보내 줘”라고 설정해 두었을 때(포트포워딩), ' +
+    '<b>정말 밖에서 들어올 수 있는지</b> 확인하는 검사예요.</p>' +
+    '<div class="reach-limit"><b>이 검사는 여기서 할 수 없어요.</b> 문을 밖에서 두드려 보려면 ' +
+    '<b>밖에 있는 누군가</b>가 필요한데, 이 누리집은 여러분 브라우저 안에서만 도는 페이지라 바깥에 사람을 둘 수 없어요. ' +
+    '내 컴퓨터에서 두드리는 건 <b>집 안에서 문을 두드려 보는 것</b>과 같아서, 밖에서 열리는지는 알 수 없습니다. ' +
+    '그래서 이 검사만은 전문 서비스에 맡깁니다.</div>' +
     '<label class="reach-field">확인할 포트 번호' +
     '<input id="reachPort" type="number" min="0" max="65535" placeholder="예: 3389" inputmode="numeric"></label>' +
     '<div class="reach-actions">' +
@@ -48,27 +49,29 @@
     '<button type="button" class="lab-button secondary" data-open="yougetsignal">YouGetSignal 열기 ↗</button>' +
     '</div><p id="reachCopyNote" class="reach-note" aria-live="polite"></p>' +
     '<ul class="reach-src">' +
-    '<li><b>출처: CanYouSeeMe.org</b> — 접속한 사람의 공인 IP로 외부에서 TCP 연결을 시도해 열림 여부를 알려 줍니다.</li>' +
-    '<li><b>출처: YouGetSignal</b> — 같은 방식의 민간 점검 도구입니다.</li>' +
-    '<li>두 서비스 모두 <b>그쪽 서버에 내 IP와 포트가 전달</b>됩니다. 기관 업무망에서 쓰기 전에 내부 보안 정책을 확인하세요.</li>' +
+    '<li><b>CanYouSeeMe.org</b> — 그쪽 서버가 <b>밖에서 내 주소로 직접 두드려 보고</b> 열렸는지 알려 줘요.</li>' +
+    '<li><b>YouGetSignal</b> — 같은 방식으로 확인해 주는 다른 도구예요.</li>' +
+    '<li>두 곳 모두 <b>내 인터넷 주소와 포트 번호가 그 회사 서버에 전달</b>돼요. 기관 업무망에서 쓰기 전에 내부 보안 규정을 먼저 확인하세요.</li>' +
     '</ul></section>' +
 
     /* ② 아웃바운드 */
-    '<section class="reach-card"><div class="reach-tag out">② 나가는 길 · 아웃바운드</div>' +
-    '<h3>우리 네트워크에서 밖으로 닿나요?</h3>' +
-    '<p class="reach-why">기관 방화벽·프록시가 특정 목적지를 막고 있는지 <b>이 브라우저에서</b> 확인해요. 눌렀을 때 한 번만 시도합니다.</p>' +
+    '<section class="reach-card"><div class="reach-tag out">② 밖으로 나가는 길</div>' +
+    '<h3>우리 쪽에서 밖으로 나갈 수 있나요?</h3>' +
+    '<p class="reach-why">기관의 보안 장비가 <b>어떤 사이트로 나가는 길을 막아 두었는지</b> 지금 이 브라우저에서 확인해요. ' +
+    '버튼을 누를 때 딱 한 번만 두드려 봅니다.</p>' +
     '<div class="reach-actions"><button type="button" id="reachRun" class="lab-button">한 번 점검하기</button>' +
     '<button type="button" id="reachClear" class="lab-button secondary">결과 지우기</button>' +
     '<span id="reachProgress" class="reach-note" aria-live="polite"></span></div>' +
-    '<div class="log-scroll"><table><caption class="sr-only">목적지별 아웃바운드 연결 점검 결과</caption>' +
-    '<thead><tr><th>목적지</th><th>주소 · 포트</th><th>왜 보나요?</th><th>결과</th></tr></thead>' +
+    '<div class="log-scroll"><table><caption class="sr-only">사이트별 연결 확인 결과</caption>' +
+    '<thead><tr><th>목적지</th><th>주소 · 포트</th><th>왜 확인하나요?</th><th>결과</th></tr></thead>' +
     '<tbody id="reachRows"></tbody></table></div>' +
     '<ul class="reach-src">' +
-    '<li><b>확인할 수 있는 것</b> — HTTPS(443)로 <b>연결이 성립했는지</b>까지입니다.</li>' +
-    '<li><b>확인할 수 없는 것</b> — 실패했을 때 그 이유가 방화벽 차단인지, DNS 문제인지, 상대 서비스 장애인지는 구분하지 못해요.</li>' +
-    '<li><b>443만 보는 이유</b> — 브라우저는 원시 소켓을 열 수 없고, 보안상 여러 포트로의 연결을 막습니다. ' +
-    'HTTPS 페이지에서 평문 HTTP(80)로 보내는 요청도 차단돼요. 임의 주소를 입력받지 않는 것은 이 도구가 포트 스캐너로 쓰이지 않게 하기 위해서예요.</li>' +
-    '<li>점검 결과는 <b>메모리에만</b> 두고 새로고침하면 사라집니다.</li>' +
+    '<li><b>알 수 있는 것</b> — 그 사이트에 <b>닿았는지 아닌지</b>까지예요.</li>' +
+    '<li><b>알 수 없는 것</b> — 닿지 않았을 때 <b>왜 그런지</b>는 모릅니다. 보안 장비가 막은 것인지, 주소를 못 찾은 것인지, 상대 사이트가 잠시 멈춘 것인지 구분되지 않아요.</li>' +
+    '<li><b>왜 443번만 보나요?</b> — 브라우저는 안전을 위해 아무 번호로나 연결하지 못하게 막혀 있어요. ' +
+    '그래서 웹에서 쓰는 443번(자물쇠가 붙은 https)만 확인할 수 있습니다. ' +
+    '주소를 직접 입력받지 않는 것은, 이 도구가 <b>남의 서버를 몰래 훑어보는 용도</b>로 쓰이지 않게 하기 위해서예요.</li>' +
+    '<li>확인한 결과는 <b>이 화면에만</b> 잠깐 떠 있고, 새로고침하면 사라져요.</li>' +
     '</ul></section></div>';
 
   /* ── ① 인바운드 도우미 ── */
@@ -123,7 +126,7 @@
     const url = 'https://' + t.host + '/favicon.ico?reach=' + Date.now();
     return fetch(url, { mode: 'no-cors', cache: 'no-store', redirect: 'follow', signal: ctl.signal })
       .then(() => ({ cls: 'ok', label: '닿음' }))
-      .catch(() => ({ cls: 'ng', label: '닿지 않음 · 원인 미상' }))
+      .catch(() => ({ cls: 'ng', label: '닿지 않음' }))
       .finally(() => clearTimeout(timer));
   }
 
@@ -131,12 +134,12 @@
     const results = {};
     TARGETS.forEach((t) => { results[t.id] = { cls: 'busy', label: '확인 중…' }; });
     paint(results);
-    progress.textContent = '점검 중 — 최대 ' + (TIMEOUT / 1000) + '초';
+    progress.textContent = '확인 중 — 길어도 ' + (TIMEOUT / 1000) + '초면 끝나요';
     const done = await Promise.all(TARGETS.map((t) => probe(t).then((r) => [t.id, r])));
     done.forEach(([id, r]) => { results[id] = r; });
     paint(results);
     const ok = done.filter(([, r]) => r.cls === 'ok').length;
-    progress.textContent = '끝났어요 — ' + ok + ' / ' + TARGETS.length + '곳에 닿았습니다. 닿지 않은 곳의 원인은 이 검사로 알 수 없어요.';
+    progress.textContent = '끝났어요 — ' + TARGETS.length + '곳 중 ' + ok + '곳에 닿았어요. 닿지 않은 곳이 왜 그런지는 이 검사로 알 수 없습니다.';
   });
 
   $('#reachClear').addEventListener('click', () => {

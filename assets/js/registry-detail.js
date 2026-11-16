@@ -41,19 +41,24 @@
     const rows = recs.map((r) => {
       const name = r[2] || (/reserved/i.test(r[3]) ? 'Reserved' : '등록명 없음');
       const scope = r[0] === String(current) ? '' :
-        '<span class="rd-scope">범위 레코드 ' + E(r[0]) + '</span>';
+        '<span class="rd-scope">' + E(r[0]) + '번 묶음에 포함</span>';
       return '<div class="rd-rec"><b>' + E(name) + '</b>' + scope + why(r) + '</div>';
     }).join('');
     const un = note && note.unofficial && note.unofficial[tp];
     const ab = note && note.abuse && note.abuse[tp];
     return '<article class="rd-card"><div class="rd-tp ' + tp + '">' + tp.toUpperCase() + '</div>' +
-      '<div class="rd-sec"><h4>IANA 등록 정보</h4>' + (rows || '<p class="rd-none">이 전송에는 등록 레코드가 없어요.</p>') + '</div>' +
-      (un ? '<div class="rd-sec"><h4>실제로 쓰이는 곳 <span>등록부 밖</span></h4><ul>' +
+      '<p class="rd-plain">' + (tp === 'tcp'
+        ? '<b>TCP</b> — 전화처럼 <b>먼저 연결하고</b> 주고받는 방식이에요. 빠진 내용이 있으면 다시 보내 달라고 합니다.'
+        : tp === 'udp'
+          ? '<b>UDP</b> — 엽서처럼 <b>연결 없이 그냥 보내는</b> 방식이에요. 빨리 보내는 대신 도착을 보장하지 않습니다.'
+          : '<b>' + tp.toUpperCase() + '</b> — 덜 쓰이는 전송 방식이에요.') + '</p>' +
+      '<div class="rd-sec"><h4>등록부에 적힌 이름 <span class="rd-hint">공식 명부</span></h4>' + (rows || '<p class="rd-none">이 방식으로는 등록된 이름이 없어요.</p>') + '</div>' +
+      (un ? '<div class="rd-sec"><h4>실제로는 이렇게 쓰여요 <span class="rd-hint">명부에 없는 쓰임</span></h4><ul>' +
         un.map((x) => '<li>' + x + '</li>').join('') + '</ul></div>' : '') +
-      (ab ? '<div class="rd-sec rd-abuse"><h4>이 포트를 쓰는 것으로 보고된 악성코드</h4>' +
+      (ab ? '<div class="rd-sec rd-abuse"><h4>이 번호를 쓴 적 있는 나쁜 프로그램</h4>' +
         '<p class="rd-chips">' + ab.map((x) => '<span>' + E(x) + '</span>').join('') + '</p>' +
-        '<p class="rd-caveat">이름이 올라 있다는 것은 <b>과거 그렇게 쓰인 보고가 있다</b>는 뜻이에요. ' +
-        '이 포트가 열려 있다고 해서 감염을 뜻하지는 않습니다.</p></div>' : '') +
+        '<p class="rd-caveat">여기 이름이 있다는 건 <b>예전에 이 번호를 쓴 적이 있다고 보고됐다</b>는 뜻일 뿐이에요. ' +
+        '이 번호가 열려 있다고 해서 우리 컴퓨터가 감염됐다는 말은 아닙니다.</p></div>' : '') +
       '</article>';
   }
   function why(r) {
@@ -73,43 +78,44 @@
     const enc = encodeURIComponent(String(n));
 
     box.innerHTML =
-      '<div class="rd-head"><div><span class="lesson-category">기초 · 상세 시나리오 밖 · 등록부 조회</span>' +
+      '<div class="rd-head"><div><span class="lesson-category">학습 목록에 없는 번호 · 등록부에서 찾아봤어요</span>' +
       '<h2>포트 ' + n + '</h2>' +
       '<p>' + (note ? note.headline :
-        '이 번호는 학습용 100개 시나리오에 없어요. 아래는 공식 등록부에 남아 있는 내용과 범위 규칙입니다.') + '</p></div>' +
-      '<div class="port-badge"><small>PORT NUMBER</small><b>' + n + '</b>' +
-      '<span>' + (tps.length ? tps.map((t) => t.toUpperCase()).join(' · ') : '등록 없음') + '</span></div></div>' +
+        '이 번호는 학습용 100개 목록에 없어요. 대신 <b>세계 공통 명부(IANA)</b>에 적힌 내용과, ' +
+        '이 번호가 속한 구간의 성격을 정리했어요.') + '</p></div>' +
+      '<div class="port-badge"><small>포트 번호</small><b>' + n + '</b>' +
+      '<span>' + (tps.length ? tps.map((t) => t.toUpperCase()).join(' · ') : '등록된 이름 없음') + '</span></div></div>' +
 
       (range ? '<div class="rd-range"><b>' + E(range.label) + '</b><p>' + range.note + '</p></div>' : '') +
 
       '<div class="rd-grid">' +
       (tps.length ? tps.map((tp) => transportCard(tp, recs[tp], note)).join('')
         : '<article class="rd-card"><div class="rd-sec"><h4>IANA 등록 정보</h4>' +
-          '<p class="rd-none">TCP·UDP 어느 쪽에도 개별 등록이 없어요. 미할당이거나 예약된 번호일 수 있습니다.</p></div></article>') +
+          '<p class="rd-none">TCP로도 UDP로도 등록된 이름이 없어요. 아직 아무에게도 주지 않았거나, 쓰지 않기로 비워 둔 번호일 수 있어요.</p></div></article>') +
       '</div>' +
 
-      (note && note.cases ? '<div class="rd-cases"><h4>알려진 악용 사례</h4>' +
+      (note && note.cases ? '<div class="rd-cases"><h4>실제로 있었던 일</h4>' +
         note.cases.map((c) => '<div class="rd-case"><b>' + E(c.name) + '</b><p>' + c.text + '</p>' +
-          (c.ref ? '<span class="rd-ref">참고문헌 ' + E(c.ref) + '</span>' : '') + '</div>').join('') + '</div>' : '') +
+          (c.ref ? '<span class="rd-ref">자료 번호 ' + E(c.ref) + '</span>' : '') + '</div>').join('') + '</div>' : '') +
 
-      (note && note.watch ? '<div class="rd-watch"><h4>담당자가 볼 지점</h4><ul>' +
+      (note && note.watch ? '<div class="rd-watch"><h4>담당자가 확인할 것</h4><ul>' +
         note.watch.map((w) => '<li>' + w + '</li>').join('') + '</ul></div>' : '') +
 
       '<div class="rd-sources"><h4>출처</h4><ul>' +
       (note && note.sources ? note.sources.map((s) =>
         '<li><a href="' + s[1] + '" target="_blank" rel="noopener">' + E(s[0]) + ' ↗</a><span>' + E(s[2]) + '</span></li>').join('')
         : '<li><a href="https://www.iana.org/assignments/service-names-port-numbers/service-names-port-numbers.xhtml?search=' + enc +
-          '" target="_blank" rel="noopener">IANA 등록부에서 ' + n + '번 보기 ↗</a><span>포트 번호와 등록 서비스명의 공식 등록부</span></li>' +
+          '" target="_blank" rel="noopener">IANA 명부에서 ' + n + '번 보기 ↗</a><span>번호와 이름을 공식으로 관리하는 곳이에요</span></li>' +
           '<li><a href="https://www.speedguide.net/port.php?port=' + enc +
-          '" target="_blank" rel="noopener">SpeedGuide에서 ' + n + '번 보기 ↗</a><span>비공식 사용처와 이 포트를 쓰는 악성코드 목록. 민간 자료라 교차 확인이 필요해요</span></li>' +
+          '" target="_blank" rel="noopener">SpeedGuide에서 ' + n + '번 보기 ↗</a><span>명부 밖의 실제 쓰임과 나쁜 프로그램 목록이 모여 있어요. 민간이 만든 자료라 다른 곳과 한 번 더 맞춰 보세요</span></li>' +
           '<li><a href="https://www.cve.org/CVERecord/SearchResults?query=' + enc +
-          '" target="_blank" rel="noopener">CVE.org에서 ' + n + ' 검색 ↗</a><span>공개 취약점 레코드. 포트가 열렸다는 사실만으로 해당 CVE에 해당하지는 않아요</span></li>') +
+          '" target="_blank" rel="noopener">CVE.org에서 ' + n + ' 검색 ↗</a><span>공개된 보안 약점 기록이에요. 번호가 열려 있다고 해서 그 약점이 우리 것이라는 뜻은 아니에요</span></li>') +
       '</ul>' +
-      (note ? '' : '<p class="rd-caveat">이 번호의 비공식 사용처·악성코드 정보는 아직 이 누리집에 정리되어 있지 않아요. ' +
-        '위 출처에서 확인하시고, 자주 보는 번호라면 알려 주시면 근거와 함께 정리해 둘게요.</p>') +
+      (note ? '' : '<p class="rd-caveat">이 번호가 실제로 어디에 쓰이는지, 나쁜 프로그램이 쓴 적은 있는지는 아직 여기에 정리해 두지 않았어요. ' +
+        '위 세 곳에서 확인해 보시고, 자주 보는 번호라면 알려 주세요. 근거를 확인해 여기에 적어 둘게요.</p>') +
       '</div>' +
 
-      '<button type="button" id="rdBack" class="lab-button secondary">← 시뮬레이터로 돌아가기</button>';
+      '<button type="button" id="rdBack" class="lab-button secondary">← 패킷 따라가기로 돌아가기</button>';
 
     box.hidden = false;
     showSim(false);
