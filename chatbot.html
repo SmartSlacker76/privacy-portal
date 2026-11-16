@@ -355,9 +355,9 @@
   function controllerNote(q) {
     if (!/개인정보처리자|처리자에 해당|행정시|제주시|서귀포시|지방자치단체/.test(String(q || ''))) return '';
     return '<div class="rul-box"><p class="rul-h">개인정보보호위원회 의결 제2022-116-035호 (2022. 9. 28.)</p>'
-      + '<p class="o">○ 제주특별자치도는 <b>개인정보처리자에 해당</b>하지만, 「제주특별법」 제10조에 따라 설치된 '
+      + '<p class="o">제주특별자치도는 <b>개인정보처리자에 해당</b>하지만, 「제주특별법」 제10조에 따라 설치된 '
       + '행정시(제주시·서귀포시)는 지방자치단체가 아니어서 <b>개인정보처리자에 해당하지 않는다</b>고 판단했어요.</p>'
-      + '<p class="o">○ 같은 의결은 도의 개인정보 보호책임자가 관할 행정시를 포함해 보호 업무를 <b>총괄할 수 있다</b>고 보았습니다.</p></div>';
+      + '<p class="o">같은 의결은 도의 개인정보 보호책임자가 관할 행정시를 포함해 보호 업무를 <b>총괄할 수 있다</b>고 보았습니다.</p></div>';
   }
   /* 모음집 단독 답변(포털 주제가 없을 때) */
   /* 모음집 문항의 조문·키워드로 가장 가까운 포털 주제를 찾아 5개 버튼을 붙입니다. */
@@ -425,7 +425,7 @@
   function oBullets(list){
     return (list||[]).map(function(b){
       var sub=/^—\s/.test(b);
-      return '<p class="o'+(sub?' o-sub':'')+'">'+(sub?'—':'○')+' '+(sub?esc(b.replace(/^—\s*/,'')):esc(b))+'</p>';
+      return '<p class="o'+(sub?' o-sub':'')+'">'+(sub?esc(b.replace(/^—\s*/,'')):esc(b))+'</p>';
     }).join('');
   }
   function noteLines(list){

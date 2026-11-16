@@ -30,8 +30,8 @@ html{scroll-behavior:smooth;scroll-padding-top:110px}body{letter-spacing:-.025em
 .g-foot .links a:hover,.header-assistant:hover,.quick-nav a:hover b{color:var(--ac-acc);text-decoration:underline}
 
 /* ---- 챗봇: 질의응답 모음집 형식(○ / ※) + 5주제 버튼 ---- */
-.bubble p.o{margin:.35rem 0;line-height:1.7}
-.bubble p.o-sub{margin-left:1.1rem;color:var(--ac-mut,var(--mut))}
+.bubble p.o{margin:.45rem 0;line-height:1.75}
+.bubble p.o-sub{margin-left:1rem;padding-left:.6rem;border-left:2px solid var(--line);color:var(--ac-mut,var(--mut))}
 .bubble p.note-x{margin:.5rem 0 0;font-size:.92em;color:var(--ac-mut,var(--mut));line-height:1.65}
 .bubble p.rul{margin:.5rem 0 0;font-size:.92em}
 .bubble .rul-box{margin:.7rem 0 0;border:1px solid var(--line);border-radius:10px;padding:.6rem .75rem;background:var(--surface-2)}
@@ -47,3 +47,32 @@ html{scroll-behavior:smooth;scroll-padding-top:110px}body{letter-spacing:-.025em
 :root{--t5-ink:#135244;--t5-line:#176653}
 :root[data-theme="dark"]{--t5-ink:#9fdcbe;--t5-line:#4f8f74}
 .t5-b:hover,.t5-b:focus-visible{background:var(--t5-line);color:#ffffff}
+
+/* ---- 챗봇 답변: 섹션 제목을 글박스로, 본문보다 크게 ---- */
+.bubble .a-sec{margin:1.1rem 0 0}
+.bubble .a-sec h4{
+  font-size:1.12em;line-height:1.45;margin:0 0 .6rem;
+  padding:.55rem .8rem;border-radius:10px;
+  background:var(--sec-bg);border:1px solid var(--sec-line);
+  border-left:4px solid var(--sec-bar);color:var(--sec-ink);font-weight:700;
+}
+.bubble .a-sec ul{margin:.2rem 0 0;padding-left:1.15rem}
+.bubble .a-sec li{margin:.3rem 0;line-height:1.75}
+
+/* ---- 강조: 굵게 + 다른 색 + 밑줄 ---- */
+.bubble b,.bubble strong{
+  font-weight:700;color:var(--em-ink);
+  text-decoration:underline;text-decoration-color:var(--em-ul);
+  text-decoration-thickness:2px;text-underline-offset:3px;
+}
+.bubble .a-sec h4 b,.bubble .a-sec h4 strong{color:inherit;text-decoration:none}
+.bubble .greet b{text-decoration-color:var(--em-ul)}
+
+:root{
+  --sec-bg:#eef6f1; --sec-line:#cfe3d7; --sec-bar:#176653; --sec-ink:#10473a;
+  --em-ink:#0f5a45; --em-ul:#79c8a8;
+}
+:root[data-theme="dark"]{
+  --sec-bg:#172d25; --sec-line:#2f5548; --sec-bar:#6fbf9b; --sec-ink:#cdeadd;
+  --em-ink:#8fe0ba; --em-ul:#3f7a62;
+}
