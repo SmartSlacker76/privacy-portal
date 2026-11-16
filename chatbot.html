@@ -130,8 +130,9 @@
     table.core-t th{width:150px;text-align:left;vertical-align:top;background:var(--surface-2);
       border:1px solid var(--line);padding:8px 10px;font-weight:700;color:var(--ink);white-space:nowrap}
     table.core-t td{border:1px solid var(--line);padding:8px 10px;line-height:1.8;color:var(--ink)}
-    .qzs{border:1px solid var(--line);border-radius:10px;padding:12px 14px;background:var(--surface-2)}
-    .qzs>h4{margin:0 0 8px}
+    .dt.qzs{background:var(--surface-2)}
+.dt.qzs>summary{color:var(--cipher)}
+    .dt.qzs .qzs-q{margin:0 0 8px}
     .qzs-q{margin:0 0 8px;font-size:13px;line-height:1.8;color:var(--ink)}
     .qzs-q>b{display:inline-block;margin-right:6px;padding:1px 8px;border-radius:999px;
       background:var(--cipher-soft);color:var(--cipher);font-size:12px}
@@ -173,10 +174,20 @@
   /* ── 주제 매칭 ─────────────────────────────────────────── */
   function match(q) {
     var s = q.toLowerCase().replace(/\s/g, ''), best = null, sc0 = 0;
+    // 조문 번호로 찾기: "제34조", "제25조의2" 등
+    var arts = (q.replace(/\s/g, '').match(/제\d+조(?:의\d+)?/g) || []);
     KB.forEach(function (e) {
       if (e.need && !e.need.some(function (n) { return s.indexOf(n.replace(/\s/g, '')) >= 0; })) return;
       var sc = 0;
       e.kw.forEach(function (k) { var kk = k.toLowerCase().replace(/\s/g, ''); if (s.indexOf(kk) >= 0) sc = Math.max(sc, kk.length); });
+      if (arts.length) {
+        (e.laws || []).forEach(function (L) {
+          arts.forEach(function (a) {
+            // "제25조의2" 질문은 "제25조"에 매칭되지 않도록 정확히 비교
+            if (L.a === a) sc = Math.max(sc, a.length + 6);
+          });
+        });
+      }
       if (sc > sc0) { sc0 = sc; best = e; }
     });
     return sc0 > 0 ? best : null;
@@ -265,7 +276,13 @@
 
   /* 비교표가 있으면 그대로, 없으면 주제의 뼈대로 2열 표를 만든다 */
   function coreTable(e, used) {
-    if (e.tableHtml) return e.tableHtml;
+    if (e.tableHtml) {
+      String(e.tableHtml).split(/<\/t[dh]>/).forEach(function (cell) {
+        var t = plain(cell);
+        if (t && t.length > 12) used[t] = 1;
+      });
+      return e.tableHtml;
+    }
     var rows = [
       ['무엇인가요?', secOf(e, 1).items[0]],
       ['언제 적용되나요?', secOf(e, 3).items[0]],
@@ -302,20 +319,30 @@
     var qs = e.quiz || [];
     if (!qs.length) return '';
     var z = qs[Math.floor(Math.random() * qs.length)];
-    return '<div class="blk qzs"><h4>💡 헷갈리기 쉬운 깜짝 퀴즈!</h4>' +
+    return '<details class="dt qzs"><summary>💡 헷갈리기 쉬운 깜짝 퀴즈!</summary><div class="dt-in">' +
       '<p class="qzs-q"><b>문제</b> ' + z.q + '</p>' +
       '<p class="qzs-a"><b>정답: ' + esc(z.a) + '</b> — ' + z.why +
       (z.tip ? ' <span class="qzs-tip">💬 ' + z.tip + '</span>' : '') + '</p>' +
-      (z.law ? '<p class="qzs-law">근거: ' + esc(z.law) + '</p>' : '') + '</div>';
+      (z.law ? '<p class="qzs-law">근거: ' + esc(z.law) + '</p>' : '') + '</div></details>';
   }
 
+  function josaGa(w) {
+    var t = String(w || '').replace(/[)\]\s]+$/, '');
+    var c = t.charCodeAt(t.length - 1);
+    if (c >= 0xac00 && c <= 0xd7a3) return ((c - 0xac00) % 28) ? '이' : '가';
+    if (/[0-9]$/.test(t)) return '136780'.indexOf(t.slice(-1)) >= 0 ? '이' : '가';
+    if (/[a-zA-Z]$/.test(t)) return /[lmnr]$/i.test(t) ? '이' : '가';
+    return '가';
+  }
   function renderTopic(e, q) {
     var used = {};
     var tbl = coreTable(e, used);
     if (e.intro) used[plain(e.intro)] = 1;
-    return '<p class="greet">안녕하세요! <b>' + esc(e.title) + '</b>에 대해 궁금하셨군요. 😊</p>' +
+    var cmp = /차이|비교|다른 점|다른점|구분|vs/.test(String(q || '') + ' ' + String(e.title || ''));
+    var tblT = cmp ? '💡 한눈에 보는 핵심 차이점' : '💡 한눈에 보는 핵심';
+    return '<p class="greet">안녕하세요! <b>' + esc(e.title) + '</b>' + (cmp ? josaGa(e.title) + ' 궁금하셨군요' : '에 대해 궁금하셨군요') + '. 😊</p>' +
       '<p class="lead">' + (e.intro || ((e.sum2 || [])[0] || '')) + '</p>' +
-      (tbl ? '<div class="blk"><h4>💡 한눈에 보는 핵심</h4>' + tbl + '</div>' : '') +
+      (tbl ? '<details class="dt dt-core"><summary>' + tblT + '</summary><div class="dt-in">' + tbl + '</div></details>' : '') +
       '<details class="dt"><summary>💡 조금 더 자세히 알아볼까요?</summary>' +
       '<div class="dt-in">' + detailBody(e, used) + '</div></details>' +
       quizBlock(e);
