@@ -1,0 +1,702 @@
+[
+  {
+    "key": "80",
+    "port": 80,
+    "service": "HTTP",
+    "transport": "TCP",
+    "group": "웹·기본 인프라"
+  },
+  {
+    "key": "8080",
+    "port": 8080,
+    "service": "대체 HTTP",
+    "transport": "TCP",
+    "group": "웹·기본 인프라"
+  },
+  {
+    "key": "8888",
+    "port": 8888,
+    "service": "노트북 웹 서비스",
+    "transport": "TCP",
+    "group": "웹·기본 인프라"
+  },
+  {
+    "key": "443",
+    "port": 443,
+    "service": "HTTPS",
+    "transport": "TCP",
+    "group": "웹·기본 인프라"
+  },
+  {
+    "key": "8443",
+    "port": 8443,
+    "service": "HTTPS",
+    "transport": "TCP",
+    "group": "웹·기본 인프라"
+  },
+  {
+    "key": "53",
+    "port": 53,
+    "service": "DNS",
+    "transport": "UDP",
+    "group": "웹·기본 인프라"
+  },
+  {
+    "key": "22",
+    "port": 22,
+    "service": "SSH",
+    "transport": "TCP",
+    "group": "원격·파일"
+  },
+  {
+    "key": "23",
+    "port": 23,
+    "service": "Telnet",
+    "transport": "TCP",
+    "group": "원격·파일"
+  },
+  {
+    "key": "20",
+    "port": 20,
+    "service": "FTP 데이터",
+    "transport": "TCP",
+    "group": "원격·파일"
+  },
+  {
+    "key": "21",
+    "port": 21,
+    "service": "FTP 제어",
+    "transport": "TCP",
+    "group": "원격·파일"
+  },
+  {
+    "key": "25",
+    "port": 25,
+    "service": "SMTP 서버 간 전달",
+    "transport": "TCP",
+    "group": "메일"
+  },
+  {
+    "key": "465",
+    "port": 465,
+    "service": "메일 제출 · 즉시 TLS",
+    "transport": "TCP",
+    "group": "메일"
+  },
+  {
+    "key": "587",
+    "port": 587,
+    "service": "메일 제출 · STARTTLS",
+    "transport": "TCP",
+    "group": "메일"
+  },
+  {
+    "key": "110",
+    "port": 110,
+    "service": "POP3",
+    "transport": "TCP",
+    "group": "메일"
+  },
+  {
+    "key": "995",
+    "port": 995,
+    "service": "POP3S",
+    "transport": "TCP",
+    "group": "메일"
+  },
+  {
+    "key": "143",
+    "port": 143,
+    "service": "IMAP",
+    "transport": "TCP",
+    "group": "메일"
+  },
+  {
+    "key": "993",
+    "port": 993,
+    "service": "IMAPS",
+    "transport": "TCP",
+    "group": "메일"
+  },
+  {
+    "key": "123",
+    "port": 123,
+    "service": "NTP",
+    "transport": "UDP",
+    "group": "웹·기본 인프라"
+  },
+  {
+    "key": "161",
+    "port": 161,
+    "service": "SNMP",
+    "transport": "UDP",
+    "group": "모니터링·라우팅·VPN"
+  },
+  {
+    "key": "554",
+    "port": 554,
+    "service": "RTSP · CCTV",
+    "transport": "TCP",
+    "group": "인프라·메시징·기타"
+  },
+  {
+    "key": "3306",
+    "port": 3306,
+    "service": "MySQL",
+    "transport": "TCP",
+    "group": "데이터베이스·캐시"
+  },
+  {
+    "key": "1883",
+    "port": 1883,
+    "service": "MQTT",
+    "transport": "TCP",
+    "group": "인프라·메시징·기타"
+  },
+  {
+    "key": "69",
+    "port": 69,
+    "service": "TFTP",
+    "transport": "UDP",
+    "group": "원격·파일"
+  },
+  {
+    "key": "135",
+    "port": 135,
+    "service": "MSRPC Endpoint Mapper",
+    "transport": "TCP",
+    "group": "윈도우·디렉터리"
+  },
+  {
+    "key": "137",
+    "port": 137,
+    "service": "NetBIOS 이름 서비스",
+    "transport": "UDP",
+    "group": "윈도우·디렉터리"
+  },
+  {
+    "key": "139",
+    "port": 139,
+    "service": "SMB over NetBIOS",
+    "transport": "TCP",
+    "group": "윈도우·디렉터리"
+  },
+  {
+    "key": "389",
+    "port": 389,
+    "service": "LDAP",
+    "transport": "TCP",
+    "group": "윈도우·디렉터리"
+  },
+  {
+    "key": "636",
+    "port": 636,
+    "service": "LDAPS",
+    "transport": "TCP",
+    "group": "윈도우·디렉터리"
+  },
+  {
+    "key": "445",
+    "port": 445,
+    "service": "SMB",
+    "transport": "TCP",
+    "group": "윈도우·디렉터리"
+  },
+  {
+    "key": "500",
+    "port": 500,
+    "service": "IKE · IPsec",
+    "transport": "UDP",
+    "group": "모니터링·라우팅·VPN"
+  },
+  {
+    "key": "512",
+    "port": 512,
+    "service": "rexec",
+    "transport": "TCP",
+    "group": "원격·파일"
+  },
+  {
+    "key": "513",
+    "port": 513,
+    "service": "rlogin",
+    "transport": "TCP",
+    "group": "원격·파일"
+  },
+  {
+    "key": "514",
+    "port": 514,
+    "service": "Syslog",
+    "transport": "UDP",
+    "group": "모니터링·라우팅·VPN"
+  },
+  {
+    "key": "548",
+    "port": 548,
+    "service": "AFP",
+    "transport": "TCP",
+    "group": "인프라·메시징·기타"
+  },
+  {
+    "key": "873",
+    "port": 873,
+    "service": "rsync",
+    "transport": "TCP",
+    "group": "원격·파일"
+  },
+  {
+    "key": "1433",
+    "port": 1433,
+    "service": "Microsoft SQL Server",
+    "transport": "TCP",
+    "group": "데이터베이스·캐시"
+  },
+  {
+    "key": "1521",
+    "port": 1521,
+    "service": "Oracle Net",
+    "transport": "TCP",
+    "group": "데이터베이스·캐시"
+  },
+  {
+    "key": "1723",
+    "port": 1723,
+    "service": "PPTP",
+    "transport": "TCP",
+    "group": "모니터링·라우팅·VPN"
+  },
+  {
+    "key": "2375",
+    "port": 2375,
+    "service": "Docker API",
+    "transport": "TCP",
+    "group": "인프라·메시징·기타"
+  },
+  {
+    "key": "3389",
+    "port": 3389,
+    "service": "RDP",
+    "transport": "TCP",
+    "group": "원격·파일"
+  },
+  {
+    "key": "5432",
+    "port": 5432,
+    "service": "PostgreSQL",
+    "transport": "TCP",
+    "group": "데이터베이스·캐시"
+  },
+  {
+    "key": "5672",
+    "port": 5672,
+    "service": "AMQP · RabbitMQ",
+    "transport": "TCP",
+    "group": "인프라·메시징·기타"
+  },
+  {
+    "key": "5900",
+    "port": 5900,
+    "service": "VNC",
+    "transport": "TCP",
+    "group": "원격·파일"
+  },
+  {
+    "key": "5984",
+    "port": 5984,
+    "service": "CouchDB",
+    "transport": "TCP",
+    "group": "데이터베이스·캐시"
+  },
+  {
+    "key": "5985",
+    "port": 5985,
+    "service": "WinRM",
+    "transport": "TCP",
+    "group": "원격·파일"
+  },
+  {
+    "key": "6379",
+    "port": 6379,
+    "service": "Redis",
+    "transport": "TCP",
+    "group": "데이터베이스·캐시"
+  },
+  {
+    "key": "9000",
+    "port": 9000,
+    "service": "사용자 지정 앱 · PHP-FPM",
+    "transport": "TCP",
+    "group": "웹·기본 인프라"
+  },
+  {
+    "key": "9042",
+    "port": 9042,
+    "service": "Cassandra",
+    "transport": "TCP",
+    "group": "데이터베이스·캐시"
+  },
+  {
+    "key": "9092",
+    "port": 9092,
+    "service": "Kafka",
+    "transport": "TCP",
+    "group": "인프라·메시징·기타"
+  },
+  {
+    "key": "9200",
+    "port": 9200,
+    "service": "Elasticsearch",
+    "transport": "TCP",
+    "group": "데이터베이스·캐시"
+  },
+  {
+    "key": "11211",
+    "port": 11211,
+    "service": "Memcached",
+    "transport": "TCP",
+    "group": "데이터베이스·캐시"
+  },
+  {
+    "key": "27017",
+    "port": 27017,
+    "service": "MongoDB",
+    "transport": "TCP",
+    "group": "데이터베이스·캐시"
+  },
+  {
+    "key": "81",
+    "port": 81,
+    "service": "HTTP Alternate",
+    "transport": "TCP",
+    "group": "웹·기본 인프라"
+  },
+  {
+    "key": "8000",
+    "port": 8000,
+    "service": "개발 웹 서버",
+    "transport": "TCP",
+    "group": "웹·기본 인프라"
+  },
+  {
+    "key": "8008",
+    "port": 8008,
+    "service": "HTTP Alternate",
+    "transport": "TCP",
+    "group": "웹·기본 인프라"
+  },
+  {
+    "key": "8081",
+    "port": 8081,
+    "service": "대체 웹 관리 앱",
+    "transport": "TCP",
+    "group": "웹·기본 인프라"
+  },
+  {
+    "key": "7474",
+    "port": 7474,
+    "service": "Neo4j HTTP",
+    "transport": "TCP",
+    "group": "데이터베이스·캐시"
+  },
+  {
+    "key": "8086",
+    "port": 8086,
+    "service": "InfluxDB HTTP API",
+    "transport": "TCP",
+    "group": "데이터베이스·캐시"
+  },
+  {
+    "key": "3128",
+    "port": 3128,
+    "service": "Squid Proxy",
+    "transport": "TCP",
+    "group": "웹·기본 인프라"
+  },
+  {
+    "key": "67",
+    "port": 67,
+    "service": "DHCP Server",
+    "transport": "UDP",
+    "group": "웹·기본 인프라"
+  },
+  {
+    "key": "68",
+    "port": 68,
+    "service": "DHCP Client",
+    "transport": "UDP",
+    "group": "웹·기본 인프라"
+  },
+  {
+    "key": "88",
+    "port": 88,
+    "service": "Kerberos",
+    "transport": "TCP",
+    "group": "웹·기본 인프라"
+  },
+  {
+    "key": "464",
+    "port": 464,
+    "service": "Kerberos kpasswd",
+    "transport": "TCP",
+    "group": "웹·기본 인프라"
+  },
+  {
+    "key": "853",
+    "port": 853,
+    "service": "DNS over TLS / QUIC",
+    "transport": "TCP",
+    "group": "웹·기본 인프라"
+  },
+  {
+    "key": "109",
+    "port": 109,
+    "service": "POP2 · 레거시",
+    "transport": "TCP",
+    "group": "메일"
+  },
+  {
+    "key": "115",
+    "port": 115,
+    "service": "Simple File Transfer Protocol · 구형 SFTP",
+    "transport": "TCP",
+    "group": "원격·파일"
+  },
+  {
+    "key": "989",
+    "port": 989,
+    "service": "FTPS Data",
+    "transport": "TCP",
+    "group": "원격·파일"
+  },
+  {
+    "key": "990",
+    "port": 990,
+    "service": "FTPS Control",
+    "transport": "TCP",
+    "group": "원격·파일"
+  },
+  {
+    "key": "5800",
+    "port": 5800,
+    "service": "VNC 웹 뷰어 · 레거시",
+    "transport": "TCP",
+    "group": "원격·파일"
+  },
+  {
+    "key": "5986",
+    "port": 5986,
+    "service": "WinRM HTTPS",
+    "transport": "TCP",
+    "group": "원격·파일"
+  },
+  {
+    "key": "220",
+    "port": 220,
+    "service": "IMAP3 · 레거시",
+    "transport": "TCP",
+    "group": "메일"
+  },
+  {
+    "key": "2525",
+    "port": 2525,
+    "service": "SMTP Alternate",
+    "transport": "TCP",
+    "group": "메일"
+  },
+  {
+    "key": "1434",
+    "port": 1434,
+    "service": "SQL Server Browser",
+    "transport": "UDP",
+    "group": "데이터베이스·캐시"
+  },
+  {
+    "key": "2483",
+    "port": 2483,
+    "service": "Oracle Net 대체 TCP",
+    "transport": "TCP",
+    "group": "데이터베이스·캐시"
+  },
+  {
+    "key": "2484",
+    "port": 2484,
+    "service": "Oracle Net TCPS",
+    "transport": "TCP",
+    "group": "데이터베이스·캐시"
+  },
+  {
+    "key": "3050",
+    "port": 3050,
+    "service": "Firebird / InterBase",
+    "transport": "TCP",
+    "group": "데이터베이스·캐시"
+  },
+  {
+    "key": "138",
+    "port": 138,
+    "service": "NetBIOS Datagram",
+    "transport": "UDP",
+    "group": "윈도우·디렉터리"
+  },
+  {
+    "key": "593",
+    "port": 593,
+    "service": "RPC over HTTP Endpoint Mapper",
+    "transport": "TCP",
+    "group": "윈도우·디렉터리"
+  },
+  {
+    "key": "3268",
+    "port": 3268,
+    "service": "AD Global Catalog",
+    "transport": "TCP",
+    "group": "윈도우·디렉터리"
+  },
+  {
+    "key": "3269",
+    "port": 3269,
+    "service": "AD Global Catalog TLS",
+    "transport": "TCP",
+    "group": "윈도우·디렉터리"
+  },
+  {
+    "key": "5353",
+    "port": 5353,
+    "service": "mDNS",
+    "transport": "UDP",
+    "group": "윈도우·디렉터리"
+  },
+  {
+    "key": "162",
+    "port": 162,
+    "service": "SNMP Trap",
+    "transport": "UDP",
+    "group": "모니터링·라우팅·VPN"
+  },
+  {
+    "key": "179",
+    "port": 179,
+    "service": "BGP",
+    "transport": "TCP",
+    "group": "모니터링·라우팅·VPN"
+  },
+  {
+    "key": "520",
+    "port": 520,
+    "service": "RIPv2",
+    "transport": "UDP",
+    "group": "모니터링·라우팅·VPN"
+  },
+  {
+    "key": "1194",
+    "port": 1194,
+    "service": "OpenVPN",
+    "transport": "UDP",
+    "group": "모니터링·라우팅·VPN"
+  },
+  {
+    "key": "1701",
+    "port": 1701,
+    "service": "L2TP",
+    "transport": "UDP",
+    "group": "모니터링·라우팅·VPN"
+  },
+  {
+    "key": "1812",
+    "port": 1812,
+    "service": "RADIUS Authentication",
+    "transport": "UDP",
+    "group": "모니터링·라우팅·VPN"
+  },
+  {
+    "key": "1813",
+    "port": 1813,
+    "service": "RADIUS Accounting",
+    "transport": "UDP",
+    "group": "모니터링·라우팅·VPN"
+  },
+  {
+    "key": "4500",
+    "port": 4500,
+    "service": "IPsec NAT-T",
+    "transport": "UDP",
+    "group": "모니터링·라우팅·VPN"
+  },
+  {
+    "key": "51820",
+    "port": 51820,
+    "service": "WireGuard",
+    "transport": "UDP",
+    "group": "모니터링·라우팅·VPN"
+  },
+  {
+    "key": "9100",
+    "port": 9100,
+    "service": "Raw Print / Node Exporter",
+    "transport": "TCP",
+    "group": "모니터링·라우팅·VPN"
+  },
+  {
+    "key": "7",
+    "port": 7,
+    "service": "Echo",
+    "transport": "UDP",
+    "group": "인프라·메시징·기타"
+  },
+  {
+    "key": "9",
+    "port": 9,
+    "service": "Discard / Wake-on-LAN",
+    "transport": "UDP",
+    "group": "인프라·메시징·기타"
+  },
+  {
+    "key": "19",
+    "port": 19,
+    "service": "Chargen",
+    "transport": "UDP",
+    "group": "인프라·메시징·기타"
+  },
+  {
+    "key": "37",
+    "port": 37,
+    "service": "Time",
+    "transport": "UDP",
+    "group": "인프라·메시징·기타"
+  },
+  {
+    "key": "43",
+    "port": 43,
+    "service": "WHOIS",
+    "transport": "TCP",
+    "group": "인프라·메시징·기타"
+  },
+  {
+    "key": "194",
+    "port": 194,
+    "service": "IRC · 등록 포트",
+    "transport": "TCP",
+    "group": "인프라·메시징·기타"
+  },
+  {
+    "key": "902",
+    "port": 902,
+    "service": "VMware ESXi 관리",
+    "transport": "TCP",
+    "group": "인프라·메시징·기타"
+  },
+  {
+    "key": "2376",
+    "port": 2376,
+    "service": "Docker API TLS",
+    "transport": "TCP",
+    "group": "인프라·메시징·기타"
+  },
+  {
+    "key": "514-rsh",
+    "port": 514,
+    "service": "rsh · TCP",
+    "transport": "TCP",
+    "group": "원격·파일"
+  }
+]

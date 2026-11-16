@@ -1,0 +1,101 @@
+﻿분야,포트,시나리오 ID,서비스,기본 시뮬레이션 전송,지원·관련 전송,선택 동작 모드,설명
+데이터베이스·캐시,1433,1433,Microsoft SQL Server,TCP,TCP,,앱이 SQL Server와 TDS로 대화해요.
+데이터베이스·캐시,1434,1434,SQL Server Browser,UDP,UDP,,UDP 질의로 SQL Server 명명 인스턴스의 실제 접점을 찾아요.
+데이터베이스·캐시,1521,1521,Oracle Net,TCP,TCP,,Oracle 데이터베이스의 연결을 찾아 질의해요.
+데이터베이스·캐시,2483,2483,Oracle Net 대체 TCP,TCP,TCP,,리스너가 서비스 이름을 확인하고 DB 세션으로 이어줘요.
+데이터베이스·캐시,2484,2484,Oracle Net TCPS,TCP,TCP,,리스너가 서비스 이름을 확인하고 DB 세션으로 이어줘요.
+데이터베이스·캐시,3050,3050,Firebird / InterBase,TCP,TCP,,데이터베이스에 접속해 트랜잭션 안에서 질의를 처리해요.
+데이터베이스·캐시,3306,3306,MySQL,TCP,TCP,,앱이 데이터베이스에 질문하고 표 형태의 결과를 받아요.
+데이터베이스·캐시,5432,5432,PostgreSQL,TCP,TCP,,인증을 마친 앱이 DB에 질의해요.
+데이터베이스·캐시,5984,5984,CouchDB,TCP,TCP,,HTTP로 문서 데이터를 저장하고 조회해요.
+데이터베이스·캐시,6379,6379,Redis,TCP,TCP,,키로 빠르게 값을 찾는 저장소와 대화해요.
+데이터베이스·캐시,7474,7474,Neo4j HTTP,TCP,TCP,,그래프 DB 브라우저 웹 화면에 HTTP로 요청하고 응답을 받아요.
+데이터베이스·캐시,8086,8086,InfluxDB HTTP API,TCP,TCP,,시계열 DB 상태에 HTTP로 요청하고 응답을 받아요.
+데이터베이스·캐시,9042,9042,Cassandra,TCP,TCP,,분산 DB와 네이티브 프로토콜로 대화해요.
+데이터베이스·캐시,9200,9200,Elasticsearch,TCP,TCP,,HTTP API로 문서를 검색해요.
+데이터베이스·캐시,11211,11211,Memcached,TCP,TCP / UDP (구성 시),Memcached UDP · 선택 구성,메모리에 잠시 저장한 값을 빠르게 꺼내요.
+데이터베이스·캐시,27017,27017,MongoDB,TCP,TCP,,문서 DB에 명령을 보내고 문서를 받아요.
+메일,25,25,SMTP 서버 간 전달,TCP,TCP,,메일을 서버에 제출하거나 다른 메일 서버로 전달해요.
+메일,109,109,POP2 · 레거시,TCP,TCP,,구형 메일 서버에서 메시지를 읽는 역사적 프로토콜이에요.
+메일,110,110,POP3,TCP,TCP,,메일함에 접속해서 받은 메일을 읽어요.
+메일,143,143,IMAP,TCP,TCP,,메일함에 접속해서 받은 메일을 읽어요.
+메일,220,220,IMAP3 · 레거시,TCP,TCP,,구형 IMAP 버전의 메일함 조회 방식을 살펴봐요.
+메일,465,465,메일 제출 · 즉시 TLS,TCP,TCP,,메일을 서버에 제출하거나 다른 메일 서버로 전달해요.
+메일,587,587,메일 제출 · STARTTLS,TCP,TCP,,메일을 서버에 제출하거나 다른 메일 서버로 전달해요.
+메일,993,993,IMAPS,TCP,TCP,,메일함에 접속해서 받은 메일을 읽어요.
+메일,995,995,POP3S,TCP,TCP,,메일함에 접속해서 받은 메일을 읽어요.
+메일,2525,2525,SMTP Alternate,TCP,TCP,,사업자 설정에 따라 대체 포트에서 SMTP 메일을 제출해요.
+모니터링·라우팅·VPN,161,161,SNMP,UDP,UDP,,관리 프로그램이 네트워크 장비의 상태를 물어봐요.
+모니터링·라우팅·VPN,162,162,SNMP Trap,UDP,UDP,,장비가 이벤트를 감시 서버에 먼저 통보해요.
+모니터링·라우팅·VPN,179,179,BGP,TCP,TCP,,신뢰한 이웃 AS와 도달 가능한 네트워크 경로를 교환해요.
+모니터링·라우팅·VPN,500,500,IKE · IPsec,UDP,UDP,,VPN에 필요한 인증과 암호 규칙을 협상해요.
+모니터링·라우팅·VPN,514,514,Syslog,UDP,UDP,,장비가 수집 서버에 로그를 보내요.
+모니터링·라우팅·VPN,520,520,RIPv2,UDP,UDP,,이웃 라우터와 목적지·홉 수 정보를 주고받아요.
+모니터링·라우팅·VPN,1194,1194,OpenVPN,UDP,TCP / UDP (구성),,인증한 피어 사이에 보호된 가상 네트워크 터널을 만들어요.
+모니터링·라우팅·VPN,1701,1701,L2TP,UDP,UDP,,PPP 프레임을 터널 세션에 실어 전달해요.
+모니터링·라우팅·VPN,1723,1723,PPTP,TCP,TCP,,구형 VPN의 제어 연결을 설정해요.
+모니터링·라우팅·VPN,1812,1812,RADIUS Authentication,UDP,UDP,,접속 장비(NAS)와 서버가 인증 또는 사용 기록을 교환해요.
+모니터링·라우팅·VPN,1813,1813,RADIUS Accounting,UDP,UDP,,접속 장비(NAS)와 서버가 인증 또는 사용 기록을 교환해요.
+모니터링·라우팅·VPN,4500,4500,IPsec NAT-T,UDP,UDP,,NAT 장비를 지날 수 있도록 IKE와 ESP를 UDP로 운반해요.
+모니터링·라우팅·VPN,9100,9100,Raw Print / Node Exporter,TCP,TCP,Raw Print · 프린터,같은 포트라도 인쇄와 메트릭 HTTP는 전혀 다른 서비스예요.
+모니터링·라우팅·VPN,51820,51820,WireGuard,UDP,UDP,,정적 공개키로 피어를 구분하고 암호화된 IP 터널을 만들어요.
+원격·파일,20,20,FTP 데이터,TCP,TCP,,명령을 주고받는 연결과 파일을 옮기는 연결이 따로 있어요.
+원격·파일,21,21,FTP 제어,TCP,TCP,,명령을 주고받는 연결과 파일을 옮기는 연결이 따로 있어요.
+원격·파일,22,22,SSH,TCP,TCP,,원격 컴퓨터에 안전하게 로그인하고 명령을 보내요.
+원격·파일,23,23,Telnet,TCP,TCP,,원격 터미널의 글자를 암호화 없이 주고받아요.
+원격·파일,69,69,TFTP,UDP,UDP,,작은 파일을 단순한 규칙으로 전송해요.
+원격·파일,115,115,Simple File Transfer Protocol · 구형 SFTP,TCP,TCP,,SSH 파일 전송과 이름만 같은 구형 파일 전송 규칙이에요.
+원격·파일,512,512,rexec,TCP,TCP,,인증 후 원격에서 명령을 실행해요.
+원격·파일,513,513,rlogin,TCP,TCP,,원격 컴퓨터의 로그인 터미널을 사용해요.
+원격·파일,514,514-rsh,rsh · TCP,TCP,TCP,,구형 원격 셸이 계정과 명령을 받아 실행 결과를 돌려줘요.
+원격·파일,873,873,rsync,TCP,TCP,,달라진 파일 부분을 찾아 동기화해요.
+원격·파일,989,989,FTPS Data,TCP,TCP,,FTP 데이터 채널을 TLS로 보호해요.
+원격·파일,990,990,FTPS Control,TCP,TCP,,FTP 제어 채널을 TLS로 보호해요.
+원격·파일,3389,3389,RDP,TCP,TCP / UDP,RDP UDP 보조 경로,원격 화면을 받고 키보드·마우스 입력을 보내요.
+원격·파일,5800,5800,VNC 웹 뷰어 · 레거시,TCP,TCP,,웹 서버가 원격 화면 클라이언트를 내려주는 구형 구성 예예요.
+원격·파일,5900,5900,VNC,TCP,TCP,,원격 화면을 전달하고 입력 이벤트를 돌려보내요.
+원격·파일,5985,5985,WinRM,TCP,TCP,,Windows 원격관리 요청을 SOAP 메시지로 보내요.
+원격·파일,5986,5986,WinRM HTTPS,TCP,TCP,,TLS로 보호한 WS-Management 요청으로 Windows를 관리해요.
+웹·기본 인프라,53,53,DNS,UDP,TCP / UDP,DNS TCP,도메인 이름을 컴퓨터가 찾아갈 IP 주소로 바꿔줘요.
+웹·기본 인프라,67,67,DHCP Server,UDP,UDP,,IP·게이트웨이·DNS를 임대해 네트워크에 참가해요.
+웹·기본 인프라,68,68,DHCP Client,UDP,UDP,,IP·게이트웨이·DNS를 임대해 네트워크에 참가해요.
+웹·기본 인프라,80,80,HTTP,TCP,TCP,,브라우저가 요청하면 서버가 웹 화면을 보내줘요.
+웹·기본 인프라,81,81,HTTP Alternate,TCP,TCP,,대체 웹·관리 화면에 HTTP로 요청하고 응답을 받아요.
+웹·기본 인프라,88,88,Kerberos,TCP,TCP / UDP,,비밀번호 대신 티켓과 세션 키로 서비스 이용 권한을 증명해요.
+웹·기본 인프라,123,123,NTP,UDP,UDP,,컴퓨터의 시계를 시간 서버와 맞춰요.
+웹·기본 인프라,443,443,HTTPS,TCP,TCP / UDP (QUIC),HTTP/3 · QUIC,HTTP 내용을 TLS로 보호해서 주고받아요.
+웹·기본 인프라,464,464,Kerberos kpasswd,TCP,TCP / UDP,,기존 자격 증명으로 보호된 비밀번호 변경을 요청해요.
+웹·기본 인프라,853,853,DNS over TLS / QUIC,TCP,TCP (DoT) / UDP (DoQ),DoQ · QUIC,암호화된 전송 안에서 DNS 이름을 질의해요.
+웹·기본 인프라,3128,3128,Squid Proxy,TCP,TCP,,프록시가 클라이언트 대신 웹 서버로 요청을 전달해요.
+웹·기본 인프라,8000,8000,개발 웹 서버,TCP,TCP,,개발용 웹 앱에 HTTP로 요청하고 응답을 받아요.
+웹·기본 인프라,8008,8008,HTTP Alternate,TCP,TCP,,대체 웹 서비스 상태에 HTTP로 요청하고 응답을 받아요.
+웹·기본 인프라,8080,8080,대체 HTTP,TCP,TCP,,브라우저가 요청하면 서버가 웹 화면을 보내줘요.
+웹·기본 인프라,8081,8081,대체 웹 관리 앱,TCP,TCP,,관리 콘솔에 HTTP로 요청하고 응답을 받아요.
+웹·기본 인프라,8443,8443,HTTPS,TCP,TCP,,HTTP 내용을 TLS로 보호해서 주고받아요.
+웹·기본 인프라,8888,8888,노트북 웹 서비스,TCP,TCP,,브라우저가 요청하면 서버가 웹 화면을 보내줘요.
+웹·기본 인프라,9000,9000,사용자 지정 앱 · PHP-FPM,TCP,TCP,PHP-FPM · FastCGI; SonarQube · HTTP,서버 설정에 따라 전혀 다른 프로토콜이 동작해요.
+윈도우·디렉터리,135,135,MSRPC Endpoint Mapper,TCP,TCP,,Windows 원격 기능의 접속 위치를 찾아요.
+윈도우·디렉터리,137,137,NetBIOS 이름 서비스,UDP,UDP,,로컬 네트워크에서 장비 이름의 주소를 찾아요.
+윈도우·디렉터리,138,138,NetBIOS Datagram,UDP,UDP,,연결을 맺지 않고 로컬 이름 기반 데이터그램을 전달해요.
+윈도우·디렉터리,139,139,SMB over NetBIOS,TCP,TCP,,NetBIOS 세션 위에서 파일 공유를 이용해요.
+윈도우·디렉터리,389,389,LDAP,TCP,TCP LDAP / UDP CLDAP,CLDAP UDP,디렉터리에서 사용자나 조직 정보를 찾아요.
+윈도우·디렉터리,445,445,SMB,TCP,TCP,,공유 폴더의 파일을 열고 읽어요.
+윈도우·디렉터리,593,593,RPC over HTTP Endpoint Mapper,TCP,TCP,,HTTP를 통한 RPC 연결·접점 안내 역할을 살펴봐요.
+윈도우·디렉터리,636,636,LDAPS,TCP,TCP,,디렉터리 조회를 TLS로 보호해요.
+윈도우·디렉터리,3268,3268,AD Global Catalog,TCP,TCP,,전체 포리스트에서 개체의 부분 속성을 검색해요.
+윈도우·디렉터리,3269,3269,AD Global Catalog TLS,TCP,TCP,,전체 포리스트에서 개체의 부분 속성을 검색해요.
+윈도우·디렉터리,5353,5353,mDNS,UDP,UDP,,같은 링크에서 .local 이름과 서비스 정보를 멀티캐스트로 찾아요.
+인프라·메시징·기타,7,7,Echo,UDP,TCP / UDP,,레거시 진단 서비스의 메시지 교환과 위험을 학습해요.
+인프라·메시징·기타,9,9,Discard / Wake-on-LAN,UDP,TCP / UDP Discard; WoL은 별도,Wake-on-LAN · Magic Packet,레거시 진단 서비스의 메시지 교환과 위험을 학습해요.
+인프라·메시징·기타,19,19,Chargen,UDP,TCP / UDP,,레거시 진단 서비스의 메시지 교환과 위험을 학습해요.
+인프라·메시징·기타,37,37,Time,UDP,TCP / UDP,,레거시 진단 서비스의 메시지 교환과 위험을 학습해요.
+인프라·메시징·기타,43,43,WHOIS,TCP,TCP,,등록 정보 서버에 이름·주소 자원의 공개 정보를 질의해요.
+인프라·메시징·기타,194,194,IRC · 등록 포트,TCP,TCP,,닉네임을 등록하고 채널에서 메시지를 전달해요.
+인프라·메시징·기타,548,548,AFP,TCP,TCP,,Apple 파일 공유 서버에 접속해요.
+인프라·메시징·기타,554,554,RTSP · CCTV,TCP,RTSP TCP / UDP는 버전·구성별,,"재생 명령을 주고받고, 별도 경로로 영상을 받아요."
+인프라·메시징·기타,902,902,VMware ESXi 관리,TCP,TCP / UDP 역할 구분,,vSphere 관리와 콘솔 관련 통신의 역할을 구분해요.
+인프라·메시징·기타,1883,1883,MQTT,TCP,TCP,,중간 전달자인 브로커가 구독자에게 메시지를 보내요.
+인프라·메시징·기타,2375,2375,Docker API,TCP,TCP,,HTTP API로 컨테이너 상태를 조회해요.
+인프라·메시징·기타,2376,2376,Docker API TLS,TCP,TCP,,상호 TLS로 클라이언트를 확인하고 Docker API를 호출해요.
+인프라·메시징·기타,5672,5672,AMQP · RabbitMQ,TCP,TCP,,메시지를 큐에 넣고 작업자에게 전달해요.
+인프라·메시징·기타,9092,9092,Kafka,TCP,TCP,,로그형 토픽에 메시지를 쓰고 읽어요.
