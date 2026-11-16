@@ -121,6 +121,24 @@
   .a-rel .chip-q { font-size: 11.5px; padding: 4px 10px; }
   .msg .bubble .src { border-top: 1px dashed var(--line); padding-top: 6px; margin-top: 10px; }
   @media (max-width: 640px) { .msg.bot { max-width: 100%; } .chat { padding: 12px; } }
+
+    .greet{margin:0 0 8px;font-size:14px;font-weight:700;color:var(--ink)}
+    .lead{margin:0 0 14px;font-size:13.5px;line-height:1.85;color:var(--ink)}
+    .blk{margin:0 0 14px}
+    .blk>h4{margin:0 0 8px;font-size:13.5px;color:var(--ink)}
+    table.core-t{width:100%;border-collapse:collapse;font-size:12.5px}
+    table.core-t th{width:150px;text-align:left;vertical-align:top;background:var(--surface-2);
+      border:1px solid var(--line);padding:8px 10px;font-weight:700;color:var(--ink);white-space:nowrap}
+    table.core-t td{border:1px solid var(--line);padding:8px 10px;line-height:1.8;color:var(--ink)}
+    .qzs{border:1px solid var(--line);border-radius:10px;padding:12px 14px;background:var(--surface-2)}
+    .qzs>h4{margin:0 0 8px}
+    .qzs-q{margin:0 0 8px;font-size:13px;line-height:1.8;color:var(--ink)}
+    .qzs-q>b{display:inline-block;margin-right:6px;padding:1px 8px;border-radius:999px;
+      background:var(--cipher-soft);color:var(--cipher);font-size:12px}
+    .qzs-a{margin:0;font-size:12.5px;line-height:1.85;color:var(--ink)}
+    .qzs-tip{display:block;margin-top:6px;color:var(--muted)}
+    .qzs-law{margin:7px 0 0;font-size:12px;color:var(--muted)}
+    @media(max-width:620px){table.core-t th{width:auto;white-space:normal}}
 </style>
 <link rel="stylesheet" href="assets/css/academy.css">
 </head>
@@ -233,6 +251,76 @@
   }
 
   function gnorm(g) { return (typeof g === 'string') ? { s: g, t: '' } : (g || { s: '', t: '' }); }
+
+  /* ── 답변 형식: 인사 → 핵심 한 단락 → 핵심 표 → 자세히(접힘) → 깜짝 퀴즈 ── */
+  function plain(h) { return String(h || '').replace(/<[^>]+>/g, '').replace(/\s+/g, ' ').trim(); }
+  function clip(h, n) {
+    var t = String(h || '').replace(/^[^\w가-힣<]*\s*/, '');
+    if (plain(t).length <= n) return t;
+    var cut = plain(t).slice(0, n);
+    var dot = Math.max(cut.lastIndexOf('. '), cut.lastIndexOf('요.'), cut.lastIndexOf('다.'));
+    return esc(dot > n * 0.5 ? cut.slice(0, dot + 1) : cut + '…');
+  }
+  function secOf(e, n) { return (e.sections || []).filter(function (x) { return x.n === n; })[0] || { items: [] }; }
+
+  /* 비교표가 있으면 그대로, 없으면 주제의 뼈대로 2열 표를 만든다 */
+  function coreTable(e, used) {
+    if (e.tableHtml) return e.tableHtml;
+    var rows = [
+      ['무엇인가요?', secOf(e, 1).items[0]],
+      ['언제 적용되나요?', secOf(e, 3).items[0]],
+      ['공공기관은 무엇을 하나요?', secOf(e, 4).items[0]],
+      ['어기면 어떻게 되나요?', secOf(e, 5).items[0]]
+    ].filter(function (r) { return r[1]; });
+    var last = (e.sections || []).filter(function (x) { return x.summary; })[0];
+    if (last) rows.push(['꼭 기억할 한 가지', last.summary]);
+    if (!rows.length) return '';
+    rows.forEach(function (r) { used[plain(r[1])] = 1; });
+    return '<table class="core-t"><tbody>' + rows.map(function (r) {
+      return '<tr><th>' + esc(r[0]) + '</th><td>' + clip(r[1], 150) + '</td></tr>';
+    }).join('') + '</tbody></table>';
+  }
+
+  /* 위에서 이미 보여 준 내용은 빼고 8단계를 펼친다 */
+  function detailBody(e, used) {
+    var h = (e.sections || []).map(function (sec) {
+      var items = (sec.items || []).filter(function (i) { return !used[plain(i)]; });
+      if (!items.length && !sec.check && !(sec.summary && !used[plain(sec.summary)])) return '';
+      var b = '<div class="a-sec"><h4>' + sec.n + '. ' + esc(sec.h) + '</h4>';
+      if (items.length) b += '<ul>' + items.map(function (i) { return '<li>' + i + '</li>'; }).join('') + '</ul>';
+      if (sec.check) {
+        b += '<div class="chk-box"><div class="chk-h">실무자 점검 목록</div>' +
+          sec.check.map(function (c, i) { return '<label class="chk-i"><input type="checkbox" data-c="' + i + '"><span>' + c + '</span></label>'; }).join('') + '</div>';
+      }
+      if (sec.summary && !used[plain(sec.summary)]) b += '<div class="sum-box"><b>한 줄 핵심</b><p>' + sec.summary + '</p></div>';
+      return b + '</div>';
+    }).filter(Boolean).join('<hr class="a-hr">');
+    return h + guideBlock(e) + qnaBlock(e) + tailer(e);
+  }
+
+  function quizBlock(e) {
+    var qs = e.quiz || [];
+    if (!qs.length) return '';
+    var z = qs[Math.floor(Math.random() * qs.length)];
+    return '<div class="blk qzs"><h4>💡 헷갈리기 쉬운 깜짝 퀴즈!</h4>' +
+      '<p class="qzs-q"><b>문제</b> ' + z.q + '</p>' +
+      '<p class="qzs-a"><b>정답: ' + esc(z.a) + '</b> — ' + z.why +
+      (z.tip ? ' <span class="qzs-tip">💬 ' + z.tip + '</span>' : '') + '</p>' +
+      (z.law ? '<p class="qzs-law">근거: ' + esc(z.law) + '</p>' : '') + '</div>';
+  }
+
+  function renderTopic(e, q) {
+    var used = {};
+    var tbl = coreTable(e, used);
+    if (e.intro) used[plain(e.intro)] = 1;
+    return '<p class="greet">안녕하세요! <b>' + esc(e.title) + '</b>에 대해 궁금하셨군요. 😊</p>' +
+      '<p class="lead">' + (e.intro || ((e.sum2 || [])[0] || '')) + '</p>' +
+      (tbl ? '<div class="blk"><h4>💡 한눈에 보는 핵심</h4>' + tbl + '</div>' : '') +
+      '<details class="dt"><summary>💡 조금 더 자세히 알아볼까요?</summary>' +
+      '<div class="dt-in">' + detailBody(e, used) + '</div></details>' +
+      quizBlock(e);
+  }
+
   /* ── 모드 3: 교육 퀴즈 ──────────────────────────────────── */
   function render3(e, n) {
     var qs = (e.quiz || []).slice(0, n || 3);
@@ -311,25 +399,30 @@
     var e = match(q);
     if (!e) {
       var topics = KB.map(function (x) { return '<button type="button" class="chip-q rel" data-q="' + esc(x.kw[0]) + '">' + esc(x.title) + '</button>'; }).join('');
-      return add('bot', wrap([
-        '이 질문에 해당하는 주제를 제가 아직 못 찾았어요 — 조금 더 <b>법령 용어</b>로 좁혀 주시면 정확히 답해 드릴 수 있어요.',
-        '주제명을 입력하면 <b>표준 8단계</b>로, "○○ 검토해줘"는 <b>실무 검토 의견</b>으로, "○○ 퀴즈 3문제"는 <b>교육 퀴즈</b>로 답해요.'
-      ], '<div class="a-rel"><span>다룰 수 있는 주제</span>' + topics + '</div>' +
+      return add('bot',
+        '<p class="greet">안녕하세요! 😊 죄송해요, 이 질문에 딱 맞는 주제를 아직 못 찾았어요.</p>' +
+        '<p class="lead">조금 더 <b>법령 용어</b>로 좁혀 주시면 정확히 답해 드릴 수 있어요. 주제명을 입력하면 <b>핵심 정리</b>로, “○○ 검토해줘”는 <b>실무 검토</b>로, “○○ 퀴즈 3문제”는 <b>교육 퀴즈</b>로 답해요.</p>' +
+        '<div class="blk"><h4>💡 이런 주제는 바로 답해 드려요</h4>' +
+        '<div class="a-rel">' + topics + '</div></div>' +
         '<p style="margin:10px 0 0;font-size:12.5px;color:var(--muted)">구체적 사안은 <b>개인정보보호위원회(pipc.go.kr)</b> 상담이나 전문가 검토가 필요할 수 있어요.</p>',
-        '다룰 수 있는 주제 보기'), null, '주제를 찾지 못했어요');
+        null, '주제를 찾지 못했어요');
     }
     var m = mode(q);
     if (m === 3) {
       var n = (q.match(/(\d+)\s*(문제|문항|개)/) || [])[1];
       var cnt = n ? Math.min(+n, (e.quiz || []).length) : 3;
-      return add('bot', wrap([
-        '<b>' + esc(e.title) + '</b> 교육용 <b>OX 퀴즈 ' + cnt + '문제</b>를 준비했어요 — 실무에서 가장 헷갈리는 함정 포인트로 골랐어요.',
-        '각 문제마다 <b>정답 · 상세 해설(조문 근거) · 실무 핵심 팁</b>이 붙어 있어 교육 자료로 바로 쓸 수 있어요.'
-      ], render3(e, cnt), '퀴즈 ' + cnt + '문제 보기'), e.src, e.title + ' — 교육 퀴즈');
+      return add('bot',
+        '<p class="greet">안녕하세요! <b>' + esc(e.title) + '</b> 퀴즈를 풀어 보고 싶으셨군요. 😊</p>' +
+        '<p class="lead">실무에서 가장 헷갈리는 지점으로 <b>' + cnt + '문제</b>를 골랐어요. O·X를 먼저 고르면 바로 채점하고, 문제마다 <b>왜 그런지</b>와 <b>실무 팁</b>까지 펼쳐 드릴게요.</p>' +
+        '<div class="blk"><h4>💡 함께 풀어 볼까요?</h4>' + render3(e, cnt) + '</div>',
+        e.src, e.title + ' — 교육 퀴즈');
     }
-    if (m === 2) return add('bot', wrap(sum2of2(e), render2(e, q), '검토 의견 자세히 보기'), e.src, e.title + ' — 실무 검토');
-    return add('bot', wrap(e.sum2 || ['<b>' + esc(e.title) + '</b>에 대한 핵심 내용을 정리했어요.', '아래 <b>표준 8단계</b>에서 정의·근거부터 판례·체크리스트까지 확인하세요.'],
-                           render8(e, true), '자세히 보기 (표준 8단계)'), e.src, e.title);
+    if (m === 2) return add('bot',
+      '<p class="greet">안녕하세요! 이 사안이 <b>' + esc(e.title) + '</b>에 해당하는지 살펴봐 드릴게요. 😊</p>' +
+      '<p class="lead">' + ((e.sum2 && e.sum2[0]) || '') + ' 아래에서 <b>결론 · 법적 근거 · 예상 위험 · 실무 대안</b> 순서로 짚어 드릴게요. 다만 규칙으로 맞춰 보는 도구라서 <b>최종 판단은 담당자</b>께서 해 주셔야 해요.</p>' +
+      '<details class="dt" open><summary>💡 검토 의견 보기</summary><div class="dt-in">' + render2(e, q) + '</div></details>' +
+      quizBlock(e), e.src, e.title + ' — 실무 검토');
+    return add('bot', renderTopic(e, q), e.src, e.title);
   }
 
   var QS = ['민감정보', '고유식별정보', '제18조 목적 외 이용', '접속기록', '암호화', 'CCTV',
