@@ -5,17 +5,17 @@
     { h:'index.html',       t:'홈',            g:'' },
     { h:'pia-guide.html',   t:'영향평가 길라잡이', g:'학습' },
     { h:'learn.html',       t:'학습 둘러보기',      g:'학습' },
-    { h:'ctf.html',         t:'CTF 실습', g:'학습' },
+    { h:'ctf.html',         t:'게임으로 배우는 정보보호', g:'학습' },
     { h:'policy.html',      t:'처리방침 진단',   g:'점검·도구' },
     { h:'consent.html',     t:'동의서 생성',     g:'점검·도구' },
     { h:'law-search.html',  t:'법령 검색',      g:'점검·도구' },
-    { h:'chatbot.html',     t:'고팡 도우미',     g:'점검·도구' },
-    { h:'cyber-guide.html', t:'사이버 보안',     g:'보안' },
+    { h:'chatbot.html',     t:'뭐든 물어봅써',   g:'점검·도구' },
+    { h:'cyber-guide.html', t:'사이버 보안 길라잡이', g:'보안' },
     { h:'n2sf-guide.html',  t:'N2SF',         g:'보안' },
     { h:'port-lookup.html', t:'패킷의 여행',       g:'보안' },
     { h:'grow.html',        t:'나의 성장',      g:'보안' }
   ];
-  var TOP = ['chatbot.html','ctf.html','policy.html','law-search.html','port-lookup.html'];
+  var TOP = ['chatbot.html','ctf.html','cyber-guide.html','law-search.html','policy.html','port-lookup.html'];
   var here = (location.pathname.split('/').pop() || 'index.html').toLowerCase() || 'index.html';
   var cur = NAV.filter(function (n) { return n.h === here; })[0];
 
