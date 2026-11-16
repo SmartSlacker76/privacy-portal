@@ -338,9 +338,9 @@
     var used = {};
     var tbl = coreTable(e, used);
     if (e.intro) used[plain(e.intro)] = 1;
-    var cmp = /차이|비교|다른 점|다른점|구분|vs/.test(String(q || '') + ' ' + String(e.title || ''));
+    var cmp = e.cmpTable || /차이|비교|다른 점|다른점|구분|vs/.test(String(q || '') + ' ' + String(e.title || ''));
     var tblT = cmp ? '💡 한눈에 보는 핵심 차이점' : '💡 한눈에 보는 핵심';
-    return '<p class="greet">안녕하세요! <b>' + esc(e.title) + '</b>' + (cmp ? josaGa(e.title) + ' 궁금하셨군요' : '에 대해 궁금하셨군요') + '. 😊</p>' +
+    return '<p class="greet">안녕하세요! <b>' + esc(e.title) + '</b>' + (cmp && !e.cmpTable ? josaGa(e.title) + ' 궁금하셨군요' : '에 대해 궁금하셨군요') + '. 😊</p>' +
       '<p class="lead">' + (e.intro || ((e.sum2 || [])[0] || '')) + '</p>' +
       (tbl ? '<details class="dt dt-core"><summary>' + tblT + '</summary><div class="dt-in">' + tbl + '</div></details>' : '') +
       '<details class="dt"><summary>💡 조금 더 자세히 알아볼까요?</summary>' +
