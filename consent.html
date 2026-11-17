@@ -98,6 +98,39 @@ button:focus-visible,input:focus-visible,textarea:focus-visible,select:focus-vis
 .doc-page th{background:#eceeed;color:#13261f}
 .doc-page .doc-page-number,.doc-page small{color:#4a5c51}
 .toggle-arrow{color:var(--v21-sub)}
+
+
+/* ═══ 인쇄 / PDF 저장 — 오른쪽 완성 문서만 출력 ═══
+   페이지의 모든 요소를 숨기고, #printDocument 와 그 조상만 다시 보이게 하는
+   격리 방식입니다. 포털 헤더·푸터·GNB 가 나중에 바뀌어도 새 요소가 섞이지 않습니다. */
+@page{size:A4;margin:14mm}
+@media print{
+  html,body{background:#fff !important;margin:0 !important;padding:0 !important;height:auto !important}
+  body *{visibility:hidden !important}
+  #printDocument,#printDocument *{visibility:visible !important}
+  /* 조상 체인은 보이되 자체 장식은 제거 */
+  .app,.workspace,.doc-sheet{
+    display:block !important;position:static !important;
+    background:#fff !important;border:0 !important;box-shadow:none !important;
+    margin:0 !important;padding:0 !important;max-width:none !important;
+    width:auto !important;height:auto !important;min-height:0 !important;
+    overflow:visible !important;grid-template-columns:none !important}
+  /* 편집 패널·화면용 분할 미리보기는 자리까지 제거 */
+  .editor,#preview,.doc-pages,.g-head,.g-foot{display:none !important}
+  #printDocument{
+    display:block !important;position:static !important;
+    width:auto !important;max-width:none !important;min-height:0 !important;
+    margin:0 !important;padding:0 !important;border:0 !important;box-shadow:none !important;
+    background:#fff !important;color:#13261f !important}
+  #printDocument *{background:transparent !important;color:#13261f !important;
+    -webkit-print-color-adjust:exact;print-color-adjust:exact}
+  #printDocument th{background:#eceeed !important}
+  #printDocument table{border-collapse:collapse !important;width:100% !important}
+  #printDocument table,#printDocument tr,#printDocument td,#printDocument th{
+    border-color:#1a2b22 !important;page-break-inside:avoid;break-inside:avoid}
+  #printDocument h1,#printDocument h2,#printDocument h3{page-break-after:avoid;break-after:avoid}
+  #printDocument .doc-signature-area,#printDocument .guardian-grid{page-break-inside:avoid;break-inside:avoid}
+}
 </style>
 </head>
 <body>
