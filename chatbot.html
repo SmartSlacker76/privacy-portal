@@ -422,24 +422,24 @@ html[data-theme="dark"] .msg.me .bubble{background:#34445e!important;color:#fff}
       .filter(function(w){ return w.length>=2; });
   }
   function qaFind(q){
-    var nq=qaNorm(q); if(nq.length<2) return null;
-    var best=null, bs=0;
+    var nq=qaNorm(q);if(nq.length<4)return null;
+    var generic=/^(개인정보|정보|보호법|법|관련|대해|무엇|방법|설명|알려|요청|가능|여부|경우)$/;
+    var a=tokens(q).filter(function(t){return !generic.test(t);});
+    var best=null,bs=0;
     for(var i=0;i<QA_IDX.length;i++){
-      var k=QA_IDX[i].k, sc=0;
-      if(k===nq) sc=1000;
-      else if(k.indexOf(nq)>=0 && nq.length>=6) sc=400+nq.length;
-      else if(nq.indexOf(k)>=0 && k.length>=6) sc=380+k.length;
-      else {
-        /* 공통 토큰 길이 합 */
-        var a=tokens(q), b=tokens(QA_IDX[i].it.q), hit=0, tot=0;
-        for(var j=0;j<a.length;j++){ if(a[j].length<2) continue; tot+=a[j].length;
-          if(b.some(function(x){return x.indexOf(a[j])>=0||a[j].indexOf(x)>=0;})) hit+=a[j].length; }
-        if(tot) sc=Math.round(hit/tot*300)+(hit>=4?20:0);
-      }
-      if(sc>bs){bs=sc;best=QA_IDX[i].it;}
+      var it=QA_IDX[i].it,k=QA_IDX[i].k;
+      if(k===nq)return it;
+      if(!a.length||nq.length<7)continue;
+      var b=tokens(it.q).filter(function(t){return !generic.test(t);});
+      var hit=0;
+      a.forEach(function(t){if(b.some(function(x){return x===t||(x.length>=3&&t.length>=3&&(x.indexOf(t)>=0||t.indexOf(x)>=0));}))hit++;});
+      var cover=hit/a.length,sc=0;
+      if(k.indexOf(nq)>=0&&nq.length>=9)sc=500+nq.length;
+      else if(nq.indexOf(k)>=0&&k.length>=9)sc=480+k.length;
+      else if(hit>=2&&cover>=0.75)sc=Math.round(cover*300)+hit*10;
+      if(sc>bs){bs=sc;best=it;}
     }
-    /* 근거 없이 아무 문항이나 내놓지 않습니다 */
-    return bs>=150 ? best : null;
+    return bs>=220?best:null;
   }
 
   /* ───────── 간결한 첫 답변 ───────── */
@@ -607,7 +607,21 @@ html[data-theme="dark"] .msg.me .bubble{background:#34445e!important;color:#fff}
     if (role === 'bot' && window.PI && window.PI.linkifyLaws) window.PI.linkifyLaws(m);
   }
 
+  /* 법 제2조: 짧은 정의 질문은 유사 FAQ로 대체하지 않습니다. */
+  function baseDefinition(q) {
+    var n = qaNorm(q).replace(/(이란|란|은|는|이|가|뭔가요|무엇인가요|무엇인가|뭐야|뭐예요|뜻|정의|알려줘|알려주세요|설명해줘|설명해주세요|인가요|입니까)+$/g,'');
+    if (n !== '개인정보') return false;
+    var e = KB.filter(function(x){ return x.id === '용어정의'; })[0];
+    var h = '<p class="friendly-lead">개인정보란 무엇인가요?</p>'
+      + '<p class="friendly-answer"><b>살아 있는 개인에 관한 정보</b>로서 ① 성명·주민등록번호·영상 등으로 개인을 알아볼 수 있는 정보, ② 다른 정보와 쉽게 결합하여 개인을 알아볼 수 있는 정보, ③ 법에서 정한 <b>가명정보</b>를 포함합니다.</p>'
+      + '<p class="friendly-answer">이름, 연락처, 개인을 알아볼 수 있는 CCTV 영상 등이 예시입니다. ID나 기록도 다른 정보와 쉽게 결합하여 개인을 알아볼 수 있다면 개인정보에 해당할 수 있습니다.</p>'
+      + '<p class="friendly-src">법적 근거: 「개인정보 보호법」 제2조제1호</p>'
+      + '<div class="a-chk"><a href="https://www.law.go.kr/법령/개인정보보호법/제2조" target="_blank" rel="noopener noreferrer">법 제2조 원문 확인</a></div>';
+    if (e) {lastTopic=e;h+=topicButtons(e.id);}
+    add('bot',h,null,'개인정보의 정의');return true;
+  }
   function answer(q) {
+    if(baseDefinition(q)) return;
     var e = match(q);
     lastTopic = e;
     /* 질문이 모음집 문항과 거의 같으면 모음집 답을 먼저 보여 줍니다. */
