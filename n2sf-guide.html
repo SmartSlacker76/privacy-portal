@@ -16,14 +16,14 @@
   .stepper { display:flex; gap:4px; margin:10px 0 14px; flex-wrap:wrap; }
   .stx { flex:1; min-width:96px; text-align:center; font-size: 12.5px; color:var(--muted); border-top:3px solid var(--line); padding-top:6px; cursor:pointer; }
   .stx b { display:block; font-size:12px; color:var(--ink); }
-  .stx.on { border-top-color:#2857d9; } .stx.on b { color:#2857d9; }
+  .stx.on { border-top-color:#607e94; } .stx.on b { color:#607e94; }
   .stx.done { border-top-color:var(--ok-ink); }
   .step { display:none; } .step.on { display:block; }
   .step h2 { font-family:var(--f-display); font-size:18px; margin:0 0 4px; }
-  .teach { background:#eef2fc; border:1px solid #d0daf5; border-left:4px solid #2857d9; border-radius:10px; padding:12px 15px; margin:10px 0; font-size:13px; line-height:1.7; }
-  html[data-theme="dark"] .teach, :root[data-theme="dark"] .teach { background:#1a2133; border-color:#2d3857; }
-  .teach h3 { margin:0 0 5px; font-family:var(--f-display); font-size:14.5px; color:#2857d9; }
-  html[data-theme="dark"] .teach h3 { color:#94aef6; }
+  .teach { background:#f4f1eb; border:1px solid #dce7ec; border-left:4px solid #607e94; border-radius:10px; padding:12px 15px; margin:10px 0; font-size:13px; line-height:1.7; }
+  html[data-theme="dark"] .teach, :root[data-theme="dark"] .teach { background:#1f2a44; border-color:#34445e; }
+  .teach h3 { margin:0 0 5px; font-family:var(--f-display); font-size:14.5px; color:#607e94; }
+  html[data-theme="dark"] .teach h3 { color:#dce7ec; }
   .reg { font-size: 12.5px; color:var(--muted); }
   .cso { display:grid; grid-template-columns:repeat(3,1fr); gap:9px; margin:10px 0; }
   @media(max-width:640px){ .cso { grid-template-columns:1fr; } }
@@ -32,8 +32,8 @@
   .cso-c b { font-size:16px; display:block; } .cso-c span { font-size:12px; opacity:.95; line-height:1.5; display:block; margin-top:3px; }
   .principle { display:grid; grid-template-columns:1fr 1fr; gap:9px; margin:8px 0; }
   @media(max-width:640px){ .principle { grid-template-columns:1fr; } }
-  .pr { border:1px solid var(--line); border-left:3px solid #2857d9; border-radius:9px; padding:10px 12px; font-size:12.5px; line-height:1.6; }
-  .pr b { color:#2857d9; display:block; margin-bottom:3px; }
+  .pr { border:1px solid var(--line); border-left:3px solid #607e94; border-radius:9px; padding:10px 12px; font-size:12.5px; line-height:1.6; }
+  .pr b { color:#607e94; display:block; margin-bottom:3px; }
   table.ex { width:100%; border-collapse:collapse; font-size:12px; margin:6px 0; }
   table.ex th,table.ex td { border:1px solid var(--line); padding:4px 7px; text-align:left; }
   table.ex th { background:var(--surface-2); }
@@ -54,16 +54,16 @@
   .ex b { display:block; font-size: 12.5px; margin-bottom:2px; }
   .ex.good { border-left-color:var(--ok-ink); background:color-mix(in srgb,var(--ok-solid) 7%,var(--surface)); } .ex.good b { color:var(--ok-ink); }
   .ex.bad { border-left-color:#c4321b; background:color-mix(in srgb,#c4321b 7%,var(--surface)); } .ex.bad b { color:#c4321b; }
-  .ex.tmpl { border-left-color:#2563eb; background:color-mix(in srgb,#2563eb 7%,var(--surface)); } .ex.tmpl b { color:#2563eb; }
+  .ex.tmpl { border-left-color:#607e94; background:color-mix(in srgb,#607e94 7%,var(--surface)); } .ex.tmpl b { color:#607e94; }
   .exrow { display:grid; grid-template-columns:1fr 1fr 1fr; gap:7px; margin-top:7px; }
   @media(max-width:600px){ .exrow { grid-template-columns:1fr; } }
   .ex.note { border-left-color:var(--warn-ink); background:color-mix(in srgb,var(--warn-solid) 7%,var(--surface)); } .ex.note b { color:var(--warn-ink); }
-  .ex.pen { border-left-color:#3a6aed; background:color-mix(in srgb,#3a6aed 7%,var(--surface)); } .ex.pen b { color:#3a6aed; }
+  .ex.pen { border-left-color:#607e94; background:color-mix(in srgb,#607e94 7%,var(--surface)); } .ex.pen b { color:#607e94; }
   .ex.risk { border-left-color:#c4321b; background:color-mix(in srgb,#c4321b 9%,var(--surface)); } .ex.risk b { color:#c4321b; }
   .metbar { margin-top:9px; padding-top:8px; border-top:1px dashed var(--line); }
   .navbtns { display:flex; justify-content:space-between; margin-top:16px; }
   .scorebox { display:flex; gap:16px; align-items:center; flex-wrap:wrap; }
-  .scorebox .big { font-family:var(--f-display); font-size:38px; font-weight:800; color:#2857d9; }
+  .scorebox .big { font-family:var(--f-display); font-size:38px; font-weight:800; color:#607e94; }
   /* C/S/O 상세 분류 기준 */
   .csodet { display:grid; gap:8px; }
   .cd { border:1px solid var(--line); border-left:4px solid var(--line); border-radius:9px; padding:9px 12px; }
@@ -83,7 +83,7 @@
   .prow .pfb:empty { display:none; }
 </style>
 <link rel="stylesheet" href="assets/css/academy.css">
-<link rel="stylesheet" href="assets/css/hondi-blue-white.css?v=20261117"></head>
+<link rel="stylesheet" href="assets/css/hondi-navy-sand.css?v=20261117-4"></head>
 <body>
 <div class="sp-wrap wide">
   <div class="sp-top"><a class="back" href="index.html">← 혼디지킴이 포털</a><span class="brand">국가 망보안체계(N2SF) 이해하기</span></div>
@@ -122,7 +122,7 @@
 
     <!-- 2 등급분류 (핵심) -->
     <section class="step" data-s="2">
-      <h2>2. C/S/O 데이터 등급분류 (Classification) <span style="font-size:12px;background:#2857d9;color:#fff;padding:2px 9px;border-radius:12px;vertical-align:middle">N2SF의 핵심</span></h2>
+      <h2>2. C/S/O 데이터 등급분류 (Classification) <span style="font-size:12px;background:#607e94;color:#fff;padding:2px 9px;border-radius:12px;vertical-align:middle">N2SF의 핵심</span></h2>
       <div class="teach"><h3>왜 가장 중요한가</h3>N2SF의 출발점이자 심장은 <b>데이터(업무정보)를 C/S/O로 나누는 일</b>이에요. 등급이 정해져야 그에 맞는 차등 보안통제(3·4단계)가 결정돼요. <b>업무정보 등급을 먼저</b> 정하고, 그 정보를 처리하는 <b>정보시스템 등급</b>을 정해요.
         <div class="reg" style="margin-top:5px">원칙: 한 시스템이 여러 등급을 처리하면 <b>가장 높은 등급</b>으로, 되도록 <b>동일 등급끼리 시스템 분리</b> 권고. C/S 분류기준은 정보공개법·공공데이터법 등 관계 법령 준용.</div></div>
 
@@ -141,7 +141,7 @@
         <select id="q2"><option value="">선택</option><option value="y">예 — 중대(기밀급)</option><option value="n">아니오</option></select>
         <label>③ <b>개인정보(민감·고유식별 포함)</b>나 <b>미공개 내부 업무정보</b>를 담고 있나요?</label>
         <select id="q3"><option value="">선택</option><option value="y">예</option><option value="n">아니오/해당 없음</option></select>
-        <div class="cout" id="cout" style="background:#64748b">①~③을 선택하세요</div>
+        <div class="cout" id="cout" style="background:#607e94">①~③을 선택하세요</div>
         <div class="reg" id="cwhy" style="margin-top:7px"></div>
       </div>
 
@@ -194,15 +194,15 @@
         <ul id="rMiss" style="font-size:13px;color:var(--muted)"></ul>
         <h3 style="font-size:14px;margin:12px 0 5px">함께 보면 좋아요</h3>
         <ul style="font-size:13px;line-height:1.7">
-          <li>N2SF·MFA·포트 등 기술점검은 <a href="cyber-guide.html" style="color:#2857d9;font-weight:700">🛡 사이버 보안 길라잡이</a></li>
-          <li>개인정보 영향평가는 <a href="pia-guide.html" style="color:#2857d9;font-weight:700">🧭 개인정보 보호 길라잡이</a></li>
+          <li>N2SF·MFA·포트 등 기술점검은 <a href="cyber-guide.html" style="color:#607e94;font-weight:700">🛡 사이버 보안 길라잡이</a></li>
+          <li>개인정보 영향평가는 <a href="pia-guide.html" style="color:#607e94;font-weight:700">🧭 개인정보 보호 길라잡이</a></li>
         </ul>
       </div>
     </section>
 
     <div class="navbtns">
       <button class="btn" id="prev" type="button">← 이전</button>
-      <button class="btn primary" id="next" type="button" style="background:#2857d9;border-color:#2857d9">다음 →</button>
+      <button class="btn primary" id="next" type="button" style="background:#607e94;border-color:#607e94">다음 →</button>
     </div>
   </div>
 

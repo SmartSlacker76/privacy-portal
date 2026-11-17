@@ -53,7 +53,7 @@
         '<button type="button" data-theme="system">시스템</button>' +
         '<button type="button" data-theme="light">밝게</button>' +
         '<button type="button" data-theme="dark">어둡게</button>' +
-      '</div></div>' +
+      '</div><button class="g-palette-switch" id="gPaletteSwitch" type="button" title="네이비·샌드 / 내추럴 테마 전환" aria-label="배색 전환">◈ <span>배색</span></button></div>' +
     '</div>';
 
   /* 빵부스러기 */
@@ -130,5 +130,19 @@
     });
   });
   syncTheme();
+  var paletteButton=document.getElementById('gPaletteSwitch');
+  function syncPaletteButton(){
+    if(!paletteButton)return;
+    var p=window.HondiPalette ? window.HondiPalette.get() : 'modern';
+    paletteButton.setAttribute('aria-pressed',String(p==='natural'));
+    paletteButton.setAttribute('title',p==='natural'?'현재 내추럴 배색 · 네이비 배색으로 전환':'현재 네이비·샌드 배색 · 내추럴 배색으로 전환');
+    paletteButton.setAttribute('aria-label',p==='natural'?'배색: 내추럴, 네이비로 변경':'배색: 네이비, 내추럴로 변경');
+    paletteButton.querySelector('span').textContent=p==='natural'?'내추럴':'네이비';
+  }
+  if(paletteButton) paletteButton.addEventListener('click',function(){
+    if(window.HondiPalette)window.HondiPalette.set(window.HondiPalette.get()==='natural'?'modern':'natural');
+    syncPaletteButton();
+  });
+  syncPaletteButton();
   (function(){function sync(){var h=document.querySelector('.g-head');if(h)document.documentElement.style.setProperty('--pa-head',Math.round(h.getBoundingClientRect().height)+'px');}addEventListener('load',sync);addEventListener('resize',sync);setTimeout(sync,0);})();
 })();

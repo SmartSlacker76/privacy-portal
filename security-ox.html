@@ -2,18 +2,18 @@
 <html lang="ko"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="description" content="공공기관 CISO·CPO 대상 실제 사건 기반 OX퀴즈로 풀며 배우는 정보보호. 50문제, 문제당 30초, 제주 캐릭터 가이드, 24시간 랭킹.">
 <title>OX퀴즈로 풀며 배우는 정보보호 | 개인정보보호 포털</title>
-<link rel="stylesheet" href="./assets/security-ox/style.css">
+<script src="./assets/js/theme.js"></script><link rel="stylesheet" href="./assets/security-ox/style.css">
 <script defer src="./assets/security-ox/config.js"></script>
 <script defer src="./assets/security-ox/questions.js"></script>
-<script defer src="./assets/security-ox/app.js"></script><link rel="stylesheet" href="assets/css/hondi-blue-white.css?v=20261117"></head>
+<script defer src="./assets/security-ox/app.js"></script><link rel="stylesheet" href="assets/css/hondi-navy-sand.css?v=20261117-4"></head>
 <body>
 <div class="app-shell">
-<header class="topbar"><a class="brand" href="./index.html"><span class="brand-mark">✦</span><span>개인정보보호 포털<small>SECURITY LEARNING LAB</small></span></a><div class="toplinks"><a href="./index.html">포털 홈</a><span class="vline"></span><span class="tiny-year">2026.11 법령 기준</span></div></header>
+<header class="topbar"><a class="brand" href="./index.html"><span class="brand-mark">✦</span><span>개인정보보호 포털<small>SECURITY LEARNING LAB</small></span></a><div class="toplinks"><a href="./index.html">포털 홈</a><span class="vline"></span><button class="ox-palette-switch" id="oxPaletteSwitch" type="button" title="배색 전환">◈ 배색</button><span class="tiny-year">2026.11 법령 기준</span></div></header>
 <main class="main">
 <section class="intro-ribbon"><div><span class="eyebrow">PUBLIC SECTOR SECURITY GAME</span><h1><em>OX퀴즈로 풀며 배우는 정보보호</em></h1><p>실제 사고를 바탕으로 알아보는 CISO·CPO의 순간 판단력</p></div><div class="ribbon-emoji" aria-hidden="true">🛡️</div></section>
 <section id="screen-start" class="screen active" aria-label="게임 시작">
 <div class="start-layout"><div class="start-left">
-<div class="start-tag">50문제 문제은행 · 5분 타임어택</div><h2>제주 보안전문가 <strong>간세</strong>와<br>사고를 막을 준비됐나요?</h2>
+<div class="start-tag">50문제 문제은행 · 5분 타임어택</div><h2>보안전문가 <strong>요망진 간세다리</strong>와<br>보안사고를 막을 준비됐나요?</h2>
 <p class="desc"><b>5분 동안</b> 얼마나 많이 맞힐 수 있을까요? 선택한 답의 정답 여부는 <b>끝나고</b> 공개! 단, <b>30초 시간초과</b>는 즉시 오답 처리하고 정답·해설을 보여드려요.</p>
 <div class="feature-row"><div><strong>05:00</strong><small>전체 제한시간</small></div><div><strong>30초</strong><small>문제당 최대</small></div><div><strong>10~30점</strong><small>난이도별 득점</small></div></div>
 <form id="start-form" class="start-form"><label for="nickname">참가자 닉네임</label><div class="nick-row"><input id="nickname" name="nickname" autocomplete="nickname" minlength="2" maxlength="12" placeholder="예: 보안지킴이" required><button class="primary-btn" type="submit">챌린지 시작 <span>→</span></button></div><p class="help">이름·전화번호 등 개인정보를 입력하지 마세요. 닉네임은 2~12자입니다.</p><p id="start-error" class="error" role="alert"></p></form>
@@ -34,4 +34,4 @@
 <div class="result-lower"><div class="lower-panel"><div><h3>최근 24시간 순위 <span class="mode-badge" id="final-rank-mode">체험용</span></h3><p>24시간 경과 기록은 자동 제외됩니다.</p></div></div><div id="leaderboard-final" class="leaderboard"></div><div class="final-actions"><button class="primary-btn" id="restart-btn">새로운 문제 순서로 다시 도전</button><button class="ghost-btn" id="copy-btn">결과 복사</button></div></div>
 </section>
 <footer class="footer"><span>공공기관 CISO·CPO 교육 콘텐츠 · 2026년 11월 17일 기준</span><span>※ 문항은 공개된 실제 사건·공식 자료를 교육용 가상 상황으로 재구성한 내용입니다.</span><span>※ 법령과 제재는 사안별 적용 요건이 다를 수 있습니다.</span></footer>
-</main></div></body></html>
+</main></div><script>(function(){var b=document.getElementById('oxPaletteSwitch');if(!b)return;function sync(){var p=window.HondiPalette?window.HondiPalette.get():'modern';b.textContent=p==='natural'?'◈ 내추럴':'◈ 네이비';b.setAttribute('aria-label',p==='natural'?'현재 내추럴 배색, 네이비로 전환':'현재 네이비 배색, 내추럴로 전환');}b.addEventListener('click',function(){if(window.HondiPalette)window.HondiPalette.set(window.HondiPalette.get()==='natural'?'modern':'natural');sync();});sync();})();</script></body></html>

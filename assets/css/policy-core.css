@@ -1,8 +1,8 @@
 /* 개인정보 처리방침 점검 — 참고 구현(github.com/smarts19cker/privacy-checker, MIT)의 스타일을
    .pchk 영역으로 한정해 이식. 원 저작권 고지: assets/policy/LICENSE-privacy-checker */
 .pchk{--bg:#f4f5f2; --surface:#fcfcfb; --ink:#0b0b0b; --ink2:#52514e; --muted:#6d6c67;
-  --line:#e1e0d9; --axis:#c3c2b7; --brand:#1d4ed8; --brand-ink:#ffffff; --brand-soft:#e8eefc;
-  --good:#0c4da3; --warn:#fab219; --bad:#d03b3b; --na:#8f8e87; --good-ink:#0e2d55;
+  --line:#e1e0d9; --axis:#c3c2b7; --brand:#607e94; --brand-ink:#ffffff; --brand-soft:#f4f1eb;
+  --good:#34445e; --warn:#917858; --bad:#d03b3b; --na:#8f8e87; --good-ink:#1f2a44;
   --radius:12px; --shadow:0 1px 2px rgba(0,0,0,.05),0 4px 16px rgba(0,0,0,.04);}
 .pchk *{box-sizing:border-box}
 .pchk [hidden]{display:none!important}
@@ -10,16 +10,16 @@
 .pchk{background:var(--bg);color:var(--ink);font:15px/1.65 'Noto Sans KR',system-ui,-apple-system,'Apple SD Gothic Neo','Malgun Gothic',sans-serif;word-break:keep-all;overflow-wrap:anywhere}
 .pchk a{color:var(--brand)}
 .pchk .wrap{max-width:1120px;margin:0 auto;padding:0 16px}
-.pchk .top{background:#0f1b3d;color:#fff}
+.pchk .top{background:#1f2a44;color:#fff}
 .pchk .top-in{display:flex;justify-content:space-between;align-items:center;gap:12px;padding:18px 16px;flex-wrap:wrap}
 .pchk .brand{display:flex;gap:12px;align-items:center}
-.pchk .logo{display:grid;place-items:center;width:40px;height:40px;border-radius:10px;background:#2b5bff;color:#fff}
+.pchk .logo{display:grid;place-items:center;width:40px;height:40px;border-radius:10px;background:#607e94;color:#fff}
 .pchk h1{font-size:20px;margin:0;font-weight:900;letter-spacing:-.3px}
-.pchk .sub{margin:0;color:#c9d2ea;font-size:13px}
+.pchk .sub{margin:0;color:#dce7ec;font-size:13px}
 .pchk .chips{display:flex;gap:6px;flex-wrap:wrap}
-.pchk .chip{font-size:12px;padding:4px 10px;border-radius:99px;background:rgba(255,255,255,.1);color:#e6ebf7;border:1px solid rgba(255,255,255,.18)}
-.pchk .chip.on::before{content:'●';color:#4a8ade;margin-right:5px}
-.pchk .chip.off::before{content:'○';color:#9aa3b8;margin-right:5px}
+.pchk .chip{font-size:12px;padding:4px 10px;border-radius:99px;background:rgba(255,255,255,.1);color:#f4f1eb;border:1px solid rgba(255,255,255,.18)}
+.pchk .chip.on::before{content:'●';color:#607e94;margin-right:5px}
+.pchk .chip.off::before{content:'○';color:#a8c0ce;margin-right:5px}
 .pchk main{padding:20px 16px 40px}
 .pchk .card{background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);box-shadow:var(--shadow);padding:20px;margin-bottom:16px}
 .pchk h2.step{font-size:17px;margin:0 0 14px;display:flex;align-items:center;gap:8px}
@@ -36,7 +36,7 @@
 .pchk .btn{border:1px solid var(--axis);background:#fff;color:var(--ink);padding:10px 16px;border-radius:8px;font:inherit;font-weight:500;cursor:pointer}
 .pchk .btn:hover{background:#f1f1ee}
 .pchk .btn.primary{background:var(--brand-solid);border-color:var(--brand);color:#fff}
-.pchk .btn.primary:hover{background:#1a43bb}
+.pchk .btn.primary:hover{background:#34445e}
 .pchk .btn.ghost{background:transparent}
 .pchk .btn:disabled{opacity:.5;cursor:not-allowed}
 .pchk .hint{font-size:13px;color:var(--ink2)}
@@ -44,7 +44,7 @@
 .pchk .progress .bar{flex:0 0 180px;height:6px;border-radius:9px;background:var(--line);overflow:hidden}
 .pchk .progress .bar i{display:block;height:100%;width:40%;background:var(--brand);animation:pg 1.1s infinite ease-in-out}
 @keyframes pg{0%{transform:translateX(-100%)}100%{transform:translateX(260%)}}
-.pchk .err{background:#fdecec;border:1px solid #f3b9b9;color:#8a1c1c;padding:12px 14px;border-radius:8px;margin-top:12px;font-size:14px}
+.pchk .err{background:#f4f1eb;border:1px solid #dce7ec;color:#8a1c1c;padding:12px 14px;border-radius:8px;margin-top:12px;font-size:14px}
 .pchk .tabs{display:flex;gap:4px;overflow-x:auto;border-bottom:1px solid var(--line);margin-bottom:16px}
 .pchk .tabs button{border:0;background:none;padding:10px 14px;font:inherit;font-weight:500;color:var(--ink2);cursor:pointer;border-bottom:3px solid transparent;white-space:nowrap}
 .pchk .tabs button.on{color:var(--brand);border-bottom-color:var(--brand)}
@@ -66,9 +66,9 @@
 .pchk .legend{display:flex;gap:14px;flex-wrap:wrap;font-size:13px;color:var(--ink2);margin-top:8px}
 .pchk .legend span{display:flex;align-items:center;gap:6px}
 .pchk .badge{display:inline-flex;align-items:center;gap:4px;font-size:12px;font-weight:700;padding:3px 9px;border-radius:99px;white-space:nowrap}
-.pchk .b-good{background:#e3ebf6;color:var(--good-ink)}
-.pchk .b-warn{background:#d9e8fc;color:#7a5200}
-.pchk .b-bad{background:#fbe3e3;color:#9b1c1c}
+.pchk .b-good{background:#f4f1eb;color:var(--good-ink)}
+.pchk .b-warn{background:#f4f1eb;color:#1f2a44}
+.pchk .b-bad{background:#f4f1eb;color:#9b1c1c}
 .pchk .b-na{background:#ececea;color:#4a4a46}
 .pchk .lv{font-size:11px;padding:2px 7px;border-radius:5px;background:var(--brand-soft);color:var(--brand);font-weight:700}
 .pchk .report{background:#fff;border:1px solid var(--line);border-radius:var(--radius);padding:28px}
@@ -78,7 +78,7 @@
 .pchk .report .meta dd{margin:0;font-weight:500}
 .pchk .report h3{font-size:17px;margin:24px 0 10px;padding-bottom:6px;border-bottom:2px solid var(--ink)}
 .pchk .report .report{padding:0;border:0;border-radius:0;margin:0}
-.pchk .report h4{font-size:15px;margin:16px 0 8px;color:#1d4ed8}
+.pchk .report h4{font-size:15px;margin:16px 0 8px;color:#607e94}
 .pchk .rtoc{border:1px solid var(--line);border-radius:10px;padding:10px 14px;margin:10px 0 4px;background:#f7f7f4}
 .pchk .rtoc ol{margin:6px 0 0;padding-left:20px}
 .pchk .report .aud{margin:8px 0 4px}
@@ -93,17 +93,17 @@
 .pchk .ritem dd{margin:0;padding:9px 12px;font-size:14px;border-bottom:1px solid var(--line);white-space:pre-wrap}
 .pchk .ritem dd.ex{background:#f4f8ff}
 .pchk .ritem ul{margin:0;padding-left:18px}
-.pchk .ritem .ai{margin-top:8px;padding:8px 10px;border-left:3px solid #3a6aed;background:#f1f4fe;white-space:pre-wrap}
+.pchk .ritem .ai{margin-top:8px;padding:8px 10px;border-left:3px solid #607e94;background:#f4f1eb;white-space:pre-wrap}
 .pchk .quote{color:var(--ink2);font-size:13px}
 .pchk .doc{background:#fff;border:1px solid var(--line);border-radius:var(--radius);padding:32px;white-space:normal}
 .pchk .doc h2{text-align:center;font-size:24px;margin:0 0 18px}
 .pchk .doc h3{font-size:16px;margin:22px 0 8px}
 .pchk .doc p{white-space:pre-wrap;margin:0 0 8px}
-.pchk .doc mark, .pchk .report mark{background:#d9e8fc;padding:0 2px}
+.pchk .doc mark, .pchk .report mark{background:#f4f1eb;padding:0 2px}
 .pchk .doc.embed{border:1px solid var(--line);padding:20px;margin-top:8px}
-.pchk .report .tag{font-size:11px;font-weight:700;color:#7a5200;background:#d9e8fc;border-radius:4px;padding:1px 6px}
+.pchk .report .tag{font-size:11px;font-weight:700;color:#1f2a44;background:#f4f1eb;border-radius:4px;padding:1px 6px}
 .pchk .doc.embed h3{border:0;font-size:15px;margin:16px 0 6px;padding:0}
-.pchk .doc .tag{font-size:11px;font-weight:700;color:#7a5200;background:#d9e8fc;border-radius:4px;padding:1px 6px;margin-left:6px}
+.pchk .doc .tag{font-size:11px;font-weight:700;color:#1f2a44;background:#f4f1eb;border-radius:4px;padding:1px 6px;margin-left:6px}
 .pchk .raw{white-space:pre-wrap;background:#fff;border:1px solid var(--line);border-radius:var(--radius);padding:18px;font-size:13px;max-height:70vh;overflow:auto}
 .pchk .aud-pick{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:16px}
 .pchk .aud-btn{display:flex;flex-direction:column;align-items:center;gap:2px;padding:18px;border:2px solid var(--line);background:#fff;border-radius:14px;cursor:pointer;font:inherit}
@@ -130,15 +130,15 @@
 
 /* 포털 다크 모드 — 구성은 그대로 두고 변수만 바꿔 끼운다 */
 html[data-theme="dark"] .pchk{
-  --bg:#0d121b; --surface:#121823; --ink:#E9EDF4; --ink2:#C3CBD7; --muted:#98A2B1;
-  --line:#2B3342; --axis:#3a4456; --brand:#6E9BFF; --brand-ink:#0b1120; --brand-soft:#17233C;
-  --good:#4a8ade; --warn:#fbbf24; --bad:#f87171; --na:#94a3b8; --good-ink:#4a8ade;
+  --bg:#1f2a44; --surface:#1f2a44; --ink:#E9EDF4; --ink2:#dce7ec; --muted:#a8c0ce;
+  --line:#1f2a44; --axis:#34445e; --brand:#a8c0ce; --brand-ink:#1f2a44; --brand-soft:#1f2a44;
+  --good:#607e94; --warn:#917858; --bad:#f87171; --na:#a8c0ce; --good-ink:#607e94;
   --shadow:0 1px 2px rgba(0,0,0,.4);
 }
 html[data-theme="dark"] .pchk input, html[data-theme="dark"] .pchk select,
-html[data-theme="dark"] .pchk textarea{ background:#0d121b; color:var(--ink); }
+html[data-theme="dark"] .pchk textarea{ background:#1f2a44; color:var(--ink); }
 html[data-theme="dark"] .pchk .raw, html[data-theme="dark"] .pchk .report,
-html[data-theme="dark"] .pchk .doc{ background:#121823; color:var(--ink); }
+html[data-theme="dark"] .pchk .doc{ background:#1f2a44; color:var(--ink); }
 
 /* 상태 칩 — 원본은 남색 헤더 위에 올라가던 스타일이라, 밝은 배경에 맞게 다시 칠한다 */
 .pchk .chips{ display:flex; gap:6px; flex-wrap:wrap; }
