@@ -2,7 +2,7 @@
    .pchk 영역으로 한정해 이식. 원 저작권 고지: assets/policy/LICENSE-privacy-checker */
 .pchk{--bg:#f4f5f2; --surface:#fcfcfb; --ink:#0b0b0b; --ink2:#52514e; --muted:#6d6c67;
   --line:#e1e0d9; --axis:#c3c2b7; --brand:#1d4ed8; --brand-ink:#ffffff; --brand-soft:#e8eefc;
-  --good:#0ca30c; --warn:#fab219; --bad:#d03b3b; --na:#8f8e87; --good-ink:#006300;
+  --good:#0c4da3; --warn:#fab219; --bad:#d03b3b; --na:#8f8e87; --good-ink:#0e2d55;
   --radius:12px; --shadow:0 1px 2px rgba(0,0,0,.05),0 4px 16px rgba(0,0,0,.04);}
 .pchk *{box-sizing:border-box}
 .pchk [hidden]{display:none!important}
@@ -18,7 +18,7 @@
 .pchk .sub{margin:0;color:#c9d2ea;font-size:13px}
 .pchk .chips{display:flex;gap:6px;flex-wrap:wrap}
 .pchk .chip{font-size:12px;padding:4px 10px;border-radius:99px;background:rgba(255,255,255,.1);color:#e6ebf7;border:1px solid rgba(255,255,255,.18)}
-.pchk .chip.on::before{content:'●';color:#4ade80;margin-right:5px}
+.pchk .chip.on::before{content:'●';color:#4a8ade;margin-right:5px}
 .pchk .chip.off::before{content:'○';color:#9aa3b8;margin-right:5px}
 .pchk main{padding:20px 16px 40px}
 .pchk .card{background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);box-shadow:var(--shadow);padding:20px;margin-bottom:16px}
@@ -66,8 +66,8 @@
 .pchk .legend{display:flex;gap:14px;flex-wrap:wrap;font-size:13px;color:var(--ink2);margin-top:8px}
 .pchk .legend span{display:flex;align-items:center;gap:6px}
 .pchk .badge{display:inline-flex;align-items:center;gap:4px;font-size:12px;font-weight:700;padding:3px 9px;border-radius:99px;white-space:nowrap}
-.pchk .b-good{background:#e3f6e3;color:var(--good-ink)}
-.pchk .b-warn{background:#fff4d6;color:#7a5200}
+.pchk .b-good{background:#e3ebf6;color:var(--good-ink)}
+.pchk .b-warn{background:#d9e8fc;color:#7a5200}
 .pchk .b-bad{background:#fbe3e3;color:#9b1c1c}
 .pchk .b-na{background:#ececea;color:#4a4a46}
 .pchk .lv{font-size:11px;padding:2px 7px;border-radius:5px;background:var(--brand-soft);color:var(--brand);font-weight:700}
@@ -93,17 +93,17 @@
 .pchk .ritem dd{margin:0;padding:9px 12px;font-size:14px;border-bottom:1px solid var(--line);white-space:pre-wrap}
 .pchk .ritem dd.ex{background:#f4f8ff}
 .pchk .ritem ul{margin:0;padding-left:18px}
-.pchk .ritem .ai{margin-top:8px;padding:8px 10px;border-left:3px solid #7c3aed;background:#f5f0ff;white-space:pre-wrap}
+.pchk .ritem .ai{margin-top:8px;padding:8px 10px;border-left:3px solid #3a6aed;background:#f1f4fe;white-space:pre-wrap}
 .pchk .quote{color:var(--ink2);font-size:13px}
 .pchk .doc{background:#fff;border:1px solid var(--line);border-radius:var(--radius);padding:32px;white-space:normal}
 .pchk .doc h2{text-align:center;font-size:24px;margin:0 0 18px}
 .pchk .doc h3{font-size:16px;margin:22px 0 8px}
 .pchk .doc p{white-space:pre-wrap;margin:0 0 8px}
-.pchk .doc mark, .pchk .report mark{background:#fff4d6;padding:0 2px}
+.pchk .doc mark, .pchk .report mark{background:#d9e8fc;padding:0 2px}
 .pchk .doc.embed{border:1px solid var(--line);padding:20px;margin-top:8px}
-.pchk .report .tag{font-size:11px;font-weight:700;color:#7a5200;background:#fff4d6;border-radius:4px;padding:1px 6px}
+.pchk .report .tag{font-size:11px;font-weight:700;color:#7a5200;background:#d9e8fc;border-radius:4px;padding:1px 6px}
 .pchk .doc.embed h3{border:0;font-size:15px;margin:16px 0 6px;padding:0}
-.pchk .doc .tag{font-size:11px;font-weight:700;color:#7a5200;background:#fff4d6;border-radius:4px;padding:1px 6px;margin-left:6px}
+.pchk .doc .tag{font-size:11px;font-weight:700;color:#7a5200;background:#d9e8fc;border-radius:4px;padding:1px 6px;margin-left:6px}
 .pchk .raw{white-space:pre-wrap;background:#fff;border:1px solid var(--line);border-radius:var(--radius);padding:18px;font-size:13px;max-height:70vh;overflow:auto}
 .pchk .aud-pick{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:16px}
 .pchk .aud-btn{display:flex;flex-direction:column;align-items:center;gap:2px;padding:18px;border:2px solid var(--line);background:#fff;border-radius:14px;cursor:pointer;font:inherit}
@@ -132,7 +132,7 @@
 html[data-theme="dark"] .pchk{
   --bg:#0d121b; --surface:#121823; --ink:#E9EDF4; --ink2:#C3CBD7; --muted:#98A2B1;
   --line:#2B3342; --axis:#3a4456; --brand:#6E9BFF; --brand-ink:#0b1120; --brand-soft:#17233C;
-  --good:#4ade80; --warn:#fbbf24; --bad:#f87171; --na:#94a3b8; --good-ink:#4ade80;
+  --good:#4a8ade; --warn:#fbbf24; --bad:#f87171; --na:#94a3b8; --good-ink:#4a8ade;
   --shadow:0 1px 2px rgba(0,0,0,.4);
 }
 html[data-theme="dark"] .pchk input, html[data-theme="dark"] .pchk select,

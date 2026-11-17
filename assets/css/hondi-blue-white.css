@@ -1,0 +1,59 @@
+/* HONDI BLUE / WHITE DESIGN SYSTEM — 2026-11
+ * 공통 팔레트. 페이지별 고유 레이아웃과 의미별 경고 색상은 유지합니다.
+ * html[data-theme]의 기본은 light, 명시적 dark 선택은 네이비·블루 테마입니다. */
+:root,html[data-theme="light"]{
+ color-scheme:light;
+ --bg:#f6f9ff;--surface:#ffffff;--surface-2:#eff5ff;--ink:#172b47;--muted:#526781;--line:#d9e5f5;--stage:#f0f6ff;--grid:#deebfa;
+ --cipher:#1e59c8;--cipher-soft:#e8f1ff;--plain:#c44343;--plain-soft:#fff0f0;--ok:#1463ba;--ok-soft:#eaf3ff;
+ --pri-solid:#1959ca;--brand-solid:#1959ca;--info-solid:#2563eb;--info-ink:#1c4897;--stage-bg:#183f76;--on-dark:#f5f9ff;--on-dark-2:#cedef3;--on-banner:#eaf2ff;--hl:#d4e7ff;
+ --ac-surf:#ffffff;--ac-surf2:#f3f7ff;--ac-ivory:#ebf3ff;--ac-ink:#172b47;--ac-ink2:#304966;--ac-mut:#556c85;--ac-acc:#1c5fce;--ac-accbg:#1959ca;--ac-line:#d9e5f5;
+ --g-pri:#1959ca;--g-pri-d:#174aab;--g-pri-l:#e7f0ff;--g-ink:#182c46;--g-ink-2:#344b68;--g-mut:#5c6f89;--g-line:#d7e4f5;--g-line-2:#e9f0fa;--g-bg:#ffffff;--g-bg-2:#f6f9ff;--g-bg-3:#eef5ff;--g-strip:#153d74;--g-head:#ffffff;--g-focus:#2563eb;
+ --cs-bg:#f5f9ff;--cs-green:#1759bd;--cs-ink:#192e49;--cs-muted:#5c6f86;--cs-line:#d8e4f3;--cs-lime:#e7f0ff;--cs-solid:#1759bd;
+ --v21-ink:#172d4b;--v21-sub:#576c86;--v21-line:#d9e5f4;--v21-blue:#1b5bc6;--v21-navy:#153b7a;--v21-bg:#f7faff;--v21-orange:#52668a;
+ --pa-ink:#192d48;--pa-muted:#5b6f88;--pa-green:#1b61cb;--pa-paper:#f6faff;--pa-line:#d9e5f5;--pa-white:#fff;
+ --cyt-surf:#ffffff;--cyt-surf2:#f4f8ff;--cyt-ivory:#edf4ff;--cyt-ink:#172b48;--cyt-ink2:#354c6b;--cyt-mut:#58718b;--cyt-acc:#1b5bc7;--cyt-accbg:#1959ca;--cyt-line:#d9e4f4;--cy-ink:#1c2f4c;--cy-muted:#5a6e88;--cy-green:#1b5cc8;--cy-lime:#d9e9ff;--cy-paper:#f7faff;--cy-line:#d8e4f4;--cy-white:#fff;
+ --green:#195fc8;--dark:#1b3252;--lime:#dbeafe;--sun:#9abdf1;
+ --art-mint:#e6f1ff;--art-mint-ink:#24589b;--art-blue:#e7f0ff;--art-blue-ink:#24518c;--art-purple:#ecf1ff;--art-purple-ink:#3d589a;--art-peach:#f0f5ff;--art-peach-ink:#4b67a0;
+ --pill-a:#e8f1ff;--pill-b:#dbeafe;--pill-c:#e5efff;--pill-d:#f0f4ff;
+}
+html[data-theme="dark"]{
+ color-scheme:dark;
+ --bg:#0d1729;--surface:#14223a;--surface-2:#1a2b46;--ink:#f0f5ff;--muted:#b1c4e0;--line:#304668;--stage:#13233d;--grid:#304567;
+ --cipher:#8dbbff;--cipher-soft:#20395f;--plain:#f39598;--plain-soft:#472c39;--ok:#8fb9ff;--ok-soft:#1c3455;
+ --pri-solid:#2563b9;--brand-solid:#2563b9;--info-solid:#498ae5;--info-ink:#b4d0ff;--stage-bg:#102c55;--on-dark:#f2f7ff;--on-dark-2:#c1d3ee;--on-banner:#e8f1ff;--hl:#244c83;
+ --ac-surf:#101e33;--ac-surf2:#182942;--ac-ivory:#14233a;--ac-ink:#eef5ff;--ac-ink2:#cfddf2;--ac-mut:#a5b9d4;--ac-acc:#91bdff;--ac-accbg:#235da9;--ac-line:#2e4669;
+ --g-pri:#92bdff;--g-pri-d:#bad4ff;--g-pri-l:#1c3457;--g-ink:#eef4ff;--g-ink-2:#c9d9ef;--g-mut:#a5b9d4;--g-line:#344c70;--g-line-2:#263c5c;--g-bg:#122039;--g-bg-2:#0d1729;--g-bg-3:#1a2b47;--g-strip:#102744;--g-head:#14233b;--g-focus:#a0caff;
+ --cs-bg:#0e1b30;--cs-green:#a4c8ff;--cs-ink:#edf5ff;--cs-muted:#adc0da;--cs-line:#314b70;--cs-lime:#1b3d67;--cs-solid:#245ca9;
+ --v21-ink:#eaf3ff;--v21-sub:#b3c6df;--v21-line:#30496d;--v21-blue:#9ac2ff;--v21-navy:#d6e8ff;--v21-bg:#101e33;--v21-orange:#adc7ed;
+ --pa-ink:#edf5ff;--pa-muted:#b4c6e0;--pa-green:#9ac2ff;--pa-paper:#12243d;--pa-line:#304a6e;--pa-white:#14233b;
+ --cyt-surf:#14233b;--cyt-surf2:#1b2d47;--cyt-ivory:#102039;--cyt-ink:#eaf3ff;--cyt-ink2:#d4e1f4;--cyt-mut:#a5b9d4;--cyt-acc:#95beff;--cyt-accbg:#265ca6;--cyt-line:#314a6c;--cy-ink:#eaf3ff;--cy-muted:#b1c7e0;--cy-green:#99c0ff;--cy-lime:#244b78;--cy-paper:#13243e;--cy-line:#314b70;--cy-white:#14233b;
+ --green:#8fbaff;--dark:#e6efff;--lime:#274974;--sun:#9dc4ff;
+ --art-mint:#1f3858;--art-mint-ink:#bdd6ff;--art-blue:#1a3151;--art-blue-ink:#bfd6ff;--art-purple:#202e52;--art-purple-ink:#c5d6ff;--art-peach:#253350;--art-peach-ink:#c4d7ff;
+}
+:where(body,.academy-home){background:var(--bg);color:var(--ink)}
+.g-head,.academy-home .g-head{background:var(--g-head);border-color:var(--g-line)}
+.g-brand .em{background:var(--pri-solid);color:#fff}
+.g-strip{background:var(--g-strip);color:#eaf2ff}
+.g-tt button[aria-pressed="true"],.g-gnb a[aria-current="page"]{background:var(--g-pri-l);color:var(--g-pri)}
+.g-burger{background:var(--g-bg)}
+.academy-home{background:var(--ac-surf)}
+.academy .primary,.academy .filters button.active,.academy-home .g-gnb a:hover,.academy-home .g-gnb a:focus-visible{background:var(--pri-solid);color:#fff}
+.academy .primary:hover,.academy .filters button.active:hover{background:var(--g-pri-d);color:#fff}
+.academy .challenge-banner{background:linear-gradient(115deg,#184a9c,#2468d2);color:#fff}
+.academy .challenge-banner span,.academy .challenge-banner p{color:#dceaff}
+.academy .challenge-banner .light{background:#fff;color:#164a9c}
+.academy .assistant-section{background:var(--ac-surf2);border:1px solid var(--ac-line)}
+.academy .course-art.mint{background:#eaf4ff;color:#285b9d}
+.academy .course-art.purple{background:#eef1ff;color:#3b5aa3}
+.academy .course-art.peach{background:#eef5ff;color:#345f98}
+.academy .course-art.blue{background:#e3efff;color:#1c599e}
+.academy .ox-home-play{background:#1f5cc8;color:#fff}
+.academy .ox-home-play:hover,.academy .ox-home-play:focus-visible{background:#174a9f}
+.hero h1 em{color:var(--ac-acc)}
+.quick-nav,.course,.tool,.panel,.card,.builder{border-color:var(--line)}
+:where(a,button,input,select,textarea,summary,[tabindex]):focus-visible{outline-color:var(--g-focus)}
+input[type="checkbox"],input[type="radio"]{accent-color:var(--pri-solid)}
+.g-foot{background:var(--ac-ivory);border-color:var(--ac-line)}
+/* 별도 동의서 작성실에 입력값 강조 색상 일치 */
+.step-tab.active,.primary-btn,.btn-primary,button.primary{background:var(--pri-solid);color:#fff}
+@media(prefers-reduced-motion:reduce){.ox-home-play{transition:none}}

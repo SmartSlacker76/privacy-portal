@@ -9,7 +9,7 @@
   --g-line:#D9DDE3; --g-line-2:#EBEEF2;
   --g-bg:#FFFFFF; --g-bg-2:#F4F6F9; --g-bg-3:#EDF0F5;
   --g-strip:#2B3443; --g-head:#FFFFFF;
-  --g-ok:#1B7F4B; --g-warn:#B45309; --g-bad:#C2261C; --g-info:#1D4ED8;
+  --g-ok:#1b467f; --g-warn:#B45309; --g-bad:#C2261C; --g-info:#1D4ED8;
   --g-focus:#FFB300;
   --g-r:8px; --g-r-l:14px;
   --g-sh:0 1px 2px rgba(22,24,29,.06), 0 1px 3px rgba(22,24,29,.04);
@@ -22,14 +22,14 @@ html[data-theme="dark"] {
   --g-line:#2B3342; --g-line-2:#222938;
   --g-bg:#121823; --g-bg-2:#0D121B; --g-bg-3:#182030;
   --g-strip:#0A0E16; --g-head:#121823;
-  --g-ok:#4ADE80; --g-warn:#FBBF24; --g-bad:#F87171; --g-info:#6E9BFF;
+  --g-ok:#4a8ade; --g-warn:#FBBF24; --g-bad:#F87171; --g-info:#6E9BFF;
   --g-sh:0 1px 2px rgba(0,0,0,.4);
 }
 html, body { background:var(--g-bg-2); color:var(--g-ink); }
 body { font-family:var(--g-sans); }
 
 /* 본문 바로가기 */
-.g-skip { position:absolute; left:-9999px; top:0; z-index:200; background:#1d5540; color:#fff;
+.g-skip { position:absolute; left:-9999px; top:0; z-index:200; background:#1d3555; color:#fff;
   padding:11px 20px; font-size:14px; font-weight:700; border-radius:0 0 var(--g-r) 0; text-decoration:none; }
 .g-skip:focus { left:0; }
 :where(a,button,input,select,textarea,summary,[tabindex]):focus-visible {

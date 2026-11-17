@@ -1,4 +1,4 @@
-/* 테마 — 기본은 시스템(OS) 설정을 따릅니다.
+/* 테마 — 기본은 흰색·파란색 밝은 화면이며 사용자 선택은 유지합니다.
  * <html data-theme>      : 실제 적용된 테마 ("light" | "dark")
  * <html data-theme-pref> : 사용자가 고른 값 ("system" | "light" | "dark")
  * 모든 페이지의 <head>에서 먼저 실행되어야 색이 번쩍이지 않습니다. */
@@ -14,7 +14,7 @@
       var o = localStorage.getItem('theme');
       if (o === 'light' || o === 'dark') return o;
     } catch (e) {}
-    return 'system';
+    return 'light';
   }
   function apply(p) {
     p = (p === 'light' || p === 'dark') ? p : 'system';
