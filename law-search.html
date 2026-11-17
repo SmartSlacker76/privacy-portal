@@ -117,6 +117,11 @@
   html[data-theme="dark"][data-palette="natural"] .r-name,html[data-theme="dark"][data-palette="natural"] table.lt td.nm a{color:#ebc4ac;}
   html[data-theme="dark"][data-palette="natural"] .r-art{background:#453d35;color:#f5f0e8;}
   @media(max-width:640px){.r{padding:16px}.r-text,.r-text.open{padding:13px 14px;font-size:14px}.r-name{font-size:21px}.r-art{font-size:17px;padding:10px 12px}}
+
+  .sensitive-filters{margin-top:10px;padding:10px 0 2px;border-top:1px dashed var(--line)}
+  .sensitive-hint{font-size:12px;line-height:1.65;color:var(--muted);margin:7px 0 0}
+  .c-사상,.c-단체,.c-정치,.c-건강,.c-성생활,.c-유전,.c-범죄,.c-생체,.c-인종{background:#dce7ec;color:#1f2a44;border:1px solid #b7cbd7}
+  html[data-theme="dark"] .c-사상,html[data-theme="dark"] .c-단체,html[data-theme="dark"] .c-정치,html[data-theme="dark"] .c-건강,html[data-theme="dark"] .c-성생활,html[data-theme="dark"] .c-유전,html[data-theme="dark"] .c-범죄,html[data-theme="dark"] .c-생체,html[data-theme="dark"] .c-인종{background:#3b536c;color:#fff;border-color:#6b8ba4}
 </style>
 <link rel="stylesheet" href="assets/css/academy.css">
 <link rel="stylesheet" href="assets/css/hondi-navy-sand.css?v=20261117-4"></head>
@@ -156,12 +161,24 @@
     <div class="filters">
       <div class="grp"><span>포함 용어</span>
         <button class="ftog" data-t="포괄" type="button">고유식별정보</button>
-        <button class="ftog" data-t="민감" type="button">민감정보</button>
+        <button class="ftog" data-t="민감" type="button">민감정보 전체</button>
         <button class="ftog" data-t="주민" type="button">주민등록번호</button>
         <button class="ftog" data-t="면허" type="button">운전면허번호</button>
         <button class="ftog" data-t="외국인" type="button">외국인등록번호</button>
         <button class="ftog" data-t="여권" type="button">여권번호</button>
       </div>
+      <div class="grp sensitive-filters"><span>민감정보 세부 유형</span>
+        <button class="ftog" data-t="사상" type="button">사상·신념</button>
+        <button class="ftog" data-t="단체" type="button">노동조합·정당 가입·탈퇴</button>
+        <button class="ftog" data-t="정치" type="button">정치적 견해</button>
+        <button class="ftog" data-t="건강" type="button">건강</button>
+        <button class="ftog" data-t="성생활" type="button">성생활</button>
+        <button class="ftog" data-t="유전" type="button">유전정보</button>
+        <button class="ftog" data-t="범죄" type="button">범죄경력자료</button>
+        <button class="ftog" data-t="생체" type="button">생체인식정보</button>
+        <button class="ftog" data-t="인종" type="button">인종·민족</button>
+      </div>
+      <p class="sensitive-hint">세부 유형은 법령명·조문 제목·현재 수록된 조문 본문에서 검색합니다. 하나 이상의 유형을 선택하면 해당 유형 중 하나라도 포함된 조문이 표시됩니다. 단어가 포함되었다는 사실만으로 적법한 처리 근거가 성립하지는 않습니다.</p>
     </div>
     <details class="fold" style="margin:10px 0 0"><summary>⚙ 상세 조건 — 법령유형 · 소관부처 · 업무분야 · 근거분류</summary><div class="fd"><div class="filters" style="margin:0">
       <div class="grp"><span>법령유형</span>
@@ -232,10 +249,46 @@
   // 보강 시드의 각 호
   function hoOf(r){ var f = FULL[r.n + '|' + r.no]; return (f && f.ho) ? f.ho : []; }
   var activeTypes = new Set(), shown = 0, PAGE = 40, filtered = [], view = 'card';
-  var TNAME = {'주민':'주민등록번호','여권':'여권번호','면허':'운전면허번호','외국인':'외국인등록번호','포괄':'고유식별정보','민감':'민감정보'};
-  var TYPES = ['포괄','민감','주민','면허','외국인','여권'];
+  var TNAME = {'주민':'주민등록번호','여권':'여권번호','면허':'운전면허번호','외국인':'외국인등록번호','포괄':'고유식별정보','민감':'민감정보','사상':'사상·신념','단체':'노동조합·정당 가입·탈퇴','정치':'정치적 견해','건강':'건강','성생활':'성생활','유전':'유전정보','범죄':'범죄경력자료','생체':'생체인식정보','인종':'인종·민족'};
+  var TYPES = ['포괄','민감','주민','면허','외국인','여권','사상','단체','정치','건강','성생활','유전','범죄','생체','인종'];
   var TSYN = {'주민등록번호':'주민','주민번호':'주민','여권번호':'여권','여권':'여권','운전면허번호':'면허',
     '운전면허':'면허','면허번호':'면허','외국인등록번호':'외국인','외국인':'외국인','고유식별정보':'포괄','민감정보':'민감'};
+  // 법 제23조 및 시행령 제18조 민감정보: 원문 표현과 실무상 검색 동의어
+  var SENSITIVE = {
+    '사상': ['사상','신념','종교적신념','사상ㆍ신념'],
+    '단체': ['노동조합','노조가입','노조탈퇴','정당가입','정당탈퇴','정당의가입','정당의탈퇴','가입ㆍ탈퇴'],
+    '정치': ['정치적견해','정치적의견','정치성향'],
+    '건강': ['건강','의료정보','진료정보','진료기록','병력','질병','건강검진'],
+    '성생활': ['성생활','성적생활'],
+    '유전': ['유전정보','유전자검사','유전체','유전자정보'],
+    '범죄': ['범죄경력자료','범죄경력','범죄기록','전과기록','전과정보'],
+    '생체': ['생체인식정보','생체인식','지문정보','홍채정보','얼굴인식','생체정보','신체적특징','생리적특징','행동적특징'],
+    '인종': ['인종','민족','민족적출신']
+  };
+  var SENSITIVE_KEYS = Object.keys(SENSITIVE);
+  function normSensitive(v){return String(v||'').toLowerCase().replace(/[\\s·ㆍ・․‧.,()\[\]「」｢｣'"]/g,'');}
+  function sensitiveTags(r){
+    // 개인정보 수집 목록의 범위 내에서만 판별, 법령 전체를 자동 추가한 것은 아닙니다.
+    var str=normSensitive(r.n+' '+(r.at||'')+' '+bodyOf(r).text);
+    var found=SENSITIVE_KEYS.filter(function(k){
+      return SENSITIVE[k].some(function(word){return str.indexOf(normSensitive(word))>=0;});
+    });
+    if (r.t.indexOf('민감')>=0 || found.length) found.unshift('민감');
+    return found;
+  }
+  function termSensitive(t){
+    var n=normSensitive(t);
+    if(n==='민감정보'||n==='민감')return '민감';
+    for(var k in SENSITIVE){
+      if(k===n || SENSITIVE[k].some(function(word){return normSensitive(word)===n;}))return k;
+    }
+    return '';
+  }
+  function matchedTypes(r){
+    var matched=(r.t||[]).slice(), ss=sensitiveTags(r);
+    ss.forEach(function(k){if(matched.indexOf(k)<0)matched.push(k);});
+    return matched;
+  }
   var esc = function(s){ return String(s==null?'':s).replace(/[&<>"]/g, function(c){ return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]; }); };
 
   function kindOf(r){
@@ -305,7 +358,7 @@
     for (var i = 0; i < DATA.length; i++){
       var r = DATA[i];
       if (noBu && r.no.indexOf('부칙') === 0) continue;
-      if (activeTypes.size){ var ok = false; activeTypes.forEach(function(t){ if (r.t.indexOf(t) >= 0) ok = true; }); if (!ok) continue; }
+      if (activeTypes.size){ var ok = false, rt=matchedTypes(r); activeTypes.forEach(function(t){ if (rt.indexOf(t) >= 0) ok = true; }); if (!ok) continue; }
       if (kind && kindOf(r) !== kind) continue;
       if (org && r.o !== org) continue;
       if (cat && r.c.indexOf(cat) < 0) continue;
@@ -319,7 +372,11 @@
           if (!one && scope.tk && IXT[i].indexOf(tk) >= 0) one = true;
           if (!one && scope.n  && IXN[i].indexOf(tk) >= 0) one = true;
           if (!one && scope.x  && IXX[i].indexOf(tk) >= 0) one = true;
-          if (!one && TSYN[tk] && r.t.indexOf(TSYN[tk]) >= 0) one = true;
+          var st=termSensitive(tk);
+          if (!one && st && matchedTypes(r).indexOf(st) >= 0) one = true;
+          if (!one && TSYN[tk] && matchedTypes(r).indexOf(TSYN[tk]) >= 0) one = true;
+          // 원문 표현이 붙임표·중점·공백으로 달라도 검색
+          if (!one && st && st !== '민감' && normSensitive(r.n+' '+(r.at||'')+' '+bodyOf(r).text).indexOf(normSensitive(tk))>=0) one=true;
           if (!one){ all = false; break; }
         }
         if (!all) continue;
@@ -395,7 +452,7 @@
 
   function card(r, q){
     var b = bodyOf(r);
-    var tags = TYPES.filter(function(t){ return r.t.indexOf(t) >= 0; }).map(function(t){ return '<span class="chip2 c-id c-' + t + '">' + TNAME[t] + '</span>'; }).join('');
+    var tags = TYPES.filter(function(t){ return matchedTypes(r).indexOf(t) >= 0; }).map(function(t){ return '<span class="chip2 c-id c-' + t + '">' + TNAME[t] + '</span>'; }).join('');
     var jo = (r.no.match(/^제(\d+)조(?:의(\d+))?/) || []);
     return '<div class="r">' +
       '<div class="r-top"><span class="sn">\u2460</span><span class="r-name">' + hl(r.n, q) + '</span><span class="chip2 c-org">' + esc(r.o) + ' · ' + esc(r.lt) + '</span>' +
