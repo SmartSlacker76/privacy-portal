@@ -137,6 +137,13 @@
   html[data-palette="natural"] table.lt td.body .law-body-heading{color:#795b48}
   html[data-theme="dark"][data-palette="natural"] .r-text .law-body-heading,
   html[data-theme="dark"][data-palette="natural"] table.lt td.body .law-body-heading{color:#ebc4ac}
+  .r-partial .law-current-inline{display:inline;font-weight:800;color:#245a87;text-decoration:underline;text-underline-offset:3px;overflow-wrap:anywhere}
+  .r-partial .law-current-inline:hover{color:#163b5b}
+  .r-partial .law-current-inline:focus-visible{outline:3px solid var(--g-focus);outline-offset:3px}
+  .r-partial .law-current-date{font-weight:700}
+  html[data-theme="dark"] .r-partial .law-current-inline{color:#b9d9f4}
+  html[data-palette="natural"] .r-partial .law-current-inline{color:#795b48}
+  html[data-theme="dark"][data-palette="natural"] .r-partial .law-current-inline{color:#f0c5a8}
 </style>
 <link rel="stylesheet" href="assets/css/academy.css">
 <link rel="stylesheet" href="assets/css/hondi-navy-sand.css?v=20261117-4"></head>
@@ -480,6 +487,11 @@
     return h + '</div>';
   }
 
+  function currentLawLink(r){
+    return '<a class="law-current-inline" href="' + esc(r.u) + '" target="_blank" rel="noopener noreferrer" aria-label="' + esc(r.n + ' ' + title(r) + ' 법제처 현행본 새 창으로 열기') + '">📜 법제처 현행본(최신)' +
+      (r.d ? ' <span class="law-current-date">| 시행 ' + esc(r.d) + '</span>' : '') + '</a>';
+  }
+
   function card(r, q){
     var b = bodyOf(r);
     var tags = TYPES.filter(function(t){ return matchedTypes(r).indexOf(t) >= 0; }).map(function(t){ return '<span class="chip2 c-id c-' + t + '">' + TNAME[t] + '</span>'; }).join('');
@@ -491,12 +503,10 @@
       '<div class="sec article-heading"><span class="sn">\u2462</span>\uc870\ubb38 \ubcf8\ubb38</div>' +
       '<div class="r-text">' + articleBodyHtml(b.text, q, r) + '</div>' +
       (b.seed ? '<div class="r-seed">\u2714 \uac01 \ud638 \uc804\ubb38 \ud655\uc778 — ' + esc(b.seed) + '</div>' : '') +
-      (b.full ? '' : '<div class="r-partial">※ 현재 저장된 자료는 일부 항·호만 포함합니다. ‘조문 전체 불러오기(API)’ 또는 ‘법제처 현행본’에서 누락 없는 원문을 확인하세요.</div>') +
+      (b.full ? '' : '<div class="r-partial">※ 해당 용어가 나오는 항·호만 실었어요. 조문 전체는 ' + currentLawLink(r) + '에서 확인하세요.</div>') +
       '<dl class="std2 org"><dt><span class="sn">\u2463</span>\uc18c\uad00\ubd80\ucc98</dt><dd><b>' + esc(r.o) + '</b> · ' + esc(r.lt) + (r.d ? ' · \uc2dc\ud589 ' + esc(r.d) : '') + '</dd></dl>' +
       stdBlock(r, q) +
-      '<div class="r-links"><a href="' + esc(r.u) + '" target="_blank" rel="noopener">📜 법제처 현행본(최신)</a>' +
-        (WK && jo[1] ? '<a href="#" class="live" data-name="' + esc(r.n) + '" data-jo="' + jo[1] + '" data-br="' + (jo[2]||0) + '">⟳ 조문 전체 불러오기(API)</a>' : '') +
-        (r.d ? '<span class="r-meta" style="margin:0">시행 ' + esc(r.d) + '</span>' : '') + '</div>' +
+      (WK && jo[1] ? '<div class="r-links"><a href="#" class="live" data-name="' + esc(r.n) + '" data-jo="' + jo[1] + '" data-br="' + (jo[2]||0) + '">⟳ 조문 전체 불러오기(API)</a></div>' : '') +
     '</div>';
   }
 
@@ -505,7 +515,7 @@
       rows.map(function(r){
         var b = bodyOf(r);
         return '<tr><td class="nm"><a href="' + esc(r.u) + '" target="_blank" rel="noopener">' + hl(r.n, q) + '</a><div class="r-meta">' + esc(r.lt) + '</div></td><td>' + esc(r.o) + '</td><td>' + hl(title(r), q) + '</td>' +
-          '<td class="body">' + articleBodyHtml(b.text, q, r) + (b.full ? '' : '<div class="r-partial">※ 해당 항·호만</div>') + '</td>' +
+          '<td class="body">' + articleBodyHtml(b.text, q, r) + (b.full ? '' : '<div class="r-partial">※ 해당 용어가 나오는 항·호만 실었어요. 조문 전체는 ' + currentLawLink(r) + '에서 확인하세요.</div>') + '</td>' +
           '<td>' + esc(fieldsOf(r).join(', ')) + '</td>' +
           '<td class="files">' + filesOf(r.s).map(function(f){ return esc(f.o + ': ' + f.n); }).join('\n') + '</td></tr>';
       }).join('') + '</tbody></table></div>';
