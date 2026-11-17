@@ -95,6 +95,28 @@
   table.pf details summary { font-size:12.5px; color:var(--cipher); cursor:pointer; margin-top:3px; }
   .r-seed { font-size:12.5px; color:var(--ok); margin:4px 0 0; }
   @media (max-width:640px){ dl.std2 { grid-template-columns:1fr; } dl.std2 dt { margin-top:4px; } }
+
+  /* 법령검색 결과: ① 법령명 → ② 조문명 → ③ 조문 본문, 명확한 위계 */
+  .r { padding:22px 24px; }
+  .r-top { align-items:flex-start;gap:8px 10px;margin-bottom:10px; }
+  .r-name { display:block;flex-basis:100%;font-size:clamp(20px,2.25vw,27px);font-weight:900;letter-spacing:-.045em;line-height:1.45;color:#254b72;overflow-wrap:anywhere; }
+  .r-name mark { background:#f1e3c8;color:#163451; }
+  .r-art { display:flex;align-items:flex-start;gap:8px;margin:14px 0 12px;padding:12px 15px;border-left:4px solid #6b8ba4;background:#edf3f7;border-radius:0 9px 9px 0;color:#1f2a44;font-size:clamp(16px,1.55vw,20px);font-weight:800;line-height:1.55;overflow-wrap:anywhere; }
+  .r-art .sn { flex:none;margin-top:3px; }
+  .r .sec.article-heading {font-size:14px;font-weight:800;color:var(--ink);margin:15px 0 8px;}
+  .r-text,.r-text.open {max-height:none;overflow:visible;white-space:pre-wrap;overflow-wrap:anywhere;font-size:15px;line-height:1.9;padding:18px 20px;background:var(--surface-2);border:1px solid var(--line);border-radius:10px;}
+  .r-text .tog{display:none!important;}
+  .r-partial {padding:9px 11px;background:var(--surface-2);border-left:3px solid var(--warn);border-radius:5px;line-height:1.7;}
+  table.lt td.nm a{color:#254b72;font-size:16px;font-weight:850;text-decoration:none;}
+  table.lt td.nm a:hover{text-decoration:underline;}
+  table.lt td.body{white-space:pre-wrap;line-height:1.9;font-size:14px;}
+  html[data-theme="dark"] .r-name,html[data-theme="dark"] table.lt td.nm a{color:#c0dcf0;}
+  html[data-theme="dark"] .r-art{background:#34485f;color:#f1f5f9;border-left-color:#9ebbcf;}
+  html[data-palette="natural"] .r-name,html[data-palette="natural"] table.lt td.nm a{color:#795b48;}
+  html[data-palette="natural"] .r-art{background:#efe5d3;color:#2c2a28;border-left-color:#b67659;}
+  html[data-theme="dark"][data-palette="natural"] .r-name,html[data-theme="dark"][data-palette="natural"] table.lt td.nm a{color:#ebc4ac;}
+  html[data-theme="dark"][data-palette="natural"] .r-art{background:#453d35;color:#f5f0e8;}
+  @media(max-width:640px){.r{padding:16px}.r-text,.r-text.open{padding:13px 14px;font-size:14px}.r-name{font-size:21px}.r-art{font-size:17px;padding:10px 12px}}
 </style>
 <link rel="stylesheet" href="assets/css/academy.css">
 <link rel="stylesheet" href="assets/css/hondi-navy-sand.css?v=20261117-4"></head>
@@ -379,10 +401,10 @@
       '<div class="r-top"><span class="sn">\u2460</span><span class="r-name">' + hl(r.n, q) + '</span><span class="chip2 c-org">' + esc(r.o) + ' · ' + esc(r.lt) + '</span>' +
         (r.c ? '<span class="chip2 c-cat">근거 ' + esc(r.c) + '</span>' : '') + tags + '</div>' +
       '<div class="r-art"><span class="sn">\u2461</span>' + hl(title(r), q) + '</div>' +
-      '<div class="sec"><span class="sn">\u2462</span>\uc870\ubb38 \ubcf8\ubb38 \uc804\uccb4</div>' +
-      '<div class="r-text">' + hl(b.text, q) + '<span class="tog" hidden>▾ 전체 펼치기</span></div>' +
+      '<div class="sec article-heading"><span class="sn">\u2462</span>\uc870\ubb38 \ubcf8\ubb38</div>' +
+      '<div class="r-text">' + hl(b.text, q) + '</div>' +
       (b.seed ? '<div class="r-seed">\u2714 \uac01 \ud638 \uc804\ubb38 \ud655\uc778 — ' + esc(b.seed) + '</div>' : '') +
-      (b.full ? '' : '<div class="r-partial">※ 해당 용어가 나오는 항·호만 실었어요. 조문 전체는 아래 ‘법제처 현행본’에서 확인하세요.</div>') +
+      (b.full ? '' : '<div class="r-partial">※ 현재 저장된 자료는 일부 항·호만 포함합니다. ‘조문 전체 불러오기(API)’ 또는 ‘법제처 현행본’에서 누락 없는 원문을 확인하세요.</div>') +
       '<dl class="std2 org"><dt><span class="sn">\u2463</span>\uc18c\uad00\ubd80\ucc98</dt><dd><b>' + esc(r.o) + '</b> · ' + esc(r.lt) + (r.d ? ' · \uc2dc\ud589 ' + esc(r.d) : '') + '</dd></dl>' +
       stdBlock(r, q) +
       '<div class="r-links"><a href="' + esc(r.u) + '" target="_blank" rel="noopener">📜 법제처 현행본(최신)</a>' +
@@ -407,7 +429,7 @@
     if (!slice.length){ $('#res').innerHTML = '<div class="empty">조건에 맞는 조문이 없어요. 검색어나 필터를 바꿔 보세요.</div>'; $('#loadmore').hidden = true; return; }
     $('#res').innerHTML = view === 'table' ? table(slice, q) : '<div class="res">' + slice.map(function(r){ return card(r, q); }).join('') + '</div>';
     $('#loadmore').hidden = filtered.length <= shown;
-    document.querySelectorAll('.r-text').forEach(function(el){ if (el.scrollHeight > el.clientHeight + 2) el.querySelector('.tog').hidden = false; });
+    document.querySelectorAll('.r-text').forEach(function(el){ /* 본문은 처음부터 펼쳐 보여 줍니다. */ });
   }
 
   document.addEventListener('click', function(e){
