@@ -256,24 +256,27 @@
   // 법 제23조 및 시행령 제18조 민감정보: 원문 표현과 실무상 검색 동의어
   var SENSITIVE = {
     '사상': ['사상','신념','종교적신념','사상ㆍ신념'],
-    '단체': ['노동조합','노조가입','노조탈퇴','정당가입','정당탈퇴','정당의가입','정당의탈퇴','가입ㆍ탈퇴'],
+    '단체': ['노동조합','노조가입','노조탈퇴','정당가입','정당탈퇴','정당의가입','정당의탈퇴','노동조합정당가입탈퇴','노동조합정당의가입탈퇴'],
     '정치': ['정치적견해','정치적의견','정치성향'],
     '건강': ['건강','의료정보','진료정보','진료기록','병력','질병','건강검진'],
     '성생활': ['성생활','성적생활'],
     '유전': ['유전정보','유전자검사','유전체','유전자정보'],
     '범죄': ['범죄경력자료','범죄경력','범죄기록','전과기록','전과정보'],
     '생체': ['생체인식정보','생체인식','지문정보','홍채정보','얼굴인식','생체정보','신체적특징','생리적특징','행동적특징'],
-    '인종': ['인종','민족','민족적출신']
+    '인종': ['인종','민족','민족적출신','인종민족','인종이나민족에관한정보']
   };
   var SENSITIVE_KEYS = Object.keys(SENSITIVE);
   function normSensitive(v){return String(v||'').toLowerCase().replace(/[\\s·ㆍ・․‧.,()\[\]「」｢｣'"]/g,'');}
+  var sensitiveCache = new WeakMap();
   function sensitiveTags(r){
+    if(sensitiveCache.has(r)) return sensitiveCache.get(r);
     // 개인정보 수집 목록의 범위 내에서만 판별, 법령 전체를 자동 추가한 것은 아닙니다.
     var str=normSensitive(r.n+' '+(r.at||'')+' '+bodyOf(r).text);
     var found=SENSITIVE_KEYS.filter(function(k){
       return SENSITIVE[k].some(function(word){return str.indexOf(normSensitive(word))>=0;});
     });
     if (r.t.indexOf('민감')>=0 || found.length) found.unshift('민감');
+    sensitiveCache.set(r,found);
     return found;
   }
   function termSensitive(t){
@@ -351,7 +354,7 @@
 
   function run(){
     if (!DATA.length) return;
-    var q = $('#q').value.trim().toLowerCase(), toks = q ? q.split(/\s+/) : [];
+    var q = $('#q').value.trim().toLowerCase(), toks = q ? (termSensitive(q) ? [q] : q.split(/\s+/)) : [];
     var kind = $('#fkind').value, org = $('#forg').value, fld = $('#ffield').value, cat = $('#fcat').value;
     var onlyStd = $('#fstd').checked, noBu = $('#fbu').checked;
     filtered = [];
