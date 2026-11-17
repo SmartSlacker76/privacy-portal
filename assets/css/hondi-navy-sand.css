@@ -260,3 +260,9 @@ html[data-palette="natural"] .g-head .g-brand .em.g-mascot{
  .g-head .g-burger{order:3}
  .g-head .g-gnb{order:5}
 }
+
+/* Explicit two-line Korean masthead brand */
+.g-head .g-brand .tx .g-brand-ko{display:flex;flex-direction:column;align-items:flex-start;gap:1px;white-space:normal}
+.g-head .g-brand .tx .g-brand-ko>span{display:block;line-height:1.25}
+.g-head .g-brand .tx>span{margin-top:5px}
+@media(max-width:480px){.g-head .g-brand .tx .g-brand-ko{gap:0}}
