@@ -1,4 +1,4 @@
-/* 테마 — 네이비·샌드 기본 / 테라코타·올리브 대체 배색, 밝기 설정 별도 유지.
+/* 테마 — 내추럴(테라코타·올리브) 기본 / 네이비·샌드 대체 배색, 밝기 설정 별도 유지.
  * <html data-theme>      : 실제 적용된 테마 ("light" | "dark")
  * <html data-theme-pref> : 사용자가 고른 값 ("system" | "light" | "dark")
  * 모든 페이지의 <head>에서 먼저 실행되어야 색이 번쩍이지 않습니다. */
@@ -45,7 +45,7 @@
   // 배색은 밝기(시스템/밝게/어둡게)와 독립적으로 저장됩니다.
   var PALETTE_KEY = 'hondi.palette';
   function paletteGet(){
-    try { return localStorage.getItem(PALETTE_KEY) === 'natural' ? 'natural' : 'modern'; } catch(e){ return 'modern'; }
+    try { return localStorage.getItem(PALETTE_KEY) === 'modern' ? 'modern' : 'natural'; } catch(e){ return 'natural'; }
   }
   function paletteSet(next){
     var p=next === 'natural' ? 'natural' : 'modern';
