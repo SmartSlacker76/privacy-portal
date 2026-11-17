@@ -226,3 +226,37 @@ html[data-palette="natural"] .g-head .g-brand .em.g-mascot{background:#efe5d3;bo
 @media(max-width:1250px){.g-head .g-brand{max-width:300px}.g-head .g-brand .tx>span{font-size:10px}}
 @media(max-width:650px){.g-head .g-brand{gap:8px;max-width:250px}.g-head .g-brand .em.g-mascot{height:44px;width:44px;flex-basis:44px;border-radius:10px}.g-head .g-brand .g-mascot img{height:43px;width:43px}.g-head .g-brand .tx b{font-size:16px}.g-head .g-brand .tx>span{font-size:9px;letter-spacing:0}.g-head .in{min-height:64px}}
 @media(max-width:390px){.g-head .g-brand{max-width:200px}.g-head .g-brand .tx b{font-size:14px}.g-head .g-brand .tx>span{font-size:8px}}
+
+/* Brand refresh: longer Korean name and unboxed mascot */
+.g-head .g-brand{max-width:470px;gap:10px}
+.g-head .g-brand .em.g-mascot,
+html[data-palette="natural"] .g-head .g-brand .em.g-mascot{
+  background:transparent!important;border:0!important;border-radius:0!important;
+  box-shadow:none!important;outline:0!important;overflow:visible!important;
+  width:60px;height:62px;flex:0 0 60px;padding:0!important;
+}
+.g-head .g-brand .g-mascot img{width:60px;height:62px;object-fit:contain;object-position:center bottom}
+.g-head .g-brand .tx b{font-size:clamp(15px,1.3vw,19px);line-height:1.36;letter-spacing:-.045em;white-space:normal;word-break:keep-all}
+.g-head .g-brand .tx>span{font-size:11px;white-space:normal}
+@media(max-width:1450px){
+ .g-head .in{flex-wrap:wrap;gap:10px;padding-bottom:0}
+ .g-head .g-burger{display:block;margin-left:auto;order:3}
+ .g-head .g-tools{order:2;margin-left:auto}
+ .g-head .g-gnb{order:4;width:100%;margin:0 0 10px;display:none;flex-direction:column;gap:1px}
+ body.g-open .g-head .g-gnb{display:flex}
+}
+@media(max-width:700px){
+ .g-head .g-brand{max-width:min(100%,365px);gap:7px}
+ .g-head .g-brand .em.g-mascot{width:47px;height:50px;flex-basis:47px}
+ .g-head .g-brand .g-mascot img{width:47px;height:50px}
+ .g-head .g-brand .tx b{font-size:14px}
+ .g-head .g-brand .tx>span{font-size:9px}
+}
+@media(max-width:480px){
+ .g-head .g-brand{max-width:calc(100% - 46px)}
+ .g-head .g-brand .tx b{font-size:13px}
+ .g-head .g-brand .tx>span{font-size:9px}
+ .g-head .g-tools{order:4;width:100%;justify-content:flex-end;margin:0 0 7px}
+ .g-head .g-burger{order:3}
+ .g-head .g-gnb{order:5}
+}
