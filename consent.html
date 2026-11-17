@@ -1,1 +1,400 @@
-<!doctype html><html lang="ko"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>개인정보 동의·고지 작성실 · 간세다리청</title><meta name="description" content="업무·처리 근거·개인정보 항목을 선택해 동의서와 고지문 초안을 작성하는 4단계 실무 도구"><link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css"><script src="assets/js/theme.js"></script><link rel="stylesheet" href="assets/css/gov.css"><link rel="stylesheet" href="assets/css/academy.css"><link rel="stylesheet" href="assets/css/consent-studio.css"><link rel="stylesheet" href="assets/css/sector-examples.css"></head><body><main><div class="workspace"><section class="builder" aria-label="문서 작성"><div class="intro"><span class="eyebrow">CONSENT & NOTICE STUDIO</span><h1>어려운 동의서,<br><em>질문에 답하며 작성하세요.</em></h1><p>처리 근거부터 먼저 확인하고, 필요한 항목만 선택합니다.<br>오른쪽 문서가 입력에 맞춰 바뀝니다. 기관 기본명은 <b>간세다리청</b>입니다.</p></div><details class="sector-drawer" id="sector-drawer"><summary>수집·이용 동의서 예문 · 불러와서 수정하기</summary><p class="sector-drawer-note">불러오면 현재 작성 내용이 예문으로 바뀝니다. 이전 내용은 이 브라우저에 1회 복원할 수 있도록 보관합니다.</p><button id="restore-before-example">예문 적용 전 내용 복원</button><div id="sector-consent"></div></details><div class="step-tabs" role="tablist" aria-label="작성 단계"><button class="step-tab active" data-step="1" role="tab" id="tab-1" aria-controls="step-1">1단계: 기본</button><button class="step-tab" data-step="2" role="tab" id="tab-2" aria-controls="step-2">2단계: 근거</button><button class="step-tab" data-step="3" role="tab" id="tab-3" aria-controls="step-3">3단계: 항목</button><button class="step-tab" data-step="4" role="tab" id="tab-4" aria-controls="step-4">4단계: 저장</button></div><div id="sections"></div><div class="step-navigation"><button id="btnPrev" disabled>← 이전 질문</button><span id="stepCounter">1 / 4</span><button id="btnNext" class="primary">다음 질문 ▶</button></div><details class="source-fold"><summary>출처·적용 범위 확인</summary><section class="sources"><h2>출처·적용 범위</h2><p><a href="consent-legacy.html">이전 작성 도구(consent-legacy) 열기 ↗</a> · 기존 양식이 필요하면 여기서 쓰세요.</p><p><b>예문 출처</b> 개인정보보호위원회, 「분야별 개인정보 보호 안내서」(2024.12.) 발췌본 — 사회복지시설 편 인쇄 97쪽(첨부 PDF 1쪽), 의료기관 편 인쇄 208쪽(첨부 PDF 4쪽)의 수집·이용 동의서 표준서식. 첨부본 해시(SHA-256) 대조 완료.</p><p><b>해설 근거</b> 「개인정보 처리 통합 안내서」(2025.7.) 발췌본 — 수집·이용·제공·동의 구분 및 동의 없는 처리. 해시 대조 완료. 「알기쉬운 개인정보 처리 동의 안내서」(2022.3.)는 이전 첨부본으로, 항목 분류 작성에 참고했습니다.</p><p><b>현행성 확인(2026.11.16.)</b> 법 제15조제1항은 제1호(동의)부터 제7호까지이며 첨부본 조문과 일치합니다. 주민등록번호는 법 제24조의2제1항 각 호(법률·대통령령 등의 구체적 요구·허용 / 급박한 생명·신체·재산의 이익 / 보호위원회 고시)에 해당해야 처리할 수 있고 <b>동의는 처리 근거가 되지 않습니다</b> — 이 도구가 주민등록번호를 일반 동의 항목에서 제외하는 이유입니다. 「개인정보 처리 방법에 관한 고시」는 제2026-10호(시행 2026.8.20.)가 현행입니다. 안내서 판본의 설명과 현행 법령이 다르면 현행 법령과 경과조치를 우선 확인하세요.</p><a href="https://www.law.go.kr/법령/개인정보보호법" target="_blank" rel="noopener">개인정보 보호법 · 시행 2026.9.11 ↗</a><a href="https://www.law.go.kr/법령/개인정보보호법시행령" target="_blank" rel="noopener">현행 시행령 ↗</a><a href="https://www.law.go.kr/행정규칙/개인정보처리방법에관한고시" target="_blank" rel="noopener">개인정보 처리 방법에 관한 고시 · 2026.8.20 ↗</a><p>기준 확인일 2026.11.16 · 이 도구는 문서 초안 작성과 누락 점검을 돕습니다. 입력만으로 적법성·동의 효력·법정 의무 충족을 확정하지 않습니다. 실제 개인정보 값을 입력하지 마세요.</p></section></details></section><aside class="preview"><div class="preview-bar"><span><i></i> 실시간 문서 미리보기</span><button id="printTop">인쇄 / PDF</button></div><p class="preview-hint">미작성 내용은 [대괄호]로 표시합니다. 동의 체크는 미리 선택하지 않습니다.</p><article id="documentArea" class="a4-paper" aria-label="생성 문서 미리보기"></article></aside></div></main><div id="status" role="status"></div><script src="assets/data/law-summary.js"></script><script src="assets/data/consent-catalog.js"></script><script src="assets/data/sector-examples.js"></script><script src="assets/js/sector-examples-ui.js"></script><script src="assets/js/consent-studio.js"></script><script src="assets/js/gov.js"></script></body></html>
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="description" content="개인정보 동의·고지 작성실: 기관명과 처리목적, 법적 근거에 따른 동의서·안내문을 작성하고 A4 Word·PDF로 출력합니다.">
+<title>개인정보 동의·고지 작성실 | 간세다리청</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css"><script src="assets/js/theme.js"></script><link rel="stylesheet" href="assets/css/gov.css"><link rel="stylesheet" href="assets/css/academy.css"><style>
+:root{--v21-ink:#13261f;--v21-sub:#4e6257;--v21-line:#d6e4da;--v21-blue:#176653;--v21-navy:#10473a;--v21-bg:#f3f7f4;--v21-orange:#8a5a18}
+:root[data-theme="dark"]{--v21-ink:#e9f3ed;--v21-sub:#aac4b5;--v21-line:#2c4a3c;--v21-blue:#6fbf9b;--v21-navy:#cdeadd;--v21-bg:#0f1b16;--v21-orange:#e0b070}
+*{box-sizing:border-box}html,body{margin:0;min-height:100%}body{background:var(--v21-bg);font-family:Pretendard,'Pretendard Variable','Apple SD Gothic Neo',system-ui,sans-serif;color:var(--v21-ink);font-size:14px;line-height:1.55}button,input,textarea,select{font:inherit}button{cursor:pointer}button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-visible{outline:3px solid #84b6fc;outline-offset:2px}.app{display:grid;grid-template-columns:minmax(355px,41%) minmax(0,59%);align-items:start}.editor{background:var(--ac-surf,var(--ac-surf));border-right:1px solid var(--v21-line);height:calc(100dvh - var(--cs-top,150px));overflow-y:auto;overflow-x:hidden;overscroll-behavior:contain;position:sticky;top:var(--cs-top,150px);scrollbar-width:thin;scrollbar-gutter:stable}.editor-header{padding:22px 27px 18px;background:var(--v21-navy);color:#fff}.eyebrow{font-size:12px;letter-spacing:2px;color:var(--ac-mut);font-weight:700}.editor-header h1{font-size:22px;margin:7px 0;line-height:1.35}.editor-header p{font-size:12px;color:var(--ac-mut);margin:0}.panel{padding:22px 27px 40px}.group-title{font-size:15px;margin:18px 0 13px;font-weight:850;border-bottom:1px solid var(--v21-line);padding-bottom:7px}.lbl{display:block;font-weight:700;font-size:12px;margin:11px 0 5px}.txt,select,textarea{border:1px solid var(--ac-line);border-radius:8px;padding:10px 11px;width:100%;background:var(--ac-surf);color:var(--v21-ink);min-height:39px}.txt:focus,textarea:focus,select:focus{border-color:#4383d9}textarea{min-height:55px;resize:vertical}.help{font-size:12px;color:var(--v21-sub);margin:5px 0 10px}.toggle-card{border:1px solid var(--ac-line);border-radius:12px;margin:10px 0;background:var(--ac-surf);overflow:hidden}.toggle-head{display:flex;align-items:center;gap:9px;padding:14px 13px;cursor:pointer;font-weight:800;font-size:12.5px}.toggle-head:hover{background:var(--ac-surf)}.toggle-head input{accent-color:#205fc0;height:18px;width:18px;flex:none}.toggle-title{flex:1}.toggle-arrow{color:var(--ac-mut);font-size:12px}.toggle-body{padding:8px 13px 16px;border-top:1px solid var(--ac-line);background:var(--ac-surf)}.editor-matrix-wrap{overflow-x:auto;max-width:100%}.editor-matrix{table-layout:fixed;width:100%;min-width:440px;border-collapse:collapse;margin:9px 0 4px}.editor-matrix th,.editor-matrix td{border:1px solid var(--ac-line);padding:6px;vertical-align:middle}.editor-matrix th{background:var(--ac-surf2);font-size:12px;text-align:center;white-space:normal}.editor-matrix input,.editor-matrix textarea{background:var(--ac-surf);width:100%;border:1px solid var(--ac-line);border-radius:4px;padding:7px;min-width:0;font-size:12px;min-height:40px}.editor-matrix textarea{height:52px}.editor-matrix[data-table="noConsent"] td textarea,.editor-matrix[data-table="rrnCollect"] td textarea{color:var(--ac-ink);font-weight:400;text-decoration:none}.law-picker{margin:9px 0}.tag-options{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:6px;margin:9px 0}.tag-options .cat-law{display:block;color:var(--ac-mut);font-size:12px;margin-top:1px}.tag-options label{display:flex;gap:5px;align-items:flex-start;font-size:12px;background:var(--ac-surf);padding:8px;border:1px solid var(--ac-line);border-radius:7px;cursor:pointer}.tag-options input{flex:none;accent-color:#205fc0}.refusal-edit{margin-top:10px;padding:11px;border:1px solid var(--ac-line);background:var(--ac-surf);border-radius:9px}.refusal-edit h4{margin:0 0 7px;font-size:12px;color:var(--ac-ink2)}.refusal-edit .seg{display:flex;gap:14px;align-items:center;flex-wrap:wrap;font-size:12px;margin:7px 0}.refusal-edit .seg label{display:flex;gap:5px;align-items:center}.refusal-edit input[type=radio]{accent-color:#245dc0}.status-mini{padding:8px 10px;border-radius:7px;background:var(--ac-surf);color:var(--ac-ink2);margin-top:9px;font-size:12px}.footer-input{display:grid;grid-template-columns:1fr 1fr;gap:0 10px}.actions{display:flex;flex-wrap:wrap;gap:7px;margin:16px 0}.btn{background:white;border:1px solid var(--ac-line);color:var(--ac-ink2);border-radius:8px;padding:9px 11px;font-weight:750;font-size:12px}.btn.primary{background:#1d5fc3;color:#fff;border-color:#1d5fc3}.btn:hover{filter:brightness(.95)}.workspace{padding:21px clamp(16px,3vw,42px) 50px;min-width:0}.topbar{display:flex;align-items:center;justify-content:space-between;gap:9px;flex-wrap:wrap;margin-bottom:14px}.topbar h2{margin:0;font-size:17px}.topbar small{font-size:12px;color:var(--v21-sub)}.doc-sheet{width:100%;max-width:890px;margin:0 auto;background:var(--ac-surf);min-height:900px;box-shadow:0 9px 40px rgba(24,50,78,.1);padding:43px clamp(20px,4.5vw,58px) 50px;border:1px solid var(--ac-line)}.doc-title{border:1px solid #333;padding:12px 10px;text-align:center;font-size:18pt;font-weight:850;margin:0 0 26px}.doc-intro{font-size:10.5pt;margin:0 0 19px;line-height:1.9}.doc-common-notices{margin:19px 0 15px;font-size:9.6pt;line-height:1.85}.doc-common-notices h3,.doc-signature-title{margin:0 0 12px;color:var(--ac-ink);font-size:12pt;font-weight:800}.guardian-consent-note{font-size:9.5pt;margin:13px 0 7px;line-height:1.75}.guardian-consent-note strong{font-weight:800}.guardian-grid{width:100%;border-collapse:collapse;table-layout:fixed;margin:11px 0 3px;font-size:9pt}.guardian-grid th,.guardian-grid td{border:1px solid #87909d;text-align:center;vertical-align:middle;padding:8px 4px;word-break:keep-all}.guardian-grid th{background:var(--ac-surf2);font-weight:800}.guardian-grid td{min-height:34px;color:var(--ac-ink)}.doc-group-heading{font-size:12pt;margin:20px 0 8px;font-weight:800}.doc-common-notices p{margin:6px 0;word-break:keep-all}.notice-setting{display:flex;align-items:flex-start;gap:9px;font-weight:650;font-size:12px;cursor:pointer;margin:13px 0 4px}.notice-setting input{margin-top:3px;accent-color:#205fc0}.notice-setting-help{font-size:12px;color:var(--v21-sub);margin:0 0 14px}.doc-section{margin:22px 0 25px;break-inside:avoid-page}.doc-section h3{font-size:12pt;margin:0 0 11px;color:var(--ac-ink)}.doc-table{width:100%;border-collapse:collapse;table-layout:fixed;font-size:9.6pt;margin-bottom:11px}.doc-table th,.doc-table td{border:1px solid #87909d;padding:8px 7px;text-align:center;vertical-align:middle;word-break:keep-all;overflow-wrap:anywhere}.doc-table th{background:var(--ac-surf2);font-weight:800;color:var(--ac-ink)}.doc-table td{color:var(--ac-ink)}.doc-table td.em{font-size:11pt;font-weight:850;text-decoration:underline;color:var(--ac-ink2)}.doc-table td.normal{font-size:9.6pt;color:var(--ac-ink);font-weight:400;text-decoration:none}.doc-table[data-table=visual]{font-size:9.1pt}.doc-table[data-table=visual] td{font-size:9.1pt}.editor-matrix[data-table=visual]{min-width:690px}.subconsent-editor{padding:11px;border:1px solid var(--ac-line);border-radius:9px;margin:12px 0;background:white}.subconsent-editor h4{margin:0 0 7px;color:var(--ac-ink2)}.subconsent-editor .lbl{margin-top:9px}.subconsent-editor .mini-tog{display:flex;align-items:center;gap:8px;font-weight:700;cursor:pointer}.subconsent-editor .mini-tog input{accent-color:#1554a0}.doc-subsection{border-left:3px solid var(--ac-line);padding-left:10px;margin:14px 0 4px}.doc-subsection h4{font-size:10pt;margin:0 0 8px}.doc-intro.visual-intro{font-size:10pt;margin:6px 0 10px}.editor-matrix[data-table=visual] td textarea{min-height:75px}.doc-table th.narrow{width:16%}.doc-refusal{font-size:9.3pt;color:var(--ac-ink2);margin:10px 0;line-height:1.75}.doc-question{display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap;align-items:center;padding:6px 0;font-size:10.2pt;margin-top:8px}.doc-question strong{font-weight:750}.choices{display:flex;gap:13px;align-items:center;flex-wrap:wrap}.choice{display:flex;align-items:center;gap:5px;cursor:pointer;white-space:nowrap}.choice input{width:17px;height:17px;accent-color:#1955af}.doc-note{font-size:9pt;color:var(--ac-mut);margin:8px 0;line-height:1.6}.legal-caution{background:var(--ac-surf);border-left:3px solid #cf9b39;padding:8px 12px;font-size:9pt;color:var(--ac-ink2);margin:8px 0}.signature{margin:38px 0 4px;text-align:center;font-size:10.5pt;line-height:2.4;page-break-inside:avoid}.signature div{margin:3px 0}.signature .right{font-size:13pt;font-weight:850;margin-top:12px}.preview-empty{padding:65px 10px;text-align:center;color:var(--ac-mut);line-height:2}.inspector{background:var(--ac-surf);border:1px solid var(--ac-line);border-radius:9px;margin-top:15px;padding:12px 15px;font-size:12px;color:var(--ac-ink2)}.inspector strong{color:var(--ac-ink2)}.inspector p{margin:6px 0}.inspector .err{color:var(--ac-ink2)}.inspector .warn{color:var(--ac-ink2)}.rights-editor-preview{padding:12px 13px;margin:15px 0 8px;border:1px solid var(--ac-line);border-radius:10px;background:var(--ac-surf)}.rights-editor-preview strong{display:block;font-size:12px;margin-bottom:10px;color:var(--ac-ink)}.rights-editor-preview p{font-size:12px;margin:7px 0;line-height:1.65;color:var(--ac-ink);word-break:keep-all} .badge-mini{display:inline-block;border-radius:5px;background:var(--ac-surf);padding:3px 8px;color:var(--ac-ink2);font-size:12px;font-weight:750}.hidden{display:none!important}
+@media(max-width:1000px){.app{grid-template-columns:1fr}.editor{position:static;height:auto;max-height:none;border-right:0;border-bottom:1px solid var(--v21-line)}.workspace{padding:16px}.panel{padding:18px 19px}.editor-header{padding:18px 20px}.doc-sheet{padding:25px 18px;min-height:600px}.doc-table{font-size:8.5pt}.doc-table td.em{font-size:9.5pt}}
+
+#printDocument{display:none}
+@media(max-width:900px){.doc-table{font-size:9.6pt}.doc-table td.em{font-size:11pt}}
+
+
+
+
+
+
+@media screen {
+:root{--v21-ink:#193a31;--v21-sub:#596f61;--v21-line:#dce6d9;--v21-blue:#176653;--v21-navy:#176653;--v21-bg:#f4f7f2;--v21-orange:#946225}
+body{background:var(--v21-bg);color:var(--v21-ink);font-family:'Pretendard Variable','Pretendard','Noto Sans KR','Malgun Gothic','Apple SD Gothic Neo',system-ui,sans-serif;font-size:13px;letter-spacing:-.015em}
+button:focus-visible,input:focus-visible,textarea:focus-visible,select:focus-visible,a:focus-visible{outline:3px solid #a5c775;outline-offset:3px}
+.app{max-width:1580px;min-height:100vh;margin:auto;padding:30px clamp(14px,3vw,44px);display:grid;grid-template-columns:minmax(350px,43%) minmax(0,57%);gap:24px;align-items:start}
+.editor{position:sticky;top:28px;height:calc(100vh - 56px);border:1px solid var(--v21-line);border-radius:17px;box-shadow:0 10px 28px #173d2710;background:var(--ac-surf);overflow:auto;min-width:0}
+.editor-header{padding:25px 25px 23px;color:var(--ac-ink);background:var(--ac-surf);border-bottom:1px solid var(--ac-line)}
+.portal-utility{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:23px;padding-bottom:16px;border-bottom:1px solid var(--ac-line)}
+.portal-logo{display:inline-flex;align-items:center;gap:9px;text-decoration:none;color:var(--ac-ink);font-size:14px;font-weight:800;line-height:1.2}
+.portal-logo small{display:block;color:var(--ac-mut);letter-spacing:.05em;font-size:12px;font-weight:500;margin-top:4px}
+.portal-mark{display:grid;place-items:center;flex:none;width:36px;height:36px;border-radius:10px;color:#e6f7a3;background:var(--ac-accbg);font-size:20px}
+.portal-home{color:var(--ac-acc);text-decoration:none;white-space:nowrap;border:1px solid var(--ac-line);border-radius:9px;padding:7px 10px;font-weight:750;font-size:12px}
+.portal-home:hover{background:var(--ac-surf)}
+.eyebrow{color:var(--ac-acc);font-weight:800;font-size:12px;letter-spacing:2px}
+.editor-header h1{color:var(--ac-ink);font-size:clamp(23px,2.1vw,31px);letter-spacing:-1.25px;line-height:1.42;font-weight:900;margin:9px 0 12px}
+.editor-header h1 em{color:var(--ac-acc);font-style:normal}
+.editor-header p{font-size:12px;line-height:1.8;color:var(--ac-mut);margin:0;max-width:48ch}
+.panel{padding:21px 24px 38px}
+.group-title{border-bottom:1px solid var(--ac-line);color:var(--ac-ink);margin-top:22px}
+.lbl{color:var(--ac-ink)}
+.txt,select,textarea{border-color:var(--ac-line);border-radius:8px;background:var(--ac-surf);color:var(--ac-ink)}
+.txt:focus,textarea:focus,select:focus{border-color:#176653;box-shadow:0 0 0 2px #17665317}
+.toggle-card{border-color:var(--ac-line);border-radius:11px;box-shadow:none}
+.toggle-head:hover{background:var(--ac-surf)}
+.toggle-head input,.tag-options input,.refusal-edit input[type=radio],.subconsent-editor .mini-tog input,.notice-setting input{accent-color:#176653}
+.toggle-arrow{color:var(--ac-mut)}
+.toggle-body{background:var(--ac-surf);border-top-color:var(--ac-line)}
+.editor-matrix th{background:var(--ac-surf2)}
+.editor-matrix th,.editor-matrix td{border-color:var(--ac-line)}
+.editor-matrix td textarea,.editor-matrix td input{border-color:var(--ac-line)}
+.tag-options label{border-color:var(--ac-line)}
+.refusal-edit{border-color:var(--ac-line);background:var(--ac-surf)}
+.refusal-edit h4{color:var(--ac-acc)}
+.subconsent-editor{border-color:var(--ac-line)}
+.subconsent-editor h4{color:var(--ac-acc)}
+.status-mini{background:var(--ac-surf);color:var(--ac-ink2)}
+.btn{color:var(--ac-acc);border-color:var(--ac-line);background:var(--ac-surf);border-radius:8px}
+.btn.primary{color:#fff;background:var(--ac-accbg);border-color:#176653}
+.btn:hover{background:var(--ac-surf);filter:none}
+.btn.primary:hover{background:var(--ac-accbg)}
+.workspace{padding:3px 0 45px;min-width:0}
+.topbar{background:transparent;padding:7px 2px 11px;border-bottom:1px solid var(--ac-line);margin-bottom:13px}
+.topbar h2{font-size:16px;color:var(--ac-ink)}
+.topbar small{color:var(--ac-mut);line-height:1.7}
+.badge-mini{background:var(--ac-surf2);color:var(--ac-acc)}
+.inspector{background:var(--ac-surf);border-color:var(--ac-line);color:var(--ac-acc)}
+.inspector strong{color:var(--ac-acc)}
+.rights-editor-preview{background:var(--ac-surf);border-color:var(--ac-line)}
+.rights-editor-preview strong{color:var(--ac-acc)}
+.legal-caution{background:var(--ac-surf)}
+}
+@media screen and (max-width:1080px){
+ .app{grid-template-columns:1fr;gap:22px;padding:15px}
+ .editor{position:static;height:auto;max-height:none}
+ .workspace{padding:0 0 30px}
+ .editor-header{padding:18px 19px}
+ .panel{padding:15px 18px 26px}
+}
+@media screen and (max-width:520px){
+ .app{padding:10px;gap:14px}
+ .portal-utility{margin-bottom:14px}
+ .editor-header h1{font-size:25px}
+ .portal-logo{font-size:13px}
+ .portal-home{padding:6px 7px;font-size:12px}
+ .workspace{padding:0}
+ .topbar{align-items:flex-start}
+}
+
+
+/* ---- A4 문서는 인쇄물: 테마와 무관하게 흰 종이 + 검은 먹색 ---- */
+.doc-page{--v21-ink:#13261f;--v21-sub:#4a5c51;--v21-line:#c9d5cd;--v21-blue:#176653;--v21-navy:#10473a;
+  --v21-bg:#fff;--v21-orange:#8a5a18;--ac-surf:#fff;--ac-surf2:#f4f7f2;--ac-ink:#13261f;--ac-ink2:#33483c;
+  --ac-line:#c9d5cd;--ac-mut:#4a5c51;--ac-acc:#176653;--ac-accbg:#e8f5ec;
+  background:#fff !important;color:#13261f}
+.doc-page *{border-color:#c9d5cd}
+.doc-page h1,.doc-page h2,.doc-page h3,.doc-page h4,.doc-page p,.doc-page li,.doc-page td,
+.doc-page div,.doc-page span,.doc-page strong,.doc-page b,.doc-page label{color:#13261f}
+.doc-page th{background:#eceeed;color:#13261f}
+.doc-page .doc-page-number,.doc-page small{color:#4a5c51}
+.toggle-arrow{color:var(--v21-sub)}
+</style>
+</head>
+<body>
+<div class="app">
+<aside class="editor" aria-label="개인정보 동의서 작성">
+<header class="editor-header">
+  
+  <div class="eyebrow">CONSENT &amp; NOTICE STUDIO</div>
+  <h1>어려운 동의서,<br><em>질문에 답하며 작성하세요.</em></h1>
+  <p>처리 근거와 필요한 항목을 선택하면 오른쪽 A4 문서가 자동으로 완성됩니다.</p>
+</header>
+<div class="panel">
+<h2 class="group-title">1. 기관 및 업무 정보</h2>
+<label class="lbl" for="org">기관명 *</label><input class="txt" id="org" placeholder="예: 간세다리청 / ○○학원" data-root="org">
+<label class="lbl" for="objective">수집 및 이용 목적 *</label><textarea id="objective" placeholder="예: 지원사업 신청 접수 및 대상자 선정" data-root="objective"></textarea>
+<label class="lbl" for="docType">동의서 유형 (한 가지 선택)</label><select id="docType" data-root="docType"><option value="collect">개인정보 수집 및 이용 동의서</option><option value="collect_provide">개인정보 수집·이용 및 제공 동의서</option><option value="extra">개인정보 목적 외 이용 및 제3자 제공 동의서</option><option value="overseas">개인정보 국외 이전 동의서</option><option value="visual">사진·영상촬영·초상의 이용 등 영상활용 동의서</option></select>
+<p class="help">문서 제목은 “기관명 + 선택한 동의서 유형”으로 자동 생성됩니다. 단, 고지사항만 선택하면 “개인정보 수집·이용 안내문”으로 표시됩니다. 실제 출력 항목은 아래 체크박스에 따라 결정됩니다.</p>
+<h2 class="group-title">2. 항목별 수집·이용·제공 (체크 시 필수항목 표 표시)</h2>
+<div id="toggleList"></div>
+<h2 class="group-title">3. 정보주체의 권리 및 기타 안내</h2>
+<p class="help">아래 5개 문구는 미리보기·인쇄·HTML·Word에 모두 포함됩니다. 기관명·부서명·연락처는 입력 내용이 자동 반영됩니다.</p>
+<div class="footer-input"><div><label class="lbl" for="contactDepartment">개인정보 보호 관련 문의 부서명 *</label><input class="txt" id="contactDepartment" data-root="contactDepartment" placeholder="예: 정보보호팀"></div><div><label class="lbl" for="contactPhone">개인정보 보호 관련 연락처 *</label><input class="txt" id="contactPhone" data-root="contactPhone" placeholder="예: 064-000-0000"></div></div>
+<div class="rights-editor-preview"><strong>3. 정보주체의 권리 및 기타 안내 — 출력 내용 (5개)</strong><div id="rightsPreviewEditor" aria-live="polite"></div></div>
+<p class="notice-setting-help">※ 위탁현황 안내는 기관 홈페이지의 실제 개인정보 처리방침과 일치하는지 최종 확인하세요. 해당 사항이 없는 기관은 문서를 사용하기 전에 고지문구의 사실관계를 검토해야 합니다.</p>
+<h2 class="group-title">4. 날짜 및 서명</h2>
+<div class="footer-input"><div><label class="lbl">날짜 (년·월·일)</label><input type="date" id="date" class="txt" data-root="date"></div><div><label class="lbl">기관명 귀중</label><input class="txt" id="recipientOrg" data-root="recipientOrg" placeholder="미입력 시 기관명 사용"></div><div><label class="lbl">본인(정보주체) 성명</label><input class="txt" data-root="subjectName" placeholder="공란 가능"></div><div><label class="lbl">본인(정보주체) 서명 표시</label><input class="txt" data-root="subjectSignature" placeholder="예: 서명 또는 인"></div></div>
+<div class="actions"><button type="button" class="btn primary" id="docxBtn">Word 다운로드</button><button type="button" class="btn" id="printBtn">인쇄 / PDF</button><button type="button" class="btn" id="htmlBtn">HTML 저장</button><button type="button" class="btn" id="saveBtn">설정 JSON 저장</button><button type="button" class="btn" id="loadBtn">설정 불러오기</button><button type="button" class="btn" id="sampleBtn">일반 예시</button><button type="button" class="btn" id="visualSampleBtn">사진·영상 예시</button><button type="button" class="btn" id="resetBtn">초기화</button><input type="file" id="loadFile" accept="application/json,.json" hidden></div>
+<div class="help">이 프로그램은 동의서 <b>양식 제작기</b>입니다. 온라인 실명·법정대리인 확인 및 동의 증적 저장은 제공하지 않습니다. 실제 개인정보를 예시 입력란에 넣지 마세요.</div>
+</div></aside>
+<main class="workspace"><div class="topbar"><div><h2>실시간 A4 미리보기</h2><small>미선택 동의란은 빈칸으로 출력되며, 항목별로 동의함·동의하지 않음을 각각 선택할 수 있습니다.</small></div><span class="badge-mini" id="sectionCount">0개 영역 선택됨</span></div><div class="doc-pages" id="preview" aria-label="A4 다중 페이지 미리보기"></div><article class="doc-sheet print-original" id="printDocument" aria-hidden="true"></article><div class="inspector" id="inspector"></div></main>
+</div>
+<script>
+(()=>{'use strict';
+const LAW={'2':'법률에 특별한 규정이 있거나 법령상 의무 준수를 위해 불가피한 경우','3':'공공기관이 법령 등에서 정하는 소관 업무 수행을 위해 불가피한 경우','4':'계약 이행 또는 계약 체결 과정의 요청에 따른 조치를 위해 필요한 경우','5':'급박한 생명·신체·재산상 이익을 위해 필요한 경우','6':'개인정보처리자의 우선하는 정당한 이익을 달성하기 위해 필요한 경우','7':'긴급한 공중위생·공공의 안전 및 안녕을 위해 필요한 경우'};
+/* 민감정보 — 법 제23조제1항 본문(5종) + 시행령 제18조 각 호(4종).
+   '건강'과 '성생활'은 법 조문상 별개 유형이므로 분리해 표시합니다. */
+const SENSITIVE=['사상·신념','노동조합·정당의 가입·탈퇴','정치적 견해','건강','성생활','유전정보','범죄경력자료','생체인식정보','인종·민족'];
+const SENSITIVE_BASIS={'사상·신념':'법 제23조제1항','노동조합·정당의 가입·탈퇴':'법 제23조제1항','정치적 견해':'법 제23조제1항','건강':'법 제23조제1항','성생활':'법 제23조제1항','유전정보':'영 제18조제1호','범죄경력자료':'영 제18조제2호','생체인식정보':'영 제18조제3호','인종·민족':'영 제18조제4호'};
+/* 고유식별정보 — 영 제19조 각 호. 주민등록번호(제1호)는 법 제24조의2 특칙으로 따로 다룹니다. */
+const UNIQUE_BASIS={'운전면허번호':'영 제19조제3호','여권번호':'영 제19조제2호','외국인등록번호':'영 제19조제4호'};
+const UNIQUE=['운전면허번호','여권번호','외국인등록번호'];
+const TYPES={noConsent:{n:'개인정보 수집·이용 사항 고지',law:'제15조제1항제2호~제7호',cols:['수집목적','개인정보 항목','수집근거(법령)','보유기간'],fields:['purpose','items','basis','period'],notice:true},optional:{n:'개인정보 수집·이용 동의',law:'제15조·제22조',cols:['개인정보 항목','수집·이용 목적','보유·이용기간'],fields:['items','purpose','period'],consent:true},unique:{n:'고유식별정보 수집·이용내역',law:'제24조',cols:['항목','수집·이용 목적','보유·이용기간'],fields:['items','purpose','period'],consent:true,categories:UNIQUE},sensitive:{n:'민감정보 수집·이용내역',law:'제23조',cols:['항목','수집·이용 목적','보유·이용기간'],fields:['items','purpose','period'],consent:true,categories:SENSITIVE},provide:{n:'개인정보 제3자 제공내역',law:'제17조',cols:['제공받는 자','제공목적','제공 항목','보유·이용기간'],fields:['recipient','purpose','items','period'],consent:true},child:{n:'14세 미만 아동 개인정보 수집·이용내역',law:'제22조의2',cols:['개인정보 항목','수집·이용 목적','보유·이용기간'],fields:['items','purpose','period'],consent:true},overseas:{n:'개인정보 국외 이전내역',law:'제28조의8',cols:['이전받는 자 (연락처)','이전 국가','이전 시기·방법','이전 항목','이용 목적','보유·이용기간'],fields:['recipient','country','timing','items','purpose','period'],consent:true},rrnCollect:{n:'주민등록번호 수집·이용내역 고지사항',law:'제24조의2',cols:['수집목적','개인정보 항목','수집근거(법령)','보유기간'],fields:['purpose','items','basis','period'],notice:true},rrnProvide:{n:'주민등록번호 제공내역 고지사항',law:'제24조의2 및 제17조·제18조',cols:['제공받는 자','제공목적','제공 항목','제공근거 (법령)','보유·이용기간'],fields:['recipient','purpose','items','provideBasis','period'],notice:true},visual:{n:'사진·영상촬영·초상의 이용 등 영상활용 동의',law:'제15조·제17조·제22조',cols:['수집·활용목적','수집항목','보유기간','영상촬영 대상 및 방법','영상콘텐츠 활용방법'],fields:['purpose','items','period','shootMethod','usageMethod'],consent:true}};
+const TITLES={collect:'개인정보 수집 및 이용 동의서',collect_provide:'개인정보 수집·이용 및 제공 동의서',extra:'개인정보 목적 외 이용 및 제3자 제공 동의서',overseas:'개인정보 국외 이전 동의서',visual:'사진·영상촬영·초상의 이용 등 영상활용 동의서'};
+const particle=(raw,batchim,open)=>{const t=String(raw||'').trim();const cp=t.length?t.charCodeAt(t.length-1):0;return cp>=0xAC00&&cp<=0xD7A3?((cp-0xAC00)%28?batchim:open):batchim;};
+const $=id=>document.getElementById(id),esc=x=>String(x??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const blank=()=>({org:'',objective:'',contactDepartment:'',contactPhone:'',showOutsourcingNotice:true,docType:'collect',date:new Date().toLocaleDateString('en-CA'),recipientOrg:'',subjectName:'',subjectSignature:'',guardianName:'',guardianSignature:'',blocks:Object.fromEntries(Object.keys(TYPES).map(k=>[k,{on:false,purpose:'',items:k.startsWith('rrn')?'주민등록번호':'',basis:'',provideBasis:'',recipient:'',period:'',country:'',timing:'',contact:'',transferType:'제공',refusalWay:'',originalPurpose:'',clause:'3',category:[],detail:'',refusalType:'none',disadvantage:'',choice:'',guardianBasis:'consent',processingMode:'consent',specialVerified:false,guardianVerification:'서면 동의서·법정대리인 확인 서류 확인',guardianName:'',guardianSignature:'',guardianRelationship:'',guardianContact:'',guardianInfo:'',rrnException:'statute',shootMethod:'',usageMethod:'',publicOn:false,publicChannel:'',publicPurpose:'',publicItems:'',publicPeriod:'',publicChoice:'',publicRefusalType:'none',publicDisadvantage:'',thirdOn:false,thirdRecipient:'',thirdPurpose:'',thirdItems:'',thirdPeriod:'',thirdChoice:'',thirdRefusalType:'none',thirdDisadvantage:''}]))});
+let st=blank();
+function titleLabel(k){return TYPES[k].n}
+function isSpecial(k){return k==='unique'||k==='sensitive'}
+function isSpecialNotice(k){return isSpecial(k)&&st.blocks[k].processingMode==='legal'}
+function schema(k){if(isSpecialNotice(k))return {cols:['항목','수집·이용 목적','수집근거(법령명·조문)','보유·이용기간'],fields:['items','purpose','basis','period']};return TYPES[k]}
+function isConsentRequired(k){return TYPES[k].consent&&!isSpecialNotice(k)&&(k!=='child'||st.blocks[k].guardianBasis==='consent')}
+
+function selectLaw(b,k="noConsent"){return `<div class="law-picker"><label class="lbl">「개인정보 보호법」 제15조제1항 해당 호 *</label><select data-k="${k}" data-f="clause">${Object.entries(LAW).map(([id,n])=>`<option value="${id}" ${b.clause===id?'selected':''}>제${id}호 · ${esc(n)}</option>`).join('')}</select></div>`}
+function tableEditor(k,b){const t=schema(k);return `<div class="editor-matrix-wrap"><table class="editor-matrix" data-table="${k}"><thead><tr>${t.cols.map(h=>`<th>${esc(h)} *</th>`).join('')}</tr></thead><tbody><tr>${t.fields.map(f=>`<td>${f==='items'&&TYPES[k].categories?`<textarea data-k="${k}" data-f="detail" placeholder="체크 항목+세부 내용" title="개인정보 항목 세부사항">${esc(b.detail)}</textarea>`:`<textarea data-k="${k}" data-f="${f}" placeholder="${esc(t.cols[t.fields.indexOf(f)])}">${esc(b[f])}</textarea>`}</td>`).join('')}</tr></tbody></table></div>`}
+function catEditor(k,b){return `<div class="lbl">개인정보 종류 (복수 선택 가능) *</div><div class="tag-options">${TYPES[k].categories.map(o=>`<label><input type="checkbox" data-cat="${k}" data-item="${esc(o)}" ${(b.category||[]).includes(o)?'checked':''}><span>${esc(o)}<small class="cat-law">${esc((SENSITIVE_BASIS[o]||UNIQUE_BASIS[o]||''))}</small></span></label>`).join('')}</div><p class="help">선택한 범주와 세부 내용을 표의 ‘항목’에 함께 표시합니다.</p>`}
+function refusalEditor(k,b){return `<div class="refusal-edit"><h4>동의 거부권 및 불이익 사항 (필수 안내)</h4><div class="seg"><label><input type="radio" name="refusal-${k}" value="none" data-k="${k}" data-f="refusalType" ${b.refusalType==='none'?'checked':''}> 불이익 없음</label><label><input type="radio" name="refusal-${k}" value="limited" data-k="${k}" data-f="refusalType" ${b.refusalType==='limited'?'checked':''}> 실제 제한사항 있음</label></div>${b.refusalType==='limited'?`<label class="lbl">구체적인 제한사항과 이유 *</label><textarea data-k="${k}" data-f="disadvantage" placeholder="예: 해당 서비스를 제공할 수 없는 구체적인 이유">${esc(b.disadvantage)}</textarea><div class="status-mini">업무 제한은 동의 거부와 실제로 관련이 있는 경우에만 기재하세요. 형식적 필수동의 금지.</div>`:'<p class="help">동의를 거부하여도 기본 업무·서비스 이용에 불이익이 없음을 안내합니다.</p>'}<div class="lbl">동의 여부 (1개 선택, 기본 미선택)</div><div class="seg"><label><input type="radio" name="agree-${k}" value="yes" data-k="${k}" data-f="choice" ${b.choice==='yes'?'checked':''}> 동의함</label><label><input type="radio" name="agree-${k}" value="no" data-k="${k}" data-f="choice" ${b.choice==='no'?'checked':''}> 동의하지 않음</label><button class="btn" type="button" data-clear="${k}" style="padding:5px 8px">선택 해제</button></div><p class="help">서면 동의서의 기본값은 미선택입니다. 화면에서 선택하면 출력물에도 표시됩니다.</p></div>`}
+function visualExtrasEditor(b){const textFields=(items)=>items.map(([key,label,placeholder])=>`<label class="lbl">${label} *</label><textarea data-k="visual" data-f="${key}" placeholder="${esc(placeholder)}">${esc(b[key])}</textarea>`).join('');
+const miniRefusal=(prefix)=>`<div class="refusal-edit"><div class="lbl">동의 거부에 따른 불이익</div><div class="seg"><label><input type="radio" name="${prefix}-refusal" data-k="visual" data-f="${prefix}RefusalType" value="none" ${b[prefix+'RefusalType']==='none'?'checked':''}> 불이익 없음</label><label><input type="radio" name="${prefix}-refusal" data-k="visual" data-f="${prefix}RefusalType" value="limited" ${b[prefix+'RefusalType']==='limited'?'checked':''}> 실제 제한 있음</label></div>${b[prefix+'RefusalType']==='limited'?`<label class="lbl">구체적인 제한내용 *</label><textarea data-k="visual" data-f="${prefix}Disadvantage">${esc(b[prefix+'Disadvantage'])}</textarea>`:''}<div class="lbl">동의함 / 동의하지 않음 (1개 선택)</div><div class="seg"><label><input type="radio" name="${prefix}-choice" data-k="visual" data-f="${prefix}Choice" value="yes" ${b[prefix+'Choice']==='yes'?'checked':''}> 동의함</label><label><input type="radio" name="${prefix}-choice" data-k="visual" data-f="${prefix}Choice" value="no" ${b[prefix+'Choice']==='no'?'checked':''}> 동의하지 않음</label><button type="button" class="btn" data-visual-clear="${prefix}" style="padding:5px 8px">선택 해제</button></div></div>`;
+return `<div class="legal-caution">촬영·수집, 홈페이지·SNS 공개, 제3자 제공은 용도에 따라 각각 동의받도록 구분합니다. 촬영 동의만으로 온라인 공개나 외부 기관 제공에 동의한 것으로 처리하지 않습니다.</div><div class="subconsent-editor"><label class="mini-tog"><input type="checkbox" data-k="visual" data-f="publicOn" ${b.publicOn?'checked':''}> 홈페이지·SNS 등 외부 공개에 대한 동의도 받기</label>${b.publicOn?textFields([['publicPurpose','공개 목적','예: 기관 행사 결과 홍보'],['publicChannel','공개 매체 및 범위','예: 기관 홈페이지, 공식 유튜브, 인스타그램'],['publicItems','공개할 사진·영상 항목','예: 행사 참여 모습, 단체사진, 발언 영상'],['publicPeriod','공개·게시 기간','예: 게시일부터 1년 후 삭제']])+miniRefusal('public'):''}</div><div class="subconsent-editor"><label class="mini-tog"><input type="checkbox" data-k="visual" data-f="thirdOn" ${b.thirdOn?'checked':''}> 제3자 제공에 대한 동의도 받기</label>${b.thirdOn?textFields([['thirdRecipient','제공받는 자','예: ○○방송국'],['thirdPurpose','제공받는 자의 이용 목적','예: 행사 보도 및 홍보'],['thirdItems','제공하는 사진·영상 항목','예: 인터뷰 영상'],['thirdPeriod','제공받는 자의 보유·이용기간','예: 제공일부터 6개월']])+miniRefusal('third'):''}</div>`;}
+function specialEditor(k,b){let out='';if(k==='noConsent')out+=selectLaw(b);if(isSpecial(k)){
+ const specialNo=k==='sensitive'?'제23조제1항제2호':'제24조제1항제2호';
+ const lawRule=k==='sensitive'?'법령에서 민감정보의 처리를 요구하거나 허용하는 경우':'법령에서 구체적으로 고유식별정보의 처리를 요구하거나 허용하는 경우';
+ out+=`<div class="law-picker"><label class="lbl">개인정보 처리 방식 *</label><select data-k="${k}" data-f="processingMode" aria-label="${TYPES[k].n} 개인정보 처리 방식"><option value="consent" ${b.processingMode!=='legal'?'selected':''}>정보주체의 별도 동의를 받는 경우 (제15조제1항제1호 및 ${k==='sensitive'?'제23조':'제24조'})</option><option value="legal" ${b.processingMode==='legal'?'selected':''}>동의 없이 법령에 근거하여 처리하는 경우 (제15조제1항제2호~제7호 및 ${specialNo})</option></select></div>`;
+ if(b.processingMode==='legal')out+=`<div class="legal-caution">일반 개인정보 수집·이용 근거인 제15조제1항제2호~제7호의 해당 사유 외에, ${specialNo}에 따라 <b>${lawRule}</b>의 요건도 반드시 충족해야 합니다. 제15조의 사유만으로는 동의 없는 특수정보 처리가 허용되지 않습니다.</div>${selectLaw(b,k)}<p class="help">아래 4열 표의 ‘수집근거(법령명·조문)’에 해당 정보를 직접 요구·허용하는 법령을 입력하세요.</p><label class="mini-tog" style="margin:12px 0 4px"><input type="checkbox" data-k="${k}" data-f="specialVerified" ${b.specialVerified?'checked':''}> ${specialNo}에 따른 민감정보·고유식별정보 처리 허용 근거를 확인했습니다.</label><p class="help">법령명·조문과 처리 허용 범위를 기관에서 확인하세요. 체크 여부는 적법성을 보증하지 않습니다.</p>`;
+ else out+='<p class="help">동의 방식은 「개인정보 보호법」 제15조제1항제1호에 따라 일반 개인정보와 구분하여 별도 동의를 받습니다.</p>';
+ out+=catEditor(k,b);
+}if(k.startsWith('rrn'))out+=`<div class="legal-caution">주민등록번호는 정보주체의 동의만으로 처리할 수 없습니다. 「개인정보 보호법」 제24조의2의 법정 허용 요건을 먼저 확인하세요.</div><label class="lbl">제24조의2 적용 사유 *</label><select data-k="${k}" data-f="rrnException"><option value="statute" ${b.rrnException==='statute'?'selected':''}>법률·대통령령 등에 구체적 허용·요구 근거</option><option value="urgent" ${b.rrnException==='urgent'?'selected':''}>명백한 급박한 생명·신체·재산상 이익 보호</option><option value="notice" ${b.rrnException==='notice'?'selected':''}>위원회 고시로 정한 예외</option></select>`;out+=tableEditor(k,b);
+if(st.docType==='extra'&&['optional','provide'].includes(k))out+=`<label class="lbl">원래 개인정보 수집·이용 목적 *</label><input class="txt" data-k="${k}" data-f="originalPurpose" value="${esc(b.originalPurpose)}" placeholder="예: 최초 지원사업 신청 및 심사">`;
+if(k==='rrnProvide')out+=`<label class="lbl">주민등록번호 처리 허용 근거 (법 제24조의2 관련 법령명·조문) *</label><input class="txt" data-k="rrnProvide" data-f="basis" value="${esc(b.basis)}" placeholder="예: 「○○법」 제○조제○항">`;
+if(k==='overseas')out+=`<div class="footer-input"><div><label class="lbl">국외 이전 유형</label><select data-k="${k}" data-f="transferType"><option value="제공" ${b.transferType==='제공'?'selected':''}>제공</option><option value="처리위탁" ${b.transferType==='처리위탁'?'selected':''}>처리위탁</option><option value="보관" ${b.transferType==='보관'?'selected':''}>보관</option></select></div><div><label class="lbl">이전받는 자 연락처 *</label><input class="txt" data-k="${k}" data-f="contact" value="${esc(b.contact)}"></div></div><label class="lbl">국외 이전 거부 방법 및 절차 *</label><textarea data-k="${k}" data-f="refusalWay">${esc(b.refusalWay)}</textarea>`;
+if(k==='child')out+=`<label class="lbl">아동 개인정보의 처리 근거</label><select data-k="child" data-f="guardianBasis"><option value="consent" ${b.guardianBasis==='consent'?'selected':''}>법정대리인의 동의를 받는 경우</option><option value="legal" ${b.guardianBasis==='legal'?'selected':''}>동의 없이 처리 가능한 별도 법적 근거가 있는 경우</option></select>${b.guardianBasis==='legal'?`<label class="lbl">동의 없이 처리하는 법령명·조문 *</label><input class="txt" data-k="child" data-f="basis" value="${esc(b.basis)}">`:`<label class="lbl">법정대리인의 동의 확인 방법 *</label><input class="txt" data-k="child" data-f="guardianVerification" value="${esc(b.guardianVerification)}"><div class="footer-input"><div><label class="lbl">법정대리인 성명</label><input class="txt" data-k="child" data-f="guardianName" value="${esc(b.guardianName)}" placeholder="서면 양식이라면 공란 가능"></div><div><label class="lbl">아동과의 관계</label><input class="txt" data-k="child" data-f="guardianRelationship" value="${esc(b.guardianRelationship)}" placeholder="예: 부, 모"></div><div><label class="lbl">법정대리인 연락처</label><input class="txt" data-k="child" data-f="guardianContact" value="${esc(b.guardianContact)}" placeholder="서면 양식이라면 공란 가능"></div><div><label class="lbl">법정대리인 서명 또는 인</label><input class="txt" data-k="child" data-f="guardianSignature" value="${esc(b.guardianSignature)}" placeholder="서명 또는 인"></div></div>`}`;
+if(isConsentRequired(k))out+=refusalEditor(k,b);
+if(k==='visual')out+=visualExtrasEditor(b);return out;}
+function renderEditor(){const focus=document.activeElement;const saveFocus=focus?.getAttribute('data-k')?{k:focus.dataset.k,f:focus.dataset.f,pos:focus.selectionStart}:null;
+$('toggleList').innerHTML=Object.entries(TYPES).map(([k,t],i)=>{const b=st.blocks[k];return `<div class="toggle-card"><label class="toggle-head"><input type="checkbox" data-toggle="${k}" ${b.on?'checked':''}><span class="toggle-title">${i+1}. ${esc(t.n)}</span><span class="toggle-arrow">${b.on?'▼':'▶'}</span></label>${b.on?`<div class="toggle-body"><span class="badge-mini">법령 ${esc(t.law)}</span>${isSpecial(k)?`<span class="badge-mini">${isSpecialNotice(k)?'동의 없는 법령 근거 처리':'별도 동의'}</span>`:''}${specialEditor(k,b)}</div>`:''}</div>`}).join('');
+if(saveFocus){const input=document.querySelector(`[data-k="${saveFocus.k}"][data-f="${saveFocus.f}"]`);if(input){input.focus({preventScroll:true});try{input.setSelectionRange(saveFocus.pos,saveFocus.pos)}catch(e){}}}}
+function dataVal(k,f){const b=st.blocks[k];if(f==='items'&&TYPES[k].categories)return [...b.category,b.detail].filter(Boolean).join(', ');return b[f]||'';}
+function tableHTML(k){const t=schema(k);return `<table class="doc-table" data-table="${k}"><thead><tr>${t.cols.map(h=>`<th>${esc(h)}</th>`).join('')}</tr></thead><tbody><tr>${t.fields.map((f,i)=>`<td class="${((['noConsent','rrnCollect'].includes(k)||isSpecialNotice(k))&&['purpose','items','basis'].includes(f)||(k==='optional')||(k==='visual'))||(k==='provide'&&f==='items')||(f==='purpose'&&['sensitive','unique','child'].includes(k))?'normal':'em'}">${esc(dataVal(k,f)||'[입력 필요]')}</td>`).join('')}</tr></tbody></table>`}
+function refusalText(k){const b=st.blocks[k];if(b.refusalType==='limited')return `그러나 동의를 거부하면 ${b.disadvantage||'[구체적인 불이익 및 그 이유 입력 필요]'}에 해당할 수 있습니다.`;return '동의하지 않으셔도 기본 업무 처리와 서비스 이용에는 불이익이 없습니다.';}
+function questionText(k){return k==='visual'?'위와 같은 사진·영상촬영, 편집, 활용에 동의하십니까?':k==='provide'?'위와 같이 개인정보를 제3자에게 제공하는 데 동의하십니까?':k==='sensitive'?'위와 같이 민감정보를 수집·이용하는 데 별도 동의하십니까?':k==='unique'?'위와 같이 고유식별정보를 수집·이용하는 데 별도 동의하십니까?':k==='child'?'법정대리인으로서 위 아동 개인정보 수집·이용에 동의하십니까?':k==='overseas'?'위와 같이 개인정보를 국외 이전하는 데 동의하십니까?':'위와 같이 개인정보를 수집·이용하는 데 동의하십니까?';}
+function choiceHTML(k){const b=st.blocks[k];return `<div class="doc-question"><strong>☞ ${esc(questionText(k))}</strong><div class="choices"><label class="choice"><input type="radio" name="preview-${k}" data-preview="${k}" value="yes" ${b.choice==='yes'?'checked':''}> 동의함</label><label class="choice"><input type="radio" name="preview-${k}" data-preview="${k}" value="no" ${b.choice==='no'?'checked':''}> 동의하지 않음</label></div></div>`}
+function visualExtrasHTML(b){let s='';const add=(title,headers,values,prefix,question,subject)=>{const rest=b[prefix+'RefusalType']==='limited'?`그러나 동의를 거부하면 ${b[prefix+'Disadvantage']||'[구체적 불이익 입력 필요]'}에 해당할 수 있습니다.`:'동의하지 않으셔도 기본 업무·서비스 이용에 불이익이 없습니다.';return `<div class="doc-subsection"><h4>▶ ${title}</h4><table class="doc-table"><thead><tr>${headers.map(v=>`<th>${esc(v)}</th>`).join('')}</tr></thead><tbody><tr>${values.map(v=>`<td class="normal">${esc(v||'[입력 필요]')}</td>`).join('')}</tr></tbody></table><p class="doc-refusal">※ ${subject}에 대한 동의를 거부할 권리가 있습니다. ${esc(rest)}</p><div class="doc-question"><strong>☞ ${question}</strong><div class="choices"><label class="choice"><input type="radio" data-visual-preview="${prefix}" name="preview-visual-${prefix}" value="yes" ${b[prefix+'Choice']==='yes'?'checked':''}> 동의함</label><label class="choice"><input type="radio" data-visual-preview="${prefix}" name="preview-visual-${prefix}" value="no" ${b[prefix+'Choice']==='no'?'checked':''}> 동의하지 않음</label></div></div></div>`};
+if(b.publicOn)s+=add('사진·영상콘텐츠 외부 공개 동의',['공개 목적','공개 매체 및 범위','공개 항목','공개·게시 기간'],[b.publicPurpose,b.publicChannel,b.publicItems,b.publicPeriod],'public','위 사진·영상콘텐츠의 홈페이지·SNS 등 외부 공개에 동의하십니까?','영상콘텐츠 외부 공개');
+if(b.thirdOn)s+=add('사진·영상콘텐츠 제3자 제공 동의',['제공받는 자','제공 목적','제공 항목','보유·이용기간'],[b.thirdRecipient,b.thirdPurpose,b.thirdItems,b.thirdPeriod],'third','위 사진·영상콘텐츠의 제3자 제공에 동의하십니까?','영상콘텐츠 제3자 제공');return s;}
+function rightsNotices(){return [
+ '※ 수집한 개인정보는 정보주체의 동의 없이 수집 목적 외로 사용하거나 제3자에게 제공하지 않습니다. 다만, 관계 법령에서 허용하는 경우에는 예외적으로 처리할 수 있습니다.',
+ '※ 정보주체는 언제든지 개인정보의 열람, 정정, 삭제, 처리정지를 요구하거나 동의 철회를 요청할 수 있습니다. 다만, 법령에 따른 권리행사 제한이 있을 수 있습니다.',
+ '※ 보유기간이 경과하거나 목적이 달성된 개인정보는 복구·재생할 수 없는 방법으로 지체 없이 파기합니다. (단, 관계 법령에 따라 보존이 필요한 경우 해당 기간 동안 보관합니다.)',
+ `※ 개인정보 처리 위탁현황은 ${st.org||'[기관명]'} 홈페이지 개인정보 처리방침에서 확인할 수 있습니다.`,
+ `※ 개인정보 보호 관련 문의: ${st.org||'[기관명]'} / ${st.contactDepartment||'[부서명]'} / ${st.contactPhone||'[연락처]'}`
+];}
+function childGuardianHTML(b){return `<p class="guardian-consent-note"><strong>[동의함 선택 시]</strong> 본인은 14세 미만 아동의 법정대리인으로서, 위 아동의 개인정보 수집·이용에 동의합니다.</p><p class="doc-note">※ 법정대리인의 개인정보는 아동과의 관계 및 법정대리인 자격·동의 확인 용도로만 사용합니다.</p><table class="guardian-grid"><thead><tr><th>법정대리인 성명</th><th>아동과의 관계</th><th>법정대리인 연락처</th><th>서명 또는 인</th></tr></thead><tbody><tr><td>${esc(b.guardianName||'____________')}</td><td>${esc(b.guardianRelationship||'____________')}</td><td>${esc(b.guardianContact||'____________')}</td><td>${esc(b.guardianSignature||'____________')}</td></tr></tbody></table>`;}
+function blockHTML(k){const b=st.blocks[k];if(!b.on)return '';const t=TYPES[k];let s=`<section class="doc-section" data-section="${k}"><h3>▶ ${esc(t.n)}</h3>`;
+if(k==='visual')s+=`<p class="doc-intro visual-intro">${esc(st.org||'[기관명]')}${particle(st.org,'은','는')} ${esc(b.purpose||st.objective||'[수집·이용목적]')}${particle(b.purpose||st.objective,'을','를')} 위해 다음과 같이 사진·영상촬영·초상의 이용에 대한 동의를 받고자 합니다.</p>`;
+if(isSpecial(k)&&!isSpecialNotice(k))s+=`<p class="doc-note">「개인정보 보호법」 제15조제1항제1호 및 ${k==='sensitive'?'제23조제1항제1호':'제24조제1항제1호'}에 따라 일반 개인정보의 동의와 별도로 동의를 받고자 합니다.</p>`;
+if(isSpecialNotice(k))s+=`<p class="doc-note">「개인정보 보호법」 제15조제1항제${b.clause}호, ${esc(b.basis||'[동의 없이 처리하는 법령명·조문 입력 필요]')}에 따라 정보주체의 동의 없이 ${k==='sensitive'?'민감정보':'고유식별정보'}를 수집·이용합니다.</p><p class="doc-note">※ 별도 검토 근거: 「개인정보 보호법」 ${k==='sensitive'?'제23조제1항제2호':'제24조제1항제2호'} (법령에서 해당 정보의 처리를 요구하거나 허용하는 경우). 본 조문의 요건을 충족하는지 확인해야 합니다.</p>`;
+if(k==='noConsent')s+=`<p class="doc-note">「개인정보 보호법」 제15조제1항제${b.clause}호에 따라 정보주체의 동의 없이 개인정보를 수집·이용합니다. (사유: ${esc(LAW[b.clause])})</p>`;
+if(k==='rrnCollect'||k==='rrnProvide')s+='<div class="legal-caution">「개인정보 보호법」 제24조의2에 따른 처리 허용 근거와 제3자 제공의 별도 근거를 검토해야 합니다. 단순 동의로 대체할 수 없습니다.</div>';
+s+=tableHTML(k);
+if(k==='overseas')s+=`<p class="doc-note">국외 이전 유형: <b>${esc(b.transferType)}</b> / 이전받는 자 연락처: <b>${esc(b.contact||'[연락처 입력]')}</b> / 이전 거부 방법·절차: <b>${esc(b.refusalWay||'[거부 방법 입력]')}</b></p>`;
+if(k==='child'){if(b.guardianBasis==='legal')s+=`<p class="doc-note">동의 없이 처리하는 법적 근거: ${esc(b.basis||'[법령명·조문 입력]')} (동의 선택란 없음)</p>`;else s+=`<p class="doc-note">법정대리인 동의 확인 방법: ${esc(b.guardianVerification||'[확인방법 입력]')} / 아동과의 관계: ${esc(b.guardianRelationship||'[관계 입력]')}</p>`;}
+if(k==='rrnProvide')s+=`<p class="doc-note">주민등록번호 처리 허용 근거: ${esc(b.basis||'[법 제24조의2 관련 근거 입력]')} / 제공 허용 근거: ${esc(b.provideBasis||'[제공 근거 입력]')}</p>`;
+if(st.docType==='extra'&&['optional','provide'].includes(k))s+=`<p class="doc-note">원래 수집·이용 목적: ${esc(b.originalPurpose||'[원래 목적 입력]')} / 목적 외 이용·제공 시 법 제18조의 적용요건을 검토하세요.</p>`;
+if(isConsentRequired(k))s+=`<p class="doc-refusal">${k==='visual'?'※ 동의 거부 시 불이익 여부 — ': '※ ' }귀하는 위 ${k==='provide'?'개인정보 제3자 제공':k==='overseas'?'개인정보 국외 이전':k==='child'?'아동 개인정보 수집·이용':k==='sensitive'?'민감정보 수집·이용':k==='unique'?'고유식별정보 수집·이용':k==='visual'?'사진·영상촬영·편집·활용':'개인정보 수집·이용'}에 대한 동의를 거부할 권리가 있습니다. ${esc(refusalText(k))}</p>${choiceHTML(k)}`;
+if(k==='child'&&b.guardianBasis==='consent')s+=childGuardianHTML(b);if(k==='visual')s+=visualExtrasHTML(b);
+return s+'</section>';}
+function introText(){const chosen=Object.keys(TYPES).filter(k=>st.blocks[k].on);const onlyNotice=chosen.length>0&&chosen.every(k=>TYPES[k].notice||isSpecialNotice(k));const org=st.org||'[기관명]';const obj=st.objective||'[수집 및 이용 목적]';if(onlyNotice)return `${org}${particle(st.org,'은','는')} ${obj} 업무(사업)와 관련하여 관계 법령에 근거해 정보주체의 동의 없이 처리하는 개인정보의 수집·이용 내역을 아래와 같이 안내합니다.`;return `${org}${particle(st.org,'은','는')} ${obj} 업무(사업)와 관련하여 「개인정보보호법」에 따라 아래와 같이 개인정보를 수집·이용(·제공)하고자 합니다. 내용을 자세히 읽으신 후 동의 여부를 결정하여 주시기 바랍니다.`;}
+// A4 pagination: group normal sections, split oversized sections at safe block boundaries.
+function paginatePreview(markup){
+ const host=$('preview');host.replaceChildren();
+ const incoming=document.createElement('div');incoming.innerHTML=markup;
+ let page=null, body=null;const pageBodies=[];
+ const createPage=()=>{
+  page=document.createElement('div');page.className='doc-sheet doc-page';
+  body=document.createElement('div');body.className='doc-page-body';page.append(body);
+  const num=document.createElement('span');num.className='doc-page-number';page.append(num);
+  host.append(page);pageBodies.push(body);
+ };
+ const fits=()=>body.scrollHeight<=body.clientHeight+2;
+ const addPlain=(element)=>{
+  const n=element.cloneNode(true);body.append(n);if(fits())return;
+  n.remove();if(body.childElementCount)createPage();
+  body.append(n);if(fits())return;
+  n.remove();
+  if(element.tagName==='P' || element.tagName==='DIV') splitLongText(element); else body.append(n);
+ };
+ const splitLongText=(element)=>{
+  // Split exceptionally long paragraphs by measured character positions.
+  // The original text is preserved exactly (no silent truncation).
+  let rest=element.textContent||'', guard=0;
+  if(!rest){body.append(element.cloneNode(true));return;}
+  while(rest&&guard++<500){
+   const piece=element.cloneNode(false);
+   if(!piece.classList.contains('doc-intro'))piece.classList.add('continuation');
+   body.append(piece);
+   let lo=1,hi=rest.length,best=0;
+   while(lo<=hi){const mid=(lo+hi)>>1;piece.textContent=rest.slice(0,mid);
+     if(fits()){best=mid;lo=mid+1;}else hi=mid-1;
+   }
+   if(!best){piece.remove();if(body.childElementCount){createPage();continue;}
+    // A single glyph that cannot fit is a font/renderer issue; do not discard it.
+    piece.textContent=rest;return;
+   }
+   if(best<rest.length){
+    const prior=rest.lastIndexOf(' ',best);
+    if(prior>best*0.75&&prior>0)best=prior+1;
+   }
+   piece.textContent=rest.slice(0,best);
+   rest=rest.slice(best);
+   if(rest)createPage();
+  }
+ };
+ const splitSection=(original)=>{
+  const children=Array.from(original.children);let started=false;
+  let section=null;let mainHeading=children[0]?.matches('h3')?children[0]:null;
+  const newPart=(continuation=false)=>{
+   section=original.cloneNode(false);
+   if(continuation&&mainHeading){
+    const h=mainHeading.cloneNode(true);h.textContent=mainHeading.textContent+' (계속)';section.append(h);
+    section.classList.add('doc-section-continuation');
+   }
+   body.append(section);
+  };
+  const splitHugeTable=(originalTable)=>{
+   const sourceRows=Array.from(originalTable.querySelectorAll('tbody tr'));
+   const sourceHead=originalTable.querySelector('thead');
+   if(!sourceRows.length){section.append(originalTable.cloneNode(true));return;}
+   for(const originalRow of sourceRows){
+    let remaining=Array.from(originalRow.cells).map(cell=>cell.textContent||'');
+    let loop=0;
+    while(remaining.some(x=>x.length)&&loop++<500){
+     const createChunk=cap=>{
+      const table=originalTable.cloneNode(false);
+      if(sourceHead)table.append(sourceHead.cloneNode(true));
+      const tbody=document.createElement('tbody'),row=originalRow.cloneNode(true);
+      Array.from(row.cells).forEach((cell,i)=>cell.textContent=remaining[i].slice(0,cap));
+      tbody.append(row);table.append(tbody);return table;
+     };
+     let lo=1,hi=Math.max(...remaining.map(x=>x.length)),best=0;
+     while(lo<=hi){const mid=(lo+hi)>>1,test=createChunk(mid);
+      section.append(test);const ok=fits();test.remove();
+      if(ok){best=mid;lo=mid+1;}else hi=mid-1;
+     }
+     if(best===0){
+       // Retry on a clean page, keeping the repeated section heading.
+       section.remove();createPage();newPart(true);
+       const test=createChunk(1);section.append(test);
+       if(!fits()){page.classList.add('has-tall-table');return;}
+       test.remove();continue;
+     }
+     section.append(createChunk(best));
+     remaining=remaining.map(x=>x.slice(best));
+     if(remaining.some(x=>x.length)){createPage();newPart(true);}
+    }
+   }
+  };
+  newPart(false);
+  for(let i=0;i<children.length;i++){
+   const child=children[i], node=child.cloneNode(true);
+   section.append(node);
+   if(fits())continue;
+   node.remove();
+   // Never leave the heading alone at the bottom of a page.
+   const hasContent=Array.from(section.children).some(ch=>ch!==section.firstElementChild||!ch.matches('h3'));
+   if(!hasContent){section.remove();createPage();newPart(false);section.append(node);
+     if(fits())continue;node.remove();}
+   else{createPage();newPart(true);section.append(node);if(fits())continue;node.remove();}
+   if(child.matches('p,div')){
+    // Oversized paragraph can flow over further pages without loss.
+    section.remove();splitLongText(child);
+    if(i<children.length-1){createPage();newPart(true);}
+   }else if(child.matches('table')){
+    // Continue very tall table cells on A4 sheets, repeating column headers.
+    splitHugeTable(child);
+   }else section.append(node);
+  }
+ };
+ createPage();
+ for(const node of Array.from(incoming.children)){
+  const clone=node.cloneNode(true);body.append(clone);if(fits())continue;
+  clone.remove();if(body.childElementCount)createPage();body.append(clone);
+  if(fits())continue;
+  clone.remove();
+  if(node.matches('section'))splitSection(node);
+  else addPlain(node);
+ }
+ for(let i=0;i<pageBodies.length;i++){
+  const p=pageBodies[i].parentElement;
+  p.querySelector('.doc-page-number').textContent=`${i+1} / ${pageBodies.length}`;
+ }
+ // Remove accidental empty trailing page (for perfectly filled documents).
+ if(pageBodies.length>1&&!pageBodies.at(-1).childElementCount){pageBodies.at(-1).parentElement.remove();
+  pageBodies.pop();pageBodies.forEach((b,i)=>b.parentElement.querySelector('.doc-page-number').textContent=`${i+1} / ${pageBodies.length}`);}
+}
+
+function renderPreview(){document.querySelectorAll('[data-root]').forEach(el=>{if(document.activeElement!==el)el.value=st[el.dataset.root]??''});const rightsEl=$('rightsPreviewEditor');if(rightsEl)rightsEl.innerHTML=rightsNotices().map((msg,i)=>`<p data-rights-item="${i+1}">${esc(msg)}</p>`).join('');const count=Object.values(st.blocks).filter(b=>b.on).length;$('sectionCount').textContent=`${count}개 영역 선택됨`;
+let x=`<h2 class="doc-title">${esc(fullDocumentTitle())}</h2>`;x+=`<p class="doc-intro">${esc(introText())}</p>`;
+if(count)x+='<h3 class="doc-group-heading">1. 항목별 수집·이용·제공 내역</h3>';for(const k of Object.keys(TYPES))x+=blockHTML(k);
+if(count===0)x+='<div class="preview-empty">왼쪽의 개인정보 처리 항목을 체크하면<br>필수 정보 표와 동의서가 이곳에 나타납니다.</div>';
+x+=`<section class="doc-common-notices"><h3>2. 정보주체의 권리 및 기타 안내</h3>${rightsNotices().map(msg=>`<p>${esc(msg)}</p>`).join('')}</section>`;
+x+=`<div class="signature"><div>${dateDisplay()}</div><div>본인(정보주체) : ${esc(st.subjectName||'________________')} &nbsp; (${esc(st.subjectSignature||'서명 또는 인')})</div><div class="right">${esc(st.recipientOrg||st.org||'○○기관')} 귀중</div></div>`;
+$('printDocument').innerHTML=x;paginatePreview(x);renderReview();}
+function documentTitle(){const picked=Object.entries(st.blocks).filter(([,b])=>b.on).map(([k])=>k);if(picked.length===1&&picked[0]==='visual')return TITLES.visual;if(picked.length&&picked.every(k=>TYPES[k].notice||isSpecialNotice(k))){if(picked.length===1&&picked[0]==='noConsent')return '개인정보 수집·이용 안내문';if(picked.length===1&&picked[0]==='unique')return '고유식별정보 수집·이용 안내문';if(picked.length===1&&picked[0]==='sensitive')return '민감정보 수집·이용 안내문';if(picked.length===1&&picked[0]==='rrnCollect')return '주민등록번호 수집·이용 안내문';if(picked.length===1&&picked[0]==='rrnProvide')return '주민등록번호 제3자 제공 안내문';return '개인정보 처리 안내문';}return TITLES[st.docType]||TITLES.collect;}
+function fullDocumentTitle(){return `${(st.org||'[기관명]').trim()} ${documentTitle()}`;}
+function dateDisplay(){const m=/^(\d{4})-(\d\d)-(\d\d)$/.exec(st.date||'');return m?`${m[1]}년 ${+m[2]}월 ${+m[3]}일`:'_____년 ____월 ____일';}
+function renderReview(){const issues=[];const val=(v,label)=>{if(!String(v||'').trim())issues.push(label+' 미입력')};val(st.org,'기관명');val(st.objective,'수집 및 이용 목적');Object.entries(TYPES).forEach(([k,t])=>{const b=st.blocks[k];if(!b.on)return;{const sch=schema(k);sch.fields.forEach(f=>val(dataVal(k,f),`${t.n} · ${sch.cols[sch.fields.indexOf(f)]}`));}if((k==='noConsent'||isSpecialNotice(k))&&['2','3'].includes(b.clause)&&!(/제\s*\d+조/.test(b.basis||'')))issues.push('동의 없는 처리 제2호·제3호는 실제 적용 법령명 및 조문을 확인해야 합니다.');if(k.startsWith('rrn')&&!(/제\s*\d+조/.test((k==='rrnProvide'?b.provideBasis:b.basis)||'')))issues.push('주민등록번호의 구체적 법정 처리·제공 근거를 확인해야 합니다.');if(isSpecialNotice(k)){val(b.basis,`${t.n} · 법령명·조문`);if(!(/제\s*\d+조/.test(b.basis||'')))issues.push(`${t.n}: 실제 적용 법령명과 구체적인 조문을 확인하세요.`);if(!b.specialVerified)issues.push(`${t.n}: ${k==='sensitive'?'제23조제1항제2호':'제24조제1항제2호'}의 처리 허용 요건 검토 여부를 확인하세요.`);}
+if(k==='overseas'){val(b.contact,'국외 이전받는 자 연락처');val(b.refusalWay,'국외 이전 거부 방법');}if(k==='visual'){if(b.publicOn){[['publicPurpose','공개 목적'],['publicChannel','공개 매체'],['publicItems','공개 항목'],['publicPeriod','공개 기간']].forEach(([f,t])=>val(b[f],'영상 외부 공개 · '+t));if(b.publicRefusalType==='limited')val(b.publicDisadvantage,'외부 공개 동의 거부 시 불이익');}if(b.thirdOn){[['thirdRecipient','제공받는 자'],['thirdPurpose','제공 목적'],['thirdItems','제공 항목'],['thirdPeriod','제공받는 자의 보유기간']].forEach(([f,t])=>val(b[f],'영상 제3자 제공 · '+t));if(b.thirdRefusalType==='limited')val(b.thirdDisadvantage,'제3자 제공 동의 거부 시 불이익');}if(st.blocks.child.on===false&&/아동|미성년|어린이|유치원|초등학생/.test([b.items,b.shootMethod,b.usageMethod].join(' ')))issues.push('만 14세 미만 아동의 사진·영상에 대해서는 법정대리인 동의 요건을 확인하세요.');if(!b.publicOn&&/홈페이지|유튜브|SNS|인스타그램|공개|온라인 게시/.test(b.usageMethod||''))issues.push('영상 활용방법에 외부 공개가 포함되어 있습니다. 외부 공개 동의 항목을 별도로 검토하세요.');}if(k==='child'&&b.guardianBasis==='legal')val(b.basis,'아동 동의 없는 처리 근거');if(k==='child'&&b.guardianBasis==='consent')val(b.guardianVerification,'법정대리인 확인 방법');if(k==='rrnProvide')val(b.basis,'주민등록번호 제24조의2 처리 허용 근거');if(st.docType==='extra'&&['optional','provide'].includes(k))val(b.originalPurpose,'원래 개인정보 수집 목적');if(t.consent&&(k!=='child'||b.guardianBasis==='consent')&&b.refusalType==='limited')val(b.disadvantage,`${t.n} · 불이익`);});$('inspector').innerHTML=`<strong>작성 확인</strong><p>필수 입력 누락 및 추가 검토 항목: <b>${issues.length}건</b></p>${issues.slice(0,8).map(s=>`<p class="warn">• ${esc(s)}</p>`).join('')}${issues.length>8?`<p>외 ${issues.length-8}건</p>`:''}<p>법령 검토 기준: 「개인정보 보호법」 제15조, 제17조, 제22조, 제22조의2, 제23조, 제24조, 제24조의2, 제28조의8 및 시행령 제17조. 법적 적합성은 실제 처리업무에 따라 최종 확인하세요.</p>`}
+function renderAll(){renderEditor();renderPreview()}
+const onField=e=>{const el=e.target;if(el.dataset.flag){st[el.dataset.flag]=el.checked;renderPreview();return;}if(el.dataset.root){st[el.dataset.root]=el.value;if(el.dataset.root==='docType')renderAll();else renderPreview();return;}if(el.dataset.toggle){st.blocks[el.dataset.toggle].on=el.checked;renderAll();return;}if(el.dataset.cat){const b=st.blocks[el.dataset.cat];const v=el.dataset.item;b.category=el.checked?[...new Set([...b.category,v])]:b.category.filter(x=>x!==v);renderPreview();return;}if(el.dataset.visualPreview){st.blocks.visual[el.dataset.visualPreview+'Choice']=el.value;renderEditor();renderPreview();return;}if(el.dataset.preview){st.blocks[el.dataset.preview].choice=el.value;renderEditor();renderPreview();return;}if(el.dataset.f){const b=st.blocks[el.dataset.k];b[el.dataset.f]=el.type==='checkbox'?el.checked:el.value;if(['refusalType','guardianBasis','processingMode','publicOn','thirdOn','publicRefusalType','thirdRefusalType'].includes(el.dataset.f)){renderAll()}else{renderPreview();}return;}};
+document.addEventListener('input',e=>{const el=e.target;if(el.dataset.root||el.dataset.f&&!['refusalType','guardianBasis','processingMode','clause','rrnException','transferType','choice','publicOn','thirdOn','publicRefusalType','thirdRefusalType','publicChoice','thirdChoice'].includes(el.dataset.f))onField(e);});
+document.addEventListener('change',onField);
+document.addEventListener('click',e=>{if(e.target.dataset.clear){st.blocks[e.target.dataset.clear].choice='';renderAll();}if(e.target.dataset.visualClear){st.blocks.visual[e.target.dataset.visualClear+'Choice']='';renderAll();}});
+function fileDownload(bytes,filename,type='application/octet-stream'){const blob=bytes instanceof Blob?bytes:new Blob([bytes],{type});const url=URL.createObjectURL(blob);const a=document.createElement('a');a.href=url;a.download=filename;document.body.append(a);a.click();setTimeout(()=>{URL.revokeObjectURL(url);a.remove()},200);}
+function fileName(ext){return (st.org||'개인정보_동의서').replace(/[\\/:*?"<>|\s]+/g,'_').slice(0,35)+'_양식.'+ext;}
+const EN=new TextEncoder();const utf=s=>EN.encode(s);const xmlEscape=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&apos;'}[c]));
+function zip(files){const parts=[],central=[];let offset=0;const put16=(a,n)=>a.push(n&255,n>>>8&255),put32=(a,n)=>{put16(a,n);put16(a,n>>>16)};const ct=Array.from({length:256},(_,i)=>{let c=i;for(let z=0;z<8;z++)c=c&1?0xEDB88320^(c>>>1):c>>>1;return c>>>0;});const crc=arr=>{let c=0xFFFFFFFF;for(let z of arr)c=ct[(c^z)&255]^(c>>>8);return (c^0xFFFFFFFF)>>>0;};for(const [name,text]of files){const nameb=utf(name),buf=utf(text),v=crc(buf);const local=[];put32(local,0x04034b50);put16(local,20);put16(local,0x0800);put16(local,0);put16(local,0);put16(local,0);put32(local,v);put32(local,buf.length);put32(local,buf.length);put16(local,nameb.length);put16(local,0);local.push(...nameb);parts.push(new Uint8Array(local),buf);const c=[];put32(c,0x02014b50);put16(c,20);put16(c,20);put16(c,0x0800);put16(c,0);put16(c,0);put16(c,0);put32(c,v);put32(c,buf.length);put32(c,buf.length);put16(c,nameb.length);put16(c,0);put16(c,0);put16(c,0);put16(c,0);put32(c,0);put32(c,offset);c.push(...nameb);central.push(new Uint8Array(c));offset+=local.length+buf.length;}const start=offset;for(const c of central){parts.push(c);offset+=c.length;}const end=[];put32(end,0x06054b50);put16(end,0);put16(end,0);put16(end,files.length);put16(end,files.length);put32(end,offset-start);put32(end,start);put16(end,0);parts.push(new Uint8Array(end));return new Blob(parts,{type:'application/vnd.openxmlformats-officedocument.wordprocessingml.document'});}
+function docRun(s,style=''){const emph=style==='em';return `<w:r><w:rPr><w:rFonts w:eastAsia="Malgun Gothic" w:ascii="Arial"/><w:sz w:val="${emph?24:21}"/>${emph?'<w:b/><w:u w:val="single"/><w:color w:val="174B8C"/>':style==='bold'?'<w:b/>':style==='plain'?'<w:b w:val="0"/><w:u w:val="none"/><w:color w:val="000000"/>':''}</w:rPr><w:t xml:space="preserve">${xmlEscape(s)}</w:t></w:r>`}
+function docPara(s,sty=''){return `<w:p><w:pPr><w:spacing w:after="110"/>${sty==='center'?'<w:jc w:val="center"/>':''}${sty==='head'?'<w:spacing w:before="250"/><w:keepNext/>':''}</w:pPr>${docRun(s,sty==='head'?'bold':'')}</w:p>`}
+function cell(s,width,head=false,style=''){return `<w:tc><w:tcPr><w:tcW w:w="${width}" w:type="dxa"/><w:vAlign w:val="center"/>${head?'<w:shd w:fill="E9EAEE"/>':''}<w:tcMar><w:top w:w="100" w:type="dxa"/><w:left w:w="90" w:type="dxa"/><w:bottom w:w="100" w:type="dxa"/><w:right w:w="90" w:type="dxa"/></w:tcMar></w:tcPr><w:p><w:pPr><w:jc w:val="center"/></w:pPr>${docRun(s,head?'bold':style)}</w:p></w:tc>`}
+function docTable(k){const t=schema(k);const n=t.cols.length;const base=Math.floor(9700/n);const widths=t.cols.map((_,i)=>i===n-1?9700-base*(n-1):base);const row=(texts,head=false)=>`<w:tr><w:trPr><w:cantSplit/>${head?'<w:tblHeader w:val="true"/>':''}</w:trPr>${texts.map((s,i)=>cell(s,widths[i],head,!head?(((['noConsent','rrnCollect'].includes(k)||isSpecialNotice(k))&&['purpose','items','basis'].includes(t.fields[i]))||k==='optional'||k==='visual'?'plain':(['items','recipient','period'].includes(t.fields[i])?'em':'')):'' )).join('')}</w:tr>`;return `<w:tbl><w:tblPr><w:tblW w:w="9700" w:type="dxa"/><w:tblLayout w:type="fixed"/><w:tblBorders>${['top','bottom','left','right','insideH','insideV'].map(z=>`<w:${z} w:val="single" w:sz="6" w:color="7E8998"/>`).join('')}</w:tblBorders></w:tblPr><w:tblGrid>${widths.map(w=>`<w:gridCol w:w="${w}"/>`).join('')}</w:tblGrid>${row(t.cols,true)}${row(t.fields.map(f=>dataVal(k,f)||'[입력 필요]'))}</w:tbl>`;}
+function choicePara(k){const c=st.blocks[k].choice;const widths=[5200,2250,2250],v=[questionText(k),(c==='yes'?'☑':'□')+' 동의함',(c==='no'?'☑':'□')+' 동의하지 않음'];return `<w:tbl><w:tblPr><w:tblW w:w="9700" w:type="dxa"/><w:tblBorders><w:top w:val="single" w:sz="5"/><w:bottom w:val="single" w:sz="5"/><w:left w:val="single" w:sz="5"/><w:right w:val="single" w:sz="5"/><w:insideV w:val="single" w:sz="5"/></w:tblBorders></w:tblPr><w:tblGrid>${widths.map(w=>`<w:gridCol w:w="${w}"/>`).join('')}</w:tblGrid><w:tr><w:trPr><w:cantSplit/></w:trPr>${v.map((t,i)=>cell(t,widths[i],false,i===0?'bold':'' )).join('')}</w:tr></w:tbl>`;}
+function titleBox(text){return `<w:tbl><w:tblPr><w:tblW w:w="9700" w:type="dxa"/><w:tblBorders><w:top w:val="single" w:sz="8"/><w:bottom w:val="single" w:sz="8"/><w:left w:val="single" w:sz="8"/><w:right w:val="single" w:sz="8"/></w:tblBorders></w:tblPr><w:tblGrid><w:gridCol w:w="9700"/></w:tblGrid><w:tr>${cell(text,9700,false,'bold')}</w:tr></w:tbl>`;}
+function miniDOCXTable(headers,values){const n=headers.length,base=Math.floor(9700/n),widths=headers.map((_,i)=>i===n-1?9700-base*(n-1):base);return `<w:tbl><w:tblPr><w:tblW w:w="9700" w:type="dxa"/><w:tblBorders>${['top','bottom','left','right','insideH','insideV'].map(z=>`<w:${z} w:val="single" w:sz="6" w:color="7E8998"/>`).join('')}</w:tblBorders></w:tblPr><w:tblGrid>${widths.map(w=>`<w:gridCol w:w="${w}"/>`).join('')}</w:tblGrid><w:tr><w:trPr><w:cantSplit/></w:trPr>${headers.map((v,i)=>cell(v,widths[i],true)).join('')}</w:tr><w:tr><w:trPr><w:cantSplit/></w:trPr>${values.map((v,i)=>cell(v||'[입력 필요]',widths[i],false,'plain')).join('')}</w:tr></w:tbl>`;}
+function miniChoiceDOCX(question,value){const widths=[5200,2250,2250],v=[question,(value==='yes'?'☑':'□')+' 동의함',(value==='no'?'☑':'□')+' 동의하지 않음'];return `<w:tbl><w:tblPr><w:tblW w:w="9700" w:type="dxa"/><w:tblBorders>${['top','bottom','left','right','insideV'].map(z=>`<w:${z} w:val="single" w:sz="5"/>`).join('')}</w:tblBorders></w:tblPr><w:tblGrid>${widths.map(w=>`<w:gridCol w:w="${w}"/>`).join('')}</w:tblGrid><w:tr><w:trPr><w:cantSplit/></w:trPr>${v.map((a,i)=>cell(a,widths[i],false,i===0?'bold':'plain')).join('')}</w:tr></w:tbl>`;}
+function visualExtrasDOCX(b){let x='';const build=(title,heads,vals,prefix,question)=>{const refusal=b[prefix+'RefusalType']==='limited'?`거부 시 제한사항: ${b[prefix+'Disadvantage']||'[입력 필요]'}`:'거부하더라도 기본 업무·서비스 이용에 불이익 없음';return docPara('▶ '+title,'head')+miniDOCXTable(heads,vals)+docPara('※ 동의를 거부할 권리가 있습니다. '+refusal)+miniChoiceDOCX(question,b[prefix+'Choice']);};if(b.publicOn)x+=build('사진·영상콘텐츠 외부 공개 동의',['공개 목적','공개 매체 및 범위','공개 항목','공개·게시 기간'],[b.publicPurpose,b.publicChannel,b.publicItems,b.publicPeriod],'public','위 사진·영상콘텐츠의 홈페이지·SNS 등 외부 공개에 동의하십니까?');if(b.thirdOn)x+=build('사진·영상콘텐츠 제3자 제공 동의',['제공받는 자','제공 목적','제공 항목','보유·이용기간'],[b.thirdRecipient,b.thirdPurpose,b.thirdItems,b.thirdPeriod],'third','위 사진·영상콘텐츠의 제3자 제공에 동의하십니까?');return x;}
+function docXML(){let x=titleBox(fullDocumentTitle());x+=docPara(introText());
+if(Object.values(st.blocks).some(b=>b.on))x+=docPara('1. 항목별 수집·이용·제공 내역','head');
+for(const k of Object.keys(TYPES)){const t=TYPES[k],b=st.blocks[k];if(!b.on)continue;x+=docPara('▶ '+t.n,'head');
+if(k==='visual')x+=docPara(`${st.org||'[기관명]'}${particle(st.org,'은','는')} ${b.purpose||st.objective||'[수집·이용목적]'}${particle(b.purpose||st.objective,'을','를')} 위해 다음과 같이 사진·영상촬영·초상의 이용에 대한 동의를 받고자 합니다.`);
+if(isSpecial(k)&&!isSpecialNotice(k))x+=docPara(`「개인정보 보호법」 제15조제1항제1호 및 ${k==='sensitive'?'제23조제1항제1호':'제24조제1항제1호'}에 따라 일반 개인정보의 동의와 별도로 동의를 받고자 합니다.`);
+if(isSpecialNotice(k)){x+=docPara(`「개인정보 보호법」 제15조제1항제${b.clause}호, ${b.basis||'[동의 없이 처리하는 법령명·조문 입력 필요]'}에 따라 정보주체의 동의 없이 ${k==='sensitive'?'민감정보':'고유식별정보'}를 수집·이용합니다.`);x+=docPara(`※ 별도 검토 근거: 「개인정보 보호법」 ${k==='sensitive'?'제23조제1항제2호':'제24조제1항제2호'} (법령에 따른 해당 정보 처리의 요구·허용).`);}
+if(k==='noConsent')x+=docPara(`「개인정보 보호법」 제15조제1항제${b.clause}호에 따라 정보주체의 동의 없이 개인정보를 수집·이용합니다.`);
+if(k.startsWith('rrn'))x+=docPara('주민등록번호는 동의만으로 처리할 수 없으며 법률상 허용 근거를 확인해야 합니다.');
+x+=docTable(k);
+if(k==='overseas')x+=docPara(`이전 유형: ${b.transferType} / 이전받는 자 연락처: ${b.contact||'[입력 필요]'} / 거부 방법: ${b.refusalWay||'[입력 필요]'}`);
+if(st.docType==='extra'&&['optional','provide'].includes(k))x+=docPara('원래 개인정보 수집·이용 목적: '+(b.originalPurpose||'[입력 필요]'));
+if(k==='rrnProvide')x+=docPara('법 제24조의2 처리 허용 근거: '+(b.basis||'[입력 필요]'));
+if(k==='child'){if(b.guardianBasis==='legal')x+=docPara('동의 없는 법적 근거: '+(b.basis||'[입력 필요]'));else x+=docPara('법정대리인 동의 확인 방법: '+(b.guardianVerification||'[입력 필요]'));}
+if(isConsentRequired(k)){x+=docPara((k==='visual'?'※ 동의 거부 시 불이익 여부 — ':'※ ')+'동의를 거부할 권리가 있습니다. '+refusalText(k));x+=choicePara(k);}
+if(k==='child'&&b.guardianBasis==='consent'){x+=docPara('[동의함 선택 시] 본인은 14세 미만 아동의 법정대리인으로서, 위 아동의 개인정보 수집·이용에 동의합니다.');x+=docPara('※ 법정대리인의 개인정보는 아동과의 관계 및 법정대리인 자격·동의 확인 용도로만 사용합니다.');x+=miniDOCXTable(['법정대리인 성명','아동과의 관계','법정대리인 연락처','서명 또는 인'],[b.guardianName||'____________',b.guardianRelationship||'____________',b.guardianContact||'____________',b.guardianSignature||'____________']);}
+if(k==='visual')x+=visualExtrasDOCX(b);
+}
+x+=docPara('2. 정보주체의 권리 및 기타 안내','head');for(const note of rightsNotices())x+=docPara(note);
+x+=docPara(dateDisplay(),'center')+docPara('본인(정보주체): '+(st.subjectName||'________________')+' ('+(st.subjectSignature||'서명 또는 인')+')','center');x+=docPara((st.recipientOrg||st.org||'○○기관')+' 귀중','center');
+return `<?xml version="1.0" encoding="utf-8" standalone="yes"?><w:document xmlns:w="http://schemas.openxmlformats.org/wordprocessingml/2006/main"><w:body>${x}<w:sectPr><w:pgSz w:w="11906" w:h="16838"/><w:pgMar w:top="840" w:bottom="840" w:left="880" w:right="880"/></w:sectPr></w:body></w:document>`}
+function makeDOCX(){const types='<?xml version="1.0" encoding="utf-8"?><Types xmlns="http://schemas.openxmlformats.org/package/2006/content-types"><Default Extension="rels" ContentType="application/vnd.openxmlformats-package.relationships+xml"/><Default Extension="xml" ContentType="application/xml"/><Override PartName="/word/document.xml" ContentType="application/vnd.openxmlformats-officedocument.wordprocessingml.document.main+xml"/></Types>';const rels='<?xml version="1.0" encoding="utf-8"?><Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships"><Relationship Id="rId1" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/officeDocument" Target="word/document.xml"/></Relationships>';return zip([['[Content_Types].xml',types],['_rels/.rels',rels],['word/document.xml',docXML()]]);}
+$('docxBtn').onclick=()=>fileDownload(makeDOCX(),fileName('docx'));
+$('printBtn').onclick=()=>window.print();
+$('htmlBtn').onclick=()=>{const c=$('preview').cloneNode(true),printed=$('printDocument').cloneNode(true);[c,printed].forEach(root=>root.querySelectorAll('input[type=radio]').forEach(i=>{const b=i.dataset.visualPreview?st.blocks.visual:st.blocks[i.dataset.preview];const value=i.dataset.visualPreview?b[i.dataset.visualPreview+'Choice']:b.choice;const t=i.parentElement;t.replaceWith(document.createTextNode((value===i.value?'☑':'□')+' '+(i.value==='yes'?'동의함':'동의하지 않음')+'   '));}));const css=document.querySelector('style').textContent;fileDownload(new Blob([`<!doctype html><html lang="ko"><meta charset="utf-8"><title>${esc(fullDocumentTitle())}</title><style>${css}</style><main class="doc-pages" id="preview">${c.innerHTML}</main><article class="doc-sheet print-original" id="printDocument">${printed.innerHTML}</article></html>`],{type:'text/html;charset=utf-8'}),fileName('html'));};
+$('saveBtn').onclick=()=>fileDownload(new Blob([JSON.stringify(st,null,2)],{type:'application/json;charset=utf-8'}),fileName('json'));
+$('loadBtn').onclick=()=>$('loadFile').click();$('loadFile').onchange=async e=>{const f=e.target.files?.[0];if(!f)return;try{const data=JSON.parse(await f.text());const next=blank();for(const key of ['org','objective','contactDepartment','contactPhone','docType','date','recipientOrg','subjectName','subjectSignature'])if(typeof data[key]==='string')next[key]=data[key].slice(0,4000);if(data.blocks&&typeof data.blocks==='object')Object.keys(TYPES).forEach(k=>{if(!data.blocks[k]||typeof data.blocks[k]!=='object')return;const b=data.blocks[k];Object.keys(next.blocks[k]).forEach(f=>{if(['on','publicOn','thirdOn','specialVerified'].includes(f))next.blocks[k][f]=!!b[f];else if(f==='category')next.blocks[k].category=Array.isArray(b.category)?b.category.filter(a=>TYPES[k].categories?.includes(a)):[];else if(typeof b[f]==='string')next.blocks[k][f]=b[f].slice(0,4000);});});if(!next.blocks.child.guardianName&&data.guardianName)next.blocks.child.guardianName=String(data.guardianName).slice(0,4000);if(!next.blocks.child.guardianSignature&&data.guardianSignature)next.blocks.child.guardianSignature=String(data.guardianSignature).slice(0,4000);if(!TITLES[next.docType])next.docType='collect';st=next;renderAll();alert('설정을 불러왔습니다.');}catch(err){alert('설정 파일을 읽을 수 없습니다.');}e.target.value='';};
+$('resetBtn').onclick=()=>{if(confirm('모든 입력값을 초기화할까요?')){st=blank();renderAll();}};
+$('sampleBtn').onclick=()=>{st=blank();st.org='간세다리청';st.objective='민원 안내 서비스 운영';st.docType='collect_provide';const a=st.blocks.optional;a.on=true;a.purpose='사업 안내 문자 발송';a.items='휴대전화번호';a.period='동의 철회 시까지';const p=st.blocks.provide;p.on=true;p.recipient='○○사업 운영기관';p.purpose='신청자 중복 여부 확인';p.items='성명, 신청번호';p.period='사업 종료 후 1년';st.blocks.noConsent.on=true;Object.assign(st.blocks.noConsent,{clause:'3',purpose:'법정 민원 접수 및 처리',items:'성명, 연락처',basis:'「○○법」 제○조(예시)',period:'업무 종료 후 3년'});renderAll();};
+$('visualSampleBtn').onclick=()=>{st=blank();st.org='간세다리청';st.objective='시민참여 행사 기록 및 홍보';st.docType='visual';const b=st.blocks.visual;b.on=true;b.purpose='시민참여 행사 기록 및 결과 홍보';b.items='행사 참여자의 얼굴·전신 사진, 발언 영상 및 음성';b.period='촬영일로부터 1년';b.shootMethod='행사 참여자를 대상으로 현장 사진촬영 및 동영상 촬영';b.usageMethod='행사 결과보고서 및 기관 내부 성과자료 제작';b.publicOn=true;b.publicPurpose='공식 행사 결과 홍보';b.publicChannel='기관 홈페이지 및 공식 SNS';b.publicItems='행사 참여 모습이 담긴 사진 및 영상';b.publicPeriod='게시일부터 1년';b.thirdOn=true;b.thirdRecipient='○○지역방송사 (예시)';b.thirdPurpose='행사 보도자료 제작';b.thirdItems='행사 영상 중 인터뷰 부분';b.thirdPeriod='방송 제작 종료 후 6개월';renderAll();};
+renderAll();
+})();
+</script>
+<script src="assets/js/gov.js"></script><script>/* 포털 헤더 높이를 실측해 좌우 패널 기준점으로 전달합니다. */
+(function(){function sync(){var a=document.querySelector(".app");if(!a)return;var t=Math.max(0,Math.round(a.getBoundingClientRect().top+window.scrollY));document.documentElement.style.setProperty("--cs-top",t+"px");}addEventListener("load",sync);addEventListener("resize",sync);setTimeout(sync,0);})();</script></body></html>
