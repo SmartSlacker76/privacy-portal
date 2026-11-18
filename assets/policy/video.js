@@ -55,7 +55,11 @@
     row.querySelector('[data-title]').value = data.title || '';
     row.querySelector('textarea').value = data.text || '';
     row.querySelector('[data-seconds]').value = data.seconds || 10;
-    row.querySelector('summary').addEventListener('click', () => { selected = row; refreshRows(); void preview(); });
+    row.querySelector('summary').addEventListener('click', (event) => {
+      event.preventDefault();
+      if (row.open) row.open = false;
+      else select(row);
+    });
     row.addEventListener('focusin', (event) => { if (event.target.tagName !== 'SUMMARY' && selected !== row) select(row); });
     row.querySelector('[data-remove]').addEventListener('click', () => {
       if (list.children.length <= 1) return;
@@ -292,6 +296,58 @@
     }
   }
 
+  function wavBytes(audio) {
+    const samples = audio.getChannelData(0);
+    const buffer = new ArrayBuffer(44 + samples.length * 2);
+    const view = new DataView(buffer);
+    const text = (offset, value) => [...value].forEach((char, i) => view.setUint8(offset + i, char.charCodeAt(0)));
+    text(0, 'RIFF'); view.setUint32(4, buffer.byteLength - 8, true); text(8, 'WAVE');
+    text(12, 'fmt '); view.setUint32(16, 16, true); view.setUint16(20, 1, true); view.setUint16(22, 1, true);
+    view.setUint32(24, audio.sampleRate, true); view.setUint32(28, audio.sampleRate * 2, true);
+    view.setUint16(32, 2, true); view.setUint16(34, 16, true);
+    text(36, 'data'); view.setUint32(40, samples.length * 2, true);
+    samples.forEach((sample, i) => view.setInt16(44 + i * 2, Math.max(-1, Math.min(1, sample)) * 32767, true));
+    return buffer;
+  }
+
+  async function encodeOffline(slides, seconds, image, org, signal) {
+    const durations = seconds.reduce((a, b) => a + b, 0);
+    const sampleRate = 24000;
+    const mix = new OfflineAudioContext(1, Math.ceil(durations * sampleRate), sampleRate);
+    const frames = [];
+    const ctx = canvas.getContext('2d');
+    let time = 0;
+    for (const [index, slide] of slides.entries()) {
+      signal.throwIfAborted();
+      if (slide.audio) {
+        const source = mix.createBufferSource();
+        source.buffer = slide.audio; source.connect(mix.destination); source.start(time + .12);
+      }
+      time += seconds[index];
+      paint(ctx, slide, image, org, index, slides.length, 0);
+      const jpeg = await new Promise((resolve) => canvas.toBlob(resolve, 'image/jpeg', .92));
+      if (!jpeg) throw Error('슬라이드 이미지를 만드는 데 실패했습니다.');
+      frames.push(await jpeg.arrayBuffer());
+    }
+    const audio = wavBytes(await mix.startRendering());
+    signal.throwIfAborted();
+    report('브라우저용 MP4 인코더를 준비하는 중입니다. 첫 다운로드는 약 32MB입니다.');
+    const worker = new Worker('./assets/policy/video-encode-worker.js');
+    const cancel = () => worker.terminate();
+    try {
+      return await new Promise((resolve, reject) => {
+        signal.addEventListener('abort', () => { cancel(); reject(signal.reason); }, { once: true });
+        worker.onerror = () => reject(Error('브라우저용 MP4 인코더를 시작할 수 없습니다.'));
+        worker.onmessage = ({ data }) => {
+          if (data.error) reject(Error(data.error));
+          if (data.percent !== undefined) report(`MP4 제작 중 · ${data.percent}%`);
+          if (data.video) resolve(new Blob([data.video], { type: 'video/mp4' }));
+        };
+        worker.postMessage({ frames, seconds, audio }, [...frames, audio]);
+      });
+    } finally { cancel(); }
+  }
+
   form.addEventListener('submit', async (event) => {
     event.preventDefault();
     if (busy) return;
@@ -299,8 +355,8 @@
     const org = $('videoOrg').value.trim();
     const target = Number($('videoDuration').value);
     if (!org || slides.some((slide) => !slide.title || !slide.text)) return report('기관명과 모든 슬라이드의 제목과 자막을 입력해 주세요.');
-    const type = mime();
-    if (!type || !canvas.captureStream || !window.AudioContext) return report('현재 브라우저에서 MP4(H.264/AAC) 저장을 지원하지 않습니다. 최신 Chrome 또는 Edge에서 열어 주세요.');
+    const type = canvas.captureStream && window.AudioContext ? mime() : undefined;
+    if (!type && (!window.OfflineAudioContext || !window.Worker || !window.WebAssembly)) return report('현재 브라우저에서 MP4 제작을 지원하지 않습니다. 최신 Chrome 또는 Edge에서 열어 주세요.');
     const job = new AbortController();
     busy = job;
     let graph;
@@ -310,20 +366,25 @@
       speech?.cancel();
       report('슬라이드와 음성을 준비하는 중입니다.');
       if (slides.reduce((sum, slide) => sum + (slide.file?.size || 0), 0) > 40 * 1024 * 1024) throw Error('전체 음성 파일을 40MB 이하로 줄여 주세요.');
-      const context = new AudioContext({ sampleRate: 48000 });
-      graph = { context };
-      await context.resume();
+      const context = type ? new AudioContext({ sampleRate: 48000 }) : new OfflineAudioContext(1, 1, 24000);
+      if (type) { graph = { context }; await context.resume(); }
       for (const [index, slide] of slides.entries()) await decodeSlide(slide, index, context, job.signal);
       const durations = timing(slides, target);
       if (durations.reduce((a, b) => a + b, 0) > maxSeconds) throw Error('영상 길이를 3분 이하로 조정해 주세요.');
-      const destination = context.createMediaStreamDestination();
-      // Keep an AAC track even on slides with subtitles only.
-      const silence = context.createConstantSource();
-      silence.offset.value = 0; silence.connect(destination); silence.start();
-      const stream = canvas.captureStream(30);
-      destination.stream.getAudioTracks().forEach((track) => stream.addTrack(track));
-      Object.assign(graph, { stream, destination });
-      const blob = await capture(slides, durations, graph, await imageTask, org, type, job.signal);
+      let blob;
+      const image = await imageTask;
+      if (type) {
+        const destination = context.createMediaStreamDestination();
+        // Keep an AAC track even on slides with subtitles only.
+        const silence = context.createConstantSource();
+        silence.offset.value = 0; silence.connect(destination); silence.start();
+        const stream = canvas.captureStream(30);
+        destination.stream.getAudioTracks().forEach((track) => stream.addTrack(track));
+        Object.assign(graph, { stream, destination });
+        blob = await capture(slides, durations, graph, image, org, type, job.signal);
+      } else {
+        blob = await encodeOffline(slides, durations, image, org, job.signal);
+      }
       resultUrl = URL.createObjectURL(blob);
       download.href = resultUrl; result.src = resultUrl;
       download.hidden = result.hidden = false;
