@@ -1,32 +1,20 @@
-# 법제처 Open API 연동 Worker
+# 공개 법령·처리방침 게이트웨이
 
-정적 사이트(GitHub Pages)는 브라우저에서 법제처 DRF를 직접 호출할 수 없습니다(CORS·HTTP 혼합콘텐츠·OC 인증키 노출). 이 Cloudflare Worker가 **OC 인증키를 Secret으로 보관**하고 법제처를 대신 호출해 CORS를 붙여 JSON으로 돌려줍니다.
+Cloudflare Worker 운영 계정에서 worker.js를 갱신합니다. GitHub Pages 배포와 Worker 배포는 독립적입니다.
 
-## 두 가지 모드
-- **토큰 0 모드(기본)**: Worker 없이도 동작합니다. 근거 법령을 클릭하면 국가법령정보센터 현행 조문 페이지가 새 탭으로 열립니다. 설정 불필요.
-- **API 모드**: Worker를 배포하고 `assets/config.js`의 `WORKER_URL`을 Worker 주소로 바꾸면, 근거 법령 클릭 시 조문 본문을 사이트 안 팝오버로 바로 보여 줍니다.
+| 설정 | 적용값 |
+| --- | --- |
+| ALLOWED_ORIGIN | Pages 또는 기관 사이트의 HTTPS 오리진 한 개. 경로와 끝 슬래시 제외 |
+| LAW_OC | 법제처 OC. Worker Secret으로 관리 |
+| LAW_RATE | IP별 법령 조회 Rate Limit 바인딩. 예시 분당 30회 |
+| POLICY_FETCH_URLS | 승인된 공개 HTTPS 처리방침 전체 URL을 공백으로 구분 |
+| POLICY_RATE | IP별 공개 자료 가져오기 Rate Limit 바인딩. 예시 분당 10회 |
+| MCP_TOKEN | MCP 운영 시에만 서버용 고엔트로피 비밀을 Secret으로 등록 |
+| MCP_RATE | MCP 운영 시에만 IP별 Rate Limit 바인딩을 적용. 예시 분당 20회 |
 
-## 배포 (약 10분, 무료)
-1. [dash.cloudflare.com](https://dash.cloudflare.com) → **Workers & Pages → Create → Create Worker**. 이름 `privacy-agent` → **Deploy**.
-2. **Edit code**에서 내용을 모두 지우고 `worker.js` 전체를 붙여넣고 **Deploy**.
-3. **Settings → Variables and Secrets → Add**:
-   | 이름 | 종류 | 값 |
-   |---|---|---|
-   | `LAW_OC` | **Secret** | 법제처 OC 값 (예: `발급받은_OC값`) |
-   | `ALLOWED_ORIGIN` | Text | `https://<아이디>.github.io` (끝 슬래시 없이) |
-   | `DAILY_LAW_LIMIT` | Text(선택) | `600` |
-   저장 후 다시 **Deploy**.
-4. 사이트의 `assets/config.js`에서 `WORKER_URL`을 `https://privacy-agent.<계정>.workers.dev/`로 바꾸고 커밋.
+- 기관이 통제하는 공개 페이지로 허용 목록을 구성합니다. 리디렉션은 차단합니다. 허용 목록이 비어 있으면 브라우저 직접 조회, 본문 붙여넣기와 파일 가져오기를 사용합니다.
+- [Rate Limiting binding](https://developers.cloudflare.com/workers/runtime-apis/bindings/rate-limit/)에 따라 바인딩마다 계정에서 사용하지 않는 숫자 네임스페이스를 할당합니다. Cloudflare 위치별로 호출 제한이 적용되므로 계정 사용량도 모니터링합니다.
+- 관리, 생성형 AI, 공개 API 명세, 대화, 파일 경로는 거부합니다. MCP는 비밀과 호출 제한을 함께 설정한 경우에만 사용합니다.
+- 기존 운영 경로, 라우팅, 배포 버전, Secrets, MCP 사용 여부를 확인합니다. 스테이징에서 허용된 오리진·URL과 승인된 이용 흐름을 먼저 확인합니다.
 
-## 법제처 OC 발급
-[open.law.go.kr](https://open.law.go.kr) → 회원가입 → **OPEN API → OPEN API 신청**. 활용 목적과 사용 서비스 주소(Worker 주소)를 적고, 필요한 API(법령·행정규칙)를 신청합니다. 승인되면 OC 값(보통 가입 이메일의 @ 앞부분)을 확인합니다.
-
-## 확인
-- `https://<worker 주소>/health` → `{"ok":true,"law":true}` 면 성공.
-- `https://<worker 주소>/law?kind=법령&name=개인정보 보호법&jo=31` → 제31조 본문 JSON.
-
-## 엔드포인트
-- `GET /health` → `{ok, law, ai, kosis, news}`
-- `GET /law?kind=법령|행정규칙&name=<법령명>&jo=<조번호>&branch=<가지번호>` → `{ok, article, content, source}`
-
-응답에 실패하면 사이트는 자동으로 국가법령정보센터 바로가기 링크로 폴백하므로, Worker 장애 시에도 사이트는 정상 동작합니다.
+운영 계정과 로그 점검은 [배포 및 보안 점검](../PORTAL_SECURITY.md)을 참고하세요.

@@ -1,11 +1,10 @@
 /* =====================================================================
  * 계층별(어린이·청소년·어르신) 개인정보 처리방침 자동 생성
  *  - 기본: '개선된 처리방침'에서 핵심 사실을 뽑아 대상별 템플릿으로 작성(토큰 0)
- *  - 선택: 'AI로 더 쉽게' → 핵심 사실(facts)만 Claude API로 보내 다시 쓰기(토큰 최소)
  * ===================================================================== */
 (function () {
   'use strict';
-  const S = window.APP, C = window.APP_CONFIG;
+  const S = window.APP;
   const $ = (s) => document.querySelector(s);
   const esc = (s) => String(s ?? '').replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
   const NAME = { child: '어린이용', teen: '청소년용', senior: '어르신용' };
@@ -130,16 +129,6 @@
     return t;
   }
 
-  /* [개발보안 코드오류-5 신뢰할 수 없는 데이터] AI 응답을 정해진 형식·길이로만 받아들임 */
-  const str = (v, n) => (typeof v === 'string' ? v.slice(0, n) : '');
-  function clean(r) {
-    if (!r || typeof r !== 'object' || !Array.isArray(r.cards)) throw new Error('AI 응답 형식 오류');
-    return {
-      title: str(r.title, 80), intro: str(r.intro, 400), help: str(r.help, 400), outro: str(r.outro, 300),
-      cards: r.cards.slice(0, 12).map((c) => ({ icon: str(c && c.icon, 4) || '•', q: str(c && c.q, 60), a: (Array.isArray(c && c.a) ? c.a : []).slice(0, 4).map((x) => str(x, 200)).filter(Boolean), ex: str(c && c.ex, 200) })).filter((c) => c.q)
-    };
-  }
-
   /* ---------- 화면 그리기 ---------- */
   function audHtml(aud, d, forReport) {
     const today = new Date().toLocaleDateString('ko-KR');
@@ -153,7 +142,7 @@
       <p class="org">${esc(S.org)} 개인정보 처리방침(${NAME[aud]}) · ${today} · 자세한 내용은 ${esc(S.org)} 개인정보 처리방침 전문을 확인하세요.</p>
     </div>`;
   }
-  // 점검 보고서용: 화면에서 만든 결과(AI 포함)가 있으면 그것을, 없으면 템플릿(토큰 0)으로 작성
+  // 점검 보고서용: 화면에서 만든 결과가 있으면 그것을, 없으면 템플릿(토큰 0)으로 작성
   S.audData = {};
   S.audienceHtml = (aud) => audHtml(aud, S.audData[aud] || template(aud, facts()), true);
   S.audienceData = (aud) => S.audData[aud] || template(aud, facts());
@@ -167,32 +156,24 @@
     if (!('speechSynthesis' in window)) return;
     speechSynthesis.cancel();
     const u = new SpeechSynthesisUtterance(t.replace(/[\u{1F300}-\u{1FAFF}☀-➿]/gu, ''));
+    const localVoice = speechSynthesis.getVoices().find((v) => v.localService && /^ko\b/i.test(v.lang));
+    if (!localVoice) { $('#audHint').textContent = '기기에 설치된 한국어 음성을 찾지 못했습니다.'; return; }
+    u.voice = localVoice;
     u.lang = 'ko-KR'; u.rate = S.aud === 'senior' ? 0.85 : 0.95;
     speechSynthesis.speak(u);
   }
 
-  async function generate(aud) {
+  function generate(aud) {
     S.aud = aud;
     document.querySelectorAll('.aud-btn').forEach((b) => b.classList.toggle('on', b.dataset.aud === aud));
     $('#audBar').hidden = false;
-    const f = facts();
-    const useAI = $('#audAI').checked && S.health.ai;
-    render(aud, template(aud, f));
-    $('#audHint').textContent = useAI ? 'AI가 더 쉽게 다시 쓰는 중…' : '템플릿으로 생성했습니다(토큰 0).';
-    if (!useAI) return;
-    try {
-      const d = await S.callAI('audience', { level: aud, facts: f }, C.AI.maxTokensAudience);
-      if (S.aud !== aud) return;
-      render(aud, clean(d.result));
-      $('#audHint').textContent = d.cached ? 'AI 결과(캐시, 토큰 0)' : `AI 생성 완료 · 입력 ${d.usage?.input_tokens ?? '-'} / 출력 ${d.usage?.output_tokens ?? '-'} 토큰`;
-    } catch (e) { console.warn('[계층별 AI]', e && e.message); $('#audHint').textContent = '⚠ AI 실패 — 템플릿 결과를 표시합니다. (' + String(e && e.message || '').slice(0, 120) + ')'; }
+    $('#audVideo').hidden = aud !== 'child';
+    render(aud, template(aud, facts()));
+    $('#audHint').textContent = '처리방침 내용을 바탕으로 구성했습니다.';
   }
 
-  /* ---------- 이벤트 ---------- */
   document.querySelectorAll('.aud-btn').forEach((b) => b.addEventListener('click', () => generate(b.dataset.aud)));
-  $('#audAI').addEventListener('change', () => S.aud && generate(S.aud));
   document.addEventListener('analyzed', () => {
-    $('#audAI').closest('label').hidden = !S.health.ai;
     $('#audOut').innerHTML = '<p class="hint">위에서 대상을 고르면 개선된 처리방침을 바탕으로 쉬운 처리방침이 만들어집니다.</p>';
     $('#audBar').hidden = true; S.aud = null; S.audData = {};
     document.querySelectorAll('.aud-btn').forEach((b) => b.classList.remove('on'));
@@ -201,6 +182,6 @@
   $('#audPdf').addEventListener('click', () => S.toPdf($('#audDoc'), fname() + '.pdf'));
   $('#audHtml').addEventListener('click', () => {
     const body = $('#audDoc').outerHTML;
-    S.download(fname() + '.html', `<!doctype html><html lang="ko"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>${esc(S.org)} 개인정보 처리방침(${NAME[S.aud]})</title><link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;700;900&display=swap" rel="stylesheet"><style>body{margin:0;padding:16px;background:#fff}.aud{max-width:860px;margin:auto}${AUD_CSS}</style></head><body>${body}<script>document.querySelector('.say').onclick=function(){var u=new SpeechSynthesisUtterance(document.querySelector('.aud').innerText);u.lang='ko-KR';speechSynthesis.cancel();speechSynthesis.speak(u)}<\/script></body></html>`);
+    S.download(fname() + '.html', `<!doctype html><html lang="ko"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>${esc(S.org)} 개인정보 처리방침(${NAME[S.aud]})</title><link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;700;900&display=swap" rel="stylesheet"><style>body{margin:0;padding:16px;background:#fff}.aud{max-width:860px;margin:auto}${AUD_CSS}</style></head><body>${body}<script>document.querySelector('.say').onclick=function(){var u=new SpeechSynthesisUtterance(document.querySelector('.aud').innerText);u.lang='ko-KR';u.voice=speechSynthesis.getVoices().find(function(v){return v.localService&&v.lang.toLowerCase().startsWith('ko')});if(u.voice){speechSynthesis.cancel();speechSynthesis.speak(u)}}<\/script></body></html>`);
   });
 })();

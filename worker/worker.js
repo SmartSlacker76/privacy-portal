@@ -1,114 +1,129 @@
-/* Cloudflare Worker — 법제처 Open API(DRF) 게이트웨이
- * 역할: 법제처 인증키(OC)를 Secret으로 보관하고, 브라우저 대신 법제처 DRF를 호출해
- *       CORS 헤더를 붙여 JSON으로 돌려줍니다. (정적 사이트는 CORS·HTTP 때문에 직접 호출 불가)
- *
- * 배포:
- *   1) dash.cloudflare.com → Workers & Pages → Create Worker (이름: privacy-agent)
- *   2) 이 파일 전체를 편집기에 붙여넣고 Deploy
- *   3) Settings → Variables and Secrets 에 아래 값 등록 후 다시 Deploy
- *        - LAW_OC         (Secret) : 법제처 OC 값 (예: 발급받은_OC값)  ← 저장소/클라이언트엔 절대 금지
- *        - ALLOWED_ORIGIN (Text)   : https://<아이디>.github.io           ← 끝 슬래시 없이
- *        - DAILY_LAW_LIMIT(Text, 선택): 기본 600 (KV 바인딩 RATE가 있을 때만 적용)
- *   4) 사이트의 assets/config.js 의 WORKER_URL 을 이 Worker 주소로 변경
- *   확인: 브라우저로 https://<worker>/health → {"ok":true,"law":true} 면 성공
- */
+/* Public law and policy gateway. Administrative and generative routes are closed. */
 const DRF = 'https://www.law.go.kr/DRF';
 const UA = 'privacy-edu-worker';
+const publicPaths = new Set(['/', '/health', '/law', '/fetch']);
+
+function configuredUrl(value) {
+  try {
+    const url = new URL(value);
+    if (url.protocol === 'https:' && !url.username && !url.password && !url.port && !url.hash
+      && /^(?:[a-z0-9-]+\.)+[a-z]{2,}$/i.test(url.hostname)) return url.href;
+  } catch { /* Invalid URL. */ }
+  return null;
+}
+
+function lawInput(kind, name, article, suffix) {
+  if (!['법령', '행정규칙'].includes(kind) || typeof name !== 'string' || !/^[가-힣a-z0-9 ().·ㆍ,_-]{1,100}$/i.test(name)) return null;
+  if (!/^\d{1,4}$/.test(article) || !/^\d{1,4}$/.test(suffix) || Number(article) < 1) return null;
+  return { kind, name, jo: Number(article), branch: Number(suffix) };
+}
+
+async function cappedBody(message, max) {
+  if (!message.body || Number(message.headers.get('content-length')) > max) throw Error('body size');
+  const reader = message.body.getReader();
+  const chunks = [];
+  let length = 0;
+  try {
+    for (;;) {
+      const { done, value } = await reader.read();
+      if (done) break;
+      length += value.length;
+      if (length > max) throw Error('body size');
+      chunks.push(value);
+    }
+  } finally { await reader.cancel(); }
+  return new Blob(chunks).text();
+}
+
+function audit(event, request, status) {
+  const id = request.headers.get('CF-Ray') || '';
+  console.warn(JSON.stringify({ event, status, ray: /^[a-f0-9-]{1,32}$/i.test(id) ? id : undefined }));
+}
+
+async function tokenMatches(request, token) {
+  if (typeof token !== 'string' || token.length < 32) return false;
+  const supplied = request.headers.get('authorization') || '';
+  if (!supplied.startsWith('Bearer ') || supplied.length > 1024) return false;
+  const digest = async (s) => new Uint8Array(await crypto.subtle.digest('SHA-256', new TextEncoder().encode(s)));
+  const [a, b] = await Promise.all([digest(supplied.slice(7)), digest(token)]);
+  let different = 0;
+  a.forEach((byte, i) => { different |= byte ^ b[i]; });
+  return different === 0;
+}
+
+async function allowRate(request, limiter) {
+  const key = request.headers.get('CF-Connecting-IP');
+  return !!(key && limiter && (await limiter.limit({ key })).success);
+}
 
 export default {
   async fetch(request, env) {
     const url = new URL(request.url);
-    const origin = env.ALLOWED_ORIGIN || '*';
-    const cors = {
-      'Access-Control-Allow-Origin': origin,
-      'Access-Control-Allow-Methods': 'GET, OPTIONS',
-      'Access-Control-Allow-Headers': 'Content-Type',
-      'Vary': 'Origin'
-    };
-    if (request.method === 'OPTIONS') return new Response(null, { headers: cors });
-    const json = (o, s = 200) => new Response(JSON.stringify(o), { status: s, headers: { 'Content-Type': 'application/json; charset=utf-8', ...cors } });
+    const path = url.pathname;
+    const origin = request.headers.get('Origin');
+    const cors = origin && origin === env.ALLOWED_ORIGIN ? { 'Access-Control-Allow-Origin': origin } : {};
+    const headers = { ...cors, 'Vary': 'Origin', 'Cache-Control': 'no-store', 'X-Content-Type-Options': 'nosniff', 'Referrer-Policy': 'no-referrer' };
+    const json = (value, status = 200) => new Response(JSON.stringify(value), { status, headers: { ...headers, 'Content-Type': 'application/json; charset=utf-8' } });
+    const deny = (event, status) => { audit(event, request, status); return json({ ok: false }, status); };
+    const allowed = new Set(String(env.POLICY_FETCH_URLS || '').split(/\s+/).map(configuredUrl).filter(Boolean));
 
-    if (url.pathname === '/health' || url.pathname === '/') {
-      return json({ ok: true, law: !!env.LAW_OC, ai: false, kosis: false, news: false, ts: Date.now() });
-    }
-
-    if (url.pathname === '/law') {
-      if (!env.LAW_OC) return json({ ok: false, error: 'LAW_OC 미설정' }, 503);
-      const kind = url.searchParams.get('kind') || '법령';
-      const name = url.searchParams.get('name') || '';
-      const jo = parseInt(url.searchParams.get('jo') || '0', 10);
-      const branch = parseInt(url.searchParams.get('branch') || '0', 10);
-      if (!name) return json({ ok: false, error: 'name 필요' }, 400);
-
-      // 7일 캐시
-      const cacheKey = new Request(url.toString(), request);
-      const cache = caches.default;
-      const hit = await cache.match(cacheKey);
-      if (hit) return hit;
-
-      try {
-        const out = kind === '행정규칙'
-          ? await fetchAdmrul(env.LAW_OC, name, jo, branch)
-          : await fetchLaw(env.LAW_OC, name, jo, branch);
-        const res = json(out);
-        if (out.ok) res.headers.set('Cache-Control', 'public, max-age=604800');
-        if (out.ok) await cache.put(cacheKey, res.clone());
-        return res;
-      } catch (e) {
-        return json({ ok: false, error: String(e && e.message || e) }, 502);
+    try {
+      if (path === '/mcp') {
+        if (request.method !== 'POST' || origin) return deny('mcp_method_or_origin_denied', 404);
+        if (!env.MCP_TOKEN) return deny('mcp_disabled', 404);
+        if (!(await tokenMatches(request, env.MCP_TOKEN))) return deny('mcp_auth_denied', 401);
+        if (!(await allowRate(request, env.MCP_RATE))) return deny('mcp_rate_denied', 429);
+        if (request.headers.get('content-type')?.split(';')[0].trim() !== 'application/json') return json({ ok: false }, 415);
+        let rpc;
+        try { rpc = JSON.parse(await cappedBody(request, 16384)); }
+        catch { return deny('mcp_input_denied', 400); }
+        if (!rpc || rpc.jsonrpc !== '2.0' || Array.isArray(rpc) || !['number', 'string', 'undefined'].includes(typeof rpc.id) || String(rpc.id).length > 128) {
+          return deny('mcp_input_denied', 400);
+        }
+        const response = await mcp(rpc, env);
+        return response === null ? new Response(null, { status: 204, headers }) : json(response);
       }
-    }
-    // ===== 처리방침 페이지 불러오기 (policy.html) =====
-    if (url.pathname === '/fetch') {
-      const target = url.searchParams.get('url') || '';
-      let u;
-      try { u = new URL(target); } catch (e) { return json({ ok: false, error: 'url 형식 오류' }, 400); }
-      if (u.protocol !== 'https:' && u.protocol !== 'http:') return json({ ok: false, error: 'http(s)만 허용' }, 400);
-      // 내부망·루프백 주소 차단
-      if (/^(localhost$|127\.|10\.|192\.168\.|169\.254\.|172\.(1[6-9]|2\d|3[01])\.|\[?::1)/i.test(u.hostname)) {
-        return json({ ok: false, error: '내부 주소는 불러올 수 없습니다' }, 400);
+      if (!publicPaths.has(path)) return deny('route_denied', 404);
+      if (origin && origin !== env.ALLOWED_ORIGIN) return deny('origin_denied', 403);
+      if (request.method === 'OPTIONS' && cors['Access-Control-Allow-Origin']) {
+        return new Response(null, { status: 204, headers: { ...headers, 'Access-Control-Allow-Methods': 'GET, OPTIONS' } });
       }
-      const ck = new Request('https://cache.local/fetch?u=' + encodeURIComponent(u.toString()), request);
-      const cache = caches.default;
-      const hit = await cache.match(ck);
-      if (hit) return hit;
-      try {
-        const r = await fetch(u.toString(), {
-          redirect: 'follow',
-          headers: { 'User-Agent': UA, 'Accept': 'text/html,application/xhtml+xml', 'Accept-Language': 'ko' },
-          cf: { cacheTtl: 1800 }
-        });
-        if (!r.ok) return json({ ok: false, error: '응답 코드 ' + r.status }, 502);
-        const ct = r.headers.get('content-type') || '';
-        if (!/text\/|xhtml|xml/i.test(ct)) return json({ ok: false, error: 'HTML이 아닌 문서입니다 (' + ct + ')' }, 415);
-        let html = (await r.text()).slice(0, 1500000);
-        const text = htmlToText(html);
-        if (text.length < 120) return json({ ok: false, error: '본문을 찾지 못했습니다. 내용을 직접 붙여넣어 주세요.' }, 422);
-        const res = json({ ok: true, url: r.url, chars: text.length, text: text.slice(0, 300000) });
-        res.headers.set('Cache-Control', 'public, max-age=1800');
-        await cache.put(ck, res.clone());
-        return res;
-      } catch (e) {
-        return json({ ok: false, error: String(e && e.message || e) }, 502);
-      }
-    }
+      if (request.method !== 'GET') return deny('method_denied', 405);
 
-    // ===== MCP 서버 (Claude 커스텀 커넥터) =====
-    if (url.pathname === '/mcp') {
-      if (request.method !== 'POST') return json({ ok: false, error: 'POST only' }, 405);
-      if (env.MCP_TOKEN) { const auth = request.headers.get('authorization') || ''; if (auth !== 'Bearer ' + env.MCP_TOKEN) return json({ error: 'unauthorized' }, 401); }
-      let rpc; try { rpc = await request.json(); } catch (e) { return json({ jsonrpc: '2.0', id: null, error: { code: -32700, message: 'parse error' } }); }
-      return json(await mcp(rpc, env));
+      if (path === '/health' || path === '/') return json({ ok: true, law: Boolean(env.LAW_OC), fetch: Boolean(allowed.size && env.POLICY_RATE), fetchPolicy: 'explicit-urls-v1' });
+
+      if (path === '/law') {
+        if (!env.LAW_OC) return json({ ok: false, error: '조문 조회 서비스를 사용할 수 없습니다.' }, 503);
+        const input = lawInput(url.searchParams.get('kind') || '법령', url.searchParams.get('name'), url.searchParams.get('jo') || '', url.searchParams.get('branch') || '0');
+        if (!input) return deny('law_input_denied', 400);
+        const key = new URL('/cache/law', url.origin);
+        key.search = new URLSearchParams(input).toString();
+        const hit = await caches.default.match(key.href);
+        if (hit) return new Response(hit.body, { headers: { ...headers, 'Content-Type': 'application/json; charset=utf-8' } });
+        if (!(await allowRate(request, env.LAW_RATE))) return deny('law_rate_denied', 429);
+        const out = await lookup(env, input);
+        if (out.ok) {
+          await caches.default.put(key.href, new Response(JSON.stringify(out), { headers: { 'Cache-Control': 'public, max-age=604800' } }));
+        }
+        return json(out);
+      }
+
+      const raw = url.searchParams.get('url') || '';
+      const target = raw.length <= 2048 ? configuredUrl(raw) : null;
+      if (!target || !allowed.has(target)) return deny('fetch_target_denied', 403);
+      if (!(await allowRate(request, env.POLICY_RATE))) return deny('fetch_rate_denied', 429);
+      const response = await fetch(target, { redirect: 'error', signal: AbortSignal.timeout(10000), headers: { 'User-Agent': UA, 'Accept': 'text/html,application/xhtml+xml,text/plain' } });
+      if (!response.ok || !/^(text\/(html|plain)|application\/xhtml\+xml)\b/i.test(response.headers.get('content-type') || '')) {
+        return json({ ok: false, error: '공개 처리방침을 읽지 못했습니다.' }, 502);
+      }
+      const text = htmlToText(await cappedBody(response, 1500000)).slice(0, 300000);
+      return text.length > 200 ? json({ ok: true, text }) : json({ ok: false, error: '본문을 직접 붙여넣어 주세요.' }, 422);
+    } catch {
+      return deny('gateway_error', 502);
     }
-    return json({ ok: false, error: 'not found' }, 404);
   }
 };
 
-// ===== MCP(JSON-RPC 2.0) =====
-const TOOLS = [
-  { name: 'lookup_law_article', description: '법제처 국가법령정보 Open API로 법령·행정규칙(고시)의 조문 본문을 조회합니다.', inputSchema: { type: 'object', properties: { kind: { type: 'string', enum: ['법령', '행정규칙'], description: '법률·시행령은 법령, 고시·지침은 행정규칙' }, name: { type: 'string', description: '법령명 (예: 개인정보 보호법)' }, jo: { type: 'integer', description: '조 번호 (예: 31)' }, branch: { type: 'integer', description: '가지번호 (제31조의2의 2), 없으면 0' } }, required: ['name', 'jo'] } },
-  { name: 'get_privacy_answer', description: '개인정보 보호 실무 질문(CCTV 보관, 주민번호 저장, 접속기록, 파기, 유출 통지, 영향평가, 동의, 암호화 등)에 근거 조문과 함께 답합니다.', inputSchema: { type: 'object', properties: { question: { type: 'string', description: '개인정보 보호 관련 질문' } }, required: ['question'] } }
-];
 const KB = [
   { kw: ['cctv', '영상', '보관'], a: 'CCTV 영상 보관기간은 개별 법령이 우선입니다. 어린이집은 영유아보육법 시행규칙 제9조에 따라 60일 이상, 별도 규정이 없으면 표준 개인정보 보호지침 제41조에 따라 30일 이내 보관이 원칙입니다. 저장기간 경과 시 자동삭제 여부를 확인해 영상정보 관리대장에 기록합니다.', src: '영유아보육법 시행규칙 제9조, 표준 개인정보 보호지침 제41조, 법 제25조' },
   { kw: ['주민', '주민등록번호'], a: '주민등록번호는 법령에 구체적 근거가 있는 경우에만 처리할 수 있고(동의 불가), 저장 시 암호화해야 합니다.', src: '법 제24조의2, 고시 제7조' },
@@ -119,36 +134,47 @@ const KB = [
   { kw: ['영향평가', 'pia'], a: '공공기관이 일정 규모(5만명 민감/고유식별, 50만명 연계, 100만명 파일) 이상이면 영향평가가 의무입니다.', src: '법 제33조, 영 제35조' },
   { kw: ['동의', '고지'], a: '동의 시 ①목적 ②항목 ③보유기간 ④거부권·불이익을 알리고, 민감·고유식별·제3자 제공은 별도 동의를 받습니다.', src: '법 제15조·제17조·제22조·제23조·제24조' }
 ];
+const qnaTool = { name: 'get_privacy_answer', description: '등록된 개인정보 보호 안내를 검색합니다.', inputSchema: { type: 'object', properties: { question: { type: 'string', maxLength: 300 } }, required: ['question'] } };
+
+const tool = {
+  name: 'lookup_law_article',
+  description: '법제처 현행 법령 또는 행정규칙의 조문을 조회합니다.',
+  inputSchema: {
+    type: 'object',
+    properties: { kind: { enum: ['법령', '행정규칙'] }, name: { type: 'string', maxLength: 100 }, jo: { type: 'integer', minimum: 1, maximum: 9999 }, branch: { type: 'integer', minimum: 0, maximum: 9999 } },
+    required: ['name', 'jo']
+  }
+};
+
+function lookup(env, { kind, name, jo, branch }) {
+  return kind === '행정규칙' ? fetchAdmrul(env.LAW_OC, name, jo, branch) : fetchLaw(env.LAW_OC, name, jo, branch);
+}
+
 async function mcp(rpc, env) {
-  const id = rpc && rpc.id != null ? rpc.id : null;
-  const ok = result => ({ jsonrpc: '2.0', id, result });
-  const err = (code, message) => ({ jsonrpc: '2.0', id, error: { code, message } });
-  try {
-    if (rpc.method === 'initialize') return ok({ protocolVersion: '2024-11-05', capabilities: { tools: {} }, serverInfo: { name: 'privacy-law-mcp', version: '1.0.0' } });
-    if (rpc.method === 'notifications/initialized') return ok({});
-    if (rpc.method === 'tools/list') return ok({ tools: TOOLS });
-    if (rpc.method === 'tools/call') {
-      const { name, arguments: args = {} } = rpc.params || {};
-      if (name === 'lookup_law_article') {
-        if (!env.LAW_OC) return ok({ content: [{ type: 'text', text: 'LAW_OC 미설정: 조문 조회를 쓰려면 Worker에 LAW_OC Secret을 등록하세요.' }], isError: true });
-        const r = (args.kind === '행정규칙') ? await fetchAdmrul(env.LAW_OC, args.name, +args.jo, +(args.branch || 0)) : await fetchLaw(env.LAW_OC, args.name, +args.jo, +(args.branch || 0));
-        return ok({ content: [{ type: 'text', text: r.ok ? `${r.article}\n\n${r.content}\n\n(출처: ${r.source})` : ('조회 실패: ' + (r.error || '')) }], isError: !r.ok });
-      }
-      if (name === 'get_privacy_answer') {
-        const q = String(args.question || '').toLowerCase().replace(/\s/g, '');
-        let best = null, sc = 0; KB.forEach(e => { let c = 0; e.kw.forEach(k => { if (q.includes(k)) c++; }); if (c > sc) { sc = c; best = e; } });
-        const text = best ? `${best.a}\n\n근거: ${best.src}` : '정해진 주제(CCTV·주민번호·비밀번호·접속기록·파기·유출·영향평가·동의 등)로 질문해 주세요.';
-        return ok({ content: [{ type: 'text', text }] });
-      }
-      return err(-32602, 'unknown tool: ' + name);
-    }
-    return err(-32601, 'method not found: ' + rpc.method);
-  } catch (e) { return err(-32603, String(e && e.message || e)); }
+  const id = rpc.id ?? null;
+  const ok = (result) => ({ jsonrpc: '2.0', id, result });
+  const error = (code, message) => ({ jsonrpc: '2.0', id, error: { code, message } });
+  if (rpc.method === 'initialize') return ok({ protocolVersion: '2024-11-05', capabilities: { tools: {} }, serverInfo: { name: 'privacy-law-mcp', version: '2.0.0' } });
+  if (rpc.method === 'notifications/initialized') return null;
+  if (rpc.method === 'tools/list') return ok({ tools: [tool, qnaTool] });
+  if (rpc.method !== 'tools/call') return error(-32601, 'Method not found');
+  const args = rpc.params?.arguments || {};
+  if (rpc.params?.name === qnaTool.name) {
+    if (typeof args.question !== 'string' || args.question.length > 300) return error(-32602, 'Invalid parameters');
+    const q = args.question.toLowerCase().replace(/\s/g, '');
+    const entry = KB.map((item) => ({ item, score: item.kw.filter((word) => q.includes(word)).length })).sort((a, b) => b.score - a.score)[0];
+    return ok({ content: [{ type: 'text', text: entry.score ? entry.item.a + '\n근거: ' + entry.item.src : '등록된 주제로 질문해 주세요.' }] });
+  }
+  if (rpc.params?.name !== tool.name) return error(-32601, 'Method not found');
+  const input = lawInput(args.kind || '법령', args.name, args.jo, args.branch ?? 0);
+  if (!input || !env.LAW_OC) return error(-32602, 'Invalid parameters or service unavailable');
+  const found = await lookup(env, input);
+  return ok({ content: [{ type: 'text', text: found.ok ? [found.article, found.content, found.source].join('\n\n') : '조회 실패' }], isError: !found.ok });
 }
 
 async function drf(path, params) {
   const q = new URLSearchParams({ type: 'JSON', ...params });
-  const r = await fetch(`${DRF}/${path}?${q}`, { headers: { 'User-Agent': UA } });
+  const r = await fetch(`${DRF}/${path}?${q}`, { redirect: 'error', signal: AbortSignal.timeout(8000), headers: { 'User-Agent': UA } });
   if (!r.ok) throw new Error('DRF ' + r.status);
   const t = await r.text();
   try { return JSON.parse(t); } catch (e) { throw new Error('DRF 비정상 응답'); }

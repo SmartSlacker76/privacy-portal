@@ -247,7 +247,9 @@
     if (/민감\s*정보|건강\s*(정보|상태)|장애/.test(all)) L.push({ img: 'sensitive', key: 'sensitive', kind: 'type', icon: '❤️', name: '민감정보', value: short(uniq((all.match(/건강\s*(정보|상태)|장애\s*(정보|유무)?|병력|장기요양\s*등급/g) || ['민감정보']).map((x) => x.replace(/\s+/g, ''))), 2), to: 3 });
     const uid = uniq((all.match(/주민\s*등록\s*번호|여권\s*(번호|정보)|운전\s*면허\s*번호|외국인\s*등록\s*번호/g) || []).map((x) => x.replace(/\s+/g, '')));
     if (uid.length) L.push({ img: 'unique', key: 'unique', kind: 'type', icon: '🔑', name: '고유식별정보', value: short(uid, 2), to: 3 });
-    if (has(21)) L.push({ img: 'video', key: 'video', kind: 'type', icon: '▶️', name: '개인영상정보', value: 'CCTV 운영', to: 21 });
+    if ((has(21) && !neg(by(21), 21)) || (has(22) && !neg(by(22), 22))) {
+      L.push({ img: 'video', key: 'video', kind: 'type', icon: '🎥', name: '개인영상정보', value: '영상정보 처리 안내', to: has(21) && !neg(by(21), 21) ? 21 : 22 });
+    }
     if (has(13) && !neg(by(13), 13)) L.push({ img: 'pseudo', key: 'pseudo', kind: 'type', icon: '🎭', name: '가명정보', value: '통계·연구 목적', to: 13 });
     const purposes = (by(2).match(/(?:^|\n)\s*(?:\d+[.)]|•|-|[①-⑳])\s*([^:\n—]{2,18})/g) || []).map((x) => x.replace(/^[\s\n]*(?:\d+[.)]|•|-|[①-⑳])\s*/, '').trim()).filter((x) => !/개인정보/.test(x));
     L.push({ img: 'purpose', key: 'purpose', kind: 'step', icon: '🎯', name: '처리 목적', value: purposes.length ? short(uniq(purposes), 2) : '본문 참조', to: 2 });
@@ -266,6 +268,8 @@
     L.push({ img: 'contact', key: 'contact', kind: 'right', icon: '🎧', name: '고충처리 부서', value: dept || '개인정보 보호 담당부서', to: 18 });
     if (has(28)) L.push({ img: 'access', key: 'access', kind: 'right', icon: '📂', name: '열람청구', value: '열람청구 접수·처리 부서', to: 28 });
     L.push({ img: 'remedy', key: 'remedy', kind: 'right', icon: '⚖️', name: '권익침해 구제', value: '118 · 1833-6972', to: has(20) ? 20 : null });
+    if (has(21) && !neg(by(21), 21)) L.push({ img: 'cctv', key: 'cctv', kind: 'right', icon: '🎥', name: '고정형 영상정보처리기기', value: 'CCTV 설치·운영 안내', to: 21 });
+    if (has(22) && !neg(by(22), 22)) L.push({ img: 'mobile', key: 'mobile', kind: 'right', icon: '🎥', name: '이동형 영상정보처리기기', value: '드론 등 기기 운영 안내', to: 22 });
     const eff = (by(24).match(/(\d{4}|20○○)\s*\.\s*[○\d]{1,2}\s*\.\s*[○\d]{1,2}\s*\.?(?=\s*부터)/) || [])[0];
     L.push({ img: 'change', key: 'change', kind: 'right', icon: '🔄', name: '처리방침 변경', value: eff ? eff.replace(/\s+/g, '') + ' 시행' : '변경 이력 본문 참조', to: 24 });
     return L;

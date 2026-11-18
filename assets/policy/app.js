@@ -1,8 +1,7 @@
 /* =====================================================================
  * 개인정보 처리방침 점검 에이전트 — 메인 로직
- *  1) 불러오기(Worker → 공개 프록시 → 붙여넣기)  2) 비식별(***)
+ *  1) 불러오기(직접 읽기 → 허용된 Worker → 붙여넣기)  2) 비식별(***)
  *  3) 규칙 기반 점검(토큰 0)  4) 대시보드  5) 보고서·PDF  6) 개선된 처리방침
- *  7) (선택) Claude API로 개선문구 다듬기 — 미흡 항목만 짧게 보내 토큰 최소화
  * ===================================================================== */
 (function () {
   'use strict';
@@ -16,11 +15,11 @@
     bad: { label: '누락', cls: 'b-bad', color: '#d03b3b', icon: '✖' },
     na: { label: '해당여부 확인', cls: 'b-na', color: '#8f8e87', icon: '?' }
   };
-  const S = (window.APP = { health: {}, charts: {} });
+  const S = (window.APP = { health: {}, charts: {}, labelStyle: 'standard' });
   /* [개발보안 에러처리-3 부적절한 예외 처리] 예외를 무시하지 않고 기록 후 안전한 기본값으로 진행 */
   const warn = (where, e) => console.warn('[점검 에이전트] ' + where + ':', e && e.message ? e.message : e);
   /* [개발보안 입력데이터 검증-7 신뢰되지 않는 URL] http/https 주소만 허용 */
-  const isHttpUrl = (u) => { try { const x = new URL(u); return /^https?:$/.test(x.protocol) && u.length <= 2048; } catch (e) { return false; } };
+  const isHttpUrl = (u) => { try { const x = new URL(u); return /^https?:$/.test(x.protocol) && !x.username && !x.password && u.length <= 2048; } catch { return false; } };
   const WORKER = /^https:\/\//.test(C.WORKER_URL || '') ? C.WORKER_URL.replace(/\/$/, '') : '';
   const MAX_TEXT = 300000; // 처리할 최대 글자 수(자원 고갈 방지)
   const MAX_FILE = 2 * 1024 * 1024; // 업로드 최대 2MB
@@ -33,14 +32,12 @@
     if (WORKER) {
       try {
         const h = await (await fetchWithTimeout(WORKER + '/health', 8000)).json();
-        S.health = { fetch: h.fetch === true, ai: h.ai === true, law: h.law === true, mcp: h.mcp === true };
+        S.health = { fetch: h.fetch === true && h.fetchPolicy === 'explicit-urls-v1', law: h.law === true };
       } catch (e) { warn('Worker 상태 확인 실패', e); S.health = {}; }
     } else if (C.WORKER_URL) warn('설정', 'WORKER_URL은 https:// 로 시작해야 합니다.');
     chips.push(chip('페이지 불러오기 API', !!S.health.fetch));
-    chips.push(chip('Claude AI', !!S.health.ai));
     chips.push(chip('법제처 API', !!S.health.law));
-    chips.push(chip('MCP 서버', !!S.health.mcp));
-    if (!S.health.ai) chips.push('<span class="chip on">토큰 0 모드</span>');
+    chips.push('<span class="chip on">브라우저에서 점검</span>');
     $('#chips').innerHTML = chips.join('');
     if (S.health.law) loadLaw();
   }
@@ -69,34 +66,58 @@
     if (/ks_c_5601|ksc5601|cp949|x-windows-949/.test(cs)) cs = 'euc-kr';
     try { return new TextDecoder(cs).decode(buf); } catch (e) { warn('문자셋 ' + cs, e); return new TextDecoder('utf-8').decode(buf); }
   }
+  async function responseBytes(response, max) {
+    const reader = response.body.getReader();
+    const chunks = [];
+    let length = 0;
+    try {
+      for (;;) {
+        const { done, value } = await reader.read();
+        if (done) break;
+        length += value.byteLength;
+        if (length > max) throw Error('문서가 너무 큽니다.');
+        chunks.push(value);
+      }
+    } finally { await reader.cancel(); }
+    return new Blob(chunks).arrayBuffer();
+  }
+
   async function getHtml(url) {
-    const tries = [];
     if (!isHttpUrl(url)) throw new Error('http:// 또는 https:// 로 시작하는 올바른 주소를 입력해 주세요.');
-    if (WORKER) tries.push(WORKER + '/fetch?url=' + encodeURIComponent(url));
-    C.PUBLIC_PROXIES.forEach((p) => tries.push(p + encodeURIComponent(url)));
-    let lastErr = '';
-    for (const u of tries) {
+    progress('처리방침을 불러오는 중…');
+    try {
+      const response = await fetch(url, { redirect: 'error', credentials: 'omit', referrerPolicy: 'no-referrer', signal: AbortSignal.timeout(8000) });
+      if (response.ok) {
+        const type = response.headers.get('content-type') || '';
+        if (/^(text\/(html|plain)|application\/xhtml\+xml)\b/i.test(type)) {
+          const html = decode(await responseBytes(response, 5000000), type);
+          if (html.length > 200) return { html };
+        }
+      }
+    } catch { /* Try the configured public-policy gateway. */ }
+    if (WORKER && S.health.fetch) {
       try {
-        progress(`불러오는 중… (${new URL(u).host})`);
-        const r = await fetchWithTimeout(u);
-        if (!r.ok) { lastErr = 'HTTP ' + r.status; continue; }
-        const buf = await r.arrayBuffer();
-        if (buf.byteLength > 5000000) { lastErr = '문서가 너무 큼'; continue; }
-        const html = decode(buf, r.headers.get('content-type'));
-        if (html && html.length > 200) return html;
-      } catch (e) { lastErr = e.name === 'AbortError' ? '시간 초과' : '연결 실패'; warn('불러오기', e); }
+        const response = await fetch(WORKER + '/fetch?url=' + encodeURIComponent(url), { redirect: 'error', credentials: 'omit', referrerPolicy: 'no-referrer', signal: AbortSignal.timeout(12000) });
+        if (response.ok) {
+          const data = JSON.parse(new TextDecoder().decode(await responseBytes(response, 2000000)));
+          if (typeof data.text === 'string' && data.text.length > 200) return { text: data.text.slice(0, MAX_TEXT) };
+        }
+      } catch { /* Offer manual input when the gateway is unavailable. */ }
     }
-    throw new Error('주소에서 내용을 불러오지 못했습니다(' + lastErr + '). 아래 “내용 직접 붙여넣기”를 이용해 주세요.');
+    throw new Error('주소에서 내용을 불러오지 못했습니다. “내용 직접 붙여넣기 / 파일 올리기”에서 본문을 입력해 주세요.');
   }
   const BLOCK = /^(P|DIV|SECTION|ARTICLE|H[1-6]|LI|UL|OL|TR|TABLE|BR|DT|DD|DL|PRE|BLOCKQUOTE|TBODY|THEAD|CAPTION|FIGURE|HR)$/;
   function htmlToText(html) {
-    const doc = new DOMParser().parseFromString(html, 'text/html');
+    const template = document.createElement('template');
+    template.innerHTML = html;
+    const doc = template.content;
     $$('script,style,noscript,svg,nav,header,form,button,select,template', doc).forEach((n) => n.remove());
-    const root = doc.querySelector('#contents,#content,.privacy,.policy,main,article') || doc.body;
+    const root = doc.querySelector('#contents,#content,.privacy,.policy,main,article') || doc;
     let out = '';
     (function walk(n, depth) {
       if (depth > 200 || out.length > MAX_TEXT) return; // [개발보안 시간및상태-2] 재귀 깊이·크기 제한
       for (const c of n.childNodes) {
+        if (out.length > MAX_TEXT) break;
         if (c.nodeType === 3) out += c.nodeValue.replace(/\s+/g, ' ');
         else if (c.nodeType === 1) {
           const tag = c.tagName;
@@ -106,7 +127,7 @@
           if (BLOCK.test(tag)) out += '\n';
         }
       }
-    })(root || doc.body, 0);
+    })(root, 0);
     const text = out.split('\n').map((l) => l.replace(/\s+/g, ' ').trim()).filter(Boolean).join('\n');
     const frame = doc.querySelector('iframe[src],frame[src]')?.getAttribute('src') || '';
     return { text, frame };
@@ -235,12 +256,10 @@
     const num = {}; sec.forEach((s, i) => { num[s.id] = i + 1; });
     const labels = window.PrivacyEngine.policyLabels(out);
     const icons = window.PrivacyEngine.articleIcons(out);
-    const LI = window.LABEL_IMG || {};
-    // 작성지침 공식 라벨 기호(이미지)가 있으면 이미지로, 없으면 같은 모양의 기호로 표시
-    const sym = (x, size) => LI[x.img] ? `<img class="lb-img ${size}" src="${LI[x.img]}" alt="${esc(x.name)}" title="${esc(x.name)}">` : `<span class="lb-ic ${x.kind} ${size}" title="${esc(x.name)}" aria-label="${esc(x.name)}">${x.icon}</span>`;
+    const sym = (x, size, decorative = false) => `<img class="lb-img ${size}" src="${window.PolicyLabels.icon(x.img, x.kind, S.labelStyle)}" alt="${decorative ? '' : esc(x.name)}">`;
     const ico = (id, size) => (icons[id] || []).map((x) => sym(x, size)).join('');
     const KIND = { type: '개인정보 유형', step: '처리 단계', right: '보호 의무·권리' };
-    const lab = (l) => { const n = num[l.to]; const inner = `${LI[l.img] ? `<img class="lb-img lg" src="${LI[l.img]}" alt="">` : `<span class="lb-ic ${l.kind}" aria-hidden="true">${l.icon}</span>`}<span class="lb-nm">${esc(l.name)}</span><span class="lb-v">${esc(l.value)}</span>`;
+    const lab = (l) => { const n = num[l.to]; const inner = `${sym(l, 'lg', true)}<span class="lb-nm">${esc(l.name)}</span><span class="lb-v">${esc(l.value)}</span>`;
       return n ? `<a class="lb" href="#${pre}-a${n}" title="${esc(l.name)} — 제${n}조로 이동">${inner}</a>` : `<span class="lb">${inner}</span>`; };
     return `<h2>${esc(out[0].title)}</h2><p>${esc(out[0].text)}</p>
       <section class="labels" aria-label="주요 개인정보 처리 표시">
@@ -257,7 +276,7 @@
     const ed = !!opt.editable, m = opt.model || '';
     return s.tables.map((t, ti) => `<div class="ptbl"><div class="ptbl-cap">${esc(t.caption)}</div>
       <table class="pt"><thead><tr>${t.cols.map((c) => `<th>${esc(c)}</th>`).join('')}${ed ? '<th class="ptbl-x" data-html2canvas-ignore="true"></th>' : ''}</tr></thead>
-      <tbody>${t.rows.map((r, ri) => `<tr class="${r.ex ? 'ex' : ''}">${r.cells.map((c, ci) => `<td${ed ? ` contenteditable="true" data-m="${m}" data-k="${k}" data-t="${ti}" data-r="${ri}" data-c="${ci}"` : ''}>${ci === 0 && r.ex ? '<span class="exb">예시</span> ' : ''}${esc(c).replace(/○○/g, '<mark>○○</mark>')}</td>`).join('')}${ed ? `<td class="ptbl-x" data-html2canvas-ignore="true"><button type="button" class="rowdel" data-m="${m}" data-k="${k}" data-t="${ti}" data-r="${ri}" title="행 삭제">✕</button></td>` : ''}</tr>`).join('')}</tbody></table>
+      <tbody>${t.rows.map((r, ri) => `<tr class="${r.ex ? 'ex' : ''}">${r.cells.map((c, ci) => `<td${ed ? ` contenteditable="plaintext-only" data-m="${m}" data-k="${k}" data-t="${ti}" data-r="${ri}" data-c="${ci}"` : ''}>${ci === 0 && r.ex ? '<span class="exb">예시</span> ' : ''}${esc(c).replace(/○○/g, '<mark>○○</mark>')}</td>`).join('')}${ed ? `<td class="ptbl-x" data-html2canvas-ignore="true"><button type="button" class="rowdel" data-m="${m}" data-k="${k}" data-t="${ti}" data-r="${ri}" title="행 삭제">✕</button></td>` : ''}</tr>`).join('')}</tbody></table>
       ${ed ? `<div class="ptbl-tools" data-html2canvas-ignore="true"><button type="button" class="btn rowadd" data-m="${m}" data-k="${k}" data-t="${ti}">+ 행 추가</button> <span class="hint">회색 ‘예시’ 행은 작성지침 예시입니다. 칸을 눌러 기관의 실제 내용으로 고치면 예시 표시가 사라집니다.</span></div>` : ''}</div>`).join('');
   }
   const TBL_CSS = `.ptbl{margin:8px 0 14px;break-inside:auto}.ptbl-cap{font-weight:700;font-size:13px;margin:4px 0}
@@ -349,40 +368,6 @@ a.lb:hover{border-color:#1d4ed8}
     const y = window.scrollY; renderImprovedTab(); window.scrollTo(0, y);
   });
 
-  /* ---------------- 7) Claude API (선택, 토큰 최소화) ---------------- */
-  const hash = (s) => { let h = 2166136261; for (let i = 0; i < s.length; i++) { h ^= s.charCodeAt(i); h = Math.imul(h, 16777619); } return (h >>> 0).toString(36); };
-  async function callAI(task, payload, maxTokens) {
-    const body = JSON.stringify({ task, model: C.AI.model, max_tokens: maxTokens, payload });
-    const key = 'ai:' + hash(body);
-    if (!WORKER) throw new Error('AI 기능이 설정되지 않았습니다.');
-    try { const c = localStorage.getItem(key); if (c) return { ...JSON.parse(c), cached: true }; } catch (e) { warn('캐시 읽기', e); }
-    const r = await fetchWithTimeout(WORKER + '/ai', 60000, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body });
-    let d;
-    try { d = await r.json(); } catch (e) { throw new Error('AI 응답 형식 오류'); }
-    if (!r.ok) throw new Error(typeof d.error === 'string' ? d.error.slice(0, 200) : 'AI 오류');
-    if (!d || typeof d.result !== 'object') throw new Error('AI 응답 형식 오류');
-    try { localStorage.setItem(key, JSON.stringify(d)); } catch (e) { warn('캐시 저장', e); }
-    return { ...d, cached: r.headers.get('X-Cache') === 'HIT' };
-  }
-  S.callAI = callAI;
-  async function aiFix() {
-    const btn = $('#aiFixBtn'); btn.disabled = true; $('#aiFixHint').textContent = 'AI가 미흡 항목만 다듬는 중…';
-    try {
-      const items = S.A.all.filter((r) => r.status === 'warn' || r.status === 'bad').map((r) => ({
-        id: r.id, title: r.title, missing: r.missing.map((m) => m.t), excerpt: (r.excerpt || '').slice(0, C.AI.excerptChars), basis: r.basis.slice(0, 2)
-      }));
-      const d = await callAI('fix', { org: S.org, type: S.type, items }, C.AI.maxTokensFix + items.length * 120);
-      // [개발보안 코드오류-5 신뢰할 수 없는 데이터] AI 응답은 형식·길이 검증 후 비식별·이스케이프하여 사용
-      (Array.isArray(d.result.items) ? d.result.items : []).forEach((x) => {
-        if (!x || typeof x.text !== 'string') return;
-        const r = S.A.all.find((y) => String(y.id) === String(x.id)); if (r) r.ai = mask(x.text.slice(0, 1500));
-      });
-      buildImproved(); renderReport();
-      $('#aiFixHint').textContent = d.cached ? '캐시된 결과를 사용했습니다(토큰 0).' : `완료 · 입력 ${d.usage?.input_tokens ?? '-'} / 출력 ${d.usage?.output_tokens ?? '-'} 토큰`;
-    } catch (e) { $('#aiFixHint').textContent = '⚠ ' + e.message; }
-    btn.disabled = false;
-  }
-
   /* ---------------- PDF ---------------- */
   async function toPdf(el, name, orientation) {
     orientation = orientation === 'landscape' ? 'landscape' : 'portrait';
@@ -439,10 +424,10 @@ a.lb:hover{border-color:#1d4ed8}
       }
       if (!text) {
         if (!S.url) throw new Error('처리방침 주소를 입력하거나, 내용을 붙여넣어 주세요.');
-        const html = await getHtml(S.url);
-        let { text: t, frame } = htmlToText(html);
+        const loaded = await getHtml(S.url);
+        let { text: t, frame } = loaded.html ? htmlToText(loaded.html) : loaded;
         if (t.length < 1500 && frame) {
-          try { const fu = new URL(frame, S.url).href; if (isHttpUrl(fu)) t = htmlToText(await getHtml(fu)).text; } catch (e) { warn('프레임 불러오기', e); }
+          try { const fu = new URL(frame, S.url).href; if (isHttpUrl(fu) && new URL(fu).origin === new URL(S.url).origin) { const nested = await getHtml(fu); t = nested.text || htmlToText(nested.html).text; } } catch (e) { warn('프레임 불러오기', e); }
         }
         text = t;
       } else if (/<html|<body|<div/i.test(text)) text = htmlToText(text).text;
@@ -457,7 +442,6 @@ a.lb:hover{border-color:#1d4ed8}
       renderDash();
       await new Promise((r) => setTimeout(r, 900));
       buildImproved(); renderReport();
-      $('#aiFixBtn').hidden = !S.health.ai;
       document.dispatchEvent(new CustomEvent('analyzed'));
       $('#result').scrollIntoView({ behavior: 'smooth' });
     } catch (e) { warn('점검', e); error(e instanceof Error && e.message ? e.message : '점검 중 오류가 발생했습니다.'); }
@@ -473,14 +457,23 @@ a.lb:hover{border-color:#1d4ed8}
   $('#demoBtn').addEventListener('click', () => { $('#org').value = '간세다리청'; $('#orgType').value = 'public'; $('#url').value = ''; run(window.DEMO_POLICY); });
   $$('.tabs button').forEach((b) => b.addEventListener('click', () => showTab(b.dataset.tab)));
   $('#pdfBtn').addEventListener('click', () => { renderReport(); toPdf($('#report'), `${safe(S.org)}_개인정보처리방침_점검보고서.pdf`); });
-  $('#aiFixBtn').addEventListener('click', aiFix);
   $('#hwpxBtn').addEventListener('click', () => S.exportReport('hwpx'));
   $('#docxBtn').addEventListener('click', () => S.exportReport('docx'));
+  Object.entries(window.PolicyLabels.themes).forEach(([key, label]) => $('#policyLabelStyle').add(new Option(label, key)));
+  $('#policyLabelStyle').addEventListener('change', (event) => {
+    S.labelStyle = event.target.value;
+    renderImprovedTab();
+    renderReport();
+  });
   $('#impPdf').addEventListener('click', () => toPdf($('#improved'), `${safe(S.org)}_개선된_개인정보처리방침.pdf`));
-  $('#impHtml').addEventListener('click', () => S.download(`${safe(S.org)}_개선된_개인정보처리방침.html`, `<!doctype html><html lang="ko"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>${esc(S.org)} 개인정보 처리방침</title><style>body{font-family:'Noto Sans KR',sans-serif;max-width:860px;margin:auto;padding:24px;line-height:1.7}p{white-space:pre-wrap}.tag{font-size:11px;background:#fff4d6;padding:1px 6px;border-radius:4px;margin-left:6px}mark{background:#fff4d6}${LABEL_CSS}</style></head><body>${$('#improved').innerHTML}</body></html>`));
+  $('#impHtml').addEventListener('click', () => S.download(`${safe(S.org)}_개선된_개인정보처리방침.html`, `<!doctype html><html lang="ko"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>${esc(S.org)} 개인정보 처리방침</title><style>body{font-family:'Noto Sans KR',sans-serif;max-width:860px;margin:auto;padding:24px;line-height:1.7}p{white-space:pre-wrap}.tag{font-size:11px;background:#fff4d6;padding:1px 6px;border-radius:4px;margin-left:6px}mark{background:#fff4d6}${LABEL_CSS}${TBL_CSS}</style></head><body>${improvedHtml(S.improved, 'p')}${improvedHtml(S.aiPolicy, 'ai')}</body></html>`));
   $('#cmpPdf').addEventListener('click', () => toPdf($('#compare'), `${safe(S.org)}_개인정보처리방침_신구대조표.pdf`, 'landscape'));
   $('#cmpHtml').addEventListener('click', () => S.download(`${safe(S.org)}_개인정보처리방침_신구대조표.html`, `<!doctype html><html lang="ko"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>${esc(S.org)} 개인정보 처리방침 신구대조표</title><style>body{font-family:'Noto Sans KR','Malgun Gothic',sans-serif;margin:16px}@page{size:A4 landscape;margin:10mm}${CMP_CSS}</style></head><body>${$('#compare').innerHTML}</body></html>`));
   $('#impCopy').addEventListener('click', async () => { try { await navigator.clipboard.writeText($('#improved').innerText); $('#impCopy').textContent = '복사됨 ✔'; } catch (e) { warn('복사', e); $('#impCopy').textContent = '복사 실패(직접 선택해 복사)'; } });
+
+  // Remove response caches written by the previous client release on this origin.
+  try { Object.keys(localStorage).filter((key) => /^ai:[a-z0-9]+$/.test(key)).forEach((key) => localStorage.removeItem(key)); }
+  catch { /* Storage may be disabled by the browser. */ }
 
   /* 체험용 예시(가상의 기관, 실제 정보 아님) */
   window.DEMO_POLICY = `간세다리청 개인정보취급방침

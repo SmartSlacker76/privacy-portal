@@ -2,6 +2,7 @@
 <html lang="ko">
 <head>
 <meta charset="utf-8">
+<meta http-equiv="Content-Security-Policy" content="object-src 'none'; base-uri 'none'; form-action 'none'; script-src 'self'; style-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net https://fonts.googleapis.com; font-src 'self' https://cdn.jsdelivr.net https://fonts.gstatic.com; img-src 'self' data: blob:; media-src 'self' blob:; frame-src 'self' blob: about:; connect-src 'self' https:;">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css">
 <script src="assets/js/theme.js"></script>
@@ -10,6 +11,7 @@
 <link rel="stylesheet" href="assets/css/style.css">
 <link rel="stylesheet" href="assets/css/gov.css">
 <link rel="stylesheet" href="assets/css/policy-core.css">
+<link rel="stylesheet" href="assets/css/policy-video.css">
 <link rel="stylesheet" href="assets/css/academy.css">
 <link rel="stylesheet" href="assets/css/hondi-navy-sand.css?v=20261117-4"></head>
 <body>
@@ -45,6 +47,7 @@
       <div class="row">
         <button class="btn primary" id="runBtn" type="submit">점검 시작</button>
         <button class="btn ghost" id="demoBtn" type="button">예시로 체험하기</button>
+        <a class="btn" href="#videoStudio">어린이용 영상 만들기</a>
         <span class="hint">개인 이름·전화번호·이메일은 화면과 보고서에서 자동으로 <b>***</b> 처리됩니다.</span>
       </div>
       <div class="progress" id="progress" hidden><div class="bar"><i></i></div><span id="progressText">준비 중…</span></div>
@@ -77,8 +80,6 @@
         <button class="btn primary" id="pdfBtn">⬇ 통합 보고서 PDF</button>
         <button class="btn primary" id="hwpxBtn">⬇ 한글(HWPX)</button>
         <button class="btn primary" id="docxBtn">⬇ 워드(DOCX)</button>
-        <button class="btn" id="aiFixBtn" hidden>✨ AI로 개선 문구 다듬기</button>
-        <span class="hint" id="aiFixHint"></span>
       </div>
       <article id="report" class="report"></article>
     </div>
@@ -88,6 +89,7 @@
         <button class="btn primary" id="impPdf">⬇ PDF</button>
         <button class="btn" id="impHtml">⬇ HTML</button>
         <button class="btn" id="impCopy">복사</button>
+        <label for="policyLabelStyle">라벨 디자인 <select id="policyLabelStyle"></select></label>
         <span class="hint">충족 항목은 현행 내용을 유지하고, 미흡·누락 항목은 개선 예시로 보완한 초안입니다. ○○ 표시는 기관이 채워야 합니다.</span>
       </div>
       <article id="improved" class="doc"></article>
@@ -109,9 +111,9 @@
         <button class="aud-btn" data-aud="senior"><span>👵</span><b>어르신용</b><small>65세 이상 · 큰 글씨</small></button>
       </div>
       <div class="toolbar" id="audBar" hidden>
-        <label class="switch"><input type="checkbox" id="audAI"> AI로 더 쉽게 다시 쓰기</label>
         <button class="btn primary" id="audPdf">⬇ PDF</button>
         <button class="btn" id="audHtml">⬇ HTML(홈페이지 게시용)</button>
+        <button type="button" class="btn" id="audVideo" hidden>어린이용 영상에 가져오기</button>
         <span class="hint" id="audHint"></span>
       </div>
       <article id="audOut"></article>
@@ -123,11 +125,48 @@
     </div>
   </section>
 
+  <section id="videoStudio" class="card video-studio" aria-labelledby="videoTitle">
+    <h2 id="videoTitle">어린이용 개인정보 처리방침 영상</h2>
+    <p>기관명과 슬라이드 문구를 채우고 캐릭터, 목소리, 재생시간을 설정한 뒤 MP4로 저장하세요.</p>
+    <form id="videoForm">
+      <fieldset id="videoFields">
+        <div class="video-options">
+          <label>기관명 <input id="videoOrg" maxlength="45" autocomplete="off" required placeholder="예) 간세다리청"></label>
+          <label>캐릭터 <select id="videoTheme"></select></label>
+          <label>전체 영상 길이 <select id="videoDuration"><option value="0">슬라이드별 길이 합계</option><option value="30">30초</option><option value="60">1분</option><option value="90">1분 30초</option><option value="120">2분</option><option value="180">3분</option></select></label>
+          <label>미리 듣기 목소리 <select id="videoVoice"><option value="">기기 기본 한국어 음성</option></select></label>
+          <label>미리 듣기 속도 <select id="videoRate"><option value="0.85">천천히</option><option value="1" selected>보통</option><option value="1.12">조금 빠르게</option></select></label>
+          <label id="videoExportModeLabel" hidden>MP4 음성 방식 <select id="videoExportMode"><option value="file">슬라이드별 음성 파일</option><option value="tts">서버 음성합성 (음성 파일 우선)</option></select></label>
+          <label id="videoTtsVoiceLabel" hidden>MP4 합성 목소리 <select id="videoTtsVoice"><option value="sunhi">선희</option><option value="injoon">인준</option><option value="jimin">지민</option></select></label>
+        </div>
+        <a class="btn" id="videoSignIn" href="./oauth2/authorization/office" hidden>기관 계정으로 로그인</a>
+        <p class="hint" id="videoAudioHelp">기기 음성은 미리 듣기에 사용됩니다. MP4에도 목소리를 넣으려면 슬라이드마다 MP3, WAV 또는 M4A 파일을 선택하세요. 파일이 없는 슬라이드는 자막만 표시됩니다. 파일과 영상은 이 기기에서 처리됩니다.</p>
+        <div class="video-workspace">
+          <div>
+            <div id="videoSlides"></div>
+            <button class="btn" type="button" id="videoAdd">+ 슬라이드 추가</button>
+          </div>
+          <div class="video-preview">
+            <canvas id="videoCanvas" width="1280" height="720" aria-label="선택한 슬라이드 미리보기"></canvas>
+            <button class="btn" type="button" id="videoHear">선택한 슬라이드 미리 듣기</button>
+          </div>
+        </div>
+        <button class="btn primary" type="submit" id="videoBuild">MP4 만들기</button>
+      </fieldset>
+      <div class="video-actions">
+        <button class="btn" type="button" id="videoCancel" hidden>제작 취소</button>
+        <a class="btn primary" id="videoDownload" download="어린이_개인정보_처리방침.mp4" hidden>MP4 다운로드</a>
+      </div>
+      <p id="videoStatus" role="status" aria-live="polite"></p>
+      <video id="videoResult" controls playsinline preload="metadata" hidden></video>
+    </form>
+  </section>
+
   <section class="card" style="margin-top:18px">
     <h2 class="step" style="font-size:15px"><span>📚</span> 점검 기준 자료</h2>
     <p class="hint" style="margin:0 0 8px">기준 자료 <span id="refCount"></span>: <span id="refList"></span></p>
     <p class="hint" style="margin:0">이 도구의 결과는 자동 점검 결과로 법률 자문이 아닙니다. 최종 판단과 게시 전 검토는 기관의 개인정보 보호책임자가 하십시오. <span id="ruleVer"></span></p>
-    <p class="hint" style="margin:8px 0 0">점검 엔진·규칙·라벨은 <a href="https://github.com/smarts19cker/privacy-checker" target="_blank" rel="noopener">privacy-checker</a>(MIT) 구현을 그대로 사용합니다.</p>
+    <p class="hint" style="margin:8px 0 0">점검 엔진·규칙은 <a href="https://github.com/smarts19cker/privacy-checker" target="_blank" rel="noopener">privacy-checker</a>(MIT)을 기반으로 합니다. 라벨 도형과 캐릭터는 혼디지킴이용 창작 디자인입니다.</p>
   </section>
 </main>
 
@@ -139,6 +178,7 @@
 <script src="assets/policy/labels.js"></script>
 <script src="assets/policy/app.js"></script>
 <script src="assets/policy/audience.js"></script>
+<script src="assets/policy/video.js"></script>
 <script src="assets/policy/hwpx-template.js"></script>
 <script src="assets/policy/export.js"></script>
 <script src="assets/js/gov.js"></script>

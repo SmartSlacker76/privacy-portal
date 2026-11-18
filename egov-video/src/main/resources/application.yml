@@ -1,0 +1,37 @@
+server:
+  address: 127.0.0.1
+  error:
+    include-message: never
+    include-stacktrace: never
+    include-binding-errors: never
+  servlet:
+    session:
+      timeout: 15m
+      cookie:
+        name: __Host-hondi-video
+        path: /
+        http-only: true
+        secure: true
+        same-site: lax
+spring:
+  security:
+    oauth2:
+      client:
+        registration:
+          office:
+            provider: office
+            client-id: ${HONDI_OIDC_CLIENT_ID}
+            client-secret: ${HONDI_OIDC_CLIENT_SECRET}
+            authorization-grant-type: authorization_code
+            redirect-uri: ${HONDI_PUBLIC_ORIGIN}/login/oauth2/code/office
+            scope: openid
+        provider:
+          office:
+            issuer-uri: ${HONDI_OIDC_ISSUER}
+  mvc:
+    log-request-details: false
+hondi:
+  public-origin: ${HONDI_PUBLIC_ORIGIN}
+  video-group: ${HONDI_VIDEO_GROUP}
+  speech-key: ${HONDI_SPEECH_KEY:}
+  speech-region: ${HONDI_SPEECH_REGION:}
