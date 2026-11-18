@@ -37,7 +37,7 @@ async function cappedBody(message, max) {
 
 function audit(event, request, status) {
   const id = request.headers.get('CF-Ray') || '';
-  console.warn(JSON.stringify({ event, status, ray: /^[a-f0-9-]{1,32}$/i.test(id) ? id : undefined }));
+  console.warn(JSON.stringify({ event, status, ray: /^[a-f0-9]{16,24}-[a-z]{3}$/i.test(id) ? id : undefined }));
 }
 
 async function tokenMatches(request, token) {
