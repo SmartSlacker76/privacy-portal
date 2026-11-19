@@ -40,6 +40,13 @@
     editorialStyle.setAttribute('data-gradient-editorial','2026');
     document.head.appendChild(editorialStyle);
   }
+  if (!document.querySelector('link[data-anthropic-editorial]')) {
+    var refinedStyle=document.createElement('link');
+    refinedStyle.rel='stylesheet';
+    refinedStyle.href='assets/css/anthropic-editorial.css?v=20261119-layout-1';
+    refinedStyle.setAttribute('data-anthropic-editorial','2026');
+    document.head.appendChild(refinedStyle);
+  }
 
   function el(tag, cls, html) {
     var e = document.createElement(tag);
@@ -60,14 +67,14 @@
   /* 헤더 */
   var head = el('header', 'g-head');
   var gnb = '<a class="g-menu-home" href="index.html"' + (here === 'index.html' ? ' aria-current="page"' : '') + '>홈</a>' +
-    NAV_GROUPS.map(function(g,i){
+    NAV_GROUPS.map(function(g){
       var active=g.items.indexOf(here)>=0;
       return '<details class="g-nav-group"' + (active ? ' data-active="true"' : '') + '>' +
         '<summary>' + g.title + '<span class="g-nav-chevron" aria-hidden="true">⌄</span></summary>' +
         '<div class="g-nav-panel"><p class="g-nav-title">'+g.title+' <span>바로가기</span></p>' +
         g.items.map(function(h){return '<a href="'+h+'"' + (h === here?' aria-current="page"':'') + '>'+n_t(h)+'<span aria-hidden="true">↗</span></a>';}).join('')+'</div></details>';
     }).join('')+
-    '<a class="g-menu-chat" href="chatbot.html"' + (here === 'chatbot.html'?' aria-current="page"':'') + '>AI·실무 도우미</a>';
+    ''; // 챗봇은 '자료·도구'에서 한 번만 노출합니다.
   function n_h(h) { return h; }
   function n_t(h) { var f = NAV.filter(function (n) { return n.h === h; })[0]; return f ? f.t : h; }
   head.innerHTML =
@@ -96,9 +103,7 @@
   /* 푸터 */
   var foot = el('footer', 'g-foot',
     '<div class="in">' +
-      '<div class="links">' + NAV.slice(1).map(function (n) {
-        return '<a href="' + n.h + '">' + n.t + '</a>';
-      }).join('') + '</div>' +
+      '<div class="links"><a href="index.html">홈</a><a href="learn.html">학습 안내</a><a href="law-search.html">법령 근거</a><a href="chatbot.html">도움말</a></div>' +
       '<div class="cols">' +
         '<div><h3>요망진 간세다리와 혼디 지킴이 · SECURITY &amp; PRIVACY LEARNING LAB</h3>' +
           '<p>“마음 놓앙 간세부립서, 정보보호는 혼디 지켜드리쿠다.”<br>' +
