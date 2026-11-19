@@ -282,10 +282,17 @@
     return '<p class="greet">네! <b>'+esc(String(subject||'').replace(/\?+$/,''))+'</b>에 대해 알려 드릴께요.</p>';
   }
   function qaAnswer(it){
-    var detail = oBullets(it.bullets) + noteLines(it.notes) + (it.rulings&&it.rulings.length ? '<p class="rul">관련 결정·판례: '+it.rulings.map(esc).join(' · ')+'</p>':'');
-    return '<p class="friendly-lead">네, <b>'+esc(it.q)+'</b>에 대해 궁금하셨군요! 알기 쉽게 설명해 드릴게요. 😊</p>' +
-      '<p class="friendly-answer">'+esc(it.lead)+'</p>' +
-      (detail ? '<p class="friendly-answer">구체적인 판단 기준과 사례도 함께 살펴보세요!</p><div class="friendly-detail">'+detail+'</div>':'');
+    var bullets=oBullets(it.bullets);
+    var notes=noteLines(it.notes);
+    var rulings=it.rulings&&it.rulings.length?'<p class="rul">관련 결정·판례: '+it.rulings.map(esc).join(' · ')+'</p>':'';
+    return '<p class="friendly-lead">네, <b>'+esc(it.q)+'</b>에 대해 궁금하셨군요! 쉽게 설명해 드릴게요. 😊</p>'+
+      '<p class="friendly-answer">'+esc(it.lead)+'</p>'+
+      (bullets||notes||rulings?'<p class="friendly-answer">아래 내용을 눌러 구체적인 기준을 확인해 보세요! 👇</p>'+
+        '<div class="cctv-disclosure-more">'+
+        faqAccordion('사례와 적용 기준',bullets,1)+
+        faqAccordion('예외·주의사항과 실무 안내',notes,2)+
+        faqAccordion('관련 유권해석·판례',rulings,3)+
+        '</div>':'');
   }
 
   /* ───────── 8개 상세 → 5개 주제로 통폐합 ───────── */
@@ -296,25 +303,48 @@
     { id:'ctrl',  label:'④ 안전조치·제재·위반 사례', ask:'공공기관 안전조치와 법적 제재, 위반 사례를 알려 주세요.', secs:[4,5,6] },
     { id:'check', label:'⑤ 체크리스트·교육 요약',    ask:'실무 체크리스트와 교육 핵심 요약을 알려 주세요.', secs:[8] }
   ];
+  // 모든 일반 주제: 핵심부터 답하고 상황/법령/실무/점검을 개별로 펼칩니다.
+  function faqAccordion(title, content, index){
+    if (!content) return '';
+    return '<details class="dt faq-accordion"><summary><b>'+esc(index+'. '+title)+'</b></summary>'+
+      '<div class="dt-in">'+content+'</div></details>';
+  }
+  function sectionGroup(e, numbers){
+    var parts=(e.sections||[]).filter(function(x){return numbers.indexOf(x.n)>=0;});
+    var out=parts.map(function(sc){
+      var chunks='';
+      if(sc.items && sc.items.length) chunks+='<ul class="friendly-points">'+sc.items.map(function(x){return '<li>'+x+'</li>';}).join('')+'</ul>';
+      if(sc.summary) chunks+='<p class="friendly-answer"><b>핵심:</b> '+sc.summary+'</p>';
+      if(sc.check && sc.check.length) chunks+='<div class="chk-box"><div class="chk-h">담당자 확인사항</div>'+sc.check.map(function(x){return '<label class="chk-i"><input type="checkbox"><span>'+x+'</span></label>';}).join('')+'</div>';
+      return chunks?'<p class="friendly-answer"><b>'+esc(sc.h)+'</b></p>'+chunks:'';
+    }).join('');
+    return out;
+  }
   function renderTopic(e,q) {
     var lead = plain(e.intro || ((e.sum2 || [])[0] || ''));
     lead = String(lead || '').replace(/\s+/g,' ').trim();
-    var sentences = lead.match(/[^.!?。]+[.!?。]?/g) || [lead];
-    var brief = sentences.slice(0,2).join(' ').trim();
-    if (brief.length > 270) brief = brief.slice(0,267) + '…';
-    var notes=(e.sum2||[]).map(plain).map(function(x){return String(x||'').replace(/<[^>]+>/g,'').trim();}).filter(Boolean);
-    var points=notes.slice(0,4).map(function(x){return '<li>'+esc(x)+'</li>';}).join('');
-    var steps=(e.sections||[]).filter(function(x){return [3,8].indexOf(x.n)>=0;}).slice(0,2)
-      .map(function(x){return '<p class="friendly-answer"><b>'+esc(x.h)+':</b> '+esc(plain((x.items||[])[0]||x.summary||'관련 요건을 확인해 주세요.'))+'</p>';}).join('');
-    return (e.weak ? '<p class="warnline">비슷한 주제를 찾았어요. 정확한 상황을 알려주시면 더 잘 살펴볼게요.</p>' : '')
-      + '<p class="friendly-lead">네, <b>' + esc(e.title) + '</b>에 대해 궁금하셨군요! 중요한 내용부터 차근차근 설명해 드릴게요. 😊</p>'
-      + '<p class="friendly-answer">' + esc(brief || '관련 기준을 함께 살펴볼게요.') + '</p>'
-      + (points?'<p class="friendly-answer">꼭 기억하면 좋은 내용은 다음과 같아요.</p><ul class="friendly-points">'+points+'</ul>':'')
-      + steps
-      + '<p class="friendly-answer">실제 업무에 적용할 때에는 <b>처리 목적과 관련 법령, 기관의 운영 기준</b>을 함께 확인해 주세요. 아래 버튼에서 사례와 체크리스트도 살펴보실 수 있어요!</p>'
-      + (e.src ? '<div class="friendly-src">📌 <b>참고한 법령·자료:</b> ' + esc(e.src) + '</div>' : '')
-      + controllerNote(q)
-      + topicButtons(e.id);
+    var sentences=lead.match(/[^.!?。]+[.!?。]?/g)||[lead];
+    var brief=sentences.slice(0,2).join(' ').trim();
+    if(brief.length>360) brief=brief.slice(0,357)+'…';
+    var quick=(e.sum2||[]).map(plain).filter(Boolean).slice(0,3);
+    var summary='<p class="friendly-answer">'+esc(brief||'관련된 법령과 실무 기준을 함께 살펴볼게요.')+'</p>';
+    var definitions=sectionGroup(e,[1,2]);
+    var cases=sectionGroup(e,[3,7]);
+    var practical=sectionGroup(e,[4,5,6]);
+    var checklist=sectionGroup(e,[8]);
+    var fallback=quick.length?'<ul class="friendly-points">'+quick.map(function(x){return '<li>'+esc(x)+'</li>';}).join('')+'</ul>':'';
+    return (e.weak?'<p class="warnline">비슷한 주제일 수 있어요. 정확한 상황을 알려주시면 더 알맞게 안내할게요.</p>':'')+
+      '<p class="friendly-lead">네, <b>'+esc(e.title)+'</b>에 대해 궁금하셨군요! 핵심부터 차근차근 알려드릴게요. 😊</p>'+
+      summary+
+      '<p class="friendly-answer">아래 항목을 누르면 사례와 실무 기준을 더 자세히 볼 수 있어요! 👇</p>'+
+      '<div class="cctv-disclosure-more">'+
+        faqAccordion('무엇이며, 어떤 정보가 해당하나요?',definitions||fallback,1)+
+        faqAccordion('언제 적용하고 어떤 근거를 확인하나요?',cases,2)+
+        faqAccordion('기관 담당자는 무엇을 주의해야 하나요?',practical,3)+
+        faqAccordion('실무 체크리스트와 후속 조치는?',checklist||fallback,4)+
+      '</div>'+
+      (e.src?'<p class="friendly-src">📌 <b>참고 법령·자료:</b> '+esc(e.src)+'</p>':'')+
+      controllerNote(q)+topicButtons(e.id);
   }
   /* 버튼을 누르면 질문이 사용자 말풍선으로 전송되고, 답변이 이어서 쌓입니다. */
   function topicButtons(topicId){
@@ -349,7 +379,7 @@
     var body = sectionHtml(e, t5.secs);
     if (!body) return openLine(t5.label.replace(/^[①-⑤]\s*/, ''))
       + '<p class="lead">이 주제에는 준비된 상세 내용이 없습니다. 없는 내용을 만들어 적지 않았습니다.</p>';
-    return openLine(t5.label.replace(/^[①-⑤]\s*/, '')) + body;
+    return '<p class="friendly-answer">요청하신 <b>'+esc(t5.label.replace(/^[①-⑤]\\s*/,''))+'</b>를 정리했어요. 아래 항목을 펼쳐 확인해 보세요.</p>'+faqAccordion(t5.label.replace(/^[①-⑤]\\s*/,''),body,1);
   }
 
 
@@ -762,8 +792,13 @@
     if (m === 2) return add('bot',
       '<p class="greet">네, <b>' + esc(e.title) + '</b>에 관한 상황이 궁금하셨군요! 법적 근거와 확인할 부분을 함께 살펴볼게요. 😊</p>' +
       '<p class="lead">핵심은 <b>법적 근거와 필요한 정보인지</b>예요. 아래에서 결론·근거·위험·대안을 확인해 보세요.</p>' +
-      '<details class="dt"><summary>💡 검토 의견 자세히 보기</summary><div class="dt-in">' + render2(e, q) + '</div></details>' +
-      quizBlock(e), e.src, e.title + ' — 실무 검토');
+      '<p class="friendly-answer">아래 항목을 눌러 법적 근거와 실무 조치를 단계별로 검토해 주세요. 👇</p>' +
+      '<div class="cctv-disclosure-more">'+
+        faqAccordion('관련 법령과 처리 근거', sectionGroup(e,[1,3,7]), 1)+
+        faqAccordion('사례별 적용과 위험요인', sectionGroup(e,[2,5]), 2)+
+        faqAccordion('안전조치 및 담당자 점검사항', sectionGroup(e,[4,6,8]), 3)+
+        faqAccordion('실무 검토 참고자료와 추가 설명',guideBlock(e)+qnaBlock(e),4)+
+      '</div>'+quizBlock(e), e.src, e.title + ' — 실무 검토');
     return add('bot', renderTopic(e, q), e.src, e.title);
   }
 
