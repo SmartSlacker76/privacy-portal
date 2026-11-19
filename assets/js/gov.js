@@ -33,6 +33,13 @@
     frameworkStyle.setAttribute('data-framework-theme','2026');
     document.head.appendChild(frameworkStyle);
   }
+  if (!document.querySelector('link[data-gradient-editorial]')) {
+    var editorialStyle=document.createElement('link');
+    editorialStyle.rel='stylesheet';
+    editorialStyle.href='assets/css/gradient-editorial.css?v=20261119-anthropic-2';
+    editorialStyle.setAttribute('data-gradient-editorial','2026');
+    document.head.appendChild(editorialStyle);
+  }
 
   function el(tag, cls, html) {
     var e = document.createElement(tag);
