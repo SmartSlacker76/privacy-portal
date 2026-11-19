@@ -1,0 +1,63 @@
+{
+  "id": "/privacy-portal/",
+  "name": "요망진 간세와 혼디 지킴이",
+  "short_name": "혼디 지킴이",
+  "description": "개인정보 보호·사이버보안 학습, 점검, 문서 작성 및 실무 도우미",
+  "lang": "ko-KR",
+  "dir": "ltr",
+  "start_url": "/privacy-portal/index.html?source=pwa",
+  "scope": "/privacy-portal/",
+  "display": "standalone",
+  "display_override": [
+    "standalone",
+    "minimal-ui"
+  ],
+  "background_color": "#f7f7f3",
+  "theme_color": "#0b0c0b",
+  "orientation": "any",
+  "categories": [
+    "education",
+    "productivity",
+    "utilities"
+  ],
+  "icons": [
+    {
+      "src": "assets/pwa/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "assets/pwa/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "assets/pwa/icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any"
+    }
+  ],
+  "shortcuts": [
+    {
+      "name": "뭐든 물어봅써",
+      "url": "/privacy-portal/chatbot.html",
+      "icons": [
+        {
+          "src": "assets/pwa/icon-192.png",
+          "sizes": "192x192"
+        }
+      ]
+    },
+    {
+      "name": "처리방침 진단",
+      "url": "/privacy-portal/policy.html"
+    },
+    {
+      "name": "동의서 작성",
+      "url": "/privacy-portal/consent.html"
+    }
+  ]
+}
