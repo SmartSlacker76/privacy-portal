@@ -150,7 +150,7 @@ body:not(.academy-home) :where(.dt,.faq-accordion){border-radius:3px}
  min-height:195px;background:transparent!important;border:1px solid var(--line)!important;border-right:0!important;border-radius:0!important;padding:28px!important;
 }
 .academy-home .gd-editorial-steps article:last-child{border-right:1px solid var(--line)!important}
-.academy-home .gd-editorial-steps .gd-no{font:600 11px/1.4 inherit!important;letter-spacing:.15em;color:#8d986e}
+.academy-home .gd-editorial-steps .gd-no{font-family:inherit!important;font-weight:600!important;font-size:11px!important;line-height:1.4!important;letter-spacing:.15em;color:#8d986e}
 .academy-home .gd-editorial-steps h3{font-size:19px;font-weight:750;color:var(--ink)}
 .academy-home .gd-editorial-steps p{font-size:13px;color:var(--muted)}
 .academy-home .nist-resource-hub{max-width:1380px;margin:30px auto 70px;padding:50px 42px 52px;background:#292b25!important;border:1px solid #494d42}
@@ -230,7 +230,7 @@ html[data-theme="dark"] body:has(#chat) .msg.bot .bubble{background:#292e25!impo
 html[data-theme="dark"] body:has(#chat) .msg.me .bubble{background:#4e6144!important;color:#fff!important}
 html[data-theme="dark"] body:has(#chat) .cctv-disclosure-more .dt[open]>summary{background:#405337!important;color:#f2f3e9!important}
 /* Optional enlarged conversation mode toggled by the chatbot toolbar */
-body.chat-expanded:has(#chat) .chat{height:calc(100dvh - 122px)!important;max-height:none!important;min-height:560px}
+body.chat-expanded:has(#chat) .chat{height:max(940px,calc(100dvh - 122px))!important;max-height:none!important;min-height:640px}
 body.chat-expanded:has(#chat) .sp-head{padding-block:12px!important}
 body.chat-expanded:has(#chat) .asof-bar{margin:2px 0!important}
 .chat-view-tools{display:flex;align-items:center;justify-content:flex-end;gap:10px;margin:6px 0 10px}
