@@ -1,6 +1,21 @@
 (function () {
   var KB = window.CHATKB || [], A = window.CHATKB_ASOF || {}, QNA = window.CHATQNA || [];
   var chat = document.getElementById('chat');
+  var expandButton=document.getElementById('chatExpand');
+  if(expandButton){
+    expandButton.addEventListener('click',function(){
+      var expanded=document.body.classList.toggle('chat-expanded');
+      expandButton.setAttribute('aria-pressed',String(expanded));
+      expandButton.textContent=expanded?'↙ 기본 크기로 보기':'↗ 답변창 더 크게 보기';
+    });
+    document.addEventListener('keydown',function(ev){
+      if(ev.key==='Escape'&&document.body.classList.contains('chat-expanded')){
+        document.body.classList.remove('chat-expanded');
+        expandButton.setAttribute('aria-pressed','false');
+        expandButton.textContent='↗ 답변창 더 크게 보기';
+      }
+    });
+  }
   function esc(s) { return String(s == null ? '' : s).replace(/[&<>]/g, function (c) { return ({ '&': '&amp;', '<': '&lt;', '>': '&gt;' })[c]; }); }
 
   /* ── 주제 매칭 ─────────────────────────────────────────── */
