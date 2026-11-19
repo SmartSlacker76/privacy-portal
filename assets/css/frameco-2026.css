@@ -525,3 +525,39 @@ body:not(.academy-home) .g-page-h{max-width:1200px!important;margin-inline:auto}
     font-size:clamp(25px,7vw,36px)!important;
   }
 }
+
+/* Chat scrolling stability (KakaoTalk-like vertical conversation).
+   Prevent flex item shrinking and accidental wheel scroll chaining. */
+body:has(#chat) #chat {
+ display:flex!important;
+ flex-direction:column!important;
+ overflow-y:auto!important;
+ overflow-x:hidden!important;
+ overscroll-behavior-y:contain!important;
+ overflow-anchor:none!important;
+ scroll-behavior:auto!important;
+ -webkit-overflow-scrolling:touch;
+ scrollbar-gutter:stable;
+ touch-action:pan-y;
+}
+body:has(#chat) #chat > .msg {
+ flex:0 0 auto!important;
+ min-height:min-content!important;
+}
+body:has(#chat) #chat .bubble,
+body:has(#chat) #chat .dt-in {
+ overflow-wrap:anywhere;
+ word-break:break-word;
+ min-width:0;
+}
+body:has(#chat) .barrow {
+ position:relative!important;
+ bottom:auto!important;
+}
+.academy-home .assistant-heading h2 strong {
+ color:var(--cipher);
+ font-weight:900;
+}
+@media(max-width:640px){
+ body:has(#chat) #chat{scrollbar-gutter:auto}
+}
