@@ -164,6 +164,17 @@ html[data-theme="dark"] .chat{background:#1f2a44;border-color:#34445e}
 html[data-theme="dark"] .msg .bubble{background:#1f2a44!important;color:#f4f1eb;border-color:#34445e!important}
 html[data-theme="dark"] .msg.me .bubble{background:#34445e!important;color:#fff}
 @media(max-width:640px){.chat{min-height:420px;height:min(70vh,650px);padding:12px}.msg.bot,.msg.me{max-width:95%}.sp-head h1{font-size:22px}}
+
+/* 대화형 답변: 인사 → 쉬운 설명 → 기준·사례 → 확인 방법 → 법령 */
+.msg.bot .bubble{line-height:1.85}
+.msg.bot .warm-lead,.msg.bot .friendly-lead{font-size:14px;font-weight:600;line-height:1.75;color:var(--ac-ink,#263b55);margin:0 0 13px}
+.msg.bot .friendly-answer{margin:10px 0;line-height:1.9;max-width:none}
+.msg.bot .friendly-points{padding-left:20px;margin:11px 0 15px;line-height:1.85}
+.msg.bot .friendly-points li{padding-left:2px;margin:7px 0}
+.msg.bot .friendly-src{margin-top:15px;padding-top:11px;border-top:1px dashed #cfdbd5;font-size:12px;line-height:1.8}
+.msg.bot .friendly-detail{margin:12px 0}
+.msg.bot .friendly-detail .o{margin:7px 0}
+html[data-theme="dark"] .msg.bot .warm-lead,html[data-theme="dark"] .msg.bot .friendly-lead{color:#f1e3c8}
 </style><link rel="stylesheet" href="assets/css/hondi-navy-sand.css?v=20261117-4"></head>
 <body>
 <div class="sp-wrap">
