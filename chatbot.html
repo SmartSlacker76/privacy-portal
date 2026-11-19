@@ -175,6 +175,20 @@ html[data-theme="dark"] .msg.me .bubble{background:#34445e!important;color:#fff}
 .msg.bot .friendly-detail{margin:12px 0}
 .msg.bot .friendly-detail .o{margin:7px 0}
 html[data-theme="dark"] .msg.bot .warm-lead,html[data-theme="dark"] .msg.bot .friendly-lead{color:#f1e3c8}
+
+/* CCTV 정보공개청구: 세 가지 상세 내용을 개별 클릭으로 열고 닫기 */
+.cctv-disclosure-more{display:grid;gap:9px;margin:12px 0 16px}
+.cctv-disclosure-more .dt{margin:0;border:1px solid #d8e1df;border-radius:11px;background:#fafbf9;overflow:hidden}
+.cctv-disclosure-more .dt>summary{list-style:none;position:relative;display:block;padding:13px 36px 13px 14px;cursor:pointer;font-size:13.5px;line-height:1.55;color:#314c59}
+.cctv-disclosure-more .dt>summary::-webkit-details-marker{display:none}
+.cctv-disclosure-more .dt>summary:after{content:"+";position:absolute;right:13px;top:9px;font-size:22px;font-weight:400}
+.cctv-disclosure-more .dt[open]>summary:after{content:"−"}
+.cctv-disclosure-more .dt>summary:focus-visible{outline:3px solid #6b8ba4;outline-offset:-3px}
+.cctv-disclosure-more .dt .dt-in{padding:2px 14px 14px;border-top:1px solid #e1e8e6}
+.cctv-disclosure-more .dt .friendly-points{margin:8px 0}
+html[data-theme="dark"] .cctv-disclosure-more .dt{background:#263a4e;border-color:#516578}
+html[data-theme="dark"] .cctv-disclosure-more .dt>summary{color:#ecedea}
+html[data-theme="dark"] .cctv-disclosure-more .dt .dt-in{border-color:#516578}
 </style><link rel="stylesheet" href="assets/css/hondi-navy-sand.css?v=20261117-4"></head>
 <body>
 <div class="sp-wrap">
@@ -198,7 +212,7 @@ html[data-theme="dark"] .msg.bot .warm-lead,html[data-theme="dark"] .msg.bot .fr
 <script src="assets/js/law.js"></script>
 <script src="assets/data/qa-collection.js"></script><script src="assets/data/chatbot-kb.js"></script>
 <script src="assets/data/chatbot-qna.js"></script>
-<script src="assets/js/chatbot.js?v=20261119-blackbox-3"></script>
+<script src="assets/js/chatbot.js?v=20261119-cctv-disclosure-1"></script>
 <script src="assets/js/gov.js"></script>
 </body>
 </html>
