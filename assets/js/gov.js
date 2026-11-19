@@ -47,6 +47,13 @@
     refinedStyle.setAttribute('data-anthropic-editorial','2026');
     document.head.appendChild(refinedStyle);
   }
+  if (!document.querySelector('link[data-slite-workspace]')) {
+    var workspaceStyle=document.createElement('link');
+    workspaceStyle.rel='stylesheet';
+    workspaceStyle.href='assets/css/slite-workspace.css?v=20261119-1';
+    workspaceStyle.setAttribute('data-slite-workspace','2026');
+    document.head.appendChild(workspaceStyle);
+  }
 
   function el(tag, cls, html) {
     var e = document.createElement(tag);
