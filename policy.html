@@ -42,7 +42,10 @@
       <details class="adv">
         <summary>주소로 불러오기가 안 될 때: 내용 직접 붙여넣기 / 파일 올리기</summary>
         <textarea id="paste" rows="7" placeholder="처리방침 화면에서 전체 선택(Ctrl+A) → 복사(Ctrl+C) → 여기에 붙여넣기(Ctrl+V)"></textarea>
-        <input id="file" type="file" accept=".html,.htm,.txt">
+        <label for="file" class="hint" style="display:block;margin:9px 0 5px">지원 파일 형식: <b>HTML(.html, .htm), 텍스트(.txt), 마크다운(.md)</b> · 최대 2MB</label>
+        <input id="file" type="file" accept=".html,.htm,.txt,.md,text/html,text/plain,text/markdown" aria-describedby="fileHelp">
+        <p class="hint" id="fileHelp">PDF·HWP·HWPX·DOCX는 이 입력창에서 직접 분석되지 않습니다. 파일 내용의 텍스트를 복사해 ‘내용 직접 붙여넣기’를 사용해 주세요. 브라우저의 파일 선택창에서 모든 파일이 보여도 지원 형식만 읽습니다.</p>
+        <p class="hint" id="urlHelp">일부 공공기관 사이트는 브라우저 접근(CORS)이나 보안 정책 때문에 주소 불러오기가 제한됩니다. 이 경우 파일 저장 또는 내용 붙여넣기를 이용해 주세요.</p>
       </details>
       <div class="row">
         <button class="btn primary" id="runBtn" type="submit">점검 시작</button>
@@ -166,6 +169,7 @@
     <h2 class="step" style="font-size:15px"><span>📚</span> 점검 기준 자료</h2>
     <p class="hint" style="margin:0 0 8px">기준 자료 <span id="refCount"></span>: <span id="refList"></span></p>
     <p class="hint" style="margin:0">이 도구의 결과는 자동 점검 결과로 법률 자문이 아닙니다. 최종 판단과 게시 전 검토는 기관의 개인정보 보호책임자가 하십시오. <span id="ruleVer"></span></p>
+    <p class="hint" style="margin:8px 0 0"><b>자동 점검 범위 안내:</b> 개인정보 전송요구권 등 권리 내용이 ‘정보주체와 법정대리인의 권리·의무 및 행사방법’ 항목에 통합되어 있거나 별도 외부 링크에 있는 경우, 점검 결과만으로 누락을 단정할 수 없습니다. 연결 문서는 자동 수집·판정하지 않으므로 직접 확인해 주세요.</p>
     <p class="hint" style="margin:8px 0 0">점검 엔진·규칙은 <a href="https://github.com/smarts19cker/privacy-checker" target="_blank" rel="noopener">privacy-checker</a>(MIT)을 기반으로 합니다. 라벨 도형과 캐릭터는 혼디지킴이용 창작 디자인입니다.</p>
   </section>
 </main>
