@@ -419,6 +419,7 @@
   // 모든 챗봇 답변의 공통 대화형 형식. 원래 조문·퀴즈·근거 정보는 삭제하지 않습니다.
   function friendlyFormat(html, title) {
     var h=String(html||'');
+    if (!lastQuestion) return h; // 첫 화면의 환영 메시지는 답변으로 오인하지 않도록 유지합니다.
     // 전용 답변에 이미 자연스러운 인사가 있다면 중복하지 않아요.
     if (!/<(?:p|div)[^>]*class="[^"]*(?:friendly-lead|greet|warm-lead)[^"]*"/.test(h)) {
       var label=title?String(title).replace(/\s*[—-].*$/,'').trim():'';
@@ -560,6 +561,7 @@
     if (tid === 'quiz') {
       var qq = e.title + ' 교육 퀴즈를 만들어 주세요.';
       if (qEl) qEl.value = qq;
+      lastQuestion=qq;
       add('me', esc(qq));
       add('bot', openLine(e.title + ' 교육 퀴즈') + quizBlock(e) + topicButtons(e.id));
       if (qEl) qEl.value = '';
@@ -568,6 +570,7 @@
     var t5 = TOPIC5.filter(function (x) { return x.id === tid; })[0]; if (!t5) return;
     var ask = e.title + ' — ' + t5.ask;
     if (qEl) qEl.value = ask;
+    lastQuestion=ask;
     add('me', esc(ask));
     add('bot', topicAnswer(e, t5) + topicButtons(e.id));
     if (qEl) qEl.value = '';
