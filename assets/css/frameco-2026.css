@@ -561,3 +561,181 @@ body:has(#chat) .barrow {
 @media(max-width:640px){
  body:has(#chat) #chat{scrollbar-gutter:auto}
 }
+
+
+/* ======================================================
+   ACCESSIBILITY / RESPONSIVE RESOURCE CENTER — 2026-11-19
+   System mode resolves to html[data-theme="light"|"dark"].
+   Scoped theme tokens prevent dark-text-on-dark-card collisions.
+   ====================================================== */
+:root,html[data-theme="light"]{
+ --rc-panel:#121612;--rc-panel-border:#3c483e;
+ --rc-panel-ink:#f4f7f1;--rc-panel-muted:#cbd6c9;
+ --rc-card:#f5f7f2;--rc-card-alt:#e8eee7;--rc-card-hover:#dce9db;
+ --rc-card-ink:#1b2a20;--rc-card-sub:#435547;--rc-card-link:#2d5638;
+ --rc-card-border:#c9d5c9;--theme-input-bg:#fff;--theme-input-ink:#171d19;
+ --theme-note-bg:#edf2ec;
+}
+html[data-theme="dark"]{
+ --rc-panel:#111713;--rc-panel-border:#526254;
+ --rc-panel-ink:#f5faf5;--rc-panel-muted:#d1ded2;
+ --rc-card:#263529;--rc-card-alt:#2d4031;--rc-card-hover:#38533f;
+ --rc-card-ink:#f4f9f3;--rc-card-sub:#d0e2d1;--rc-card-link:#c0e9c0;
+ --rc-card-border:#526a56;--theme-input-bg:#202b23;--theme-input-ink:#f2f8ef;
+ --theme-note-bg:#293a2d;
+}
+.academy-home #framework-resources{
+ background:var(--rc-panel)!important;
+ border-color:var(--rc-panel-border)!important;
+ color:var(--rc-panel-ink)!important;
+}
+.academy-home #framework-resources .nist-resource-head,
+.academy-home #framework-resources .nist-resource-head>div,
+.academy-home #framework-resources .nist-resource-head .kicker,
+.academy-home #framework-resources .nist-resource-head h2,
+.academy-home #framework-resources .nist-resource-head p,
+.academy-home #framework-resources .hub-meta{
+ color:var(--rc-panel-ink)!important;
+}
+.academy-home #framework-resources .nist-resource-head .kicker{color:#d2e2c7!important}
+.academy-home #framework-resources .nist-resource-head p,
+.academy-home #framework-resources .hub-meta{color:var(--rc-panel-muted)!important}
+.academy-home #framework-resources .hub-meta{border-left-color:#b0c8aa!important}
+.academy-home #framework-resources .nist-resource-grid{
+ display:grid!important;
+ grid-template-columns:repeat(3,minmax(0,1fr))!important;
+ align-items:stretch;
+ width:100%;min-width:0;max-width:100%;
+ gap:12px!important;background:transparent!important;
+ padding:0!important;border:0!important;
+}
+.academy-home #framework-resources .nist-resource-grid>a,
+.academy-home #framework-resources .nist-resource-grid>a:nth-child(n){
+ box-sizing:border-box;
+ display:flex!important;flex-direction:column;align-items:flex-start;
+ min-width:0!important;max-width:100%!important;
+ width:100%!important;height:100%!important;
+ padding:clamp(16px,2.2vw,26px)!important;
+ margin:0!important;
+ background:var(--rc-card)!important;
+ color:var(--rc-card-ink)!important;
+ border:1px solid var(--rc-card-border)!important;
+ border-radius:6px!important;
+ text-decoration:none!important;
+ overflow-wrap:anywhere;
+ word-break:keep-all;
+}
+.academy-home #framework-resources .nist-resource-grid>a:nth-child(even){
+ background:var(--rc-card-alt)!important;
+}
+.academy-home #framework-resources .nist-resource-grid>a:hover,
+.academy-home #framework-resources .nist-resource-grid>a:focus-visible,
+.academy-home #framework-resources .nist-resource-grid>a:nth-child(n):hover,
+.academy-home #framework-resources .nist-resource-grid>a:nth-child(n):focus-visible{
+ background:var(--rc-card-hover)!important;
+ transform:none!important;
+ border-color:var(--rc-card-link)!important;
+}
+.academy-home #framework-resources .nist-resource-grid h3,
+.academy-home #framework-resources .nist-resource-grid>a h3{
+ color:var(--rc-card-ink)!important;
+ font-size:clamp(17px,1.65vw,20px)!important;
+ line-height:1.45!important;
+ overflow-wrap:break-word;
+}
+.academy-home #framework-resources .nist-resource-grid p,
+.academy-home #framework-resources .nist-resource-grid>a p{
+ color:var(--rc-card-sub)!important;
+ font-size:clamp(13px,1vw,14px)!important;
+ line-height:1.75!important;
+ flex:1 0 auto;
+ overflow-wrap:break-word;
+}
+.academy-home #framework-resources .nist-resource-grid .hub-go,
+.academy-home #framework-resources .nist-resource-grid>a .hub-go{
+ color:var(--rc-card-link)!important;
+ font-size:13px!important;
+ font-weight:800!important;
+ text-decoration:underline;
+ text-underline-offset:4px;
+}
+.academy-home #framework-resources .hub-footnote{
+ color:var(--rc-panel-muted)!important;
+}
+.academy-home #framework-resources .nist-resource-grid .hub-icon{
+ color:var(--rc-card-ink)!important;
+ flex:0 0 auto;
+}
+/* Keep consistent contrast across theme controls and functional subpages. */
+html[data-theme="light"] :where(.sp-wrap,.pc-wrap,.pchk,.portal,.g-page-h),
+html[data-theme="dark"] :where(.sp-wrap,.pc-wrap,.pchk,.portal,.g-page-h){
+ color:var(--ink);
+}
+html[data-theme="dark"] :where(.sp-wrap,.pc-wrap,.pchk,.portal,.panel,.card,.mini,.table-wrap,.teach,.dt,.faq-accordion){
+ color:var(--ink);
+ border-color:var(--line);
+}
+html[data-theme="dark"] :where(.sp-wrap,.pc-wrap,.pchk,.portal,.panel,.card,.mini,.table-wrap,.teach,.dt,.faq-accordion) :where(h1,h2,h3,h4,h5,h6,p,li,label,dt,dd){
+ color:inherit;
+}
+html[data-theme="light"] :where(input,textarea,select),
+html[data-theme="dark"] :where(input,textarea,select){
+ background:var(--theme-input-bg);
+ color:var(--theme-input-ink);
+ border-color:var(--line);
+}
+html[data-theme="dark"] :where(input,textarea,select)::placeholder{
+ color:#bbcdbd;
+ opacity:1;
+}
+html[data-theme="dark"] :where(.friendly-answer,.friendly-lead,.friendly-points,.dt-in,.notice,.help,.asof-bar){
+ color:var(--ink);
+}
+html[data-theme="dark"] :where(.friendly-src,.law-cite,.chip-q,.t5-b){
+ color:var(--ink)!important;
+ background:var(--surface-2)!important;
+ border-color:var(--line)!important;
+}
+html[data-theme="dark"] body:has(#chat) #chat .msg.bot .bubble,
+html[data-theme="dark"] body:has(#chat) #chat .dt-in{
+ color:var(--ink)!important;
+}
+html[data-theme="dark"] body:has(#chat) #chat .friendly-lead,
+html[data-theme="dark"] body:has(#chat) #chat .friendly-answer,
+html[data-theme="dark"] body:has(#chat) #chat .friendly-points,
+html[data-theme="dark"] body:has(#chat) #chat .friendly-src{
+ color:#eef5ec!important;
+}
+html[data-theme="dark"] body:has(#chat) #chat .msg.me .bubble{
+ background:#40583f!important;color:#fff!important;
+}
+/* High-contrast labels for all three theme preferences. */
+.g-tt button{color:#f2f5ef!important;opacity:1!important}
+.g-tt button[aria-pressed="true"]{
+ background:#dfe8d8!important;color:#162117!important;
+ border-radius:2px!important;font-weight:900!important;
+}
+.g-tt button:hover:not([aria-pressed="true"]){
+ background:#465548!important;color:#fff!important;
+}
+@media(max-width:960px){
+ .academy-home #framework-resources .nist-resource-grid{
+  grid-template-columns:repeat(2,minmax(0,1fr))!important;
+ }
+ .academy-home #framework-resources .nist-resource-head>div{
+  flex:1 1 100%;max-width:100%;
+ }
+}
+@media(max-width:640px){
+ .academy-home #framework-resources .nist-resource-grid{
+  grid-template-columns:minmax(0,1fr)!important;
+  gap:10px!important;
+ }
+ .academy-home #framework-resources .nist-resource-grid>a,
+ .academy-home #framework-resources .nist-resource-grid>a:nth-child(n){
+  min-height:0!important;height:auto!important;padding:20px!important;
+ }
+ .academy-home #framework-resources .nist-resource-head h2{
+  font-size:clamp(25px,6vw,33px)!important;
+ }
+}
