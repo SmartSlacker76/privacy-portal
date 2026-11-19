@@ -43,7 +43,7 @@
   var RE_REVIEW = /검토|적법|위법|가능한가|가능한지|되나요|돼요\?|해도\s*(되|돼)|문제\s*(없|있)|괜찮|합법|위반\s*(인|되)|받아도|수집해도|제공해도/;
   function mode(q) {
     if (RE_QUIZ.test(q)) return 3;
-    if (RE_REVIEW.test(q) && q.replace(/\s/g, '').length > 12) return 2;
+    if (RE_REVIEW.test(q) && q.replace(/\s/g, '').length >= 5) return 2;
     return 1;
   }
 
@@ -372,9 +372,9 @@
   function topicAnswer(e, t5){
     if (t5.id === 'core') {
       var tb = coreTable(e, {});
-      return openLine('한눈에 보는 핵심')
-        + '<p class="lead">' + (e.intro || ((e.sum2 || [])[0] || '')) + '</p>'
-        + (tb || oBullets((e.sum2 || []).map(plain)));
+      return '<p class="friendly-answer">네, <b>'+esc(e.title)+'</b>에서 가장 중요한 내용을 먼저 알려드릴게요. 😊</p>'+
+        '<p class="friendly-answer">' + esc(plain(e.intro || ((e.sum2 || [])[0] || '관련 내용을 확인해 주세요.'))) + '</p>'+
+        '<div class="cctv-disclosure-more">'+faqAccordion('한눈에 보는 핵심 기준', tb || oBullets((e.sum2 || []).map(plain)),1)+'</div>';
     }
     var body = sectionHtml(e, t5.secs);
     if (!body) return openLine(t5.label.replace(/^[①-⑤]\s*/, ''))
@@ -492,22 +492,25 @@
   // 근거가 없는 추측을 방지: 질문의 행위·대상에 따라 의도를 먼저 분류합니다.
   // CCTV 관련 경찰 요청과 대리인 요청은 일반 키워드 답변보다 먼저 처리합니다.
   function proxyCctvAnswer(){
-    return '<p class="friendly-lead">네, <b>보험회사나 가족 같은 대리인이 CCTV 영상을 신청하면 어떻게 되는지</b> 궁금하셨군요! 필요한 서류와 절차를 쉽게 설명해 드릴게요. 😊</p>'+
-      '<p class="friendly-answer"><b>정당한 위임을 받은 대리인은 본인을 대신해 CCTV 영상의 열람을 신청할 수 있어요.</b> 하지만 개인정보 열람청구와 정보공개청구는 적용 법령과 대리인 확인 서류가 다르답니다.</p>'+
-      '<p class="friendly-answer"><b>1. 본인이 위임한 대리인</b></p>'+
-      '<p class="friendly-answer">교통사고 당사자가 가족·보험사 직원·손해사정사에게 본인 영상의 열람을 위임했다면 다음 사항을 확인해 주세요.</p>'+
-      '<ul class="friendly-points">'+
-        '<li><b>개인영상정보 열람·존재확인 청구서</b>와 신청 범위</li>'+
-        '<li><b>위임장</b>과 본인의 서명·날인 등 실제 위임 의사 및 대리 권한</li>'+
-        '<li><b>위임인·대리인 신분 확인 자료</b>(필요한 범위에서 확인, 과도한 사본 수집 방지)</li>'+
-        '<li><b>보험회사 직원이라면</b> 사원증·재직증명서 등 소속 확인 자료</li>'+
-        '<li><b>제3자가 함께 촬영된 경우</b> 모자이크·부분 열람 등 다른 사람의 권리 보호조치</li>'+
-      '</ul>'+
-      '<p class="friendly-answer"><b>2. 정보공개청구의 대리인</b></p>'+
-      '<p class="friendly-answer">공공기관의 정보공개청구를 대신한다면 <b>정보공개법령상 위임장과 신분 확인 요건</b>을 적용해야 해요. 개인정보 열람용 서식과 혼동하지 않도록 확인해 주세요.</p>'+
-      '<p class="friendly-answer"><b>3. 보험회사가 위임장 없이 자체 조사 목적으로 요청한다면?</b></p>'+
-      '<p class="friendly-answer"><b>보험회사 공문만으로 영상 제공이 자동 허용되지는 않아요.</b> 정당한 위임이나 동의, 별도의 법적 근거 또는 정보공개법상 공개 가능성을 사안별로 검토해요. 경찰의 요청도 공문만 받았다고 무조건 제공하는 것은 아니랍니다.</p>'+
-      '<p class="friendly-answer">담당자분께서는 <b>대리인 자격 → 요청 범위 → 제3자 보호 → 제공 기록</b> 순서로 확인해 주세요! 😊</p>'+
+    return '<p class="friendly-lead">네, <b>보험회사나 가족 등 대리인이 CCTV 영상을 신청하는 경우</b>가 궁금하셨군요! 필요한 서류와 처리 기준을 쉽게 설명해 드릴게요. 😊</p>'+
+      '<p class="friendly-answer"><b>정당한 위임을 받은 대리인은 본인을 대신해 CCTV 영상 열람을 신청할 수 있어요.</b> 다만 개인정보 열람청구와 정보공개청구는 적용 법령과 위임장 서식이 다르답니다.</p>'+
+      '<p class="friendly-answer">아래 항목을 누르면 제출 서류와 담당자 확인사항을 각각 볼 수 있어요! 👇</p>'+
+      '<div class="cctv-disclosure-more">'+
+      faqAccordion('본인이 위임한 대리인의 필수 서류',
+        '<p class="friendly-answer">교통사고 당사자가 가족·보험회사 직원·손해사정사에게 <b>본인 영상의 열람</b>을 위임한 경우예요.</p>'+
+        '<ul class="friendly-points">'+
+          '<li><b>개인영상정보 열람·존재확인 청구서</b>에 요청 대상과 대리인 정보를 적어요.</li>'+
+          '<li><b>위임장</b>으로 본인의 서명 또는 날인, 위임 권한·범위를 확인해요.</li>'+
+          '<li><b>대리인 신분증 및 필요한 본인 확인 자료</b>로 정당한 위임인지 확인해요. 주민등록번호 등 불필요한 정보는 가려서 관리해 주세요.</li>'+
+          '<li>보험회사 직원이라면 <b>사원증·재직증명서</b> 등 소속 확인 자료를 추가로 확인할 수 있어요.</li>'+
+          '<li>제3자가 함께 촬영되었다면 <b>모자이크·부분 열람 등</b> 권리 보호조치를 검토해요.</li>'+
+        '</ul>',1)+
+      faqAccordion('정보공개청구를 대신하는 경우',
+        '<p class="friendly-answer">공공기관의 정보공개청구를 대리한다면 <b>정보공개법령에 따른 위임장과 신분 확인 요건</b>을 적용해요. 개인정보 열람 청구와 정보공개청구는 별개의 절차이므로 서식을 혼동하지 마세요.</p>',2)+
+      faqAccordion('위임장 없는 보험회사 요청과 담당자 점검',
+        '<p class="friendly-answer"><b>보험회사의 공문만으로 CCTV 영상 제공 권한이 자동으로 생기지 않아요.</b> 정당한 위임이나 동의, 다른 법적 근거, 정보공개법상 공개 가능성을 사안별로 검토해요.</p>'+
+        '<p class="friendly-answer">담당자께서는 <b>대리권 확인 → 영상 범위 확인 → 제3자 보호조치 → 제공 근거·내역 기록</b> 순서로 처리해 주세요. 경찰 요청 역시 공식 문서만으로 무조건 제공할 수 있다는 뜻은 아니에요.</p>',3)+
+      '</div>'+
       '<p class="friendly-src">📌 <b>참고 법령:</b> 「개인정보 보호법」 제35조·제38조 및 같은 법 시행령 제45조, 「공공기관의 정보공개에 관한 법률 시행령」 제15조</p>';
   }
   function policeCctvAnswer(){
