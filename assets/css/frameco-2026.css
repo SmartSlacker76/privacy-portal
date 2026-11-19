@@ -430,3 +430,98 @@ body:not(.academy-home) .g-page-h{max-width:1200px!important;margin-inline:auto}
  body:has(#chat) .sp-wrap{width:calc(100% - 20px)!important}
 }
 @media(prefers-reduced-motion:reduce){html{scroll-behavior:auto!important}.academy-home *{transition:none!important;animation:none!important}}
+
+/* FIX 2026-11-19: self-contained resource-hub layout.
+   Prior framework.css defined display:grid and display:flex; that file was removed,
+   leaving grid-template-columns ineffective. */
+.academy-home #framework-resources{
+  display:block!important;position:relative;
+  width:100%!important;max-width:1300px!important;
+  margin:24px auto 70px!important;box-sizing:border-box;
+  padding:clamp(22px,4vw,54px)!important;overflow:visible;
+}
+.academy-home #framework-resources .nist-resource-head{
+  display:flex!important;flex-direction:row;align-items:flex-end;
+  justify-content:space-between;flex-wrap:wrap;gap:18px 32px;
+  min-width:0;margin:0 0 28px;
+}
+.academy-home #framework-resources .nist-resource-head>div{
+  flex:1 1 520px;min-width:0;max-width:850px;
+}
+.academy-home #framework-resources .nist-resource-head .kicker{
+  display:block;font-size:11px;font-weight:800;letter-spacing:.12em;
+  line-height:1.5;margin:0 0 12px;
+}
+.academy-home #framework-resources .nist-resource-head h2{
+  overflow-wrap:break-word;word-break:keep-all;
+  font-size:clamp(26px,3.8vw,48px)!important;
+  line-height:1.25;letter-spacing:-.045em;margin:0 0 12px;
+}
+.academy-home #framework-resources .nist-resource-head p{
+  font-size:14px;line-height:1.8;margin:0;max-width:72ch;
+}
+.academy-home #framework-resources .hub-meta{
+  flex:0 1 260px;max-width:100%;font-size:12px;line-height:1.6;
+  padding:2px 0 2px 12px;border-left:2px solid #9fab83;
+  overflow-wrap:anywhere;white-space:normal;
+}
+.academy-home #framework-resources .nist-resource-grid{
+  display:grid!important;
+  grid-template-columns:repeat(3,minmax(0,1fr))!important;
+  grid-auto-rows:minmax(0,auto);align-items:stretch;
+  gap:1px!important;width:100%;min-width:0;max-width:100%;
+  margin:0;padding:1px;box-sizing:border-box;
+  background:#50564a;border:0!important;
+}
+.academy-home #framework-resources .nist-resource-grid>a{
+  box-sizing:border-box;display:flex!important;flex-direction:column;
+  align-items:flex-start;justify-content:flex-start;
+  width:auto!important;min-width:0!important;max-width:100%!important;
+  height:auto!important;min-height:215px!important;
+  padding:24px!important;margin:0!important;
+  text-decoration:none!important;overflow-wrap:anywhere;
+  color:#282b26!important;box-shadow:none!important;
+}
+.academy-home #framework-resources .nist-resource-grid .hub-icon{
+  display:block;margin:0 0 18px;font-size:24px;line-height:1.2;
+}
+.academy-home #framework-resources .nist-resource-grid h3{
+  margin:0 0 9px;font-size:19px;font-weight:800;
+  line-height:1.4;letter-spacing:-.02em;color:#282b26!important;
+}
+.academy-home #framework-resources .nist-resource-grid p{
+  flex:1 1 auto;margin:0;font-size:13px;line-height:1.75;
+  color:#555f56!important;word-break:keep-all;
+}
+.academy-home #framework-resources .nist-resource-grid .hub-go{
+  display:block;margin-top:18px;font-weight:800;font-size:12px;
+  line-height:1.5;color:#42583f!important;
+}
+.academy-home #framework-resources .nist-resource-grid>a:hover,
+.academy-home #framework-resources .nist-resource-grid>a:focus-visible{
+  background:#dce8d7!important;transform:none;outline-offset:-3px;
+}
+.academy-home #framework-resources .hub-footnote{
+  font-size:12px;line-height:1.7;margin:22px 0 0;color:#d2d7c8!important;
+}
+@media(max-width:900px){
+  .academy-home #framework-resources .nist-resource-grid{
+    grid-template-columns:repeat(2,minmax(0,1fr))!important;
+  }
+  .academy-home #framework-resources .nist-resource-head{align-items:flex-start}
+  .academy-home #framework-resources .hub-meta{flex-basis:100%}
+}
+@media(max-width:600px){
+  .academy-home #framework-resources{
+    padding:22px 16px!important;margin:16px auto 45px!important;
+  }
+  .academy-home #framework-resources .nist-resource-grid{
+    grid-template-columns:minmax(0,1fr)!important;
+  }
+  .academy-home #framework-resources .nist-resource-grid>a{
+    min-height:0!important;padding:22px!important;
+  }
+  .academy-home #framework-resources .nist-resource-head h2{
+    font-size:clamp(25px,7vw,36px)!important;
+  }
+}
