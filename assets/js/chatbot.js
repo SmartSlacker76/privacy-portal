@@ -447,10 +447,12 @@
     var n = qaNorm(q).replace(/(이란|란|은|는|이|가|뭔가요|무엇인가요|무엇인가|뭐야|뭐예요|뜻|정의|알려줘|알려주세요|설명해줘|설명해주세요|인가요|입니까)+$/g,'');
     if (n !== '개인정보') return false;
     var e = KB.filter(function(x){ return x.id === '용어정의'; })[0];
-    var h = '<p class="friendly-lead">개인정보란 무엇인가요?</p>'
-      + '<p class="friendly-answer"><b>살아 있는 개인에 관한 정보</b>로서 ① 성명·주민등록번호·영상 등으로 개인을 알아볼 수 있는 정보, ② 다른 정보와 쉽게 결합하여 개인을 알아볼 수 있는 정보, ③ 법에서 정한 <b>가명정보</b>를 포함합니다.</p>'
-      + '<p class="friendly-answer">이름, 연락처, 개인을 알아볼 수 있는 CCTV 영상 등이 예시입니다. ID나 기록도 다른 정보와 쉽게 결합하여 개인을 알아볼 수 있다면 개인정보에 해당할 수 있습니다.</p>'
-      + '<p class="friendly-src">법적 근거: 「개인정보 보호법」 제2조제1호</p>'
+    var h = '<p class="friendly-lead">네, 개인정보가 무엇인지 궁금하셨군요! 쉬운 예시로 차근차근 설명해 드릴게요. 😊</p>'
+      + '<p class="friendly-answer">간단히 말해 <b>살아 있는 사람을 알아볼 수 있게 하는 정보</b>가 개인정보예요. 이름처럼 바로 알아볼 수 있는 정보뿐 아니라 다른 정보와 쉽게 결합해서 특정인을 알아볼 수 있는 정보도 포함돼요.</p>'
+      + '<p class="friendly-answer">대표적인 사례를 살펴볼까요?</p>'
+      + '<ul class="friendly-points"><li><b>직접 알아볼 수 있는 정보:</b> 이름·주민등록번호·특정인을 알아볼 수 있는 사진이나 영상 등이에요.</li><li><b>다른 정보와 결합하면 알아볼 수 있는 정보:</b> ID·기록 등도 다른 자료와 쉽게 결합해 개인을 식별할 수 있다면 개인정보에 해당할 수 있어요.</li><li><b>가명정보:</b> 법에서 정한 방법으로 가명처리된 정보도 개인정보의 범위에 포함돼요.</li></ul>'
+      + '<p class="friendly-answer">실무에서는 이름을 지웠다고 안심하기보다, <b>다른 자료와 결합해서 누구인지 알아볼 수 있는지</b>도 확인해 주세요!</p>'
+      + '<p class="friendly-src">📌 <b>참고한 법령:</b> 「개인정보 보호법」 제2조제1호</p>'
       + '<div class="a-chk"><a href="https://www.law.go.kr/법령/개인정보보호법/제2조" target="_blank" rel="noopener noreferrer">법 제2조 원문 확인</a></div>';
     if (e) {lastTopic=e;h+=topicButtons(e.id);}
     add('bot',h,null,'개인정보의 정의');return true;
