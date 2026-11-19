@@ -739,3 +739,49 @@ html[data-theme="dark"] body:has(#chat) #chat .msg.me .bubble{
   font-size:clamp(25px,6vw,33px)!important;
  }
 }
+
+
+/* Header branding / navigation 2026-11-19:
+   a single prominent Korean brand line and an explicit home action. */
+.g-head .in{display:flex;align-items:center;justify-content:space-between;gap:clamp(8px,1.3vw,20px);max-width:1460px}
+.g-head .g-brand{min-width:0;max-width:100%;flex:0 1 auto;gap:12px;text-decoration:none}
+.g-head .g-brand .tx{display:flex;flex-direction:column;min-width:0;gap:4px}
+.g-head .g-brand .tx>.g-brand-ko,
+.g-head .g-brand .tx>b.g-brand-ko{
+ display:block!important;
+ font-family:"Pretendard Variable",Pretendard,"Apple SD Gothic Neo","Malgun Gothic",sans-serif!important;
+ font-size:clamp(17px,1.72vw,25px)!important;
+ font-weight:850!important;
+ line-height:1.32!important;
+ letter-spacing:-.045em!important;
+ white-space:nowrap!important;
+ color:#f7f8f3!important;
+ margin:0!important;
+}
+.g-head .g-brand .tx>span{margin:0;font-size:10px!important;letter-spacing:.07em!important;color:#cbd2c9!important}
+.g-head .g-home-direct{
+ display:inline-flex!important;align-items:center;justify-content:center;gap:6px;
+ flex:0 0 auto;min-height:40px;padding:9px 15px;
+ border:1px solid #788575;border-radius:3px;color:#fff!important;
+ background:#3a483b;text-decoration:none;font-size:12px;font-weight:850;
+ white-space:nowrap;transition:background .15s ease;
+}
+.g-head .g-home-direct:hover,.g-head .g-home-direct:focus-visible{background:#566f58;color:#fff!important}
+@media(max-width:1240px){
+ .g-head .g-brand .tx>.g-brand-ko{font-size:clamp(16px,2.2vw,22px)!important}
+ .g-head .g-home-direct{margin-left:auto}
+}
+@media(max-width:760px){
+ .g-head .in{gap:8px;padding-inline:12px}
+ .g-head .g-brand{flex:0 1 auto;gap:7px}
+ .g-head .g-brand .tx>.g-brand-ko{font-size:clamp(13px,3.25vw,20px)!important;letter-spacing:-.055em!important}
+ .g-head .g-brand .tx>span{font-size:8px!important;letter-spacing:0!important}
+ .g-head .g-mascot{display:none}
+ .g-head .g-home-direct{min-height:34px;padding:7px 9px;font-size:11px}
+ .g-head .g-home-direct span{display:none}
+}
+@media(max-width:390px){
+ .g-head .g-brand .tx>.g-brand-ko{font-size:12.5px!important}
+ .g-head .g-brand .tx>span{display:none}
+ .g-head .g-home-direct{padding:6px 8px}
+}
