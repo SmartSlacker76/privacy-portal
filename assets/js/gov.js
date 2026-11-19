@@ -17,11 +17,12 @@
     { h:'grow.html',        t:'나의 성장',      g:'보안' }
   ];
   /* 분야별 드롭다운: 큰 범주를 먼저 보여주고 관련 자료를 단계적으로 탐색합니다. */
+  /* Each destination appears in exactly one group; the home page remains a separate link. */
   var NAV_GROUPS = [
-    {title:'개인정보 보호',items:['learn.html','pia-guide.html','policy.html','consent.html']},
+    {title:'개인정보·영향평가',items:['learn.html','pia-guide.html']},
+    {title:'점검·문서',items:['policy.html','consent.html','law-search.html']},
     {title:'사이버보안',items:['cyber-guide.html','n2sf-guide.html','port-lookup.html']},
-    {title:'교육·실습',items:['ctf.html','security-ox.html','grow.html']},
-    {title:'자료·도구',items:['law-search.html','chatbot.html']}
+    {title:'학습·도움',items:['ctf.html','security-ox.html','grow.html','chatbot.html']}
   ];
   var here = (location.pathname.split('/').pop() || 'index.html').toLowerCase() || 'index.html';
   var cur = NAV.filter(function (n) { return n.h === here; })[0];
@@ -29,7 +30,7 @@
   if (!document.querySelector('link[data-frameco-design]')) {
     var siteStyle=document.createElement('link');
     siteStyle.rel='stylesheet';
-    siteStyle.href='assets/css/frameco-2026.css?v=20261119-frameco-2';
+    siteStyle.href='assets/css/frameco-2026.css?v=20261119-gavril-4';
     siteStyle.setAttribute('data-frameco-design','2026');
     document.head.appendChild(siteStyle);
   }
