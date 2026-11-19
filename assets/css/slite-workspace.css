@@ -1,0 +1,80 @@
+/* HONDI SLITE WORKSPACE REFINEMENT · Nov 2026.
+ * Original styling, based on Slite's archived landing-page themes:
+ * pastel shades, typographic clarity, document-led UI, restrained section cards.
+ * Applied after the warm editorial layer. No copyrighted images or marks copied.
+ */
+:root,html[data-theme="light"]{
+ --slite-ink:#23252f;--slite-text:#4a4a53;--slite-paper:#fdfcf8;
+ --slite-lavender:#e8e5f4;--slite-cream:#f9eddf;--slite-sage:#e4ebdf;
+ --slite-peach:#f4d8ca;--slite-line:#dfdcd4;--slite-blue:#385cbd;
+}
+html[data-theme="dark"]{
+ --slite-ink:#f5f0e8;--slite-text:#c9c4bd;--slite-paper:#302a26;
+ --slite-lavender:#393547;--slite-cream:#43352d;--slite-sage:#333d35;
+ --slite-peach:#47332e;--slite-line:#554d44;--slite-blue:#a9bbf7;
+}
+body{background:var(--gd-cream)!important}
+.g-head .in{max-width:1320px}
+.academy-home .academy>.hero{background:#a55339}
+.academy-home .academy>.hero .ox-feature{border:1px solid #e4d5c0}
+.academy-home .gd-editorial-intro{max-width:1170px;margin:auto}
+.academy-home .gd-editorial-steps article:nth-child(1){background:var(--slite-lavender)}
+.academy-home .gd-editorial-steps article:nth-child(2){background:var(--slite-cream)}
+.academy-home .gd-editorial-steps article:nth-child(3){background:var(--slite-sage)}
+.academy-home .gd-editorial-steps article{padding:26px 25px 30px!important;border:1px solid var(--slite-line)!important;border-radius:9px;min-height:190px}
+.academy-home .gd-editorial-steps article h3{color:var(--slite-ink);margin:0 0 12px}
+.academy-home .gd-editorial-steps article p{color:var(--slite-text)}
+.academy-home .gd-editorial-steps article .gd-no{font:800 13px/1.3 "Pretendard Variable",Pretendard,sans-serif;color:var(--slite-text);letter-spacing:.1em;margin-bottom:28px}
+.academy-home .nist-resource-hub{background:var(--slite-lavender);padding-block:72px}
+.academy-home .nist-resource-grid{grid-template-columns:repeat(3,minmax(0,1fr));gap:12px}
+.academy-home .nist-resource-grid>a{border:1px solid var(--slite-line)!important;border-radius:8px!important;min-height:215px;background:var(--slite-paper);padding:25px}
+.academy-home .nist-resource-grid>a:nth-child(3n + 2){background:var(--slite-cream)}
+.academy-home .nist-resource-grid>a:nth-child(3n + 3){background:var(--slite-sage)}
+.academy-home .nist-resource-grid>a:hover{transform:translateY(-3px);border-color:#b3a7c4!important;box-shadow:0 14px 30px rgba(51,45,65,.09)!important}
+.academy-home .nist-resource-grid h3{font-size:19px;letter-spacing:-.03em;color:var(--slite-ink)}
+.academy-home .nist-resource-grid p{color:var(--slite-text)}
+.academy-home .nist-resource-head h2{max-width:780px}
+.academy-home .assistant-section{
+ position:relative;display:grid;grid-template-columns:minmax(0,.9fr) minmax(0,1.1fr);
+ gap:40px;padding:48px 50px!important;margin:42px 0 75px!important;
+ background:var(--slite-paper);border:1px solid var(--slite-line)!important;border-radius:14px;
+ box-shadow:0 14px 50px rgba(44,42,52,.035);
+}
+.academy-home .assistant-heading{min-width:0}
+.academy-home .assistant-heading h2{font-size:clamp(27px,2.8vw,40px);letter-spacing:-.04em;line-height:1.38}
+.academy-home .assistant-heading p{color:var(--slite-text);font-size:14px;line-height:1.85}
+.academy-home .assistant-section .question-list{background:var(--slite-lavender);border:1px solid var(--slite-line);border-radius:12px;padding:12px}
+.academy-home .assistant-section .question-list a{display:flex;gap:12px;align-items:center;padding:14px 13px!important;margin:0!important;border-bottom:1px solid rgba(70,67,78,.12)!important;color:var(--slite-ink);font-size:13px;font-weight:650;line-height:1.5;min-height:54px}
+.academy-home .assistant-section .question-list a:last-child{border-bottom:0!important}
+.academy-home .assistant-section .question-list a:hover{background:rgba(255,255,255,.56);border-radius:6px}
+.academy-home .assistant-section .question-list a span{color:var(--slite-text);font-size:12px}
+.academy-home .assistant-section .text-link{color:var(--gd-rust)}
+.academy-home .learning-section{padding-top:45px}
+.academy-home .courses{gap:16px}
+.academy-home .course{border:1px solid var(--slite-line)!important;border-radius:10px!important;box-shadow:none}
+.academy-home .course .course-art{border-radius:9px 9px 0 0}
+.academy-home .course .course-art.mint{background:var(--slite-sage)}
+.academy-home .course .course-art.peach{background:var(--slite-peach)}
+.academy-home .course .course-art.purple{background:var(--slite-lavender)}
+.academy-home .course .course-art.blue{background:var(--slite-lavender)}
+.academy-home .course .course-body h3{line-height:1.35}
+.academy-home .challenge-banner{border-radius:11px}
+.academy-home .section-heading h2{letter-spacing:-.045em}
+/* A clearer workspace-like surface for tools, without changing their controls or behavior. */
+body:not(.academy-home) .g-page-h{max-width:1060px}
+body:not(.academy-home) :where(.panel,.card,.table-wrap,.mini){border-radius:9px!important}
+body:not(.academy-home) :where(input,textarea,select){border-radius:6px}
+body:not(.academy-home) :where(.cctv-disclosure-more .dt,.faq-accordion){border-radius:7px!important}
+body:not(.academy-home) :where(.chat .bubble,.msg .bubble){line-height:1.7}
+@media(max-width:1000px){
+ .academy-home .assistant-section{grid-template-columns:1fr;gap:22px;padding:32px!important}
+ .academy-home .nist-resource-grid{grid-template-columns:repeat(2,minmax(0,1fr))}
+}
+@media(max-width:700px){
+ .academy-home .gd-editorial-steps article{min-height:0}
+ .academy-home .nist-resource-grid{grid-template-columns:1fr}
+ .academy-home .nist-resource-hub{padding:42px 16px}
+ .academy-home .assistant-section{padding:25px 18px!important;margin:25px 0 46px!important}
+ .academy-home .assistant-section .question-list{padding:6px}
+}
+@media print{.academy-home .gd-editorial-steps article,.academy-home .assistant-section{background:#fff!important;color:#000!important;box-shadow:none!important}}
