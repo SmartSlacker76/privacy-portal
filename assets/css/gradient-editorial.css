@@ -1,0 +1,142 @@
+/* Gradient editorial adaptation for HONDI, 2026-11-19.
+   Original styles inspired by Land-book's Gradient: AI for Investors editorial page.
+   NIST-like organized navigation remains; no third-party artwork, logos or content copied. */
+:root,html[data-theme="light"]{
+ --gd-rust:#a74627;--gd-rust-dark:#81361f;--gd-sienna:#b55b36;--gd-cream:#f7eed7;
+ --gd-ivory:#fffaf0;--gd-olive:#e1e4cc;--gd-olive-deep:#a7b28d;--gd-brown:#34271f;
+ --gd-sand:#e4c18a;--gd-line:#dbcbb2;--gd-sub:#625349;
+ --nist-navy:#34271f;--nist-navy-2:#543625;--nist-blue:#9b4227;--nist-blue-2:#ab5938;
+ --nist-cyan:#9b4227;--nist-paper:#fffaf0;--nist-bg:#f7eed7;--nist-tint:#eee5cf;
+ --nist-border:#dbcbb2;--nist-ink:#34271f;--nist-muted:#625349;
+ --bg:#f7eed7;--surface:#fffaf0;--surface-2:#f3e9d4;--ink:#34271f;--muted:#625349;
+ --line:#dbcbb2;--cipher:#963f27;--cipher-soft:#f2e0cc;--pri-solid:#81361f;
+ --g-pri:#9b4227;--g-pri-d:#6f301c;--g-pri-l:#f2e0cc;--g-ink:#34271f;
+ --g-ink-2:#49392e;--g-mut:#625349;--g-line:#dbcbb2;--g-line-2:#e8dcc8;
+ --g-bg:#fffaf0;--g-bg-2:#f7eed7;--g-bg-3:#eee5cf;--g-strip:#2b211c;--g-head:#81361f;
+ --ac-surf:#fffaf0;--ac-surf2:#f7eed7;--ac-ink:#34271f;--ac-ink2:#49392e;
+ --ac-mut:#625349;--ac-acc:#9b4227;--ac-accbg:#81361f;--ac-line:#dbcbb2;
+ --v21-ink:#34271f;--v21-sub:#625349;--v21-line:#dbcbb2;--v21-blue:#9b4227;--v21-navy:#81361f;--v21-bg:#f7eed7;
+ --cs-bg:#f7eed7;--cs-green:#9b4227;--cs-ink:#34271f;--cs-muted:#625349;--cs-line:#dbcbb2;
+ --pa-ink:#34271f;--pa-muted:#625349;--pa-green:#9b4227;--pa-paper:#f7eed7;--pa-line:#dbcbb2;
+ --green:#81361f;--dark:#34271f;--h-pri:#81361f;--h-pri-hover:#a74627;--h-ink:#34271f;--h-bg:#f7eed7;--h-paper:#fffaf0;--h-edge:#dbcbb2;
+}
+html[data-theme="dark"]{
+ --gd-rust:#b76542;--gd-rust-dark:#833920;--gd-sienna:#e49b71;--gd-cream:#241e1a;
+ --gd-ivory:#322923;--gd-olive:#353a2e;--gd-olive-deep:#707e60;--gd-brown:#f6e8d4;
+ --gd-sand:#d5af7b;--gd-line:#584a40;--gd-sub:#c8b7a4;
+ --nist-navy:#241e1a;--nist-navy-2:#4b3125;--nist-blue:#e3a17d;--nist-blue-2:#e3a17d;--nist-cyan:#e3a17d;
+ --nist-paper:#322923;--nist-bg:#241e1a;--nist-tint:#45382d;--nist-border:#584a40;
+ --nist-ink:#f6e8d4;--nist-muted:#c8b7a4;
+ --bg:#241e1a;--surface:#322923;--surface-2:#45382d;--ink:#f6e8d4;--muted:#c8b7a4;--line:#584a40;--cipher:#e3a17d;--cipher-soft:#45382d;
+ --g-pri:#e3a17d;--g-pri-d:#f1c9af;--g-pri-l:#45382d;--g-ink:#f6e8d4;--g-ink-2:#eadac9;--g-mut:#c8b7a4;--g-line:#584a40;--g-line-2:#584a40;
+ --g-bg:#322923;--g-bg-2:#241e1a;--g-bg-3:#45382d;--g-strip:#1a1411;--g-head:#512c20;
+ --ac-surf:#322923;--ac-surf2:#45382d;--ac-ink:#f6e8d4;--ac-ink2:#eadac9;--ac-mut:#c8b7a4;--ac-acc:#e3a17d;--ac-line:#584a40;
+ --v21-ink:#f6e8d4;--v21-sub:#c8b7a4;--v21-line:#584a40;--v21-blue:#e3a17d;--v21-bg:#241e1a;
+}
+body{background:var(--gd-cream)!important;color:var(--gd-brown)!important}
+.g-strip{background:#2b211c!important}
+.g-head{background:#81361f!important;border-bottom:2px solid #d7a26a!important;box-shadow:0 3px 18px rgba(44,26,16,.1)}
+.g-head .in{min-height:88px}
+.g-head .g-brand .tx>span{color:#f6dfc5!important}
+.g-gnb a:hover,.g-gnb a[aria-current="page"]{box-shadow:inset 0 -3px #f0cca0}
+.g-nav-group>summary:hover,.g-nav-group>summary:focus-visible,.g-nav-group[open]>summary,.g-nav-group[data-active="true"]>summary{box-shadow:inset 0 -3px #f0cca0}
+.g-gnb .g-menu-chat,.g-tt button[aria-pressed="true"]{background:#4f2d21!important}
+.g-gnb .g-menu-chat:hover{background:#2e231d!important}
+.g-nav-panel{border-top-color:#a74627}
+.g-gnb .g-nav-panel a span{color:var(--gd-rust)}
+.g-gnb .g-nav-panel a:hover,.g-gnb .g-nav-panel a[aria-current="page"]{color:var(--gd-rust)!important;background:var(--nist-tint)!important}
+.g-crumb{color:var(--gd-sub)}
+.g-crumb a{color:var(--gd-rust)}
+.g-foot{background:#34271f!important;border-top:5px solid #b55b36!important}
+.g-foot .note{background:#48382e!important;border-color:#715846!important}
+.g-foot .links{border-color:#725744!important}
+.g-foot .links a,.g-foot .cols p{color:#e7d8c4!important}
+.g-page-h h1{font-family:"Noto Serif KR","Nanum Myeongjo","AppleMyungjo","Batang",Georgia,serif;font-weight:800;letter-spacing:-.035em}
+:where(.btn.primary,button.primary,.h-cta .pri,.hero-actions .primary){background:#34271f!important;border-color:#34271f!important;color:#fff8e9!important}
+:where(.btn.primary,button.primary,.h-cta .pri,.hero-actions .primary):hover{background:#6d3826!important}
+:where(.card,.panel,.course,.tool,.h-cards a){border-radius:7px;background:var(--gd-ivory)}
+:where(.course,.tool,.h-cards a):hover{border-color:#a74627;box-shadow:0 12px 24px rgba(82,44,24,.10)}
+:where(.section-kicker,.eyebrow,.overline){color:var(--gd-rust)}
+.cctv-disclosure-more .dt{background:var(--gd-ivory)!important}
+.cctv-disclosure-more .dt[open]>summary{background:var(--nist-tint)!important;color:var(--gd-rust)!important}
+/* Gradient-like editorial warm hero with its own original HONDI mascot illustration */
+.academy-home .academy>.hero{
+ position:relative; isolation:isolate; margin-left:calc(50% - 50vw);margin-right:calc(50% - 50vw);
+ width:100vw;max-width:none;min-height:610px;
+ background:var(--gd-rust);border-bottom:0;
+ grid-template-columns:minmax(0,1.05fr) minmax(0,.95fr);
+ padding:75px max(24px,calc((100vw - 1320px)/2 + 24px)) 76px; gap:52px;
+ overflow:hidden;
+}
+.academy-home .academy>.hero:before{
+ content:"";position:absolute;z-index:-1;width:700px;height:700px;right:-260px;top:-410px;border:1px solid rgba(250,224,178,.22);border-radius:50%;box-shadow:0 0 0 98px rgba(250,224,178,.045),0 0 0 198px rgba(250,224,178,.035);
+}
+.academy-home .academy>.hero:after{content:"";position:absolute;z-index:-1;left:0;right:0;bottom:0;height:7px;background:linear-gradient(90deg,#deb679 0 33.3%,#e0e3c7 33.3% 66.6%,#71452e 66.6% 100%)}
+.academy-home .hero-copy{max-width:660px;position:relative;z-index:1}
+.academy-home .hero-copy .eyebrow,.academy-home .hero-copy .eyebrow span{color:#f9dfb6!important;letter-spacing:.13em;font-size:11px}
+.academy-home .hero-copy h1{
+ font-family:"Noto Serif KR","Nanum Myeongjo","AppleMyungjo","Batang",Georgia,serif!important;
+ font-size:clamp(39px,4.3vw,65px)!important;font-weight:800!important;line-height:1.32!important;
+ letter-spacing:-.05em!important;color:#fff2d7!important;text-wrap:balance;
+}
+.academy-home .hero-copy h1 em{color:#ffe3ad!important;font-style:normal}
+.academy-home .hero-copy>p{color:#fff0d9!important;font-size:16px;line-height:1.9;max-width:560px}
+.academy-home .hero-copy .hero-actions .btn.primary{background:#34271f!important;border:1px solid #34271f!important;color:#fff2d7!important;border-radius:25px!important}
+.academy-home .hero-copy .hero-actions .text-link{color:#fff4dd!important}
+.academy-home .hero-copy .hero-note,.academy-home .hero-copy .hero-note *{color:#ffe9c9!important}
+.academy-home .hero-copy .tiny-avatars b{background:rgba(255,250,239,.16)!important;color:#fff3db!important;border-color:rgba(255,250,239,.35)!important}
+.academy-home .hero-art.ox-home-art{min-height:410px}
+.academy-home .ox-feature{border:1px solid rgba(255,242,215,.75);border-radius:6px;background:linear-gradient(145deg,#f9edca,#e1d5aa);box-shadow:0 22px 52px rgba(57,27,13,.22);min-height:400px}
+.academy-home .ox-feature-copy h2{font-family:"Noto Serif KR","Nanum Myeongjo","Batang",Georgia,serif;color:#34271f!important;font-size:clamp(25px,2.8vw,39px);letter-spacing:-.045em}
+.academy-home .ox-feature-copy h2 em{color:#9e492c}
+.academy-home .ox-feature-copy p,.academy-home .ox-feature-copy .ox-feature-eyebrow{color:#5e4a35}
+.academy-home .ox-home-play{background:#34271f!important;border-radius:24px!important;color:#fff5e0!important}
+.academy-home .ox-home-play:hover{background:#6d3826!important}
+.academy-home .ox-feature-halo{background:#e9d3a6;box-shadow:0 0 0 18px rgba(235,217,173,.36)}
+/* Calm magazine rhythm: three principles, olive feature, resource cards */
+.gd-editorial-intro{padding:72px 0 76px;text-align:center}
+.gd-editorial-intro .gd-kicker{color:var(--gd-rust);font-size:12px;font-weight:850;letter-spacing:.15em}
+.gd-editorial-intro h2{font-family:"Noto Serif KR","Nanum Myeongjo","Batang",Georgia,serif;font-size:clamp(25px,3.2vw,44px);margin:15px auto 17px;font-weight:800;letter-spacing:-.045em;line-height:1.4;max-width:900px}
+.gd-editorial-intro>p{color:var(--gd-sub);font-size:15px;line-height:1.95;margin:0 auto 38px;max-width:700px}
+.gd-editorial-steps{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:25px}
+.gd-editorial-steps article{border-top:1px solid var(--gd-line);padding:24px 12px 6px;text-align:left}
+.gd-editorial-steps .gd-no{display:block;font:700 34px Georgia,serif;color:var(--gd-rust);margin-bottom:12px}
+.gd-editorial-steps h3{font-size:19px;line-height:1.5;margin:0 0 10px;color:var(--gd-brown)}
+.gd-editorial-steps p{color:var(--gd-sub);font-size:13px;line-height:1.9;margin:0}
+.academy-home .nist-resource-hub{background:var(--gd-olive);border:0;padding:70px 32px;margin:10px 0 65px}
+.nist-resource-head .kicker,.nist-resource-head .hub-meta{color:var(--gd-rust)}
+.nist-resource-head h2,.academy-home .section-heading h2,.academy-home .assistant-heading h2{
+ font-family:"Noto Serif KR","Nanum Myeongjo","AppleMyungjo","Batang",Georgia,serif;
+ font-weight:800;line-height:1.38;letter-spacing:-.045em;
+}
+.nist-resource-head h2{font-size:clamp(27px,3.1vw,44px);max-width:740px}
+.nist-resource-grid>a{background:#fff9eb;border:1px solid #d6cfb9;border-top:4px solid #a74627;min-height:225px;box-shadow:0 8px 25px rgba(63,62,40,.06)}
+.nist-resource-grid>a:nth-child(2),.nist-resource-grid>a:nth-child(5){border-top-color:#687353}
+.nist-resource-grid>a:nth-child(3),.nist-resource-grid>a:nth-child(6){border-top-color:#c3834b}
+.nist-resource-grid h3{color:#34271f;font-size:20px}
+.nist-resource-grid p{color:#645344;font-size:13px}
+.nist-resource-grid .hub-go{color:#933f28}
+.academy-home .challenge-banner{background:#a74627!important;color:#fff0dc!important;border-radius:4px}
+.academy-home .challenge-banner :is(h2,p,.challenge-icon){color:#fff0dc!important}
+.academy-home .challenge-banner .btn.light{background:#fff0d3!important;color:#34271f!important}
+.academy-home .resource-strip{background:#e9e2cd;border-radius:4px}
+.academy-home .assistant-section{border-color:var(--gd-line)}
+/* All inner pages preserve contrast-rich utility panels rather than turning forms into marketing layouts. */
+body:not(.academy-home) :where(.sp-wrap,.pchk,.pc-wrap) {background:transparent}
+body:not(.academy-home) :where(.sp-head,.g-page-h) {border-color:var(--gd-line)}
+body:not(.academy-home) :where(.sp-head h1,.g-page-h h1) {color:var(--gd-brown)}
+body:not(.academy-home) :where(.chat,.panel,.card,.mini,.table-wrap) {border-color:var(--gd-line)}
+/* Standalone quiz keeps functionality, adapts colors to warm editorial palette. */
+body:has(.app-shell){--green:#a74627;--dark:#34271f;--bg:#f7eed7;--line:#dbcbb2;--lime:#f3dfc8;--sun:#deb679}
+.app-shell .topbar{background:#81361f!important;border-color:#d7a26a!important}
+.app-shell .topbar .brand-mark{background:#34271f!important}
+.app-shell .intro-ribbon{background:#f2e0c8!important;border-color:#dbcbb2!important}
+.app-shell .intro-ribbon h1 em,.app-shell .eyebrow{color:#81361f!important}
+.app-shell .start-layout{border-color:#dbcbb2}
+.app-shell .hero-side{background:#efe1c2!important}
+.app-shell .primary-btn{background:#81361f!important}
+.app-shell .primary-btn:hover{background:#60301f!important}
+@media(max-width:1050px){.academy-home .academy>.hero{min-height:0;gap:25px;padding:54px 26px;grid-template-columns:1fr 1fr}.academy-home .hero-copy h1{font-size:clamp(34px,4vw,52px)!important}.academy-home .ox-feature-copy{padding:24px 12px 24px 20px}}
+@media(max-width:760px){.academy-home .academy>.hero{grid-template-columns:1fr;padding:45px 20px 50px;gap:26px}.academy-home .hero-copy h1{font-size:clamp(35px,8vw,50px)!important}.academy-home .hero-art.ox-home-art{min-height:300px}.academy-home .ox-feature{min-height:300px}.gd-editorial-intro{padding:54px 0}.gd-editorial-steps{grid-template-columns:1fr;gap:18px}.gd-editorial-steps article{padding:18px 0}.academy-home .nist-resource-hub{padding:40px 16px}.academy-home .ox-feature-copy h2{font-size:26px}}
+@media(max-width:520px){.academy-home .hero-copy .eyebrow{font-size:10px}.academy-home .hero-copy>p{font-size:14px}.academy-home .ox-feature{grid-template-columns:1fr 1fr}.gd-editorial-intro h2{font-size:28px}}
+@media print{body{background:#fff!important;color:#000!important}.gd-editorial-intro{display:none!important}main{color:#000!important}}
