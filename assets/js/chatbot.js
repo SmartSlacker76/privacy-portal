@@ -610,20 +610,24 @@
       add('bot',policeCctvAnswer(),null,'경찰의 CCTV 영상 제공 요청');
       return true;
     }
-    var asksProxy=/(대리인|보험회사|보험사|가족|손해사정사)/.test(n) &&
-      /(신청|청구|위임|열람|제공|서류|접수|방법|경우|하면|이면)/.test(n) &&
-      (lastCctvDisclosure || /(CCTV|시시티비|영상|정보공개|열람)/i.test(n) || /^(대리인|보험회사|보험사|가족|손해사정사)/.test(n));
+    // 대리인 + CCTV(영상) 조합 자체로 충분한 의도가 있으므로 동사가 생략되어도 대리인 답변을 우선합니다.
+    // '대리인이 cctv영상 하면', '대리인 CCTV영상?', '보험회사에서 CCTV를 요구하면' 등.
+    var hasProxy=/(대리인|보험회사|보험사|손해사정사|가족)/.test(n);
+    var hasVideo=/(CCTV|시시티비|폐쇄회로|영상|개인영상|정보공개)/i.test(n);
+    var proxyAction=/(신청|청구|위임|열람|제공|서류|접수|방법|경우|하면|이면|요청|요구|받|확인|어떻게|가능)/.test(n);
+    var asksProxy=hasProxy && ((hasVideo && !/(사망자|사망하신|고인)/.test(n)) ||
+      (lastCctvDisclosure && proxyAction) ||
+      (/^(대리인|보험회사|보험사|가족|손해사정사)/.test(n) && proxyAction));
     if(asksProxy){
       lastCctvDisclosure=true;
       add('bot',proxyCctvAnswer(),null,'CCTV 대리인 신청');
       return true;
     }
     // '대리인이 신청하면?'처럼 앞선 CCTV 정보공개 질문을 이어받는 경우를 인식합니다.
-    var proxyFollowUp=lastCctvDisclosure && /(대리인|보험사|보험회사|가족|위임장)/.test(n) && /(신청|청구|제공|열람|위임|경우|어떻게)/.test(n);
     var disclosureRequest=/(?:CCTV|시시티비|폐쇄회로|개인영상정보|영상정보처리기기)/i.test(n) &&
-        /(정보공개|공개청구|공개요청|공개받|공개가능|대리인|보험사|보험회사|위임장)/.test(n);
+        /(정보공개|공개청구|공개요청|공개받|공개가능)/.test(n) && !hasProxy;
     // CCTV 정보공개청구: 요약 + 각 항목별 펼침으로 제공합니다.
-    if (disclosureRequest || proxyFollowUp) {
+    if (disclosureRequest) {
       lastCctvDisclosure=true;
       add('bot',
         '<p class="friendly-lead">네, <b>CCTV 영상도 정보공개청구로 제공받을 수 있는지</b> 궁금하셨군요! 사례별로 쉽게 설명해 드릴게요. 😊</p>'+
