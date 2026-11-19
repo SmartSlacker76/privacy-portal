@@ -785,3 +785,9 @@ html[data-theme="dark"] body:has(#chat) #chat .msg.me .bubble{
  .g-head .g-brand .tx>span{display:none}
  .g-head .g-home-direct{padding:6px 8px}
 }
+
+/* PWA installation entry in the shared navigation. */
+.g-head .g-install-direct{display:inline-flex!important;align-items:center;justify-content:center;gap:5px;white-space:nowrap;flex:0 0 auto;min-height:40px;padding:9px 12px;border:1px solid #849984;border-radius:3px;background:#dce9d9;color:#182a1b!important;text-decoration:none;font-size:12px;font-weight:850}
+.g-head .g-install-direct:hover,.g-head .g-install-direct:focus-visible{background:#f2fff0;color:#182a1b!important}
+@media(max-width:1240px){.g-head .g-install-direct{min-height:34px;padding:7px 9px}}
+@media(max-width:760px){.g-head .g-install-direct span{display:none}.g-head .g-install-direct{padding:7px 8px}}
