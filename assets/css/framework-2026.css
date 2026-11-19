@@ -147,3 +147,20 @@ body.academy-home .academy{max-width:1320px}
  .g-gnb .g-nav-panel a:hover{color:white!important;background:#205a86!important}
 }
 @media print{.g-nav-group,.g-nav-panel{display:none!important}}
+
+/* Standalone OX security game (keeps its own gameplay DOM and scripts) */
+body:has(.app-shell){--green:#176eac;--dark:#17334d;--bg:#f4f7fa;--line:#d4e0e9;--lime:#e8f2f8;--sun:#bddcef}
+.app-shell .topbar{max-width:none;background:#0b2b4c!important;color:#fff!important;padding:19px max(22px,calc((100vw - 1280px)/2));border-bottom:3px solid #176eac}
+.app-shell .topbar .brand,.app-shell .topbar .toplinks,.app-shell .topbar a{color:#f4faff!important}
+.app-shell .topbar .brand small,.app-shell .topbar .tiny-year{color:#b9d7e9!important}
+.app-shell .topbar .brand-mark{background:#176eac;color:#fff}
+.app-shell .intro-ribbon{background:#e8f2f8!important;border:1px solid #d4e0e9;border-radius:6px}
+.app-shell .intro-ribbon h1 em,.app-shell .eyebrow{color:#0b527f}
+.app-shell .start-layout{border-radius:7px;box-shadow:0 9px 28px rgba(8,43,75,.08)}
+.app-shell .start-tag{background:#e8f2f8;border:1px solid #d4e0e9;color:#0b527f}
+.app-shell .primary-btn{background:#176eac;border-radius:4px}
+.app-shell .primary-btn:hover{background:#0b527f}
+.app-shell .hero-side{background:#e8f2f8}
+.app-shell .feature-row div{border-radius:5px;background:#f5f9fc}
+.app-shell :is(.ghost-btn,.qz-btn,.option-btn){border-radius:5px}
+@media(max-width:760px){.app-shell .topbar{padding:14px 18px}}
