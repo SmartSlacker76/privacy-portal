@@ -86,7 +86,7 @@
     if (!isHttpUrl(url)) throw new Error('http:// 또는 https:// 로 시작하는 올바른 주소를 입력해 주세요.');
     progress('처리방침을 불러오는 중…');
     try {
-      const response = await fetch(url, { redirect: 'error', credentials: 'omit', referrerPolicy: 'no-referrer', signal: AbortSignal.timeout(8000) });
+      const response = await fetch(url, { redirect: 'follow', credentials: 'omit', referrerPolicy: 'no-referrer', signal: AbortSignal.timeout(10000) });
       if (response.ok) {
         const type = response.headers.get('content-type') || '';
         if (/^(text\/(html|plain)|application\/xhtml\+xml)\b/i.test(type)) {
@@ -95,7 +95,7 @@
         }
       }
     } catch { /* Try the configured public-policy gateway. */ }
-    if (WORKER && S.health.fetch) {
+    if (WORKER) { /* health 검사 실패와 별개로 URL 게이트웨이를 1회 시도 */
       try {
         const response = await fetch(WORKER + '/fetch?url=' + encodeURIComponent(url), { redirect: 'error', credentials: 'omit', referrerPolicy: 'no-referrer', signal: AbortSignal.timeout(12000) });
         if (response.ok) {
@@ -104,7 +104,7 @@
         }
       } catch { /* Offer manual input when the gateway is unavailable. */ }
     }
-    throw new Error('주소에서 내용을 불러오지 못했습니다. “내용 직접 붙여넣기 / 파일 올리기”에서 본문을 입력해 주세요.');
+    throw new Error('해당 기관 사이트의 CORS·접근제한 또는 중계 서버 문제로 주소 내용을 자동으로 불러오지 못했습니다. 처리방침 페이지를 열어 본문을 복사해 붙여넣거나 지원 형식(HTML/TXT/MD)으로 저장하여 올려 주세요.');
   }
   const BLOCK = /^(P|DIV|SECTION|ARTICLE|H[1-6]|LI|UL|OL|TR|TABLE|BR|DT|DD|DL|PRE|BLOCKQUOTE|TBODY|THEAD|CAPTION|FIGURE|HR)$/;
   function htmlToText(html) {
@@ -418,7 +418,7 @@ a.lb:hover{border-color:#1d4ed8}
       const f = $('#file').files[0];
       if (!text && f) {
         // [개발보안 입력데이터 검증-6 위험한 형식 파일 업로드] 확장자·크기 검사, 텍스트로만 읽고 실행하지 않음
-        if (!/\.(html?|txt)$/i.test(f.name)) throw new Error('html, htm, txt 파일만 올릴 수 있습니다.');
+        if (!/\.(html?|txt|md)$/i.test(f.name)) throw new Error('지원 형식은 html, htm, txt, md 입니다. PDF·HWP·HWPX·DOCX는 텍스트로 변환해 붙여넣어 주세요.');
         if (f.size > MAX_FILE) throw new Error('파일은 2MB 이하만 올릴 수 있습니다.');
         const raw = await f.text(); text = /<html|<body|<div/i.test(raw) ? htmlToText(raw).text : raw;
       }
