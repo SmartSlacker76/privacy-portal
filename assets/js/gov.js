@@ -25,34 +25,13 @@
   ];
   var here = (location.pathname.split('/').pop() || 'index.html').toLowerCase() || 'index.html';
   var cur = NAV.filter(function (n) { return n.h === here; })[0];
-  /* 홈페이지/분야별 화면에 동일한 프레임워크 디자인을 가장 마지막에 적용합니다. */
-  if (!document.querySelector('link[data-framework-theme]')) {
-    var frameworkStyle=document.createElement('link');
-    frameworkStyle.rel='stylesheet';
-    frameworkStyle.href='assets/css/framework-2026.css?v=20261119-2';
-    frameworkStyle.setAttribute('data-framework-theme','2026');
-    document.head.appendChild(frameworkStyle);
-  }
-  if (!document.querySelector('link[data-gradient-editorial]')) {
-    var editorialStyle=document.createElement('link');
-    editorialStyle.rel='stylesheet';
-    editorialStyle.href='assets/css/gradient-editorial.css?v=20261119-anthropic-2';
-    editorialStyle.setAttribute('data-gradient-editorial','2026');
-    document.head.appendChild(editorialStyle);
-  }
-  if (!document.querySelector('link[data-anthropic-editorial]')) {
-    var refinedStyle=document.createElement('link');
-    refinedStyle.rel='stylesheet';
-    refinedStyle.href='assets/css/anthropic-editorial.css?v=20261119-layout-1';
-    refinedStyle.setAttribute('data-anthropic-editorial','2026');
-    document.head.appendChild(refinedStyle);
-  }
-  if (!document.querySelector('link[data-slite-workspace]')) {
-    var workspaceStyle=document.createElement('link');
-    workspaceStyle.rel='stylesheet';
-    workspaceStyle.href='assets/css/slite-workspace.css?v=20261119-1';
-    workspaceStyle.setAttribute('data-slite-workspace','2026');
-    document.head.appendChild(workspaceStyle);
+  /* Single shared final design system; avoid stacks of overlapping legacy themes. */
+  if (!document.querySelector('link[data-frameco-design]')) {
+    var siteStyle=document.createElement('link');
+    siteStyle.rel='stylesheet';
+    siteStyle.href='assets/css/frameco-2026.css?v=20261119-frameco-1';
+    siteStyle.setAttribute('data-frameco-design','2026');
+    document.head.appendChild(siteStyle);
   }
 
   function el(tag, cls, html) {
