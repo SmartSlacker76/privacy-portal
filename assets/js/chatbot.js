@@ -483,8 +483,12 @@
       '<div class="bubble' + (role === 'bot' && title ? ' long' : '') + '">' +
       (role === 'bot' ? friendlyFormat(html, title) : html) +
       (src ? '<span class="src law-cite">근거: ' + esc(src) + '</span>' : '') + '</div>';
-    chat.appendChild(m); chat.scrollTop = chat.scrollHeight;
+    // Do not steal the reader's scroll position when they are reviewing older messages.
+    // Follow new replies only while the conversation was already near its bottom.
+    var followBottom = (chat.scrollHeight - chat.clientHeight - chat.scrollTop) < 140;
+    chat.appendChild(m);
     if (role === 'bot' && window.PI && window.PI.linkifyLaws) window.PI.linkifyLaws(m);
+    if (followBottom) chat.scrollTop = chat.scrollHeight;
   }
 
   /* 법 제2조: 짧은 정의 질문은 유사 FAQ로 대체하지 않습니다. */
@@ -884,7 +888,7 @@
   document.getElementById('asofBar').innerHTML = '📘 법령·자료를 바탕으로 간단히 안내해요. 중요한 결정은 <a href="https://www.law.go.kr/" target="_blank" rel="noopener">현행 법령</a>도 확인해 주세요.';
 
   [
-    '안녕하세요! 저는 <b>요망진 간세다리</b>입니다. 😊 공공분야 개인정보 보호 업무를 도와드려요.',
+    '안녕하세요! 저는 <b>요망진 간세</b>입니다. 😊 공공분야 개인정보 보호 업무를 도와드려요.',
     '<b>용어·조문을 입력하면</b> 정의·근거부터 판례·체크리스트까지 <b>표준 8단계</b>로 설명해요.<br>예) <i>민감정보</i>, <i>제18조 목적 외 이용</i>',
     '<b>사업 적법성을 물으면 실무 검토 의견</b>(결론·근거·리스크·대안)을 덧붙여요.<br>예) <i>공모전 참가자 건강정보 수집해도 되나요?</i>',
     '<b>퀴즈를 요청하면</b> 직원 교육용 <b>OX 문제</b>를 해설·실무 팁과 함께 만들어요.<br>예) <i>가명정보 퀴즈 3문제</i>',
