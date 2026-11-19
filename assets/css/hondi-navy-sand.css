@@ -266,3 +266,9 @@ html[data-palette="natural"] .g-head .g-brand .em.g-mascot{
 .g-head .g-brand .tx .g-brand-ko>span{display:block;line-height:1.25}
 .g-head .g-brand .tx>span{margin-top:5px}
 @media(max-width:480px){.g-head .g-brand .tx .g-brand-ko{gap:0}}
+
+/* Review feedback: identify the shared brand as a Home link. */
+.g-head .g-brand .g-home-pill{display:inline-flex;align-items:center;flex:none;margin-left:3px;padding:4px 8px;border-radius:999px;border:1px solid rgba(255,255,255,.45);color:#fff;font-size:11px;font-weight:800;white-space:nowrap;background:rgba(255,255,255,.08)}
+.g-head .g-brand:hover .g-home-pill,.g-head .g-brand:focus-visible .g-home-pill{background:rgba(255,255,255,.2)}
+@media(max-width:700px){.g-head .g-brand .g-home-pill{padding:3px 6px;font-size:10px}}
+@media(max-width:390px){.g-head .g-brand .g-home-pill{font-size:9px;padding:2px 4px}}
