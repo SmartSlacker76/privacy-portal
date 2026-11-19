@@ -457,6 +457,14 @@
         + '<p class="note-x">※ 출처: 개인정보보호위원회 「개인정보 질의응답 모음집」(2025. 12.) 제' + hit.no + '문항</p>'
         + topicButtons(e.id));
     }
+    if (e && e.weak && !hit) {
+      lastTopic = null;
+      return add('bot',
+        '<p class="friendly-lead">질문을 조금 더 구체적으로 알려주세요.</p>' +
+        '<p class="friendly-answer"><b>' + esc(e.title) + '</b>와 관련 있을 수 있지만, 지금 문장만으로는 요청하신 행위나 상황을 정확히 판단하기 어려워요. 임의로 다른 질문으로 바꾸어 답하지 않겠습니다.</p>' +
+        '<p class="lead">예: 적용 대상, 목적, 기간, 원하는 조치 등을 알려주시면 맞는 자료를 찾아볼게요.</p>',
+        null,'질문 의도 재확인');
+    }
     if (!e) {
       /* 포털 주제가 없더라도 질의응답 모음집(99문항)에 있으면 그 답을 드립니다. */
       var only = qaFind(q);
