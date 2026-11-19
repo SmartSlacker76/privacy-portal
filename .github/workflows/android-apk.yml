@@ -6,7 +6,7 @@ on:
       - '.github/workflows/android-apk.yml'
   workflow_dispatch:
 permissions:
-  contents: read
+  contents: write
 jobs:
   build-debug-apk:
     runs-on: ubuntu-latest
@@ -37,3 +37,17 @@ jobs:
           path: android/app/build/outputs/apk/debug/app-debug.apk
           if-no-files-found: error
           retention-days: 30
+
+      - name: Publish latest test APK as GitHub prerelease
+        continue-on-error: true
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GH_REPO: ${{ github.repository }}
+        run: |
+          TAG=android-debug-preview
+          APK=android/app/build/outputs/apk/debug/app-debug.apk
+          cp "$APK" /tmp/Hondi-PrivacyPortal-debug.apk
+          if ! gh release view "$TAG" >/dev/null 2>&1; then
+            gh release create "$TAG" --target "$GITHUB_SHA" --prerelease               --title "혼디 지킴이 Android 테스트 APK"               --notes "개발자 테스트용 Debug APK입니다. 스토어 배포용이 아닙니다. 빌드마다 서명키가 달라 기존 설치 앱을 삭제해야 할 수 있습니다."
+          fi
+          gh release upload "$TAG" /tmp/Hondi-PrivacyPortal-debug.apk --clobber
