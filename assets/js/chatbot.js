@@ -431,7 +431,22 @@
     if (e) {lastTopic=e;h+=topicButtons(e.id);}
     add('bot',h,null,'개인정보의 정의');return true;
   }
+  // 근거가 없는 추측을 방지: 질문의 행위·대상에 따라 의도를 먼저 분류합니다.
+  function directQuestion(q) {
+    var n=String(q||'').replace(/\s+/g,'');
+    if (/CCTV|영상정보처리기기|영상정보/i.test(n) && /(며칠|몇일|얼마나|보관기간|저장기간|보존기간)/.test(n)) {
+      add('bot','<p class="friendly-lead">CCTV 영상은 며칠 동안 보관하나요?</p>'+
+        '<p class="friendly-answer">모든 CCTV에 공통으로 적용되는 <b>일률적인 보관일수는 없습니다.</b> 촬영 목적을 달성하는 데 필요한 최소 기간을 정하고, 기관의 영상정보처리기기 운영·관리 방침에 보관기간을 공개해야 합니다. 실제 기간은 해당 CCTV 관리기관에 확인해 주세요.</p>'+
+        '<p class="friendly-src">확인: 해당 기관의 영상정보처리기기 운영·관리 방침 및 「개인정보 보호법」 제25조</p>',null,'CCTV 보관기간');return true;
+    }
+    // 법령·영상 장비로 설명할 수 없는 개인적 상황을 임의의 보안 질문으로 바꾸지 않습니다.
+    if (/(CCTV|영상정보처리기기)/i.test(n) && /(바다에서|타고다니|수영|먹고싶|날아가|배를타)/.test(n)) {
+      add('bot','<p class="friendly-answer">CCTV를 탈것처럼 이용하는 질문인지, <b>선박에 CCTV를 설치·운영하는 방법</b>을 묻는 질문인지 확인이 필요해요. 선박 영상정보처리기기 설치가 궁금하다면 설치 목적·촬영 장소·관리 주체를 알려 주세요.</p>',null,'질문 의도 확인');return true;
+    }
+    return false;
+  }
   function answer(q) {
+    if(directQuestion(q)) return;
     if(baseDefinition(q)) return;
     var e = match(q);
     lastTopic = e;
@@ -458,11 +473,14 @@
     var m = mode(q);
     if (m === 3) {
       var n = (q.match(/(\d+)\s*(문제|문항|개)/) || [])[1];
-      var cnt = n ? Math.min(+n, (e.quiz || []).length) : 3;
+      var available=(e.quiz||[]).length;
+      var desired=n ? Math.max(1,Math.min(+n,20)) : 3;
+      var cnt=Math.min(desired,available);
+      var availabilityNote=desired>available?'<p class="warnline">요청하신 '+desired+'문제 중 검증된 문제는 '+available+'문제만 준비돼 있어요. 근거 없는 문제를 추가로 만들지 않고 준비된 문제만 보여 드립니다.</p>':'';
       return add('bot',
         '<p class="greet">함께 풀어봐요! <b>' + esc(e.title) + '</b> 퀴즈를 풀어 보고 싶으셨군요. 😊</p>' +
         '<p class="lead">실무에서 가장 헷갈리는 지점으로 <b>' + cnt + '문제</b>를 골랐어요. O·X를 먼저 고르면 바로 채점하고, 문제마다 <b>왜 그런지</b>와 <b>실무 팁</b>까지 펼쳐 드릴게요.</p>' +
-        '<div class="blk"><h4>💡 함께 풀어 볼까요?</h4>' + render3(e, cnt) + '</div>',
+        availabilityNote + '<div class="blk"><h4>💡 함께 풀어 볼까요?</h4>' + render3(e, cnt) + '</div>',
         e.src, e.title + ' — 교육 퀴즈');
     }
     if (m === 2) return add('bot',
@@ -474,7 +492,7 @@
   }
 
   var QS = ['민감정보', '고유식별정보', '제18조 목적 외 이용', '접속기록', '암호화', 'CCTV',
-            'CCTV 영상 열람 요청하는 방법', '공모전 참가자 건강정보 수집해도 되나요?', '가명정보 퀴즈 3문제'];
+            'CCTV 영상 열람 요청하는 방법', '공모전 참가자 건강정보 수집해도 되나요?', '가명정보 퀴즈 3문제', 'CCTV는 며칠이나 보관해요?'];
   var chips = document.getElementById('chips');
   chips.innerHTML = QS.map(function (q) { return '<button type="button" class="chip-q">' + esc(q) + '</button>'; }).join('');
 
