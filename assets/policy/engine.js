@@ -69,6 +69,16 @@
       const base = { id: it.id, g: it.g, level: it.level, title: it.title, basis: it.basis, page: it.page, note: it.note || '', example: (it.example || '').replace(/\{ORG\}/g, org), missing: [], excerpt: '', found: !!s };
       const allScope = !it.heads || !it.heads.length; // 업종별 항목: 문서 전체 기준 점검
       if (!s && !allScope) {
+        // 전송요구권은 권리·의무 조항에 통합 기재될 수 있습니다.
+        // 조항을 찾지 못했다는 이유만으로 '누락'으로 단정하지 않습니다.
+        if (it.id === 25 && it.trigger && it.trigger.test(text)) {
+          const m = text.match(/.{0,90}(?:전송\s*요구|마이데이터|본인전송).{0,260}/);
+          return { ...base, found: true, status: 'warn', score: 0.5,
+            excerpt: m ? m[0] : '전송요구권 관련 표현이 본문에 포함됨',
+            note: '권리·의무 조항에 통합 기재된 내용을 탐지했습니다. 별도 제목이 없다는 이유로 누락이라고 판단하지 않으며, 기재 내용의 구체성 및 외부 연결 문서를 직접 검토해야 합니다.',
+            missing: [{ t: '전송요구권 안내의 상세 내용과 별도 링크 확인 필요',
+              fix: '정보주체와 법정대리인의 권리·의무 및 행사방법에 포함된 전송요구 대상·절차·방법을 확인하고, 링크가 있다면 연결된 문서도 직접 확인하세요.' }] };
+        }
         if (it.level === '해당시' && !(it.trigger && it.trigger.test(text))) return { ...base, status: 'na', score: null, note: '처리방침에서 관련 내용을 찾지 못했습니다. 해당 처리를 하지 않는다면 “해당 개인정보를 처리하지 않습니다”라고 적는 것도 가능합니다.' };
         return { ...base, status: 'bad', score: 0, missing: [{ t: it.level === '해당시' ? '본문에 관련 내용이 있으나 별도 항목이 없음' : '항목 자체가 없음', fix: `“${it.title}” 항목을 새로 만들어 아래 예시처럼 작성하세요.` }] };
       }
