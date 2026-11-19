@@ -6,7 +6,7 @@
     { h:'pia-guide.html',   t:'영향평가 길라잡이', g:'학습' },
     { h:'learn.html',       t:'학습 둘러보기',      g:'학습' },
     { h:'ctf.html',         t:'게임으로 배우는 정보보호', g:'학습' },
-    { h:'security-ox.html', t:'OX퀴즈로 풀며 배우는 정보보호', g:'학습' },
+    { h:'security-ox.html', t:'OX퀴즈로 풀며 배우는 정보보안', g:'학습' },
     { h:'policy.html',      t:'처리방침 진단',   g:'점검·도구' },
     { h:'consent.html',     t:'동의서 생성',     g:'점검·도구' },
     { h:'law-search.html',  t:'법령 검색',      g:'점검·도구' },
