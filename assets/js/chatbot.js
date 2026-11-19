@@ -283,7 +283,9 @@
   }
   function qaAnswer(it){
     var detail = oBullets(it.bullets) + noteLines(it.notes) + (it.rulings&&it.rulings.length ? '<p class="rul">관련 결정·판례: '+it.rulings.map(esc).join(' · ')+'</p>':'');
-    return '<p class="friendly-lead">네! <b>'+esc(it.q)+'</b>에 대해 알려드릴게요. 😊</p>' + '<p class="friendly-answer">'+esc(it.lead)+'</p>' + (detail ? '<details class="dt"><summary>자세한 설명 보기</summary><div class="dt-in">'+detail+'</div></details>':'');
+    return '<p class="friendly-lead">네, <b>'+esc(it.q)+'</b>에 대해 궁금하셨군요! 알기 쉽게 설명해 드릴게요. 😊</p>' +
+      '<p class="friendly-answer">'+esc(it.lead)+'</p>' +
+      (detail ? '<p class="friendly-answer">구체적인 판단 기준과 사례도 함께 살펴보세요!</p><div class="friendly-detail">'+detail+'</div>':'');
   }
 
   /* ───────── 8개 상세 → 5개 주제로 통폐합 ───────── */
@@ -300,10 +302,17 @@
     var sentences = lead.match(/[^.!?。]+[.!?。]?/g) || [lead];
     var brief = sentences.slice(0,2).join(' ').trim();
     if (brief.length > 270) brief = brief.slice(0,267) + '…';
+    var notes=(e.sum2||[]).map(plain).map(function(x){return String(x||'').replace(/<[^>]+>/g,'').trim();}).filter(Boolean);
+    var points=notes.slice(0,4).map(function(x){return '<li>'+esc(x)+'</li>';}).join('');
+    var steps=(e.sections||[]).filter(function(x){return [3,8].indexOf(x.n)>=0;}).slice(0,2)
+      .map(function(x){return '<p class="friendly-answer"><b>'+esc(x.h)+':</b> '+esc(plain((x.items||[])[0]||x.summary||'관련 요건을 확인해 주세요.'))+'</p>';}).join('');
     return (e.weak ? '<p class="warnline">비슷한 주제를 찾았어요. 정확한 상황을 알려주시면 더 잘 살펴볼게요.</p>' : '')
-      + '<p class="friendly-lead">네! <b>' + esc(e.title) + '</b>에 대해 알려드릴게요. 😊</p>'
+      + '<p class="friendly-lead">네, <b>' + esc(e.title) + '</b>에 대해 궁금하셨군요! 중요한 내용부터 차근차근 설명해 드릴게요. 😊</p>'
       + '<p class="friendly-answer">' + esc(brief || '관련 기준을 함께 살펴볼게요.') + '</p>'
-      + (e.src ? '<div class="friendly-src">※ 근거: ' + esc(e.src) + '</div>' : '')
+      + (points?'<p class="friendly-answer">꼭 기억하면 좋은 내용은 다음과 같아요.</p><ul class="friendly-points">'+points+'</ul>':'')
+      + steps
+      + '<p class="friendly-answer">실제 업무에 적용할 때에는 <b>처리 목적과 관련 법령, 기관의 운영 기준</b>을 함께 확인해 주세요. 아래 버튼에서 사례와 체크리스트도 살펴보실 수 있어요!</p>'
+      + (e.src ? '<div class="friendly-src">📌 <b>참고한 법령·자료:</b> ' + esc(e.src) + '</div>' : '')
       + controllerNote(q)
       + topicButtons(e.id);
   }
@@ -346,7 +355,7 @@
 
   /* ── 모드 3: 교육 퀴즈 ──────────────────────────────────── */
   function render3(e, n) {
-    var qs = (e.quiz || []).slice(0, n || 3);
+    var qs = (e.quiz || []).slice(0, n == null ? 3 : n);
     if (!qs.length) return '<p class="a-intro">이 주제는 아직 퀴즈가 준비되지 않았어요. 다른 주제로 요청해 주시겠어요?</p>' + tailer(e);
     var h = '<p class="a-intro"><b>' + esc(e.title) + '</b> 교육용 <b>OX 퀴즈 ' + qs.length + '문제</b>예요. 공공기관 직원이 실무에서 가장 헷갈리기 쉬운 지점으로 골랐어요. <b>O·X를 먼저 골라 보면</b> 바로 채점하고 해설을 펼쳐 드려요.</p>';
     h += qs.map(function (x, i) {
@@ -407,12 +416,26 @@
     return h;
   }
 
+  // 모든 챗봇 답변의 공통 대화형 형식. 원래 조문·퀴즈·근거 정보는 삭제하지 않습니다.
+  function friendlyFormat(html, title) {
+    var h=String(html||'');
+    // 전용 답변에 이미 자연스러운 인사가 있다면 중복하지 않아요.
+    if (!/<(?:p|div)[^>]*class="[^"]*(?:friendly-lead|greet|warm-lead)[^"]*"/.test(h)) {
+      var label=title?String(title).replace(/\s*[—-].*$/,'').trim():'';
+      var question=lastQuestion||label||'궁금한 내용';
+      var lead='<p class="warm-lead">네, <b>'+esc(question.length>95?question.slice(0,95)+'…':question)+'</b>에 대해 궁금하셨군요! 이해하기 쉽게 차근차근 알려드릴게요. 😊</p>';
+      h=lead+h;
+    }
+    // 법령 인용·상세 자료는 계속 제공하되 정서적으로 딱딱한 제목 바는 사용하지 않습니다.
+    return h;
+  }
+  var lastQuestion='';
   function add(role, html, src, title) {
     var m = document.createElement('div');
     m.className = 'msg ' + role;
     m.innerHTML = (role === 'bot' ? '<div class="av">🧑🏻‍🦱</div>' : '<div class="av">🙋</div>') +
       '<div class="bubble' + (role === 'bot' && title ? ' long' : '') + '">' +
-      (title ? '<div class="a-title">' + esc(title) + '</div>' : '') + html +
+      (role === 'bot' ? friendlyFormat(html, title) : html) +
       (src ? '<span class="src law-cite">근거: ' + esc(src) + '</span>' : '') + '</div>';
     chat.appendChild(m); chat.scrollTop = chat.scrollHeight;
     if (role === 'bot' && window.PI && window.PI.linkifyLaws) window.PI.linkifyLaws(m);
@@ -435,9 +458,13 @@
   function directQuestion(q) {
     var n=String(q||'').replace(/\s+/g,'');
     if (/CCTV|영상정보처리기기|영상정보/i.test(n) && /(며칠|몇일|얼마나|보관기간|저장기간|보존기간)/.test(n)) {
-      add('bot','<p class="friendly-lead">CCTV 영상은 며칠 동안 보관하나요?</p>'+
-        '<p class="friendly-answer">모든 CCTV에 공통으로 적용되는 <b>일률적인 보관일수는 없습니다.</b> 촬영 목적을 달성하는 데 필요한 최소 기간을 정하고, 기관의 영상정보처리기기 운영·관리 방침에 보관기간을 공개해야 합니다. 실제 기간은 해당 CCTV 관리기관에 확인해 주세요.</p>'+
-        '<p class="friendly-src">확인: 해당 기관의 영상정보처리기기 운영·관리 방침 및 「개인정보 보호법」 제25조</p>',null,'CCTV 보관기간');return true;
+      add('bot','<p class="friendly-lead">네, CCTV 영상이 며칠이나 저장되는지 궁금하셨군요! 알기 쉽게 차근차근 설명해 드릴게요. 😊</p>'+
+        '<p class="friendly-answer">사실 모든 CCTV에 똑같이 정해진 보관 기간은 없답니다. 설치한 곳마다 <b>촬영 목적에 꼭 필요한 기간</b>을 정해 보관하거든요.</p>'+
+        '<p class="friendly-answer">그래도 많이 참고하는 기준을 알려드릴게요!</p>'+
+        '<ul class="friendly-points"><li><b>일반적인 CCTV</b>는 일률적으로 30일을 보관해야 하는 것은 아니에요. 다만 <b>보관 목적을 달성하는 데 필요한 최소 기간을 정하기 어려울 때에는 30일 이내</b>로 정하도록 「표준 개인정보 보호지침」에서 안내하고 있어요.</li>'+
+        '<li><b>어린이집 CCTV</b>는 아이들의 안전을 위해 <b>60일 이상</b> 보관해야 해요. 「영유아보육법」에 별도 기준이 있답니다.</li></ul>'+
+        '<p class="friendly-answer">이처럼 장소와 법령에 따라 기간이 달라질 수 있어요. 정확한 날짜는 해당 장소의 안내판이나 홈페이지에 공개된 <b>영상정보처리기기 운영·관리 방침</b>을 살펴보시거나, 관리하는 곳에 문의해 보세요!</p>'+
+        '<p class="friendly-src">📌 <b>참고한 법령:</b> 「개인정보 보호법」 제25조, 「표준 개인정보 보호지침」 제41조제2항, 「영유아보육법」 제15조의4제3항</p>',null,'CCTV 보관기간');return true;
     }
     // 법령·영상 장비로 설명할 수 없는 개인적 상황을 임의의 보안 질문으로 바꾸지 않습니다.
     if (/(CCTV|영상정보처리기기)/i.test(n) && /(바다에서|타고다니|수영|먹고싶|날아가|배를타)/.test(n)) {
@@ -486,13 +513,13 @@
       var cnt=Math.min(desired,available);
       var availabilityNote=desired>available?'<p class="warnline">요청하신 '+desired+'문제 중 검증된 문제는 '+available+'문제만 준비돼 있어요. 근거 없는 문제를 추가로 만들지 않고 준비된 문제만 보여 드립니다.</p>':'';
       return add('bot',
-        '<p class="greet">함께 풀어봐요! <b>' + esc(e.title) + '</b> 퀴즈를 풀어 보고 싶으셨군요. 😊</p>' +
+        '<p class="greet">네, <b>' + esc(e.title) + '</b> 퀴즈를 풀어 보고 싶으셨군요! 문제와 해설을 차근차근 준비했어요. 😊</p>' +
         '<p class="lead">실무에서 가장 헷갈리는 지점으로 <b>' + cnt + '문제</b>를 골랐어요. O·X를 먼저 고르면 바로 채점하고, 문제마다 <b>왜 그런지</b>와 <b>실무 팁</b>까지 펼쳐 드릴게요.</p>' +
         availabilityNote + '<div class="blk"><h4>💡 함께 풀어 볼까요?</h4>' + render3(e, cnt) + '</div>',
         e.src, e.title + ' — 교육 퀴즈');
     }
     if (m === 2) return add('bot',
-      '<p class="greet">좋은 질문이에요! <b>' + esc(e.title) + '</b>에 해당하는지 살펴봐 드릴게요. 😊</p>' +
+      '<p class="greet">네, <b>' + esc(e.title) + '</b>에 관한 상황이 궁금하셨군요! 법적 근거와 확인할 부분을 함께 살펴볼게요. 😊</p>' +
       '<p class="lead">핵심은 <b>법적 근거와 필요한 정보인지</b>예요. 아래에서 결론·근거·위험·대안을 확인해 보세요.</p>' +
       '<details class="dt"><summary>💡 검토 의견 자세히 보기</summary><div class="dt-in">' + render2(e, q) + '</div></details>' +
       quizBlock(e), e.src, e.title + ' — 실무 검토');
@@ -504,7 +531,7 @@
   var chips = document.getElementById('chips');
   chips.innerHTML = QS.map(function (q) { return '<button type="button" class="chip-q">' + esc(q) + '</button>'; }).join('');
 
-  function ask(t) { add('me', esc(t)); setTimeout(function () { answer(t); }, 160); }
+  function ask(t) { lastQuestion=String(t||'').trim(); add('me', esc(t)); setTimeout(function () { answer(t); }, 160); }
   chips.addEventListener('click', function (ev) { var b = ev.target.closest('.chip-q'); if (b) ask(b.dataset.q || b.textContent); });
   chat.addEventListener('click', function (ev) {
     var ox = ev.target.closest('.ox-b');
