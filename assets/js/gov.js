@@ -30,7 +30,7 @@
   if (!document.querySelector('link[data-frameco-design]')) {
     var siteStyle=document.createElement('link');
     siteStyle.rel='stylesheet';
-    siteStyle.href='assets/css/frameco-2026.css?v=20261119-gridfix-5';
+    siteStyle.href='assets/css/frameco-2026.css?v=20261119-chat-scroll-6';
     siteStyle.setAttribute('data-frameco-design','2026');
     document.head.appendChild(siteStyle);
   }
