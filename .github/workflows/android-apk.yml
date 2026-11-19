@@ -39,21 +39,6 @@ jobs:
           retention-days: 30
 
 
-      - name: Record successful APK build and checksum
-        env:
-          BUILD_RUN_ID: ${{ github.run_id }}
-        run: |
-          APK=android/app/build/outputs/apk/debug/app-debug.apk
-          SHA=$(sha256sum "$APK" | cut -d' ' -f1)
-          BYTES=$(stat -c%s "$APK")
-          printf '{"status":"built","kind":"android-debug-apk","run_id":"%s","commit":"%s","sha256":"%s","bytes":%s,"artifact":"Hondi-PrivacyPortal-Android-APK"}\n' "$BUILD_RUN_ID" "$GITHUB_SHA" "$SHA" "$BYTES" > apk-build-status.json
-          git add apk-build-status.json
-          if ! git diff --cached --quiet; then
-            git config user.name "github-actions[bot]"
-            git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-            git commit -m "Record verified Android debug APK build [skip ci]"
-            git push
-          fi
       - name: Publish latest test APK as GitHub prerelease
         continue-on-error: true
         env:
@@ -67,3 +52,28 @@ jobs:
             gh release create "$TAG" --target "$GITHUB_SHA" --prerelease               --title "혼디 지킴이 Android 테스트 APK"               --notes "개발자 테스트용 Debug APK입니다. 스토어 배포용이 아닙니다. 빌드마다 서명키가 달라 기존 설치 앱을 삭제해야 할 수 있습니다."
           fi
           gh release upload "$TAG" /tmp/Hondi-PrivacyPortal-debug.apk --clobber
+
+      - name: Record Android CI completion state
+        if: always()
+        env:
+          RUN_ID: ${{ github.run_id }}
+          RUN_RESULT: ${{ job.status }}
+        run: |
+          APK=android/app/build/outputs/apk/debug/app-debug.apk
+          if [ -s "$APK" ]; then
+            SHA=$(sha256sum "$APK" | cut -d' ' -f1)
+            SIZE=$(stat -c%s "$APK")
+            STATUS=built
+          else
+            SHA=""
+            SIZE=0
+            STATUS=not-built
+          fi
+          printf '{"status":"%s","job_status":"%s","kind":"android-debug-apk","run_id":"%s","commit":"%s","sha256":"%s","bytes":%s,"artifact":"Hondi-PrivacyPortal-Android-APK"}\n' "$STATUS" "$RUN_RESULT" "$RUN_ID" "$GITHUB_SHA" "$SHA" "$SIZE" > apk-build-status.json
+          git add apk-build-status.json
+          if ! git diff --cached --quiet; then
+            git config user.name "github-actions[bot]"
+            git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+            git commit -m "Record Android CI build status [skip ci]"
+            git push
+          fi
