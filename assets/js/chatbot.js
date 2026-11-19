@@ -458,11 +458,16 @@
     add('bot',h,null,'개인정보의 정의');return true;
   }
   // 근거가 없는 추측을 방지: 질문의 행위·대상에 따라 의도를 먼저 분류합니다.
+  var lastCctvDisclosure=false;
   function directQuestion(q) {
     var n=String(q||'').replace(/\s+/g,'');
-    // CCTV 정보공개청구: 핵심 답변을 먼저 보여 주고 세 가지 심화 내용을 개별 펼침으로 제공합니다.
-    if (/(?:CCTV|시시티비|폐쇄회로|개인영상정보|영상정보처리기기)/i.test(n) &&
-        /(정보공개|공개청구|공개요청|공개받|공개가능)/.test(n)) {
+    // '대리인이 신청하면?'처럼 앞선 CCTV 정보공개 질문을 이어받는 경우를 인식합니다.
+    var proxyFollowUp=lastCctvDisclosure && /(대리인|보험사|보험회사|가족|위임장)/.test(n) && /(신청|청구|제공|열람|위임|경우|어떻게)/.test(n);
+    var disclosureRequest=/(?:CCTV|시시티비|폐쇄회로|개인영상정보|영상정보처리기기)/i.test(n) &&
+        /(정보공개|공개청구|공개요청|공개받|공개가능|대리인|보험사|보험회사|위임장)/.test(n);
+    // CCTV 정보공개청구: 요약 + 각 항목별 펼침으로 제공합니다.
+    if (disclosureRequest || proxyFollowUp) {
+      lastCctvDisclosure=true;
       add('bot',
         '<p class="friendly-lead">네, <b>CCTV 영상도 정보공개청구로 제공받을 수 있는지</b> 궁금하셨군요! 사례별로 쉽게 설명해 드릴게요. 😊</p>'+
         '<p class="friendly-answer"><b>공공기관이 보유·관리하는 CCTV 영상은 정보공개청구의 대상이 될 수 있어요.</b> 하지만 청구했다고 해서 원본 영상을 언제나 받을 수 있는 것은 아니랍니다.</p>'+
@@ -492,7 +497,7 @@
               '<li>보관기간 경과로 이미 파기되었다면 실제 존재 여부를 확인하고 그 사실을 안내해요.</li>'+
             '</ul><p class="friendly-answer">무엇보다 <b>정보공개청구가 가능하다는 사실과 실제 영상 제공이 허용된다는 사실은 다르다</b>는 점을 기억해 주세요.</p>'+
           '</div></details>'+
-          '<details class="dt"><summary><b>4. 보험회사나 가족 등 대리인이 신청하면?</b></summary><div class="dt-in">'+
+          '<details class="dt"'+(proxyFollowUp?' open':'')+'><summary><b>4. 보험회사나 가족 등 대리인이 신청하면?</b></summary><div class="dt-in">'+
             '<p class="friendly-answer">네, <b>보험회사 직원·손해사정사·가족도 정당한 권한을 확인받으면</b> 본인을 대신해 CCTV 영상의 열람이나 정보공개를 신청할 수 있어요! 😊 다만 <b>정보주체의 개인정보 열람 요구인지, 공공기관의 정보공개청구인지</b>를 먼저 구분해야 해요.</p>'+
             '<p class="friendly-answer"><b>① 본인이 위임한 대리인이 개인정보 열람을 신청하는 경우</b></p>'+
             '<ul class="friendly-points">'+
@@ -512,6 +517,7 @@
         '<p class="friendly-src">📌 <b>참고한 법령:</b> 「공공기관의 정보공개에 관한 법률」 제9조·제10조·제14조 및 같은 법 시행령 제15조, 「개인정보 보호법」 제18조·제35조·제38조. 구체적인 공개 가능 여부는 사안별로 판단해야 해요.</p>',
         null,'CCTV 정보공개청구');return true;
     }
+    lastCctvDisclosure=false;
     // 개인 자가용·업무용 차량, 외부 촬영·실내 CCTV를 구분하여 설명합니다.
     // 축약형·의문형 모두 같은 응답으로 연결 (예: "블랙박스도 영상정보처리기기?")
     if (/블랙박스|차량용카메라|차량영상기록장치/i.test(n) &&
