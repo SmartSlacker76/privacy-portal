@@ -16,9 +16,23 @@
     { h:'port-lookup.html', t:'패킷의 여행',       g:'보안' },
     { h:'grow.html',        t:'나의 성장',      g:'보안' }
   ];
-  var TOP = ['chatbot.html','ctf.html','security-ox.html','cyber-guide.html','law-search.html','policy.html','port-lookup.html'];
+  /* 분야별 드롭다운: 큰 범주를 먼저 보여주고 관련 자료를 단계적으로 탐색합니다. */
+  var NAV_GROUPS = [
+    {title:'개인정보 보호',items:['learn.html','pia-guide.html','policy.html','consent.html']},
+    {title:'사이버보안',items:['cyber-guide.html','n2sf-guide.html','port-lookup.html']},
+    {title:'교육·실습',items:['ctf.html','security-ox.html','grow.html']},
+    {title:'자료·도구',items:['law-search.html','chatbot.html']}
+  ];
   var here = (location.pathname.split('/').pop() || 'index.html').toLowerCase() || 'index.html';
   var cur = NAV.filter(function (n) { return n.h === here; })[0];
+  /* 홈페이지/분야별 화면에 동일한 프레임워크 디자인을 가장 마지막에 적용합니다. */
+  if (!document.querySelector('link[data-framework-theme]')) {
+    var frameworkStyle=document.createElement('link');
+    frameworkStyle.rel='stylesheet';
+    frameworkStyle.href='assets/css/framework-2026.css?v=20261119-2';
+    frameworkStyle.setAttribute('data-framework-theme','2026');
+    document.head.appendChild(frameworkStyle);
+  }
 
   function el(tag, cls, html) {
     var e = document.createElement(tag);
@@ -38,9 +52,15 @@
 
   /* 헤더 */
   var head = el('header', 'g-head');
-  var gnb = TOP.map(function (n) {
-    return '<a href="' + n_h(n) + '"' + (n_h(n) === here ? ' aria-current="page"' : '') + '>' + n_t(n) + '</a>';
-  }).join('');
+  var gnb = '<a class="g-menu-home" href="index.html"' + (here === 'index.html' ? ' aria-current="page"' : '') + '>홈</a>' +
+    NAV_GROUPS.map(function(g,i){
+      var active=g.items.indexOf(here)>=0;
+      return '<details class="g-nav-group"' + (active ? ' data-active="true"' : '') + '>' +
+        '<summary>' + g.title + '<span class="g-nav-chevron" aria-hidden="true">⌄</span></summary>' +
+        '<div class="g-nav-panel"><p class="g-nav-title">'+g.title+' <span>바로가기</span></p>' +
+        g.items.map(function(h){return '<a href="'+h+'"' + (h === here?' aria-current="page"':'') + '>'+n_t(h)+'<span aria-hidden="true">↗</span></a>';}).join('')+'</div></details>';
+    }).join('')+
+    '<a class="g-menu-chat" href="chatbot.html"' + (here === 'chatbot.html'?' aria-current="page"':'') + '>AI·실무 도우미</a>';
   function n_h(h) { return h; }
   function n_t(h) { var f = NAV.filter(function (n) { return n.h === h; })[0]; return f ? f.t : h; }
   head.innerHTML =
@@ -109,6 +129,23 @@
   }
 
   body.appendChild(foot);
+
+  /* 메뉴는 키보드·터치·모바일에서 동일하게 펼칠 수 있습니다. */
+  var navDetails = head.querySelectorAll('.g-nav-group');
+  Array.prototype.forEach.call(navDetails,function(menu){
+    menu.addEventListener('toggle',function(){
+      if(menu.open) Array.prototype.forEach.call(navDetails,function(other){if(other!==menu)other.open=false;});
+    });
+  });
+  head.addEventListener('keydown',function(ev){
+    if(ev.key==='Escape') {
+      Array.prototype.forEach.call(navDetails,function(menu){menu.open=false;});
+      if(document.activeElement && document.activeElement.blur)document.activeElement.blur();
+    }
+  });
+  document.addEventListener('click',function(ev){
+    if(!head.contains(ev.target))Array.prototype.forEach.call(navDetails,function(menu){menu.open=false;});
+  });
 
   /* 동작 */
   var burger = document.getElementById('gBurger');
