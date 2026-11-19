@@ -1,0 +1,31 @@
+name: Generate PWA icons
+on:
+  push:
+    paths:
+      - 'scripts/create_pwa_icons.py'
+      - 'assets/pwa/icon.svg'
+      - '.github/workflows/pwa-assets.yml'
+  workflow_dispatch:
+permissions:
+  contents: write
+jobs:
+  icons:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Generate deterministic PNG icons
+        run: python scripts/create_pwa_icons.py
+      - name: Commit generated assets (only if changed)
+        run: |
+          git add assets/pwa/icon-192.png assets/pwa/icon-512.png
+          if git diff --cached --quiet; then
+            echo "Icons already up to date"
+          else
+            git config user.name "github-actions[bot]"
+            git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+            git commit -m "Generate PWA install icons 192 and 512"
+            git push
+          fi
