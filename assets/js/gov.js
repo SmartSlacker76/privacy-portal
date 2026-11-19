@@ -48,7 +48,7 @@
 
   /* 상단 안내 띠 — 공공기관 사칭이 아니라 '교육·실무 지원용'임을 밝힙니다 */
   var strip = el('div', 'g-strip',
-    '<div class="in"><span>🛡 <b>요망진 간세다리와 혼디 지킴이 SECURITY &amp; PRIVACY LEARNING LAB</b> — 개인정보 보호 교육·실무 지원 누리집입니다.</span>' +
+    '<div class="in"><span>🛡 <b>요망진 간세와 혼디 지킴이 SECURITY &amp; PRIVACY LEARNING LAB</b> — 개인정보 보호 교육·실무 지원 누리집입니다.</span>' +
     '<span class="sep">|</span><span>공식 행정 서비스가 아니며, 법령 해석은 소관 기관의 확인이 필요합니다.</span></div>');
 
   /* 헤더 */
@@ -66,8 +66,8 @@
   function n_t(h) { var f = NAV.filter(function (n) { return n.h === h; })[0]; return f ? f.t : h; }
   head.innerHTML =
     '<div class="in">' +
-      '<a class="g-brand" href="index.html" title="홈으로 이동" aria-label="홈으로 이동 — 요망진 간세다리와 혼디 지킴이"><span class="em g-mascot" aria-hidden="true"><img src="assets/security-ox/ganse-security.webp" alt="" width="58" height="58" decoding="async"></span>' +
-      '<span class="tx"><b class="g-brand-ko"><span>요망진 간세다리와</span><span>혼디 지킴이</span></b><span>SECURITY &amp; PRIVACY <strong>LEARNING LAB</strong></span></span><span class="g-home-pill" aria-hidden="true">⌂ 홈</span></a>' +
+      '<a class="g-brand" href="index.html" title="홈으로 이동" aria-label="홈으로 이동 — 요망진 간세와 혼디 지킴이"><span class="em g-mascot" aria-hidden="true"><img src="assets/security-ox/ganse-security.webp" alt="" width="58" height="58" decoding="async"></span>' +
+      '<span class="tx"><b class="g-brand-ko"><span>요망진 간세와</span><span>혼디 지킴이</span></b><span>SECURITY &amp; PRIVACY <strong>LEARNING LAB</strong></span></span><span class="g-home-pill" aria-hidden="true">⌂ 홈</span></a>' +
       '<button class="g-burger" type="button" id="gBurger" aria-expanded="false" aria-label="전체 메뉴 열기">☰</button>' +
       '<nav class="g-gnb" id="gGnb" aria-label="주요 메뉴">' + gnb + '</nav>' +
       '<div class="g-tools"><div class="g-tt" role="group" aria-label="화면 테마">' +
@@ -92,7 +92,7 @@
     '<div class="in">' +
       '<div class="links"><a href="index.html">홈</a><a href="learn.html">학습 안내</a><a href="law-search.html">법령 근거</a><a href="chatbot.html">도움말</a></div>' +
       '<div class="cols">' +
-        '<div><h3>요망진 간세다리와 혼디 지킴이 · SECURITY &amp; PRIVACY LEARNING LAB</h3>' +
+        '<div><h3>요망진 간세와 혼디 지킴이 · SECURITY &amp; PRIVACY LEARNING LAB</h3>' +
           '<p>“마음 놓앙 간세부립서, 정보보호는 혼디 지켜드리쿠다.”<br>' +
           '개인정보 보호 담당자의 실무를 돕기 위한 교육·점검 도구 모음입니다. 모든 점검과 생성은 이용자의 <b>브라우저 안에서만</b> 이뤄지며 입력 내용은 서버에 저장되지 않습니다.</p>' +
           '<p>법령 원문은 국가법령정보센터(law.go.kr) 현행본, 안내서는 개인정보보호위원회·개인정보 포털(privacy.go.kr) 자료를 근거로 합니다.</p></div>' +
