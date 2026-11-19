@@ -35,6 +35,23 @@
     document.head.appendChild(siteStyle);
   }
 
+  /* App manifest is scoped to /privacy-portal/, including subpages. */
+  if (!document.querySelector('link[rel="manifest"]')) {
+    var installManifest=document.createElement('link');
+    installManifest.rel='manifest';
+    installManifest.href='manifest.webmanifest';
+    document.head.appendChild(installManifest);
+  }
+  if (!document.querySelector('meta[name="theme-color"]')) {
+    var themeColor=document.createElement('meta');
+    themeColor.name='theme-color';themeColor.content='#0b0c0b';
+    document.head.appendChild(themeColor);
+  }
+  if (!document.querySelector('link[rel="apple-touch-icon"]')) {
+    var appleIcon=document.createElement('link');appleIcon.rel='apple-touch-icon';
+    appleIcon.href='assets/pwa/icon-192.png';document.head.appendChild(appleIcon);
+  }
+
   function el(tag, cls, html) {
     var e = document.createElement(tag);
     if (cls) e.className = cls;
@@ -69,6 +86,7 @@
       '<a class="g-brand" href="index.html" title="홈으로 이동" aria-label="홈으로 이동 — 요망진 간세와 혼디 지킴이"><span class="em g-mascot" aria-hidden="true"><img src="assets/security-ox/ganse-security.webp" alt="" width="58" height="58" decoding="async"></span>' +
       '<span class="tx"><b class="g-brand-ko">요망진 간세와 혼디 지킴이</b><span>SECURITY &amp; PRIVACY <strong>LEARNING LAB</strong></span></span></a>' +
       '<a class="g-home-direct" href="index.html" aria-label="포털 홈으로 이동">⌂ <span>홈으로 가기</span></a>' +
+      '<a class="g-install-direct" href="install.html" aria-label="포털 앱 설치 안내">↓ <span>앱 설치</span></a>' +
       '<button class="g-burger" type="button" id="gBurger" aria-expanded="false" aria-label="전체 메뉴 열기">☰</button>' +
       '<nav class="g-gnb" id="gGnb" aria-label="주요 메뉴">' + gnb + '</nav>' +
       '<div class="g-tools"><div class="g-tt" role="group" aria-label="화면 테마">' +
@@ -167,5 +185,12 @@
     });
   });
   syncTheme();
+  /* Install helper runs once per normal page; standalone quiz loads it explicitly. */
+  if (!document.querySelector('script[data-hondi-pwa]')) {
+    var pwaScript=document.createElement('script');
+    pwaScript.src='assets/js/pwa.js?v=20261119-1';
+    pwaScript.setAttribute('data-hondi-pwa','1');
+    document.body.appendChild(pwaScript);
+  }
   (function(){function sync(){var h=document.querySelector('.g-head');if(h)document.documentElement.style.setProperty('--pa-head',Math.round(h.getBoundingClientRect().height)+'px');}addEventListener('load',sync);addEventListener('resize',sync);setTimeout(sync,0);})();
 })();
