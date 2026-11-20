@@ -872,25 +872,19 @@
   }
   function fetchVerifiedArticle(question){
     var art=explicitArticle(question);if(!art)return false;
-    var cfg=window.APP_CONFIG||{}, worker=String(cfg.WORKER_URL||'').trim();
-    var unsupported=function(){return add('bot',evidenceReply('unavailable')+
-      '<p class="note-x">법제처 API 연결 또는 해당 조문 원문을 확인할 수 없습니다. 현행법으로 단정하지 않겠습니다.</p>',null,'근거 확인 불가');};
-    if(!/^https:\/\/[a-z0-9.-]+\/?$/i.test(worker)){unsupported();return true;}
-    var url=worker.replace(/\/?$/,'/')+'law?'+new URLSearchParams(art).toString();
-    var options={method:'GET',credentials:'omit',cache:'no-store'};
-    if(typeof AbortSignal!=='undefined'&&AbortSignal.timeout)options.signal=AbortSignal.timeout(8500);
-    fetch(url,options).then(function(response){if(!response.ok)throw Error('API');return response.json();})
-      .then(function(d){
-        var content=String(d&&d.content||'').trim();
-        if(!d||!d.ok||content.length<12||/찾지 못했습니다|조회가 제한|원문 링크로 확인/.test(content))return unsupported();
-        return add('bot',
-          '<p class="friendly-answer"><b>'+esc(d.article||art.name+' 제'+art.jo+'조')+'</b></p>'+
-          '<p class="friendly-answer">'+esc(content.slice(0,420))+(content.length>420?'…':'')+'</p>'+
-          (content.length>420?'<details class="dt"><summary>조문 더 보기</summary><div class="dt-in" style="white-space:pre-wrap">'+esc(content.slice(0,6500))+'</div></details>':'')+
-          '<p class="friendly-src">출처: '+esc(d.source||'법제처 국가법령정보 공동활용 API')+' · 조회 응답 본문</p>'+
-          '<p class="note-x">공공기관 실무 적용 여부는 적용 대상·시행일을 별도로 확인해야 합니다. 법률 자문이 아닌 일반 안내입니다.</p>',
-          null,'법제처 조문 확인');
-      }).catch(unsupported);
+    var api=window.HondiLawAPI;
+    var unsupported=function(){add('bot',evidenceReply('unavailable')+
+      '<p class="note-x">법제처 API에서 해당 조문 원문을 확인하지 못했습니다. 현행 법률로 단정하지 않겠습니다.</p>',null,'근거 확인 불가');};
+    if(!api||!api.enabled()){unsupported();return true;}
+    api.article(art).then(function(d){
+      var summary=d.content.slice(0,310);
+      add('bot',
+        '<p class="friendly-answer"><b>'+esc(d.article||art.name+' 제'+art.jo+'조')+'</b></p>'+
+        '<p class="friendly-answer">'+esc(summary)+(d.content.length>310?'…':'')+'</p>'+
+        (d.content.length>310?'<details class="dt"><summary>조문 전체 보기</summary><div class="dt-in" style="white-space:pre-wrap">'+esc(d.content.slice(0,10000))+'</div></details>':'')+
+        '<p class="friendly-src">법제처 공동활용 API 조회 · '+esc(d.source)+'</p>'+
+        '<p class="note-x"><a href="'+esc(d.url)+'" target="_blank" rel="noopener noreferrer">국가법령정보센터 원문 확인</a> · 공공기관 실무 일반 안내(법률 자문 아님)</p>',null,'법제처 조문 조회');
+    }).catch(unsupported);
     return true;
   }
 
