@@ -758,14 +758,24 @@
     return false;
   }
   // Match only registered answers and recognized consultation intents.
-  function evidenceReply(message, lawSearch) {
-    return '<p class="friendly-answer">'+esc(message)+'</p>'+
-      (lawSearch?'<p><a href="https://www.law.go.kr/" target="_blank" rel="noopener noreferrer">국가법령정보센터에서 원문 찾기</a></p>':'');
+  function evidenceReply(message) {
+    return '<p class="friendly-answer">'+esc(message)+'</p>';
+  }
+  function choose(message, options) {
+    return evidenceReply(message)+'<div class="a-rel">'+options.map(function(option){
+      return '<button type="button" class="chip-q" data-q="'+esc(option[1]).replace(/"/g,'&quot;')+'">'+esc(option[0])+'</button>';
+    }).join('')+'</div>';
+  }
+  function unconfirmed(choices) {
+    return choose('제공된 최신 법령 및 지침에서 이 사안에 적용할 명확한 근거를 확인하지 못했어요. 기관의 개인정보 보호책임자(CPO)에게 검토를 요청하고, 법령 해석이 필요하면 개인정보보호위원회 질의회신을 확인해 주세요.', choices);
   }
   function normalizeQuestion(q){
     return qaNorm(String(q||'').normalize('NFKC'))
       .replace(/시시티비|씨씨티비|cc?tvv/g,'cctv')
       .replace(/주민번로|주민번호/g,'주민등록번호')
+      .replace(/외주업채|외주업체|용역업채/g,'용역업체')
+      .replace(/동보메일|단체메일|대량메일/g,'일괄메일')
+      .replace(/오발숭|잘못보낸|잘못보냈/g,'오발송')
       .replace(/접속기룩/g,'접속기록')
       .replace(/민감정도/g,'민감정보')
       .replace(/몇일|몆일/g,'며칠');
@@ -799,7 +809,8 @@
     }).filter(function(l){return /제\s*\d+조/.test(l);});
   }
   function evidenceLine(label, refs) {
-    return '<p class="friendly-src"><b>'+esc(label)+'</b> · '+esc(refs.join(' · '))+'</p>';
+    var isLaw=/법령|조항|^근거$/.test(label);
+    return '<p class="friendly-src'+(isLaw?' law-cite':'')+'"><b>'+esc(label)+'</b> · '+esc(refs.join(' · '))+'</p>';
   }
   function registeredFaq(qa){
     var refs=(qa.laws||[]).filter(function(l){return /제\s*\d+\s*조/.test(l);});
@@ -807,15 +818,17 @@
     return '<p class="friendly-answer">'+esc(qa.lead)+'</p>'+
       evidenceLine('등록 질의응답의 관련 조항',refs)+
       '<p class="note-x">개인정보보호위원회 「개인정보 질의응답 모음집」(2025. 12.) '+esc(qa.no)+'번</p>'+
-      faqAccordion('사례와 적용 조건',oBullets(qa.bullets)+noteLines(qa.notes),1);
+      faqAccordion('사례와 적용 조건',oBullets(qa.bullets)+noteLines(qa.notes)+
+        ((qa.rulings||[]).length?evidenceLine('자료에 인용된 의결·판례',qa.rulings):''),1);
   }
 
   /* Source-gated advice for public-sector practitioners. Guide sections are
      separate from binding law. The extracted paragraph must be explicitly
      linked to its registered source and a section/article identifier. */
   function guideLocator(name,excerpt){
-    var z=String(name||'')+' '+String(excerpt||'').replace(/<[^>]+>/g,' ');
-    var m=z.match(/(?:제\s*\d+조(?:의\s*\d+)?(?:\s*제\s*\d+항)?|평가\s*항목\s*\d+(?:\.\d+){1,3}|\b\d+\s*(?:쪽|페이지)\b|\bp\.\s*\d+)/i);
+    var locator=/평가\s*항목\s*\d+(?:\.\d+){1,3}|\d+\s*(?:쪽|페이지)|\bp\.\s*\d+/i;
+    var m=String(name||'').match(/제\s*\d+조(?:의\s*\d+)?(?:\s*제\s*\d+항)?/) ||
+      String(name||'').match(locator) || plain(excerpt).match(locator);
     return m?m[0]:null;
   }
   function guidesFor(e){
@@ -842,9 +855,9 @@
     var guides=guidesFor(e);
     if(!guides.length)return null;
     var g=guides[0], loc=guideLocator(g.s,g.t);
-    return '<p class="friendly-answer">'+esc(plain(g.t).slice(0,260))+'</p>'
-      +'<p class="friendly-src"><b>실무 참고:</b> '+esc(g.s)+' · '+esc(loc)+'</p>'
-      +'<p class="note-x">지침·안내서 해설은 법령상의 의무와 구분됩니다. 개정 여부와 원문을 확인해 주세요.</p>';
+    return '<p class="friendly-answer">'+esc(plain(g.t))+'</p>'
+      +evidenceLine('등록 실무자료', [g.s.indexOf(loc)>=0?g.s:g.s+' · '+loc])
+      +'<p class="note-x">안내서와 현행 법령·행정규칙의 내용이 다르면 국가법령정보센터의 현행 기준을 적용하세요.</p>';
   }
   /* The existing Worker handles an authenticated law.go.kr DRF request.
      A Pages deployment with empty WORKER_URL cannot claim API verification. */
@@ -890,8 +903,104 @@
     return true;
   }
 
+  var withholdingChoices = [
+    ['전결권·내부 승인 절차','기관 내부 전결규정은 어디에서 확인하나요?'],
+    ['CPO 검토 준비','CPO 검토 준비 체크리스트']
+  ];
+  var transferChoices = [
+    ['업체가 우리 기관 업무를 대신함','업체에 개인정보 처리 업무를 위탁하는 절차'],
+    ['업체가 자기 목적으로 이용함','업체가 자기 목적으로 개인정보를 받는 경우'],
+    ['두 기준을 비교하고 싶음','위탁과 제3자 제공의 차이']
+  ];
+  var generalChoices = [
+    ['수집·동의','개인정보 수집·이용 동의'],
+    ['위탁·제3자 제공','위탁과 제3자 제공의 차이'],
+    ['보관 종료·파기','개인정보의 파기'],
+    ['오발송·유출 대응','개인정보 오발송 대응 절차'],
+    ['CCTV','CCTV']
+  ];
+  var footageChoices = [
+    ['내가 찍힌 영상','본인이 찍힌 CCTV 영상 열람 방법'],
+    ['위임받은 대리인','대리인의 CCTV 영상 열람 신청'],
+    ['경찰 등 수사기관','수사기관의 CCTV 영상 제공 요청']
+  ];
+  function mentorAnswer(n){
+    var caseNumber=n.match(/(?:19|20)\d{2}[가-힣]{1,5}\d{1,9}(?!\d)/);
+    if(caseNumber&&/(판례|판결|선고)/.test(n)){
+      var item=QA.find(function(qa){
+        return (qa.rulings||[]).some(function(ruling){return normalizeQuestion(ruling).includes(caseNumber[0]);});
+      });
+      var result=item?registeredFaq(item):'';
+      return (result?
+        '<p class="friendly-answer">등록 질의응답에서 이 사건번호의 인용을 확인했어요. 아래 내용은 질의응답의 설명입니다.</p>'+result:
+        unconfirmed([['공공기관 위탁 위반 사례','위탁 위반 사례']]))+
+        '<p class="note-x">판례 원문은 <a href="https://www.law.go.kr/" target="_blank" rel="noopener noreferrer">국가법령정보센터</a>의 판례 메뉴에서 사건번호 '+esc(caseNumber[0])+'로 확인하세요.</p>';
+    }
+    if(n==='주민등록번호제공검토근거'){
+      return '<p class="friendly-answer">주민등록번호를 다른 기관에 보내려는 경우에는 우선 주민등록번호를 처리할 수 있는 제24조의2의 요건을 확인하세요. 그다음 제공 목적이 처음 수집한 목적의 범위 안인지에 따라 제17조 또는 제18조의 제공 요건을 검토하세요.</p>'+
+        '<p>요청기관이 제시한 법령·조항과 요청 목적을 확인한 뒤, 기관의 개인정보 보호책임자와 제공 범위를 검토하세요.</p>'+
+        evidenceLine('관련 법령',['개인정보 보호법 제24조의2','개인정보 보호법 제17조·제18조']);
+    }
+    if(n==='cpo검토준비체크리스트'){
+      return '<ol><li>현재 처리 목적과 개인정보 항목을 정리하세요.</li><li>정보를 누가 받는지, 받는 사람은 어떤 목적으로 쓰는지 적으세요.</li><li>검토한 법령과 내부 규정의 이름·조항을 첨부하세요.</li><li>결정이 필요한 사항과 처리 기한을 명시하세요.</li></ol>';
+    }
+    if(/위임전결|전결규정|전결권|내부승인|결재권|결재선/.test(n)){
+      return evidenceReply('제공된 최신 법령 및 지침에서 기관 내부 전결권자를 특정할 근거를 확인하지 못했어요. 기관의 위임전결규정과 사무분장표에서 해당 업무의 결재권자를 확인하고, 판단이 어려우면 개인정보 보호책임자(CPO)에게 검토를 요청하세요. 법령 해석은 개인정보보호위원회 질의회신을 확인해 주세요.');
+    }
+    if(/(위탁|수탁|용역업체|안전조치|유출)/.test(n)&&/(주의사항|위반사례|처분사례|과태료사례|실제사례)/.test(n) &&
+       !/(cctv|메일|오발송|주민등록번호)/.test(n)){
+      var supervision=/(위탁|수탁|용역업체)/.test(n);
+      return '<p class="friendly-answer"><b>'+ (supervision?'농촌진흥청의 수탁업체 관리·감독 사례':'행정안전부 정부24의 안전조치 사례')+'</b></p>'+
+        (supervision?
+          '<p>농촌진흥청 등은 사업 종료 후 수탁업체로부터 자료를 보유하지 않는다는 확약서를 받았으나 실제 파기 여부를 확인하지 않았습니다. 개인정보위는 농촌진흥청에 과징금 1억 6,800만 원 부과 등을 의결했습니다.</p><p><b>실무 확인</b> · 종료 시 수탁업체의 개인정보 보유 현황과 실제 파기 여부를 점검하세요.</p>':
+          '<p>정부24의 증명서 발급 기능 점검에서 법인 발급 시나리오가 빠졌고, 개인정보위는 이 문제와 다른 안전조치·통지·위탁 공개 의무 위반을 확인했습니다. 정부24 관련 처분으로 행정안전부에 과징금 2억 7,300만 원과 과태료 300만 원 등을 의결했습니다.</p><p><b>실무 확인</b> · 배포 전 개인·법인 등 이용자 유형별로 다른 사람의 정보가 표시되지 않는지 확인하세요.</p>')+
+        evidenceLine('관련 법령', ['개인정보 보호법 '+(supervision?'제26조':'제29조')])+
+        '<p class="friendly-src"><a href="https://pipc.go.kr/np/cop/bbs/selectBoardArticle.do?bbsId=BS074&amp;mCode=C020010000&amp;nttId=12121" target="_blank" rel="noopener noreferrer">개인정보보호위원회 보도자료 · 안전조치 및 수탁자 감독 의무 위반 제재(2026. 5. 28.)</a></p>';
+    }
+    if(/^(?:개인정보)?오발송대응절차$/.test(n)||(/오발송/.test(n)&&/(메일|개인정보|첨부|주소|유출)/.test(n))){
+      if(/(과태료|위반사례|처분사례|실제사례)/.test(n)){
+        return unconfirmed([['오발송 대응 절차','개인정보 오발송 대응 절차']]);
+      }
+      return '<p class="friendly-answer">개인정보가 담긴 메일이 권한 없는 사람에게 전달됐을 가능성이 있다면, 먼저 확산을 줄이고 담당 부서에 알리세요.</p>'+
+        '<ol><li>공유 링크의 권한을 회수하고, 잘못 받은 사람에게 열람·재전송 금지와 삭제를 요청하세요.</li><li>발송 시각, 수신 범위, 노출된 항목, 첨부파일·링크 열람 여부를 확인해 기관의 개인정보 보호 담당 부서에 보고하세요.</li><li>담당 부서와 함께 유출 여부를 판단하고 정보주체 통지 및 감독기관 신고의 요건과 기한을 확인하세요.</li></ol>'+
+        '<p><b>점검</b> · 수신자 주소 노출과 첨부파일 오발송이 함께 있었는지 확인하고, 후속 조치 시각을 기록하세요.</p>'+
+        evidenceLine('관련 법령', ['개인정보 보호법 제34조', '개인정보 보호법 시행령 제39조·제40조']);
+    }
+    if(/^일괄메일(?:을)?(?:보낼때|보내는방법|주의사항|발송방법)?$/.test(n)){
+      return choose('단체 메일을 보내는 상황인가요? 수신자 주소가 서로 보이지 않도록 개별 발송이나 숨은참조를 검토하고, 발송 전 수신자 목록과 첨부파일을 점검하세요.', [
+        ['이미 잘못 발송함','개인정보 오발송 대응 절차'],
+        ['안전조치 근거 확인','개인정보 보호법 제29조 원문']
+      ])+evidenceLine('안전조치의 관련 법령', ['개인정보 보호법 제29조']);
+    }
+    if(/^(위탁과?제3자제공|제3자제공과?위탁)(?:의)?(?:차이|비교|구분)$/.test(n)){
+      return '<p class="friendly-answer">먼저 업체가 <b>누구의 목적을 위해</b> 개인정보를 사용하는지 확인하세요.</p>'+
+        '<table class="core-t"><thead><tr><th scope="col">구분</th><th scope="col">업무위탁</th><th scope="col">제3자 제공</th></tr></thead><tbody>'+
+        '<tr><th scope="row">사용 목적</th><td>우리 기관의 업무를 대신 처리</td><td>자료를 받은 곳의 업무 목적</td></tr>'+
+        '<tr><th scope="row">예시</th><td>기관이 맡긴 신청서 접수 전산처리</td><td>별도 기관이 자체 조사 목적으로 자료 사용</td></tr>'+
+        '<tr><th scope="row">검토 사항</th><td>위탁 문서, 공개, 수탁자 관리·감독</td><td>제공 근거, 수집 목적의 범위, 제공 항목</td></tr></tbody></table>'+
+        evidenceLine('관련 법령', ['개인정보 보호법 제26조', '개인정보 보호법 제17조·제18조']);
+    }
+    if(n==='업체에개인정보처리업무를위탁하는절차'||/^(?:개인정보)?(?:업무)?위탁(?:절차|방법)$/.test(n)){
+      return '<p class="friendly-answer">업체가 우리 기관의 업무를 대신 처리하는 경우로 보고 안내드릴게요.</p>'+
+        '<ol><li>업체에 맡길 업무와 필요한 개인정보 항목을 정하세요.</li><li>위탁 업무 외 사용 금지와 보호조치를 문서에 명시하세요.</li><li>위탁 업무와 수탁자 정보를 법령에 따른 방법으로 공개하세요.</li><li>업체의 처리 현황을 점검하고, 종료 시 자료 반환·파기 여부를 확인하세요.</li></ol>'+
+        '<p><b>점검</b> · 계약 문서, 공개 내용, 점검 및 종료 확인 기록을 남기세요.</p>'+
+        evidenceLine('관련 법령', ['개인정보 보호법 제26조']);
+    }
+    if(n==='업체가자기목적으로개인정보를받는경우'){
+      return '<p class="friendly-answer">업체가 자기 목적으로 자료를 사용한다면 제3자 제공으로 검토하세요. 처음 개인정보를 모은 목적과 업체가 사용하려는 목적을 비교하고, 제17조 또는 제18조에서 적용할 수 있는 근거를 확인한 뒤 제공 범위를 정하세요.</p>'+
+        evidenceLine('관련 법령', ['개인정보 보호법 제17조·제18조']);
+    }
+    if(/용역업체|외부업체/.test(n)&&/(개인정보|주민등록번호|명단|자료|위탁|제공|넘겨|줘도)/.test(n)){
+      return choose('업체에 자료를 전달하는 상황으로 이해했어요. 우리 기관이 맡긴 일만 처리한다면 위탁을 우선 검토하고, 업체가 자기 목적으로 이용한다면 제3자 제공 기준을 살펴보세요. 어느 쪽인가요?',transferChoices)+
+        evidenceLine('관련 법령', ['개인정보 보호법 제26조', '개인정보 보호법 제17조·제18조']);
+    }
+    return null;
+  }
+
   function consultation(q){
     var n=normalizeQuestion(q);
+    var mentor=mentorAnswer(n);
+    if(mentor)return mentor;
     var cctv=/(cctv|개인영상|고정형영상)/.test(n);
     if(/^(cctv|cctv영상|영상정보)$/.test(n)){
       return '<p class="friendly-answer">CCTV에 관해 어떤 내용을 찾으세요?</p><div class="a-rel">'+
@@ -912,7 +1021,10 @@
         return evidenceReply('수사기관의 CCTV 요청으로 이해했어요. 요청 공문에 적힌 제공 근거와 수사 목적은 무엇인가요? 현장 열람인지 영상 사본 제공인지, 요청한 촬영 시간과 장소도 알려 주세요.');
       }
       if(/대리인|보험|위임/.test(n)){
-        return evidenceReply('대리인이 CCTV 영상을 보려는 상황으로 이해했어요. 영상에 찍힌 사람을 대신해 신청하는 건가요? 위임장을 제출했는지와 열람·사본 중 무엇을 요청했는지 알려 주세요.');
+        return choose('본인을 대신해 신청하는 경우라면 운영기관이 대리 권한을 확인할 수 있도록 위임장을 준비하세요. 타인의 영상이 함께 찍혔다면 별도의 보호조치 검토가 필요해요.',[
+          ['보험사가 위임받아 신청','가입한 보험사의 CCTV 영상 열람 요구에 응해도 되나요?'],
+          ['본인이 직접 신청','본인이 찍힌 CCTV 영상 열람 방법']
+        ])+evidenceLine('관련 법령',['개인정보 보호법 제38조제1항','개인정보 보호법 시행령 제45조제2항','표준 개인정보 보호지침 제44조·제46조']);
       }
       if(/(모자이크|비식별)/.test(n)&&/(비용|수수료|실비)/.test(n)&&!/(동의|전원|보험|경찰|수사|과실|면제|\d+원)/.test(n)){
         var fee=QA.find(function(it){return it.no===13;});
@@ -921,16 +1033,22 @@
           '<p class="note-x">개인정보보호위원회 「개인정보 질의응답 모음집」(2025. 12.) 13번</p>';
       }
       if(/(경찰|수사|대리인|보험|위임|타인|다른사람|제3자|언론|제공|공개|비용|모자이크|거부|바다|수영|날아|몰래|비밀번호|기간|며칠|언제|얼마|자료요청|유출|처벌)/.test(n) || retention){
-        return evidenceReply('CCTV 영상 열람·제공을 검토 중이신가요? 요청자가 영상에 찍힌 본인, 위임을 받은 대리인, 수사기관 중 어디에 해당하고, 열람과 사본 제공 중 무엇을 요청했나요? 비용이나 처리기간이 궁금하면 그 항목도 알려 주세요.');
+        return choose('CCTV 영상을 요청한 사람은 누구인가요? 비용이나 처리기간이 궁금하면 요청 유형과 함께 알려 주세요.',footageChoices);
       }
       return '<p class="friendly-answer">본인이 찍힌 CCTV 영상을 보려는 질문으로 보고 안내드릴게요.</p>'+
         '<ol><li>안내판이나 시설 홈페이지에서 CCTV 운영기관을 확인하세요.</li><li>촬영 날짜·시간과 장소를 적어 운영기관에 <b>개인영상정보 열람·존재확인 청구서</b>를 제출하세요.</li><li>운영기관이 요구하는 본인 확인 절차를 따르세요.</li></ol>'+
-        '<p>대리 신청이나 제3자에게 영상을 제공하는 상황이라면, 누가 어떤 목적으로 요청했는지 알려 주세요.</p>'+
+        '<p><b>점검</b> · 촬영 일시·장소를 적었는지 확인하고, 타인이 함께 촬영됐으면 운영기관에 열람 방법을 문의하세요.</p>'+
+        choose('대리 신청이나 수사기관 요청이라면 해당 항목을 선택하세요.',footageChoices.slice(1))+
         evidenceLine('근거', ['개인정보 보호법 제35조', '표준 개인정보 보호지침 제44조']);
     }
     if(/(건강정보|질병정보|병력|진료기록)/.test(n)&&/(수집|제출|받아|요구)/.test(n)&&!/(제공|공개|유출|처벌|파기|동의철회|수사)/.test(n)){
-      return '<p class="friendly-answer">참가자나 민원인의 건강정보를 받으려는 상황이라면, 먼저 그 항목이 업무에 꼭 필요한지 확인하세요. 건강정보는 민감정보에 해당합니다. 법령이 처리를 요구·허용하는지, 또는 필요한 사항을 알리고 다른 개인정보 처리 동의와 구분해 별도로 동의받을 수 있는지 확인하세요.</p>'+
-        '<p>받으려는 항목이 무엇이고, 어떤 업무에 쓰나요? 예를 들어 질병명인지, 행사 중 필요한 지원 사항인지 알려주시면 확인할 기준을 좁힐 수 있어요.</p>'+
+      var audience=/내부직원/.test(n)?'내부 직원':/민원인|참가자/.test(n)?'참가자·민원인':'';
+      return '<p class="friendly-answer">'+(audience?audience+'의 건강정보를 받는 상황으로 이해했어요. ':'')+'건강정보는 민감정보입니다. 그 정보가 업무에 꼭 필요한지, 법령이 처리를 요구·허용하는지, 또는 필요한 사항을 알리고 별도로 동의받을 수 있는지 확인하세요.</p>'+
+        (audience?'<p>'+(/내부직원/.test(n)?'인사·복무·안전보건 중 어떤 목적인지, 진단서 전체가 필요한지 확인하세요.':'참가 접수에 질병명까지 필요한지, 행사 중 필요한 지원 사항만 받으면 되는지 확인하세요.')+'</p>':
+          choose('누구의 건강정보를 수집하는 상황인가요?',[
+            ['내부 직원','내부 직원 건강정보 수집'],
+            ['참가자·민원인','참가자·민원인 건강정보 수집']
+          ]))+
         evidenceLine('근거',['개인정보 보호법 제23조제1항']);
     }
     if(/(목적외이용|목적외제공)/.test(n)&&/^(?:제?18조)?목적외(?:이용|제공|이용제공)(?:이란|뜻|정의|무엇인가요|알려주세요|알려줘)?$/.test(n)){
@@ -995,18 +1113,30 @@
     }
     if(advice)return add('bot',advice,null,'등록 지침·안내서');
     if(/(cctv|영상정보)/.test(n)){
-      return add('bot',evidenceReply('CCTV 설치 절차, 본인 영상 열람 방법, 영상 보관기간 중 어떤 내용이 궁금하신가요?'),null,'질문 확인');
+      return add('bot',choose('CCTV의 어떤 업무에 해당하나요?',[
+        ['설치 절차','CCTV 설치 절차'],
+        ['영상 열람','CCTV 영상 열람 요청하는 방법'],
+        ['영상 보관기간','CCTV 영상 보관기간']
+      ]),null,'질문 확인');
     }
     if(/(주민등록번호|개인정보|민감정보)/.test(n)&&/(수집|이용|제공|공개|받아|삭제|보관)/.test(n)){
-      return add('bot',evidenceReply('이 사안에 맞는 처리 근거를 확인하려면 어떤 정보를 어떤 목적으로 쓰는지 알아야 해요. 우리 기관이 직접 수집하는 경우인가요, 다른 기관에 자료를 제공하는 경우인가요?'),null,'처리 상황 확인');
+      var registration=/주민등록번호/.test(n);
+      return add('bot',choose('이 사안에 적용할 근거를 확인하려면 어떤 정보를 어떤 목적으로 쓰는지 알아야 해요. 어느 쪽에 해당하나요?',[
+        ['우리 기관이 직접 수집',registration?'개인정보 보호법 제24조의2 원문':'개인정보 수집·이용 동의'],
+        ['다른 기관에 자료 제공',registration?'주민등록번호 제공 검토 근거':'목적 외 제공'],
+        ['업체가 우리 업무를 대신 처리','위탁과 제3자 제공의 차이']
+      ]),null,'처리 상황 확인');
     }
     if(/(?:제?\d+조|시행령|시행규칙|고시)/.test(n)){
-      return add('bot',evidenceReply('질문에 해당하는 조문을 확인하지 못했어요. 법령이나 고시의 이름과 조문 번호를 함께 알려 주세요.',true),null,'조문 확인');
+      return add('bot',choose('어떤 종류의 근거를 찾으시나요? 원문 조회는 문서 이름과 조문 번호를 함께 입력해 주세요.',[
+        ['개인정보 보호법 예시','개인정보 보호법 제15조 원문'],
+        ['행정규칙 예시','개인정보의 안전성 확보조치 기준 제8조 원문']
+      ]),null,'조문 확인');
     }
-    return add('bot',evidenceReply('등록 자료에서 질문에 바로 적용할 근거를 찾지 못했어요. 어떤 대상에 대해 어떤 조치를 하려는지 알려 주세요. 예를 들어 “본인이 찍힌 CCTV 영상을 보려면?” 또는 “공모전에서 참가자 건강정보를 받아도 되나요?”처럼 적어 주시면 됩니다.'),null,'질문 확인');
+    return add('bot',unconfirmed(generalChoices.concat(withholdingChoices)),null,'근거 확인');
   }
 
-  var QS = ['민감정보', '고유식별정보', '제18조 목적 외 이용', '접속기록', '암호화', 'CCTV',
+  var QS = ['외주업체에 명단 줘도 되나요?', '동보메일 잘못 보냈어요', '위탁과 제3자 제공의 차이', '위탁 위반 사례',
             'CCTV 영상 열람 요청하는 방법', '공모전 참가자 건강정보 수집해도 되나요?', '가명정보 퀴즈 3문제', 'CCTV는 며칠이나 보관해요?'];
   var chips = document.getElementById('chips');
   chips.innerHTML = QS.map(function (q) { return '<button type="button" class="chip-q">' + esc(q) + '</button>'; }).join('');
@@ -1075,9 +1205,7 @@
   }
 
   [
-    '안녕하세요! 저는 <b>요망진 간세</b>입니다. 등록된 법령·지침·질의응답 근거에 따라 안내합니다.',
-    '<b>확인되는 근거가 있으면 출처와 조항을 함께 표시</b>합니다. 질문이 모호하거나 근거를 찾지 못하면 추측하지 않고 필요한 조건을 여쭙거나 답변을 유보합니다.',
-    '<b>법률 자문이 아닌 일반 안내</b>입니다. 현행 개정 여부와 구체적 사안은 공식 법령 및 담당 기관 확인이 필요합니다.'
+    '안녕하세요. 공공기관 개인정보 보호 멘토 <b>요망진 간세</b>입니다. “외주업체에 명단 줘도 되나요?”처럼 평소 쓰는 말로 물어보세요. 답변에 필요한 조건이 있으면 선택지를 보여 드릴게요.'
   ].forEach(function(t){ add('bot', t); });
   var initialQuestion = new URLSearchParams(location.search).get('q');
   if (initialQuestion) document.getElementById('q').value = initialQuestion.slice(0, 500);
