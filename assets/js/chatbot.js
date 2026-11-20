@@ -815,6 +815,85 @@
     var laws=(item.laws||[]).filter(function(l){return l&&l.n&&/제\s*\d+조(?:의\d+)?/.test(l.n);});
     return laws.length?{item:item,laws:laws}:null;
   }
+
+  /* Source-gated advice for public-sector practitioners. Guide sections are
+     separate from binding law. The extracted paragraph must be explicitly
+     linked to its registered source and a section/article identifier. */
+  function guideLocator(name,excerpt){
+    var z=String(name||'')+' '+String(excerpt||'').replace(/<[^>]+>/g,' ');
+    var m=z.match(/(?:제\s*\d+조(?:의\s*\d+)?(?:\s*제\s*\d+항)?|평가\s*항목\s*\d+(?:\.\d+){1,3}|\b\d+\s*(?:쪽|페이지)\b|\bp\.\s*\d+)/i);
+    return m?m[0]:null;
+  }
+  function guidesFor(e){
+    return (e&&e.guide||[]).map(gnorm).filter(function(g){
+      return g.s && g.t && /(?:지침|안내서|매뉴얼|고시|기준|가이드)/.test(g.s)
+        && guideLocator(g.s,g.t);
+    });
+  }
+  function guideTopic(q){
+    var input=qaNorm(q);
+    var short=input;
+    for(var i=0;i<3;i++) {
+      var newer=short.replace(/(에대해|의|근거|안내서|지침|매뉴얼|실무|요약|설명해주세요|설명해줘|알려주세요|알려줘|무엇인가요|뭔가요|는|은)+$/,'');
+      if(newer===short)break; short=newer;
+    }
+    if(short.length<3)return null;
+    var hits=KB.filter(function(e){
+      if(!guidesFor(e).length)return false;
+      return [e.id,e.title].concat(e.kw||[]).some(function(x){return qaNorm(x)===short;});
+    });
+    return hits.length===1?hits[0]:null;
+  }
+  function guideAdvice(e){
+    var guides=guidesFor(e);
+    if(!guides.length)return null;
+    var g=guides[0], loc=guideLocator(g.s,g.t);
+    return '<p class="friendly-answer">'+esc(plain(g.t).slice(0,260))+'</p>'
+      +'<p class="friendly-src"><b>실무 참고:</b> '+esc(g.s)+' · '+esc(loc)+'</p>'
+      +'<p class="note-x">지침·안내서 해설은 법령상의 의무와 구분됩니다. 개정 여부와 원문을 확인해 주세요.</p>';
+  }
+  /* The existing Worker handles an authenticated law.go.kr DRF request.
+     A Pages deployment with empty WORKER_URL cannot claim API verification. */
+  function explicitArticle(q){
+    var text=String(q||''), m=text.match(/제\s*(\d{1,4})\s*조(?:\s*의\s*(\d{1,3}))?/);
+    if(!m)return null;
+    var names=[
+      ['개인정보 보호법 시행령','법령'],
+      ['개인정보 보호법 시행규칙','법령'],
+      ['개인정보 보호법','법령'],
+      ['표준 개인정보 보호지침','행정규칙'],
+      ['개인정보의 안전성 확보조치 기준','행정규칙'],
+      ['개인정보 보호수준 평가에 관한 고시','행정규칙'],
+      ['개인정보 영향평가에 관한 고시','행정규칙'],
+      ['개인정보 처리 방법에 관한 고시','행정규칙']
+    ];
+    var chosen=names.find(function(row){return text.indexOf(row[0])>=0;});
+    return chosen?{name:chosen[0],kind:chosen[1],jo:+m[1],branch:+(m[2]||0)}:null;
+  }
+  function fetchVerifiedArticle(question){
+    var art=explicitArticle(question);if(!art)return false;
+    var cfg=window.APP_CONFIG||{}, worker=String(cfg.WORKER_URL||'').trim();
+    var unsupported=function(){return add('bot',evidenceReply('unavailable')+
+      '<p class="note-x">법제처 API 연결 또는 해당 조문 원문을 확인할 수 없습니다. 현행법으로 단정하지 않겠습니다.</p>',null,'근거 확인 불가');};
+    if(!/^https:\/\/[a-z0-9.-]+\/?$/i.test(worker)){unsupported();return true;}
+    var url=worker.replace(/\/?$/,'/')+'law?'+new URLSearchParams(art).toString();
+    var options={method:'GET',credentials:'omit',cache:'no-store'};
+    if(typeof AbortSignal!=='undefined'&&AbortSignal.timeout)options.signal=AbortSignal.timeout(8500);
+    fetch(url,options).then(function(response){if(!response.ok)throw Error('API');return response.json();})
+      .then(function(d){
+        var content=String(d&&d.content||'').trim();
+        if(!d||!d.ok||content.length<12||/찾지 못했습니다|조회가 제한|원문 링크로 확인/.test(content))return unsupported();
+        return add('bot',
+          '<p class="friendly-answer"><b>'+esc(d.article||art.name+' 제'+art.jo+'조')+'</b></p>'+
+          '<p class="friendly-answer">'+esc(content.slice(0,420))+(content.length>420?'…':'')+'</p>'+
+          (content.length>420?'<details class="dt"><summary>조문 더 보기</summary><div class="dt-in" style="white-space:pre-wrap">'+esc(content.slice(0,6500))+'</div></details>':'')+
+          '<p class="friendly-src">출처: '+esc(d.source||'법제처 국가법령정보 공동활용 API')+' · 조회 응답 본문</p>'+
+          '<p class="note-x">공공기관 실무 적용 여부는 적용 대상·시행일을 별도로 확인해야 합니다. 법률 자문이 아닌 일반 안내입니다.</p>',
+          null,'법제처 조문 확인');
+      }).catch(unsupported);
+    return true;
+  }
+
   function isVagueCase(q){
     var x=String(q||'');
     var asksDecision=/(가능|해도|받아도|제공해도|수집해도|위법|적법|처벌|과태료|위반|허용|의무|해야|보관기간|언제까지|몇일|며칠|열람|신청|공개|제공|이용|수집|삭제)/.test(x);
@@ -827,44 +906,46 @@
        /^(뭐|응|그거|아니|어쩌라고|모름|몰라|ㅎ+|ㅇ+)$/.test(normalized)){
       return add('bot',evidenceReply('unclear'),null,'질문 이해 확인');
     }
+    // For explicit articles, the DRF Worker response is the only live authority.
+    if(fetchVerifiedArticle(original))return;
     var qa=qaExact(original);
     if(qa){
       var laws=evidenceRefs(qa.laws||[]);
       if(!laws.length)return add('bot',evidenceReply('unavailable'),null,'근거 확인 불가');
-      var raw=[qa.lead].concat(qa.bullets||[]).concat(qa.notes||[]);
-      var body=raw.filter(Boolean).slice(0,7).map(function(x){return '<p class="friendly-answer">'+esc(x)+'</p>';}).join('');
-      var rulings=(qa.rulings||[]).length?'<p class="note-x">등록 자료의 결정·판례: '+esc(qa.rulings.join(' · '))+'</p>':'';
+      var lead=String(qa.lead||qa.bullets&&qa.bullets[0]||'').trim();
+      if(!lead)return add('bot',evidenceReply('unavailable'),null,'근거 확인 불가');
+      var details=(qa.bullets||[]).slice(0,3).map(function(x){return '<p>'+esc(x)+'</p>';}).join('');
       return add('bot',
-        '<p class="friendly-lead">등록된 질의응답 자료에서 해당 질문을 확인했습니다.</p>'+
-        body+
-        '<p class="friendly-src"><b>등록 자료에 표시된 관련 조항:</b> '+esc(laws.join(' · '))+'</p>'+
-        '<p class="note-x">자료: 개인정보보호위원회 「개인정보 질의응답 모음집」(2025. 12.) 제'+esc(qa.no)+'문항. 원문과 현행 개정 여부는 별도 확인이 필요합니다.</p>'+
-        rulings+
-        '<p class="note-x">※ 법률 자문이 아닌 일반 안내입니다.</p>',
-        null,'검증 자료 기반 답변');
+        '<p class="friendly-answer">'+esc(lead.slice(0,290))+(lead.length>290?'…':'')+'</p>'+
+        '<p class="friendly-src"><b>등록 자료의 관련 조항:</b> '+esc(laws.slice(0,3).join(' · '))+'</p>'+
+        '<p class="note-x">출처: 개인정보보호위원회 「개인정보 질의응답 모음집」(2025. 12.) 제'+esc(qa.no)+'문항</p>'+
+        (details?'<details class="dt"><summary>상세 근거 보기</summary><div class="dt-in">'+details+'</div></details>':'')+
+        '<p class="note-x">※ 공공기관 실무 일반 안내입니다. 법령 개정 여부 및 개별 적용은 추가 확인하세요.</p>',
+        null,'등록 질의응답');
     }
+    // Legal permission cannot be inferred without institutional and information context.
     if(isVagueCase(original)){
-      var category='공공기관인지 민간기업인지';
-      var info='일반 개인정보인지 민감정보·고유식별정보인지';
-      return add('bot',evidenceReply('insufficient',category+' 또는 '+info),null,'적용 조건 확인');
+      return add('bot',evidenceReply('insufficient','공공기관인지 민간기업인지, 개인정보 유형이 무엇인지'),null,'적용 조건 확인');
     }
-    var kb=kbExactTopic(original);
-    if(kb){
-      var t=kb.item;
-      var body=(t.sum2||[]).slice(0,2).map(function(x){return '<p class="friendly-answer">'+esc(plain(x))+'</p>';}).join('');
-      if(!body)body='<p class="friendly-answer">'+esc(plain(t.intro||t.title))+'</p>';
-      var legalNames=kb.laws.map(function(l){return l.n;});
-      var anchors=kb.laws.filter(function(l){return /^https:\/\/www\.law\.go\.kr\//.test(l.u||'');})
-        .map(function(l){return '<a href="'+esc(l.u)+'" target="_blank" rel="noopener noreferrer">'+esc(l.n)+' 원문 보기</a>';}).join(' · ');
+    var topic=kbExactTopic(original), manual=guideTopic(original);
+    if(topic){
+      var entry=topic.item;
+      var summary=plain((entry.sum2||[])[0]||entry.intro||'');
+      if(!summary)return add('bot',evidenceReply('unavailable'),null,'근거 확인 불가');
+      var names=topic.laws.map(function(l){return l.n;});
+      var detail=guideAdvice(entry);
       return add('bot',
-        '<p class="friendly-lead">등록된 법령 요약 자료에서 확인한 내용입니다.</p>'+
-        body+
-        '<p class="friendly-src"><b>관련 법령·조항:</b> '+esc(legalNames.join(' · '))+'</p>'+
-        (anchors?'<p class="note-x">'+anchors+'</p>':'')+
-        '<p class="note-x">※ 등록 자료 기반 일반 안내이며, 현행 법령 개정 여부와 구체적 적용은 별도 확인이 필요합니다.</p>',
-        null,'조문 근거 기반 답변');
+        '<p class="friendly-answer">'+esc(summary.slice(0,270))+(summary.length>270?'…':'')+'</p>'+
+        '<p class="friendly-src"><b>등록 자료의 관련 법령·조항:</b> '+esc(names.slice(0,3).join(' · '))+'</p>'+
+        (detail?'<details class="dt"><summary>지침·안내서 실무 참고</summary><div class="dt-in">'+detail+'</div></details>':'')+
+        '<p class="note-x">※ 현행 개정 여부는 확인되지 않았습니다. 법률 자문이 아닌 일반 안내입니다.</p>',
+        null,'등록 법령 요약');
     }
-    if(normalized.length<5 || /^(그럼|그러면|어떤|어떻게|왜|왜요|이것|저것|설명|방법)$/.test(normalized)){
+    if(manual){
+      var advice=guideAdvice(manual);
+      if(advice)return add('bot',advice,null,'등록 지침·안내서');
+    }
+    if(normalized.length<5||/^(그럼|그러면|어떤|어떻게|왜|왜요|이것|저것|설명|방법)$/.test(normalized)){
       return add('bot',evidenceReply('unclear'),null,'질문 이해 확인');
     }
     return add('bot',evidenceReply('unavailable'),null,'근거 확인 불가');
