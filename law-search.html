@@ -234,11 +234,12 @@
 </div>
 
 <script src="assets/config.js"></script>
+<script src="assets/js/law-api-client.js?v=20261120-shared-1"></script>
 <script src="assets/data/lawfull.js"></script>
 <script>
 (function(){
   var $ = function(s){ return document.querySelector(s); };
-  var WK = (window.APP_CONFIG && APP_CONFIG.WORKER_URL) ? APP_CONFIG.WORKER_URL.replace(/\/$/,'') : '';
+  var WK = window.HondiLawAPI && window.HondiLawAPI.origin() || '';
   var DATA = [], STD = [], IDX = [], META = {}, STDMETA = {};
   var IXF = [], IXT = [], IXN = [], IXX = [];          // 업무분야·업무명·법령제목·조문내용 인덱스
   var scope = { f:true, tk:true, n:true, x:true };
@@ -537,8 +538,7 @@
       e.preventDefault();
       var box2 = lv.closest('.r').querySelector('.r-text'), note = lv.closest('.r').querySelector('.r-partial');
       lv.textContent = '불러오는 중…';
-      fetch(WK + '/law?kind=법령&name=' + encodeURIComponent(lv.dataset.name) + '&jo=' + lv.dataset.jo + '&branch=' + lv.dataset.br)
-        .then(function(r){ return r.json(); })
+      window.HondiLawAPI.article({kind:'법령',name:lv.dataset.name,jo:Number(lv.dataset.jo),branch:Number(lv.dataset.br||0)})
         .then(function(j){
           if (j && j.ok && j.content){ box2.innerHTML = articleBodyHtml(j.content, $('#q').value.trim(), DATA.find(function(r){return r.n===lv.dataset.name && r.no.indexOf('제'+lv.dataset.jo+'조')===0;}) || {no:'제'+lv.dataset.jo+'조',at:''}); box2.classList.add('open'); if (note) note.textContent = '✓ 법제처 Open API 최신 본문(' + (j.source||'') + ')'; lv.remove(); }
           else lv.textContent = '불러오지 못했어요 — 현행본 링크로 확인';
