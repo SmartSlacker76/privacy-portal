@@ -184,16 +184,15 @@ async function drf(path, params) {
 async function fetchLaw(oc, name, jo, branch) {
   const s = await drf('lawSearch.do', { OC: oc, target: 'law', query: name, display: '20' });
   const list = asArray(s && s.LawSearch && s.LawSearch.law);
-  const pick = list.find(x => String(x['법령명한글'] || '').replace(/\s/g, '') === name.replace(/\s/g, '') && /현행/.test(x['현행연혁코드'] || '현행')) || list[0];
+  const pick = list.find(x => String(x['법령명한글'] || '').replace(/\s/g, '') === name.replace(/\s/g, '') && /현행/.test(x['현행연혁코드'] || '현행'));
   if (!pick) return { ok: false, error: '법령 없음' };
   const mst = pick['법령일련번호'] || pick['법령ID'];
   const body = await drf('lawService.do', { OC: oc, target: 'law', MST: String(mst) });
   const units = asArray(body && body['법령'] && body['법령']['조문'] && body['법령']['조문']['조문단위']);
   const label = '제' + jo + '조' + (branch ? '의' + branch : '');
-  const art = units.find(u => String(u['조문번호']) === String(jo) && String(u['조문가지번호'] || 0) === String(branch || 0))
-    || units.find(u => String(u['조문번호']) === String(jo));
+  const art = units.find(u => String(u['조문번호']) === String(jo) && String(u['조문가지번호'] || 0) === String(branch || 0));
   const title = pick['법령명한글'] || name;
-  if (!art) return { ok: true, article: title + ' ' + label, content: '(조문 본문을 찾지 못했습니다. 원문 링크로 확인하세요.)', source: '법제처 국가법령정보 Open API' };
+  if (!art || !joText(art).trim()) return { ok: false, error: '요청한 조문 원문을 확인하지 못했습니다.' };
   return { ok: true, article: title + ' ' + label + (art['조문제목'] ? '(' + art['조문제목'] + ')' : ''), content: joText(art), source: '법제처 국가법령정보 Open API · 현행' };
 }
 
@@ -201,16 +200,16 @@ async function fetchLaw(oc, name, jo, branch) {
 async function fetchAdmrul(oc, name, jo, branch) {
   const s = await drf('lawSearch.do', { OC: oc, target: 'admrul', query: name, display: '20' });
   const list = asArray(s && s.AdmRulSearch && s.AdmRulSearch.admrul);
-  const pick = list.find(x => String(x['행정규칙명'] || '').replace(/\s/g, '') === name.replace(/\s/g, '')) || list[0];
+  const pick = list.find(x => String(x['행정규칙명'] || '').replace(/\s/g, '') === name.replace(/\s/g, ''));
   if (!pick) return { ok: false, error: '행정규칙 없음' };
   const id = pick['행정규칙일련번호'] || pick['행정규칙ID'];
   const body = await drf('lawService.do', { OC: oc, target: 'admrul', ID: String(id) });
   const units = asArray(body && body['AdmRulService'] && body['AdmRulService']['조문'] && body['AdmRulService']['조문']['조문단위']);
   const label = '제' + jo + '조' + (branch ? '의' + branch : '');
-  const art = units.find(u => String(u['조문번호']) === String(jo));
+  const art = units.find(u => String(u['조문번호']) === String(jo) && String(u['조문가지번호'] || 0) === String(branch || 0));
   const title = pick['행정규칙명'] || name;
-  if (art) return { ok: true, article: title + ' ' + label, content: joText(art), source: '법제처 국가법령정보 Open API · 행정규칙' };
-  return { ok: true, article: title + ' ' + label, content: '(고시·지침은 조문 본문 조회가 제한될 수 있습니다. 원문 링크로 확인하세요.)', source: '법제처 국가법령정보 Open API' };
+  if (art && joText(art).trim()) return { ok: true, article: title + ' ' + label, content: joText(art), source: '법제처 국가법령정보 Open API · 행정규칙' };
+  return { ok: false, error: '요청한 행정규칙 조문의 본문을 확인하지 못했습니다.' };
 }
 
 function joText(art) {
