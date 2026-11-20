@@ -3,28 +3,27 @@
 (function () {
   var NAV = [
     { h:'index.html',       t:'홈',            g:'' },
-    { h:'pia-guide.html',   t:'영향평가 길라잡이', g:'개인정보 보호' },
-    { h:'learn.html',       t:'학습 둘러보기',      g:'학습·실습' },
-    { h:'ctf.html',         t:'게임으로 배우는 정보보호', g:'학습·실습' },
-    { h:'security-ox.html', t:'OX퀴즈로 풀며 배우는 정보보안', g:'학습·실습' },
-    { h:'policy.html',      t:'처리방침 진단',   g:'개인정보 보호' },
-    { h:'consent.html',     t:'동의서 생성',     g:'개인정보 보호' },
-    { h:'law-search.html',  t:'법령 검색',      g:'자료·도움' },
-    { h:'chatbot.html',     t:'뭐든 물어봅써',   g:'자료·도움' },
-    { h:'cyber-guide.html', t:'사이버 보안 길라잡이', g:'사이버보안' },
-    { h:'n2sf-guide.html',  t:'N2SF',         g:'사이버보안' },
-    { h:'port-lookup.html', t:'패킷의 여행',       g:'사이버보안' },
-    { h:'grow.html',        t:'나의 성장',      g:'학습·실습' }
+    { h:'pia-guide.html',   t:'영향평가 길라잡이', g:'따라하멍' },
+    { h:'learn.html',       t:'학습 둘러보기',      g:'따라하멍' },
+    { h:'ctf.html',         t:'게임으로 배우는 정보보호', g:'즐기멍' },
+    { h:'security-ox.html', t:'OX퀴즈로 풀며 배우는 정보보안', g:'즐기멍' },
+    { h:'policy.html',      t:'처리방침 진단',   g:'만들멍' },
+    { h:'consent.html',     t:'동의서 자동 생성',     g:'만들멍' },
+    { h:'law-search.html',  t:'법령 검색',      g:'물어보멍' },
+    { h:'chatbot.html',     t:'뭐든 물어봅써',   g:'물어보멍' },
+    { h:'cyber-guide.html', t:'사이버 보안 길라잡이', g:'따라하멍' },
+    { h:'n2sf-guide.html',  t:'N2SF',         g:'따라하멍' },
+    { h:'port-lookup.html', t:'패킷의 여행',       g:'즐기멍' },
+    { h:'grow.html',        t:'나의 성장',      g:'따라하멍' }
   ];
   /* 분야별 드롭다운: 큰 범주를 먼저 보여주고 관련 자료를 단계적으로 탐색합니다. */
   /* Each destination appears in exactly one group; the home page remains a separate link. */
   var NAV_GROUPS = [
-    {title:'학습·실습',items:['learn.html','ctf.html','security-ox.html','grow.html']},
-    {title:'개인정보 보호',items:['pia-guide.html','policy.html','consent.html']},
-    {title:'사이버보안',items:['cyber-guide.html','n2sf-guide.html','port-lookup.html']},
-    {title:'자료·도움',items:['law-search.html','chatbot.html']}
-  ];
-  var here = (location.pathname.split('/').pop() || 'index.html').toLowerCase() || 'index.html';
+    {title:'즐기멍',items:['ctf.html','security-ox.html','port-lookup.html']},
+    {title:'물어보멍',items:['chatbot.html','law-search.html']},
+    {title:'만들멍',items:['policy.html','consent.html']},
+    {title:'따라하멍',items:['learn.html','grow.html','pia-guide.html','cyber-guide.html','n2sf-guide.html']}
+  ];  var here = (location.pathname.split('/').pop() || 'index.html').toLowerCase() || 'index.html';
   var cur = NAV.filter(function (n) { return n.h === here; })[0];
   /* Unified educational theme only; never reload obsolete theme layers. */
   if (!document.querySelector('link[data-edu-responsive]')) {
@@ -78,7 +77,7 @@
         '<div class="g-nav-panel"><p class="g-nav-title">'+g.title+' <span>바로가기</span></p>' +
         g.items.map(function(h){return '<a href="'+h+'"' + (h === here?' aria-current="page"':'') + '>'+n_t(h)+'<span aria-hidden="true">↗</span></a>';}).join('')+'</div></details>';
     }).join('')+
-    ''; // 챗봇은 '자료·도구'에서 한 번만 노출합니다.
+    ''; // 모든 하위 페이지는 정확히 하나의 제주어 메뉴에만 노출합니다.
   function n_h(h) { return h; }
   function n_t(h) { var f = NAV.filter(function (n) { return n.h === h; })[0]; return f ? f.t : h; }
   head.innerHTML =
