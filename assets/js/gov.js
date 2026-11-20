@@ -29,7 +29,7 @@
   if (!document.querySelector('link[data-edu-responsive]')) {
     var eduTheme=document.createElement('link');
     eduTheme.rel='stylesheet';
-    eduTheme.href='assets/css/edu1035-responsive.css?v=20261120-final-3';
+    eduTheme.href='assets/css/edu1035-responsive.css?v=20261120-contrast-4';
     eduTheme.setAttribute('data-edu-responsive','2026');
     document.head.appendChild(eduTheme);
   }
