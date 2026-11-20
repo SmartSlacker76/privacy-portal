@@ -269,3 +269,135 @@ html[data-theme="dark"] .academy-home #framework-resources .nist-resource-grid .
  .academy-home .gd-editorial-steps{grid-template-columns:1fr!important}
 }
 @media(prefers-reduced-motion:reduce){.academy-home #learning .course{transition:none!important}}
+
+
+/* FINAL HONDÍ EDUCATIONAL FOUNDATION — replaces former FrameCo/Hondi theme dependencies.
+   Design variables and all homepage layout primitives are defined here, with functional
+   component styles still coming from the original (non-theme) CSS files. */
+:root,html[data-theme="light"]{
+ --bg:#f7f9f7;--surface:#ffffff;--surface-2:#eff6f1;--ink:#172b27;--muted:#526d62;--line:#d9e5e1;
+ --ac-surf:#ffffff;--ac-surf2:#eff6f1;--ac-ink:#172b27;--ac-mut:#526d62;--ac-acc:#087e72;--ac-accbg:#087e72;--ac-line:#d9e5e1;
+ --g-bg:#ffffff;--g-bg-2:#f7f9f7;--g-bg-3:#eaf4f0;--g-ink:#172b27;--g-mut:#526d62;--g-pri:#087e72;--g-pri-l:#e0f0e7;--g-line:#d9e5e1;
+ --plain:#b74734;--cipher:#087e72;--cipher-soft:#e4f4ec;--pri-solid:#087e72;
+}
+html[data-theme="dark"]{
+ --bg:#121b1a;--surface:#1d302d;--surface-2:#233c33;--ink:#edf8f2;--muted:#bfd4c8;--line:#48615a;
+ --ac-surf:#1d302d;--ac-surf2:#233c33;--ac-ink:#edf8f2;--ac-mut:#bfd4c8;--ac-acc:#92d8c4;--ac-accbg:#285a4e;--ac-line:#48615a;
+ --g-bg:#1d302d;--g-bg-2:#121b1a;--g-bg-3:#233c33;--g-ink:#edf8f2;--g-mut:#bfd4c8;--g-pri:#92d8c4;--g-pri-l:#233c33;--g-line:#48615a;
+ --plain:#ffa790;--cipher:#92d8c4;--cipher-soft:#233c33;--pri-solid:#2d6757;
+}
+:where(.panel,.card,.table-wrap,.mini,.course,.tool){min-width:0;max-width:100%;border-color:var(--edu-border);color:var(--edu-text)}
+:where(input,textarea,select){min-width:0;max-width:100%;color:var(--edu-text);background:var(--edu-surface);border-color:var(--edu-border)}
+:where(table){max-width:100%}
+:where(.table-wrap){overflow-x:auto;-webkit-overflow-scrolling:touch}
+.g-strip{background:#0a4c41!important;color:#e4f5eb}
+.g-strip .in{max-width:1390px;padding:7px clamp(14px,2vw,28px);color:#e4f5eb}
+.g-strip b{color:#fff}
+.g-head{position:sticky;top:0;z-index:100;overflow:visible!important}
+.g-head .in{display:flex;align-items:center;justify-content:space-between;flex-wrap:nowrap;max-width:1390px;padding:10px clamp(12px,2vw,26px)}
+.g-brand{display:flex;align-items:center;gap:9px;min-width:0;flex:0 1 auto;text-decoration:none}
+.g-head .g-brand .tx{display:flex;flex-direction:column;min-width:0;gap:4px}
+.g-head .g-brand .tx>.g-brand-ko{display:block!important;font-family:inherit!important;font-size:clamp(16px,1.68vw,24px)!important;font-weight:850!important;line-height:1.3!important;letter-spacing:-.055em!important;white-space:nowrap!important}
+.g-head .g-brand .tx>span{font-size:10px!important;margin:0!important}
+.g-brand .g-mascot{display:grid;place-items:center;width:49px;height:49px;min-width:49px;border-radius:12px!important;overflow:hidden}
+.g-brand .g-mascot img{max-width:100%;max-height:100%;object-fit:contain}
+.g-home-direct,.g-install-direct{display:inline-flex!important;align-items:center;justify-content:center;gap:6px;min-height:39px;padding:8px 11px;white-space:nowrap;flex:0 0 auto;font-size:12px;font-weight:750;border-radius:7px!important;text-decoration:none}
+.g-nav-group{position:relative;display:flex;align-items:center;min-width:0}
+.g-nav-group>summary{display:flex;align-items:center;gap:5px;list-style:none;cursor:pointer;white-space:nowrap;padding:12px 8px!important}
+.g-nav-group>summary::-webkit-details-marker{display:none}
+.g-nav-chevron{font-size:15px}
+.g-nav-group[open] .g-nav-chevron{transform:rotate(180deg)}
+.g-gnb{display:flex;gap:2px;align-items:center;margin-left:auto}
+.g-nav-panel{position:absolute;top:calc(100% + 8px);left:0;z-index:120;min-width:250px;max-width:310px;padding:12px;border-radius:11px}
+.g-nav-panel .g-nav-title{margin:0 0 7px;font-size:12px;font-weight:850}
+.g-nav-panel a{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:11px 9px;border-bottom:1px solid var(--edu-border);font-size:12px!important;line-height:1.5!important;white-space:normal!important}
+.g-nav-panel a:last-child{border-bottom:0}
+.g-tools{display:flex;align-items:center;flex:0 0 auto}
+.g-tt{display:flex;gap:1px}
+.g-tt button{cursor:pointer;padding:7px 8px;white-space:nowrap;font-size:11px;font-weight:750}
+.g-burger{display:none;cursor:pointer}
+.g-foot{margin-top:65px;color:#e5f5ed}
+.g-foot .in{max-width:1340px;margin:auto;padding:45px clamp(16px,3vw,32px)}
+.g-foot :where(.links a,h3,p,.note){color:#e5f5ed}
+.g-crumb{max-width:1300px;margin:auto;padding:20px clamp(16px,3vw,30px) 0}
+.g-page-h{max-width:1290px;margin:auto}
+body:not(.academy-home) :where(.sp-wrap,.pc-wrap,.pchk,.portal,.g-main,.lesson){width:min(100% - 36px,1250px);max-width:1250px;margin-inline:auto}
+body:has(#chat) .sp-wrap{width:min(100% - 28px,900px)!important;max-width:900px!important;margin-inline:auto!important}
+/* Educational homepage shell, no leftover dark portfolio settings */
+.academy-home .academy{width:min(calc(100% - 32px),1320px)!important;max-width:1320px!important;margin-inline:auto!important;padding-inline:0!important}
+.academy-home .gd-editorial-intro{width:100%;max-width:1300px;margin:0 auto;padding:68px 12px;text-align:center}
+.academy-home .gd-editorial-intro .gd-kicker{font-size:11px;letter-spacing:.16em;color:var(--edu-primary);font-weight:800}
+.academy-home .gd-editorial-intro h2{font-size:clamp(27px,3vw,42px);line-height:1.35;letter-spacing:-.046em;margin:16px auto;max-width:980px}
+.academy-home .gd-editorial-intro>p{margin:0 auto 32px;max-width:780px;line-height:1.8;font-size:14px}
+.academy-home .gd-editorial-steps{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px}
+.academy-home .gd-editorial-steps article{min-width:0;text-align:left}
+.academy-home .gd-editorial-steps .gd-no{display:inline-block;margin:0 0 20px;font-size:12px;font-weight:850;color:var(--edu-primary)}
+.academy-home .gd-editorial-steps article h3{font-size:19px;margin:0 0 9px}
+.academy-home .gd-editorial-steps article p{font-size:13px;line-height:1.8;margin:0}
+.academy-home #framework-resources{display:block!important;max-width:1320px!important;margin:28px auto 68px!important;padding:clamp(22px,3.3vw,45px)!important}
+.academy-home #framework-resources .nist-resource-head{display:flex;align-items:flex-end;justify-content:space-between;flex-wrap:wrap;gap:18px 25px;margin-bottom:25px}
+.academy-home #framework-resources .nist-resource-head>div{flex:1 1 480px;min-width:0}
+.academy-home #framework-resources .nist-resource-head .kicker{display:block;font-size:11px;letter-spacing:.15em;font-weight:800;margin-bottom:12px}
+.academy-home #framework-resources .nist-resource-head h2{font-size:clamp(27px,2.9vw,40px)!important;line-height:1.3;letter-spacing:-.05em;margin:0 0 10px;word-break:keep-all}
+.academy-home #framework-resources .nist-resource-head p{font-size:14px;line-height:1.8;margin:0}
+.academy-home #framework-resources .hub-meta{flex:0 1 240px;max-width:100%;font-size:12px;line-height:1.6}
+.academy-home #framework-resources .nist-resource-grid{display:grid!important;grid-template-columns:repeat(3,minmax(0,1fr))!important;gap:14px!important;width:100%;min-width:0}
+.academy-home #framework-resources .nist-resource-grid>a,
+.academy-home #framework-resources .nist-resource-grid>a:nth-child(n){display:flex!important;flex-direction:column;min-width:0!important;max-width:100%!important;width:100%!important;height:100%!important;padding:23px!important;background:var(--edu-surface)!important;border:1px solid var(--edu-border)!important;border-radius:12px!important;text-decoration:none!important;color:var(--edu-text)!important}
+.academy-home #framework-resources .nist-resource-grid>a:nth-child(even){background:var(--edu-tint)!important}
+.academy-home #framework-resources .nist-resource-grid>a:hover{border-color:var(--edu-primary)!important;transform:translateY(-2px);box-shadow:var(--edu-shadow)!important}
+.academy-home #framework-resources .hub-icon{font-size:25px;margin-bottom:16px}
+.academy-home #framework-resources .nist-resource-grid h3{font-size:19px;line-height:1.4;margin:0 0 9px;color:var(--edu-text)!important}
+.academy-home #framework-resources .nist-resource-grid p{font-size:13px;line-height:1.75;flex:1 1 auto;margin:0;color:var(--edu-secondary)!important}
+.academy-home #framework-resources .hub-go{display:block;margin-top:18px;font-size:12px;font-weight:850;color:var(--edu-primary)!important}
+.academy-home #framework-resources .hub-footnote{margin:21px 0 0;font-size:12px;line-height:1.7}
+.academy-home .assistant-section{display:grid!important;grid-template-columns:minmax(0,.82fr) minmax(0,1.18fr)!important;gap:clamp(20px,4vw,56px)!important;padding:clamp(22px,4vw,55px)!important;max-width:1320px!important;margin:45px auto 78px!important}
+.academy-home .assistant-section .assistant-heading{min-width:0}
+.academy-home .assistant-section .assistant-heading h2{font-size:clamp(28px,3.1vw,44px)!important;line-height:1.3;letter-spacing:-.055em}
+.academy-home .assistant-section .question-list{display:flex;flex-direction:column;min-width:0;padding:10px}
+.academy-home .assistant-section .question-list a{display:flex;align-items:center;gap:12px;min-height:56px;padding:13px!important;line-height:1.55;word-break:keep-all;overflow-wrap:anywhere;color:var(--edu-text)!important;border-bottom:1px solid var(--edu-border)!important}
+.academy-home .assistant-section .question-list a:hover{background:var(--edu-lime)!important}
+.academy-home .assistant-section .question-list a:last-child{border-bottom:0!important}
+.academy-home .assistant-section .question-list a span{flex:0 0 auto;color:var(--edu-primary);font-size:12px}
+.academy-home .learning-section{max-width:1320px!important}
+.academy-home .challenge-banner{max-width:1320px;margin:35px auto 65px;padding:clamp(25px,4vw,48px)}
+.academy-home .resource-strip{max-width:1320px;margin:28px auto 55px}
+body:has(#chat) #chat{display:flex!important;flex-direction:column!important;overflow-y:auto!important;overflow-x:hidden!important;min-height:650px;height:clamp(660px,84dvh,1150px)!important;max-height:none!important;overscroll-behavior-y:contain;overflow-anchor:none;touch-action:pan-y;scroll-behavior:auto;scrollbar-gutter:stable}
+body:has(#chat) #chat>.msg{flex:0 0 auto!important;min-height:min-content!important}
+body:has(#chat) #chat .msg.bot{max-width:96%!important;align-self:flex-start}
+body:has(#chat) #chat .msg.me{max-width:88%!important;align-self:flex-end}
+body:has(#chat) #chat .bubble{overflow-wrap:anywhere;min-width:0;line-height:1.8}
+body:has(#chat) .barrow{position:relative!important;bottom:auto!important}
+body.chat-expanded:has(#chat) #chat{height:max(1050px,95dvh)!important}
+@media(max-width:1200px){
+ .g-brand .g-mascot{width:40px;height:40px;min-width:40px}
+ .g-head .in{flex-wrap:wrap;gap:10px}
+ .g-burger{display:inline-flex!important;order:4;margin-left:auto}
+ .g-gnb{display:none!important;flex-basis:100%;width:100%;order:5;flex-direction:column;align-items:stretch;margin-left:0}
+ .g-open .g-gnb{display:flex!important}
+ .g-nav-group{width:100%;display:block}
+ .g-nav-group>summary{justify-content:space-between;width:100%}
+ .g-nav-panel{position:static;max-width:none;min-width:0;width:100%;box-shadow:none}
+ .g-tools{order:3}
+}
+@media(max-width:920px){
+ .academy-home .gd-editorial-steps{grid-template-columns:1fr}
+ .academy-home #framework-resources .nist-resource-grid{grid-template-columns:repeat(2,minmax(0,1fr))!important}
+ .academy-home .assistant-section{grid-template-columns:1fr!important}
+}
+@media(max-width:650px){
+ .g-head .in{padding:10px 12px}
+ .g-brand .g-mascot{display:none}
+ .g-brand .tx>.g-brand-ko{font-size:clamp(12px,3.35vw,18px)!important}
+ .g-brand .tx>span{font-size:8px!important}
+ .g-home-direct,.g-install-direct{font-size:11px!important;min-height:34px;padding:6px 7px}
+ .g-home-direct span,.g-install-direct span{display:none}
+ .g-tt{display:none}
+ .academy-home .academy{width:calc(100% - 24px)!important}
+ .academy-home #framework-resources{margin:18px auto 40px!important;padding:19px!important}
+ .academy-home #framework-resources .nist-resource-grid{grid-template-columns:1fr!important;gap:11px!important}
+ .academy-home #framework-resources .nist-resource-grid>a{min-height:0!important}
+ .academy-home .assistant-section{margin:24px auto 45px!important;padding:21px!important}
+ body:has(#chat) #chat{height:calc(100dvh - 220px)!important;min-height:480px!important;scrollbar-gutter:auto}
+}
+@media(prefers-reduced-motion:reduce){html{scroll-behavior:auto!important}}
