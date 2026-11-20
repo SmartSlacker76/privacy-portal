@@ -799,7 +799,12 @@
   }
   function kbExactTopic(q){
     var n=qaNorm(q);
-    var simple=n.replace(/(에대해|란|이란|은|는|무엇인가요|뭔가요|무엇인가|알려주세요|설명해주세요|설명해줘|알려줘|정의|뜻|의미|기준|개념|관련법령|관련조문|법적근거|요약)+$/g,'');
+    var simple=n;
+    for(var pass=0;pass<4;pass++){
+      var shortened=simple.replace(/(에대해|관련된|란|이란|은|는|무엇인가요|뭔가요|무엇인가|알려주세요|설명해주세요|설명해줘|알려줘|정의|뜻|의미|기준|개념|관련법령|관련조문|법적근거|요약)+$/,'');
+      if(shortened===simple)break;
+      simple=shortened;
+    }
     var candidates=KB.filter(function(it){
       var t=qaNorm(it.title).replace(/\([^)]*\)/g,'');
       var keys=(it.kw||[]).filter(function(k){return qaNorm(k).length>=3&&!/^(정의|개념|유형|방법|처리자|개인정보)$/.test(qaNorm(k));});
@@ -832,7 +837,7 @@
       return add('bot',
         '<p class="friendly-lead">등록된 질의응답 자료에서 해당 질문을 확인했습니다.</p>'+
         body+
-        '<p class="friendly-src"><b>근거:</b> 「개인정보 보호법」 '+esc(laws.join(' · '))+'</p>'+
+        '<p class="friendly-src"><b>등록 자료에 표시된 관련 조항:</b> '+esc(laws.join(' · '))+'</p>'+
         '<p class="note-x">자료: 개인정보보호위원회 「개인정보 질의응답 모음집」(2025. 12.) 제'+esc(qa.no)+'문항. 원문과 현행 개정 여부는 별도 확인이 필요합니다.</p>'+
         rulings+
         '<p class="note-x">※ 법률 자문이 아닌 일반 안내입니다.</p>',
@@ -980,14 +985,12 @@
     if (!v) return; i.value = ''; ask(v);
   });
 
-  document.getElementById('asofBar').innerHTML = '📘 법령·자료를 바탕으로 간단히 안내해요. 중요한 결정은 <a href="https://www.law.go.kr/" target="_blank" rel="noopener">현행 법령</a>도 확인해 주세요.';
+  document.getElementById('asofBar').innerHTML = '📘 등록된 근거 자료에 일치하는 내용만 안내합니다. 개정 여부를 실시간 확인하지 않으므로 중요한 결정 전에는 <a href="https://www.law.go.kr/" target="_blank" rel="noopener">국가법령정보센터</a>에서 현행 조문을 확인해 주세요.';
 
   [
-    '안녕하세요! 저는 <b>요망진 간세</b>입니다. 😊 공공분야 개인정보 보호 업무를 도와드려요.',
-    '<b>용어·조문을 입력하면</b> 정의·근거부터 판례·체크리스트까지 <b>표준 8단계</b>로 설명해요.<br>예) <i>민감정보</i>, <i>제18조 목적 외 이용</i>',
-    '<b>사업 적법성을 물으면 실무 검토 의견</b>(결론·근거·리스크·대안)을 덧붙여요.<br>예) <i>공모전 참가자 건강정보 수집해도 되나요?</i>',
-    '<b>퀴즈를 요청하면</b> 직원 교육용 <b>OX 문제</b>를 해설·실무 팁과 함께 만들어요.<br>예) <i>가명정보 퀴즈 3문제</i>',
-    '<b>무엇을 도와드릴까요?</b> 💬'
+    '안녕하세요! 저는 <b>요망진 간세</b>입니다. 등록된 법령·지침·질의응답 근거에 따라 안내합니다.',
+    '<b>확인되는 근거가 있으면 출처와 조항을 함께 표시</b>합니다. 질문이 모호하거나 근거를 찾지 못하면 추측하지 않고 필요한 조건을 여쭙거나 답변을 유보합니다.',
+    '<b>법률 자문이 아닌 일반 안내</b>입니다. 현행 개정 여부와 구체적 사안은 공식 법령 및 담당 기관 확인이 필요합니다.'
   ].forEach(function(t){ add('bot', t); });
   var initialQuestion = new URLSearchParams(location.search).get('q');
   if (initialQuestion) document.getElementById('q').value = initialQuestion.slice(0, 500);
