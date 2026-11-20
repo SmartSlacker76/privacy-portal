@@ -35,6 +35,15 @@
     document.head.appendChild(siteStyle);
   }
 
+  /* Single final educational layout layer. Loaded once on every subpage. */
+  if (!document.querySelector('link[data-edu-responsive]')) {
+    var eduTheme=document.createElement('link');
+    eduTheme.rel='stylesheet';
+    eduTheme.href='assets/css/edu1035-responsive.css?v=20261120-1';
+    eduTheme.setAttribute('data-edu-responsive','2026');
+    document.head.appendChild(eduTheme);
+  }
+
   /* App manifest is scoped to /privacy-portal/, including subpages. */
   if (!document.querySelector('link[rel="manifest"]')) {
     var installManifest=document.createElement('link');
