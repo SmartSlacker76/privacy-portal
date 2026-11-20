@@ -3,26 +3,26 @@
 (function () {
   var NAV = [
     { h:'index.html',       t:'홈',            g:'' },
-    { h:'pia-guide.html',   t:'영향평가 길라잡이', g:'학습' },
-    { h:'learn.html',       t:'학습 둘러보기',      g:'학습' },
-    { h:'ctf.html',         t:'게임으로 배우는 정보보호', g:'학습' },
-    { h:'security-ox.html', t:'OX퀴즈로 풀며 배우는 정보보안', g:'학습' },
-    { h:'policy.html',      t:'처리방침 진단',   g:'점검·도구' },
-    { h:'consent.html',     t:'동의서 생성',     g:'점검·도구' },
-    { h:'law-search.html',  t:'법령 검색',      g:'점검·도구' },
-    { h:'chatbot.html',     t:'뭐든 물어봅써',   g:'점검·도구' },
-    { h:'cyber-guide.html', t:'사이버 보안 길라잡이', g:'보안' },
-    { h:'n2sf-guide.html',  t:'N2SF',         g:'보안' },
-    { h:'port-lookup.html', t:'패킷의 여행',       g:'보안' },
-    { h:'grow.html',        t:'나의 성장',      g:'보안' }
+    { h:'pia-guide.html',   t:'영향평가 길라잡이', g:'개인정보 보호' },
+    { h:'learn.html',       t:'학습 둘러보기',      g:'학습·실습' },
+    { h:'ctf.html',         t:'게임으로 배우는 정보보호', g:'학습·실습' },
+    { h:'security-ox.html', t:'OX퀴즈로 풀며 배우는 정보보안', g:'학습·실습' },
+    { h:'policy.html',      t:'처리방침 진단',   g:'개인정보 보호' },
+    { h:'consent.html',     t:'동의서 생성',     g:'개인정보 보호' },
+    { h:'law-search.html',  t:'법령 검색',      g:'자료·도움' },
+    { h:'chatbot.html',     t:'뭐든 물어봅써',   g:'자료·도움' },
+    { h:'cyber-guide.html', t:'사이버 보안 길라잡이', g:'사이버보안' },
+    { h:'n2sf-guide.html',  t:'N2SF',         g:'사이버보안' },
+    { h:'port-lookup.html', t:'패킷의 여행',       g:'사이버보안' },
+    { h:'grow.html',        t:'나의 성장',      g:'학습·실습' }
   ];
   /* 분야별 드롭다운: 큰 범주를 먼저 보여주고 관련 자료를 단계적으로 탐색합니다. */
   /* Each destination appears in exactly one group; the home page remains a separate link. */
   var NAV_GROUPS = [
-    {title:'개인정보·영향평가',items:['learn.html','pia-guide.html']},
-    {title:'점검·문서',items:['policy.html','consent.html','law-search.html']},
+    {title:'학습·실습',items:['learn.html','ctf.html','security-ox.html','grow.html']},
+    {title:'개인정보 보호',items:['pia-guide.html','policy.html','consent.html']},
     {title:'사이버보안',items:['cyber-guide.html','n2sf-guide.html','port-lookup.html']},
-    {title:'학습·도움',items:['ctf.html','security-ox.html','grow.html','chatbot.html']}
+    {title:'자료·도움',items:['law-search.html','chatbot.html']}
   ];
   var here = (location.pathname.split('/').pop() || 'index.html').toLowerCase() || 'index.html';
   var cur = NAV.filter(function (n) { return n.h === here; })[0];
