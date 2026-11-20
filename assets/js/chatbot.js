@@ -461,27 +461,12 @@
     return h;
   }
 
-  // 모든 챗봇 답변의 공통 대화형 형식. 원래 조문·퀴즈·근거 정보는 삭제하지 않습니다.
-  function friendlyFormat(html, title) {
-    var h=String(html||'');
-    if (!lastQuestion) return h; // 첫 화면의 환영 메시지는 답변으로 오인하지 않도록 유지합니다.
-    // 전용 답변에 이미 자연스러운 인사가 있다면 중복하지 않아요.
-    if (!/<(?:p|div)[^>]*class="[^"]*(?:friendly-lead|greet|warm-lead)[^"]*"/.test(h)) {
-      var label=title?String(title).replace(/\s*[—-].*$/,'').trim():'';
-      var question=lastQuestion||label||'궁금한 내용';
-      var lead='<p class="warm-lead">네, <b>'+esc(question.length>95?question.slice(0,95)+'…':question)+'</b>에 대해 궁금하셨군요! 이해하기 쉽게 차근차근 알려드릴게요. 😊</p>';
-      h=lead+h;
-    }
-    // 법령 인용·상세 자료는 계속 제공하되 정서적으로 딱딱한 제목 바는 사용하지 않습니다.
-    return h;
-  }
-  var lastQuestion='';
   function add(role, html, src, title) {
     var m = document.createElement('div');
     m.className = 'msg ' + role;
     m.innerHTML = (role === 'bot' ? '<div class="av">🧑🏻‍🦱</div>' : '<div class="av">🙋</div>') +
       '<div class="bubble' + (role === 'bot' && title ? ' long' : '') + '">' +
-      (role === 'bot' ? friendlyFormat(html, title) : html) +
+      html +
       (src ? '<span class="src law-cite">근거: ' + esc(src) + '</span>' : '') + '</div>';
     // Do not steal the reader's scroll position when they are reviewing older messages.
     // Follow new replies only while the conversation was already near its bottom.
@@ -772,48 +757,57 @@
     }
     return false;
   }
-  /* STRICT EVIDENCE GATE (2026-11): all question paths must pass here.
-     No generative model is used. Q&A answers are quoted from the registered
-     2025-12 source; KB excerpts require explicit article-level metadata.
-     Never interpret absent facts, invent exceptions, or imply live verification. */
-  var EVIDENCE_FALLBACK = {
-    unclear:'질문하신 내용의 의도를 정확히 이해하지 못했습니다. 관련 업무나 구체적인 상황을 조금 더 자세히 말씀해 주시겠어요?',
-    insufficient:'질문하신 상황은 적용 대상과 구체적인 조건에 따라 법적 기준이 달라질 수 있습니다. [조건 A]와 [조건 B] 중 어떤 경우에 해당하시는지 알려주시면 정확히 안내해 드리겠습니다.',
-    unavailable:'죄송합니다. 해당 사안에 대해서는 명확한 법적 근거나 지침 내용을 확인할 수 없어 정확한 답변이 어렵습니다. 구체적인 유권해석이나 실무 적용은 개인정보보호위원회(또는 담당 정보보호팀)에 문의하시기 바랍니다.'
-  };
-  function evidenceReply(category, detail) {
-    var msg=EVIDENCE_FALLBACK[category]||EVIDENCE_FALLBACK.unavailable;
-    if(category==='insufficient' && detail) msg=msg.replace('[조건 A]와 [조건 B]',detail);
-    return '<p class="friendly-answer">'+esc(msg)+'</p>'+
-      '<p class="note-x">※ 답변은 법률 자문이 아닌 일반 안내입니다. 검증 가능한 근거 없이 법 적용을 단정하지 않습니다.</p>';
+  // Match only registered answers and recognized consultation intents.
+  function evidenceReply(message, lawSearch) {
+    return '<p class="friendly-answer">'+esc(message)+'</p>'+
+      (lawSearch?'<p><a href="https://www.law.go.kr/" target="_blank" rel="noopener noreferrer">국가법령정보센터에서 원문 찾기</a></p>':'');
   }
-  function evidenceRefs(refs){
-    return (refs||[]).map(function(x){return String(x||'').trim();})
-      .filter(function(x){return /(?:제\s*\d+조(?:의\d+)?(?:\s*제\d+항)?|제\s*\d+항)/.test(x);});
+  function normalizeQuestion(q){
+    return qaNorm(String(q||'').normalize('NFKC'))
+      .replace(/시시티비|씨씨티비|cc?tvv/g,'cctv')
+      .replace(/주민번로|주민번호/g,'주민등록번호')
+      .replace(/접속기룩/g,'접속기록')
+      .replace(/민감정도/g,'민감정보')
+      .replace(/몇일|몆일/g,'며칠');
   }
-  function qaExact(q){
-    var n=qaNorm(q).replace(/(해주세요|알려주세요|설명해주세요|에대해|궁금합니다|궁금해요)$/,'');
-    if(n.length<6)return null;
-    var hits=QA.filter(function(it){return qaNorm(it.q).replace(/(인가요|하나요|나요|합니까)$/,'')===n || qaNorm(it.q)===n;});
+  function exactFaq(q){
+    var stem=function(t){
+      return normalizeQuestion(t).replace(/(?:인지알려주세요|인지알려줘|궁금합니다|궁금해요|해당되는지|해당하나요|해당되나요|해당합니까|인가요|입니까|하나요|합니까|있나요|있을까요)$/,'');
+    };
+    var key=stem(q);
+    if(key.length<7)return null;
+    var hits=QA.filter(function(it){return normalizeQuestion(it.q)===normalizeQuestion(q)||stem(it.q)===key;});
     return hits.length===1?hits[0]:null;
   }
-  function kbExactTopic(q){
-    var n=qaNorm(q);
-    var simple=n;
-    for(var pass=0;pass<4;pass++){
-      var shortened=simple.replace(/(에대해|관련된|란|이란|은|는|무엇인가요|뭔가요|무엇인가|알려주세요|설명해주세요|설명해줘|알려줘|정의|뜻|의미|기준|개념|관련법령|관련조문|법적근거|요약)+$/,'');
-      if(shortened===simple)break;
-      simple=shortened;
-    }
-    var candidates=KB.filter(function(it){
-      var t=qaNorm(it.title).replace(/\([^)]*\)/g,'');
-      var keys=(it.kw||[]).filter(function(k){return qaNorm(k).length>=3&&!/^(정의|개념|유형|방법|처리자|개인정보)$/.test(qaNorm(k));});
-      return t===n||t===simple||keys.some(function(k){return qaNorm(k)===simple;});
+  function topicFor(q){
+    var n=normalizeQuestion(q).replace(/(?:에대해|알려주세요|알려줘|설명해주세요|설명해줘|무엇인가요|뭔가요|무엇인가|뭐예요|뭐야|뭐지|란|이란|뜻|의미|개념|정의|요약|기준|법적근거|체크리스트|점검항목|실무검토|검토해줘)+$/,'');
+    if(/^(개인정보|개인정보가|개인정보이)$/.test(n))n='개인정보란';
+    if(/^(고정형과?이동형|이동형과?고정형)(?:영상정보처리기기)?(?:의)?(?:차이|비교)$/.test(n))n='영상비교';
+    var hits=KB.filter(function(e){
+      var title=normalizeQuestion(e.title.replace(/\s*\([^)]*\)/g,''));
+      return title===n||[e.id].concat(e.kw||[]).some(function(k){
+        var key=normalizeQuestion(k);
+        return key===n && key.length>=3 && !/^(정의|개념|유형|방법|처리자|개인정보|공무원|보관기간|며칠|영업점|과태료|처벌|정보주체|안전|비용|감사|비교|사고|바이러스)$/.test(key);
+      });
     });
-    if(candidates.length!==1)return null;
-    var item=candidates[0];
-    var laws=(item.laws||[]).filter(function(l){return l&&l.n&&/제\s*\d+조(?:의\d+)?/.test(l.n);});
-    return laws.length?{item:item,laws:laws}:null;
+    return hits.length===1?hits[0]:null;
+  }
+  function topicRefs(e){
+    return (e.laws||[]).map(function(l){
+      var article=String(l.a||'');
+      return (l.n||'')+(/제\s*\d+조/.test(l.n||'')||!article?'':' '+article);
+    }).filter(function(l){return /제\s*\d+조/.test(l);});
+  }
+  function evidenceLine(label, refs) {
+    return '<p class="friendly-src"><b>'+esc(label)+'</b> · '+esc(refs.join(' · '))+'</p>';
+  }
+  function registeredFaq(qa){
+    var refs=(qa.laws||[]).filter(function(l){return /제\s*\d+\s*조/.test(l);});
+    if(!qa.lead||!refs.length)return false;
+    return '<p class="friendly-answer">'+esc(qa.lead)+'</p>'+
+      evidenceLine('등록 질의응답의 관련 조항',refs)+
+      '<p class="note-x">개인정보보호위원회 「개인정보 질의응답 모음집」(2025. 12.) '+esc(qa.no)+'번</p>'+
+      faqAccordion('사례와 적용 조건',oBullets(qa.bullets)+noteLines(qa.notes),1);
   }
 
   /* Source-gated advice for public-sector practitioners. Guide sections are
@@ -855,7 +849,7 @@
   /* The existing Worker handles an authenticated law.go.kr DRF request.
      A Pages deployment with empty WORKER_URL cannot claim API verification. */
   function explicitArticle(q){
-    var text=String(q||''), m=text.match(/제\s*(\d{1,4})\s*조(?:\s*의\s*(\d{1,3}))?/);
+    var text=normalizeQuestion(q), m=text.match(/제?(\d{1,4})조(?:의(\d{1,3}))?/);
     if(!m)return null;
     var names=[
       ['개인정보 보호법 시행령','법령'],
@@ -867,14 +861,22 @@
       ['개인정보 영향평가에 관한 고시','행정규칙'],
       ['개인정보 처리 방법에 관한 고시','행정규칙']
     ];
-    var chosen=names.find(function(row){return text.indexOf(row[0])>=0;});
+    var chosen=names.find(function(row){
+      if(!text.startsWith(normalizeQuestion(row[0])))return false;
+      var tail=text.slice(normalizeQuestion(row[0]).length);
+      return /^제?\d{1,4}조(?:의\d{1,3})?(?:(?:원문|본문|전문)(?:을|를)?(?:보여줘|알려줘|보여주세요|알려주세요)?|알려줘|알려주세요)?$/.test(tail);
+    });
     return chosen?{name:chosen[0],kind:chosen[1],jo:+m[1],branch:+(m[2]||0)}:null;
   }
   function fetchVerifiedArticle(question){
     var art=explicitArticle(question);if(!art)return false;
     var api=window.HondiLawAPI;
-    var unsupported=function(){add('bot',evidenceReply('unavailable')+
-      '<p class="note-x">법제처 API에서 해당 조문 원문을 확인하지 못했습니다. 현행 법률로 단정하지 않겠습니다.</p>',null,'근거 확인 불가');};
+    var unsupported=function(){
+      var article='제'+art.jo+'조'+(art.branch?'의'+art.branch:'');
+      var url='https://www.law.go.kr/'+art.kind+'/'+encodeURIComponent(art.name.replace(/\s/g,''))+'/'+encodeURIComponent(article);
+      add('bot','<p class="friendly-answer">법제처 API에서 해당 조문 원문을 실시간으로 확인하지 못했어요.</p>'+
+        '<p><a href="'+url+'" target="_blank" rel="noopener noreferrer">'+esc(art.name+' '+article)+' 원문 확인</a></p>',null,'조문 원문 안내');
+    };
     if(!api||!api.enabled()){unsupported();return true;}
     api.article(art).then(function(d){
       var summary=d.content.slice(0,310);
@@ -888,121 +890,120 @@
     return true;
   }
 
-  function isVagueCase(q){
-    var x=String(q||'');
-    var asksDecision=/(가능|해도|받아도|제공해도|수집해도|위법|적법|처벌|과태료|위반|허용|의무|해야|보관기간|언제까지|몇일|며칠|열람|신청|공개|제공|이용|수집|삭제)/.test(x);
-    var contextual=/(우리|회사|기관|학교|병원|어린이집|보험|경찰|공무원|민간|공공|직원|고객|주민|CCTV|영상|민감|건강|주민등록|고유식별|여권|대리인|가족|위탁)/i.test(x);
-    return asksDecision&&contextual;
+  function consultation(q){
+    var n=normalizeQuestion(q);
+    var cctv=/(cctv|개인영상|고정형영상)/.test(n);
+    if(/^(cctv|cctv영상|영상정보)$/.test(n)){
+      return '<p class="friendly-answer">CCTV에 관해 어떤 내용을 찾으세요?</p><div class="a-rel">'+
+        ['CCTV 설치 절차','CCTV 영상 열람 요청하는 방법','CCTV 영상 보관기간'].map(function(label){
+          return '<button type="button" class="chip-q">'+label+'</button>';
+        }).join('')+'</div>';
+    }
+    var cctvAction=/(열람|모자이크|비식별|영상보는|영상보고|영상확인|영상요청|영상신청|영상받|영상볼|영상제공|영상공개|영상달라)/.test(n);
+    var retention=/(보관|보존|저장|며칠|얼마나|언제까지)/.test(n);
+    if(cctv && retention && !cctvAction && !/(접속기록|로그|녹음|주소|비밀번호|몰카|바다|수영|날아|의료기관|수술실|어린이집|키즈카페|학교|경찰|수사|바디캠|드론|몰래|유출)/.test(n) &&
+       !/\d+일/.test(n)){
+      return '<p class="friendly-answer">일반적인 고정형 CCTV의 영상 보관기간으로 보고 안내드릴게요. 운영기관은 설치 목적에 필요한 최소 기간을 방침에 정합니다. 최소 기간을 산정하기 어려운 경우에는 수집 후 30일 이내로 정합니다.</p>'+
+        '<p>특정 장소의 삭제 예정일은 그 운영기관의 영상정보처리기기 운영·관리 방침을 확인해 주세요.</p>'+
+        evidenceLine('근거', ['표준 개인정보 보호지침 제41조제2항', '개인정보 보호법 시행령 제25조제1항']);
+    }
+    if(cctv && cctvAction){
+      if(/경찰|수사기관/.test(n)){
+        return evidenceReply('수사기관의 CCTV 요청으로 이해했어요. 요청 공문에 적힌 제공 근거와 수사 목적은 무엇인가요? 현장 열람인지 영상 사본 제공인지, 요청한 촬영 시간과 장소도 알려 주세요.');
+      }
+      if(/대리인|보험|위임/.test(n)){
+        return evidenceReply('대리인이 CCTV 영상을 보려는 상황으로 이해했어요. 영상에 찍힌 사람을 대신해 신청하는 건가요? 위임장을 제출했는지와 열람·사본 중 무엇을 요청했는지 알려 주세요.');
+      }
+      if(/(모자이크|비식별)/.test(n)&&/(비용|수수료|실비)/.test(n)&&!/(동의|전원|보험|경찰|수사|과실|면제|\d+원)/.test(n)){
+        var fee=QA.find(function(it){return it.no===13;});
+        if(fee)return '<p class="friendly-answer">모자이크 비용은 실비 범위에서 청구할 수 있어요. 열람 요청 사유가 개인정보처리자에게 있으면 그 처리자가 비용을 부담합니다.</p>'+
+          evidenceLine('근거', ['개인정보 보호법 제38조제3항', '개인정보 보호법 시행령 제47조제1항·제2항'])+
+          '<p class="note-x">개인정보보호위원회 「개인정보 질의응답 모음집」(2025. 12.) 13번</p>';
+      }
+      if(/(경찰|수사|대리인|보험|위임|타인|다른사람|제3자|언론|제공|공개|비용|모자이크|거부|바다|수영|날아|몰래|비밀번호|기간|며칠|언제|얼마|자료요청|유출|처벌)/.test(n) || retention){
+        return evidenceReply('CCTV 영상 열람·제공을 검토 중이신가요? 요청자가 영상에 찍힌 본인, 위임을 받은 대리인, 수사기관 중 어디에 해당하고, 열람과 사본 제공 중 무엇을 요청했나요? 비용이나 처리기간이 궁금하면 그 항목도 알려 주세요.');
+      }
+      return '<p class="friendly-answer">본인이 찍힌 CCTV 영상을 보려는 질문으로 보고 안내드릴게요.</p>'+
+        '<ol><li>안내판이나 시설 홈페이지에서 CCTV 운영기관을 확인하세요.</li><li>촬영 날짜·시간과 장소를 적어 운영기관에 <b>개인영상정보 열람·존재확인 청구서</b>를 제출하세요.</li><li>운영기관이 요구하는 본인 확인 절차를 따르세요.</li></ol>'+
+        '<p>대리 신청이나 제3자에게 영상을 제공하는 상황이라면, 누가 어떤 목적으로 요청했는지 알려 주세요.</p>'+
+        evidenceLine('근거', ['개인정보 보호법 제35조', '표준 개인정보 보호지침 제44조']);
+    }
+    if(/(건강정보|질병정보|병력|진료기록)/.test(n)&&/(수집|제출|받아|요구)/.test(n)&&!/(제공|공개|유출|처벌|파기|동의철회|수사)/.test(n)){
+      return '<p class="friendly-answer">참가자나 민원인의 건강정보를 받으려는 상황이라면, 먼저 그 항목이 업무에 꼭 필요한지 확인하세요. 건강정보는 민감정보에 해당합니다. 법령이 처리를 요구·허용하는지, 또는 필요한 사항을 알리고 다른 개인정보 처리 동의와 구분해 별도로 동의받을 수 있는지 확인하세요.</p>'+
+        '<p>받으려는 항목이 무엇이고, 어떤 업무에 쓰나요? 예를 들어 질병명인지, 행사 중 필요한 지원 사항인지 알려주시면 확인할 기준을 좁힐 수 있어요.</p>'+
+        evidenceLine('근거',['개인정보 보호법 제23조제1항']);
+    }
+    if(/(목적외이용|목적외제공)/.test(n)&&/^(?:제?18조)?목적외(?:이용|제공|이용제공)(?:이란|뜻|정의|무엇인가요|알려주세요|알려줘)?$/.test(n)){
+      return '<p class="friendly-answer">처음 수집한 목적의 범위를 넘어 개인정보를 쓰거나 다른 곳에 주는 경우를 말해요. 구체적인 업무에서 가능 여부를 판단하려면 수집 당시 목적과 새로 쓰거나 제공하려는 목적을 먼저 비교하고, 법 제18조제2항에서 적용할 수 있는 사유를 확인하세요.</p>'+
+        evidenceLine('근거',['개인정보 보호법 제18조']);
+    }
+    return null;
   }
-  function strictAnswer(q){
-    var original=String(q||'').trim(), normalized=qaNorm(original);
-    if(!original||normalized.length<2||/^[^가-힣a-zA-Z0-9]+$/.test(original)||
-       /^(뭐|응|그거|아니|어쩌라고|모름|몰라|ㅎ+|ㅇ+)$/.test(normalized)){
-      return add('bot',evidenceReply('unclear'),null,'질문 이해 확인');
-    }
-    // For explicit articles, the DRF Worker response is the only live authority.
-    if(fetchVerifiedArticle(original))return;
-    var qa=qaExact(original);
-    if(qa){
-      var laws=evidenceRefs(qa.laws||[]);
-      if(!laws.length)return add('bot',evidenceReply('unavailable'),null,'근거 확인 불가');
-      var lead=String(qa.lead||qa.bullets&&qa.bullets[0]||'').trim();
-      if(!lead)return add('bot',evidenceReply('unavailable'),null,'근거 확인 불가');
-      var details=(qa.bullets||[]).slice(0,3).map(function(x){return '<p>'+esc(x)+'</p>';}).join('');
-      return add('bot',
-        '<p class="friendly-answer">'+esc(lead.slice(0,290))+(lead.length>290?'…':'')+'</p>'+
-        '<p class="friendly-src"><b>등록 자료의 관련 조항:</b> '+esc(laws.slice(0,3).join(' · '))+'</p>'+
-        '<p class="note-x">출처: 개인정보보호위원회 「개인정보 질의응답 모음집」(2025. 12.) 제'+esc(qa.no)+'문항</p>'+
-        (details?'<details class="dt"><summary>상세 근거 보기</summary><div class="dt-in">'+details+'</div></details>':'')+
-        '<p class="note-x">※ 공공기관 실무 일반 안내입니다. 법령 개정 여부 및 개별 적용은 추가 확인하세요.</p>',
-        null,'등록 질의응답');
-    }
-    // Legal permission cannot be inferred without institutional and information context.
-    if(isVagueCase(original)){
-      return add('bot',evidenceReply('insufficient','공공기관인지 민간기업인지, 개인정보 유형이 무엇인지'),null,'적용 조건 확인');
-    }
-    var topic=kbExactTopic(original), manual=guideTopic(original);
-    if(topic){
-      var entry=topic.item;
-      var summary=plain((entry.sum2||[])[0]||entry.intro||'');
-      if(!summary)return add('bot',evidenceReply('unavailable'),null,'근거 확인 불가');
-      var names=topic.laws.map(function(l){return l.n;});
-      var detail=guideAdvice(entry);
-      return add('bot',
-        '<p class="friendly-answer">'+esc(summary.slice(0,270))+(summary.length>270?'…':'')+'</p>'+
-        '<p class="friendly-src"><b>등록 자료의 관련 법령·조항:</b> '+esc(names.slice(0,3).join(' · '))+'</p>'+
-        (detail?'<details class="dt"><summary>지침·안내서 실무 참고</summary><div class="dt-in">'+detail+'</div></details>':'')+
-        '<p class="note-x">※ 현행 개정 여부는 확인되지 않았습니다. 법률 자문이 아닌 일반 안내입니다.</p>',
-        null,'등록 법령 요약');
-    }
-    if(manual){
-      var advice=guideAdvice(manual);
-      if(advice)return add('bot',advice,null,'등록 지침·안내서');
-    }
-    if(normalized.length<5||/^(그럼|그러면|어떤|어떻게|왜|왜요|이것|저것|설명|방법)$/.test(normalized)){
-      return add('bot',evidenceReply('unclear'),null,'질문 이해 확인');
-    }
-    return add('bot',evidenceReply('unavailable'),null,'근거 확인 불가');
-  }
-
   function answer(q) {
-    return strictAnswer(q);
-    if(directQuestion(q)) return;
-    if(baseDefinition(q)) return;
-    var e = match(q);
-    lastTopic = e;
-    /* 질문이 모음집 문항과 거의 같으면 모음집 답을 먼저 보여 줍니다. */
-    var hit = qaFind(q);
-    if (e && hit && qaNorm(hit.q).indexOf(qaNorm(q)) >= 0 && qaNorm(q).length >= 8) {
-      return add('bot', qaAnswer(hit) + controllerNote(q)
-        + '<p class="note-x">※ 출처: 개인정보보호위원회 「개인정보 질의응답 모음집」(2025. 12.) 제' + hit.no + '문항</p>'
-        + topicButtons(e.id));
+    var n=normalizeQuestion(q);
+    if(fetchVerifiedArticle(q))return;
+
+    var qa=exactFaq(q), faq=qa&&registeredFaq(qa);
+    if(faq)return add('bot',faq,null,'등록 질의응답');
+
+    var specific=consultation(q);
+    if(specific)return add('bot',specific,null,'실무 상담');
+
+    var quiz=n.match(/^(.+?)퀴즈(?:(\d{1,3})(?:문제|문항|개))?(?:내줘|내주세요|만들어줘|만들어주세요)?$/);
+    var topic=topicFor(quiz?quiz[1]:q);
+    var refs=topic?topicRefs(topic):[];
+    if(quiz&&refs.length&&(topic.quiz||[]).length){
+      var count=Math.min(Number(quiz[2])||3,topic.quiz.length);
+      return add('bot','<p>'+esc(topic.title)+' 퀴즈 '+count+'문항입니다.</p>'+render3(topic,count)+
+        evidenceLine('등록 자료의 관련 조항',refs),null,'교육 퀴즈');
     }
-    if (e && e.weak && !hit) {
-      lastTopic = null;
-      return add('bot',
-        '<p class="friendly-lead">질문을 조금 더 구체적으로 알려주세요.</p>' +
-        '<p class="friendly-answer"><b>' + esc(e.title) + '</b>와 관련 있을 수 있지만, 지금 문장만으로는 요청하신 행위나 상황을 정확히 판단하기 어려워요. 임의로 다른 질문으로 바꾸어 답하지 않겠습니다.</p>' +
-        '<p class="lead">예: 적용 대상, 목적, 기간, 원하는 조치 등을 알려주시면 맞는 자료를 찾아볼게요.</p>',
-        null,'질문 의도 재확인');
+
+    var manual=guideTopic(q), advice=manual&&guideAdvice(manual);
+    if(advice && /(?:안내서|지침|매뉴얼|고시|가이드)/.test(n))return add('bot',advice,null,'등록 지침·안내서');
+    if(!quiz&&refs.length){
+      var summaries = {
+        고유식별정보:'고유식별정보에는 주민등록번호, 여권번호, 운전면허번호, 외국인등록번호가 포함돼요. 그중 주민등록번호는 제24조의2에서 따로 정한 요건을 확인해야 합니다.',
+        접속기록:'개인정보처리시스템의 접속기록은 기본 1년 이상 보관합니다. 일정 규모 이상의 정보주체 정보를 처리하거나 고유식별정보 또는 민감정보를 처리하는 등 고시에서 정한 경우에는 2년 이상 보관합니다. 점검 주기와 방법은 내부 관리계획으로 정해 이행합니다.',
+        암호화:'암호화 대상과 방식은 정보 종류, 전송·저장 여부와 저장 위치에 따라 달라요. 비밀번호를 저장할 때는 복호화할 수 없는 일방향 암호화를 적용합니다.',
+        관리대장:'개인영상정보를 이용·제공하거나 파기할 때는 해당 작업 내역을 관리대장에 기록하세요. 어떤 항목을 적을지는 표준 개인정보 보호지침의 관리대장 서식을 확인하세요.',
+        파기:'보유기간이 끝나거나 처리 목적을 달성하는 등 개인정보가 불필요해지면 지체 없이 파기하세요. 다른 법령에 따라 보존해야 하면 해당 정보를 분리해서 보관합니다.',
+        아동:'만 14세 미만 아동의 개인정보를 처리하면서 법에 따른 동의를 받아야 하는 경우에는 법정대리인의 동의를 받고 동의 사실을 확인해야 해요.',
+        안전조치:'개인정보를 보호하기 위해 접근권한 관리, 접근통제, 암호화, 접속기록 보관 등 필요한 안전조치를 적용해야 해요.',
+        처리방침:'개인정보 처리 목적과 보유기간, 정보주체의 권리와 행사 방법 등 기관에 해당하는 기재사항을 정리해 홈페이지 등에서 확인할 수 있도록 공개하세요.',
+        교육대상:'개인정보처리자는 업무상 개인정보를 취급하는 사람에게 필요한 교육을 정기적으로 실시해야 해요.',
+        설치절차:'공공기관이 공개된 장소에 고정형 CCTV를 설치하는 절차로 보고 안내드릴게요.',
+        영상비교:'고정형과 이동형은 기기의 설치·휴대 방식과 적용 조항이 달라요.'
+      };
+      var summary=summaries[topic.id]||plain((topic.sum2||[])[0]||topic.intro||'');
+      if(topic.id==='접속기록')refs.unshift('개인정보의 안전성 확보조치 기준 제8조');
+      if(topic.id==='암호화')refs.unshift('개인정보의 안전성 확보조치 기준 제7조');
+      if(topic.id==='관리대장')refs.unshift('표준 개인정보 보호지침 제45조 및 별지 제3호서식');
+      if(summary){
+        var checks=/(체크리스트|점검항목|실무검토|검토해줘)$/.test(n)?secOf(topic,8).check:[];
+        if(topic.id==='민감정보' && checks)checks=checks.slice(0,2);
+        var steps=topic.id==='설치절차'?
+          '<ol><li>설치 목적과 법적 근거를 확인하세요.</li><li>설치 전에 법령에 따른 의견수렴을 진행하세요.</li><li>안내판과 운영·관리 방침을 마련하세요.</li></ol>'+
+          '<p>공개되지 않은 장소에 설치하려는 경우에는 촬영 장소와 목적을 알려 주세요.</p>':'';
+        if(topic.id==='영상열람')return add('bot',consultation('CCTV 영상 열람 요청 방법'),null,'실무 상담');
+        var comparison=topic.id==='영상비교' ? '<table class="core-t"><thead><tr><th scope="col">구분</th><th scope="col">고정형</th><th scope="col">이동형</th></tr></thead><tbody><tr><th scope="row">대표 기기</th><td>고정 설치 CCTV</td><td>바디캠·드론 카메라</td></tr><tr><th scope="row">관련 조항</th><td>개인정보 보호법 제25조</td><td>개인정보 보호법 제25조의2</td></tr></tbody></table>' : '';
+        var content='<p class="friendly-answer">'+esc(summary)+'</p>'+comparison+steps+
+          (checks&&checks.length?'<ul>'+checks.map(function(c){return '<li>'+esc(plain(c))+'</li>';}).join('')+'</ul>':'')+
+          evidenceLine('등록 자료의 관련 조항',refs.slice(0,3))+
+          (advice?faqAccordion('지침·안내서 실무 참고',advice,1):'');
+        return add('bot',content,null,'등록 자료 요약');
+      }
     }
-    if (!e) {
-      /* 포털 주제가 없더라도 질의응답 모음집(99문항)에 있으면 그 답을 드립니다. */
-      var only = qaFind(q);
-      if (only) return add('bot', qaOnly(only, q));
-      var topics = KB.map(function (x) { return '<button type="button" class="chip-q rel" data-q="' + esc(x.kw[0]) + '">' + esc(x.title) + '</button>'; }).join('');
-      return add('bot',
-        '<p class="greet">안녕하세요! 😊 죄송해요, 이 질문에 딱 맞는 주제를 아직 못 찾았어요.</p>' +
-        '<p class="lead">조금 더 <b>법령 용어</b>로 좁혀 주시면 정확히 답해 드릴 수 있어요. 주제명을 입력하면 <b>핵심 정리</b>로, “○○ 검토해줘”는 <b>실무 검토</b>로, “○○ 퀴즈 3문제”는 <b>교육 퀴즈</b>로 답해요.</p>' +
-        '<div class="blk"><h4>💡 이런 주제는 바로 답해 드려요</h4>' +
-        '<div class="a-rel">' + topics + '</div></div>' +
-        '<p style="margin:10px 0 0;font-size:12.5px;color:var(--muted)">구체적 사안은 <b>개인정보보호위원회(pipc.go.kr)</b> 상담이나 전문가 검토가 필요할 수 있어요.</p>',
-        null, '주제를 찾지 못했어요');
+    if(advice)return add('bot',advice,null,'등록 지침·안내서');
+    if(/(cctv|영상정보)/.test(n)){
+      return add('bot',evidenceReply('CCTV 설치 절차, 본인 영상 열람 방법, 영상 보관기간 중 어떤 내용이 궁금하신가요?'),null,'질문 확인');
     }
-    var m = mode(q);
-    if (m === 3) {
-      var n = (q.match(/(\d+)\s*(문제|문항|개)/) || [])[1];
-      var available=(e.quiz||[]).length;
-      var desired=n ? Math.max(1,Math.min(+n,20)) : 3;
-      var cnt=Math.min(desired,available);
-      var availabilityNote=desired>available?'<p class="warnline">요청하신 '+desired+'문제 중 검증된 문제는 '+available+'문제만 준비돼 있어요. 근거 없는 문제를 추가로 만들지 않고 준비된 문제만 보여 드립니다.</p>':'';
-      return add('bot',
-        '<p class="greet">네, <b>' + esc(e.title) + '</b> 퀴즈를 풀어 보고 싶으셨군요! 문제와 해설을 차근차근 준비했어요. 😊</p>' +
-        '<p class="lead">실무에서 가장 헷갈리는 지점으로 <b>' + cnt + '문제</b>를 골랐어요. O·X를 먼저 고르면 바로 채점하고, 문제마다 <b>왜 그런지</b>와 <b>실무 팁</b>까지 펼쳐 드릴게요.</p>' +
-        availabilityNote + '<div class="blk"><h4>💡 함께 풀어 볼까요?</h4>' + render3(e, cnt) + '</div>',
-        e.src, e.title + ' — 교육 퀴즈');
+    if(/(주민등록번호|개인정보|민감정보)/.test(n)&&/(수집|이용|제공|공개|받아|삭제|보관)/.test(n)){
+      return add('bot',evidenceReply('이 사안에 맞는 처리 근거를 확인하려면 어떤 정보를 어떤 목적으로 쓰는지 알아야 해요. 우리 기관이 직접 수집하는 경우인가요, 다른 기관에 자료를 제공하는 경우인가요?'),null,'처리 상황 확인');
     }
-    if (m === 2) return add('bot',
-      '<p class="greet">네, <b>' + esc(e.title) + '</b>에 관한 상황이 궁금하셨군요! 법적 근거와 확인할 부분을 함께 살펴볼게요. 😊</p>' +
-      '<p class="lead">핵심은 <b>법적 근거와 필요한 정보인지</b>예요. 아래에서 결론·근거·위험·대안을 확인해 보세요.</p>' +
-      '<p class="friendly-answer">아래 항목을 눌러 법적 근거와 실무 조치를 단계별로 검토해 주세요. 👇</p>' +
-      '<div class="cctv-disclosure-more">'+
-        faqAccordion('관련 법령과 처리 근거', sectionGroup(e,[1,3,7]), 1)+
-        faqAccordion('사례별 적용과 위험요인', sectionGroup(e,[2,5]), 2)+
-        faqAccordion('안전조치 및 담당자 점검사항', sectionGroup(e,[4,6,8]), 3)+
-        faqAccordion('실무 검토 참고자료와 추가 설명',guideBlock(e)+qnaBlock(e),4)+
-      '</div>'+quizBlock(e), e.src, e.title + ' — 실무 검토');
-    return add('bot', renderTopic(e, q), e.src, e.title);
+    if(/(?:제?\d+조|시행령|시행규칙|고시)/.test(n)){
+      return add('bot',evidenceReply('질문에 해당하는 조문을 확인하지 못했어요. 법령이나 고시의 이름과 조문 번호를 함께 알려 주세요.',true),null,'조문 확인');
+    }
+    return add('bot',evidenceReply('등록 자료에서 질문에 바로 적용할 근거를 찾지 못했어요. 어떤 대상에 대해 어떤 조치를 하려는지 알려 주세요. 예를 들어 “본인이 찍힌 CCTV 영상을 보려면?” 또는 “공모전에서 참가자 건강정보를 받아도 되나요?”처럼 적어 주시면 됩니다.'),null,'질문 확인');
   }
 
   var QS = ['민감정보', '고유식별정보', '제18조 목적 외 이용', '접속기록', '암호화', 'CCTV',
@@ -1010,7 +1011,7 @@
   var chips = document.getElementById('chips');
   chips.innerHTML = QS.map(function (q) { return '<button type="button" class="chip-q">' + esc(q) + '</button>'; }).join('');
 
-  function ask(t) { lastQuestion=String(t||'').trim(); add('me', esc(t)); setTimeout(function () { answer(t); }, 160); }
+  function ask(t) { add('me', esc(t)); setTimeout(function () { answer(t); }, 160); }
   chips.addEventListener('click', function (ev) { var b = ev.target.closest('.chip-q'); if (b) ask(b.dataset.q || b.textContent); });
   chat.addEventListener('click', function (ev) {
     var ox = ev.target.closest('.ox-b');
@@ -1040,7 +1041,6 @@
     if (tid === 'quiz') {
       var qq = e.title + ' 교육 퀴즈를 만들어 주세요.';
       if (qEl) qEl.value = qq;
-      lastQuestion=qq;
       add('me', esc(qq));
       add('bot', openLine(e.title + ' 교육 퀴즈') + quizBlock(e) + topicButtons(e.id));
       if (qEl) qEl.value = '';
@@ -1049,7 +1049,6 @@
     var t5 = TOPIC5.filter(function (x) { return x.id === tid; })[0]; if (!t5) return;
     var ask = e.title + ' — ' + t5.ask;
     if (qEl) qEl.value = ask;
-    lastQuestion=ask;
     add('me', esc(ask));
     add('bot', topicAnswer(e, t5) + topicButtons(e.id));
     if (qEl) qEl.value = '';
