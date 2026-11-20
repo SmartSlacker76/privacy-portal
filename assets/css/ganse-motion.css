@@ -1,0 +1,60 @@
+/* HONDI / GanSe purposeful mascot motion. CSS transforms only; no motion-heavy assets. */
+:root{--ganse-tilt-x:0deg;--ganse-tilt-y:0deg;--ganse-shift-x:0px;--ganse-shift-y:0px}
+.academy-home .ox-feature-visual{position:relative;isolation:isolate;perspective:900px;overflow:visible!important}
+.academy-home .ox-feature-visual img{
+  display:block;position:relative;z-index:2;
+  transform-origin:50% 84%;
+  transform:translate3d(var(--ganse-shift-x),var(--ganse-shift-y),0) rotateX(var(--ganse-tilt-x)) rotateY(var(--ganse-tilt-y));
+  transition:transform 430ms cubic-bezier(.2,.8,.3,1);
+  will-change:transform;
+  filter:drop-shadow(0 14px 10px rgba(0,52,47,.15));
+}
+.ganse-motion-ready .academy-home .ox-feature-visual img{animation:ganse-breathe 4.8s ease-in-out infinite}
+@keyframes ganse-breathe{
+  0%,100%{transform:translate3d(var(--ganse-shift-x),var(--ganse-shift-y),0) rotateX(var(--ganse-tilt-x)) rotateY(var(--ganse-tilt-y)) rotateZ(-1deg)}
+  50%{transform:translate3d(var(--ganse-shift-x),calc(var(--ganse-shift-y) - 9px),0) rotateX(var(--ganse-tilt-x)) rotateY(var(--ganse-tilt-y)) rotateZ(1.1deg)}
+}
+.academy-home .ox-feature-visual:after{
+  content:"";position:absolute;z-index:1;left:21%;right:12%;bottom:4%;
+  height:20px;border-radius:50%;background:rgba(6,53,47,.12);
+  filter:blur(11px);transform:scale(.84);animation:ganse-shadow 4.8s ease-in-out infinite;
+}
+@keyframes ganse-shadow{50%{opacity:.52;transform:scale(1)}}
+.academy-home .ganse-greeting{
+  display:block;position:absolute;z-index:5;right:7%;top:4%;max-width:190px;
+  padding:10px 13px;background:#fff;border:1px solid #c6e6d3;border-radius:16px 16px 4px 16px;
+  box-shadow:0 10px 26px rgba(0,65,50,.13);color:#174338;font-size:12px;font-weight:750;
+  line-height:1.45;transform:translateY(10px) scale(.96);opacity:0;pointer-events:none;
+  transition:opacity 300ms ease,transform 300ms ease;
+}
+.academy-home .ganse-greeting.is-visible{opacity:1;transform:translateY(0) scale(1)}
+.academy-home .ganse-motion-button{
+  position:absolute;z-index:6;right:6%;bottom:11px;display:inline-flex;align-items:center;gap:6px;
+  background:#0b7165;color:#fff;border:1px solid #0b7165;padding:8px 12px;border-radius:20px;
+  font-size:12px;font-weight:800;cursor:pointer;box-shadow:0 6px 18px rgba(0,65,50,.14)
+}
+.academy-home .ganse-motion-button:hover{background:#03574e}
+.academy-home .ganse-motion-button:focus-visible{outline:3px solid #ffe393;outline-offset:3px}
+.g-head .g-mascot{transform-origin:50% 80%;transition:transform 240ms ease}
+.g-head .g-brand:hover .g-mascot,.g-head .g-brand:focus-visible .g-mascot{transform:rotate(-8deg) translateY(-2px)}
+/* Scroll entry motion, only when JS has initialized observer state. */
+.ganse-observed:not(.ganse-entered){opacity:0;transform:translateY(22px)}
+.ganse-observed{transition:opacity 650ms ease,transform 650ms cubic-bezier(.2,.75,.3,1)}
+.ganse-entered{opacity:1;transform:translateY(0)}
+@media(max-width:700px){
+ .academy-home .ganse-greeting{top:0;right:2%;font-size:11px;max-width:137px;padding:8px 10px}
+ .academy-home .ganse-motion-button{right:4%;bottom:5px}
+ .academy-home .ox-feature-visual:after{height:12px;bottom:6%}
+}
+@media(prefers-reduced-motion:reduce){
+ .ganse-motion-ready .academy-home .ox-feature-visual img,
+ .academy-home .ox-feature-visual:after{animation:none!important}
+ .academy-home .ox-feature-visual img{transform:none!important;transition:none!important;will-change:auto!important}
+ .ganse-observed,.ganse-observed:not(.ganse-entered){opacity:1!important;transform:none!important;transition:none!important}
+ .g-head .g-mascot{transform:none!important;transition:none!important}
+ .academy-home .ganse-greeting{transition:none!important}
+}
+@media(prefers-reduced-data:reduce){
+ .ganse-motion-ready .academy-home .ox-feature-visual img,
+ .academy-home .ox-feature-visual:after{animation:none!important}
+}
