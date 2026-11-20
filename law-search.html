@@ -230,6 +230,7 @@
     <div class="loadmore" id="loadmore" hidden><button class="btn" id="more" type="button">더 보기</button></div>
   </div>
 
+  <p class="notice" id="workerLawStatus" role="status" aria-live="polite">법제처 API 연결 상태 확인 중…</p>
   <p class="notice" style="margin-top:14px;font-size:12px;color:var(--muted)" id="src">출처: 국가법령정보센터 Open API 원문 미러, 개인정보 포털 공통업무 표준목록. 근거 분류와 표준목록 연계는 규칙 기반 자동 판정으로 <b>법적 자문이 아니에요</b>. 실제 적용 전 ‘법제처 현행본’ 링크로 <b>최신 조문</b>을 반드시 확인하세요.</p>
 </div>
 
@@ -240,6 +241,17 @@
 (function(){
   var $ = function(s){ return document.querySelector(s); };
   var WK = window.HondiLawAPI && window.HondiLawAPI.origin() || '';
+  if(window.HondiLawAPI){
+    var lawStatus=document.getElementById('workerLawStatus');
+    window.HondiLawAPI.health().then(function(info){
+      lawStatus.textContent=info.law
+        ? '법제처 API 연결됨 · 챗봇과 동일한 Worker에서 조문을 조회합니다.'
+        : '법제처 API 미연결 · 현재는 등록 법령 미러와 법제처 원문 링크를 제공합니다.';
+    }).catch(function(){
+      lawStatus.textContent='법제처 API 연결 상태를 확인하지 못했습니다.';
+    });
+  }
+
   var DATA = [], STD = [], IDX = [], META = {}, STDMETA = {};
   var IXF = [], IXT = [], IXN = [], IXX = [];          // 업무분야·업무명·법령제목·조문내용 인덱스
   var scope = { f:true, tk:true, n:true, x:true };
