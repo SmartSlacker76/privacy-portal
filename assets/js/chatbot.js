@@ -1060,7 +1060,20 @@
     if (!v) return; i.value = ''; ask(v);
   });
 
-  document.getElementById('asofBar').innerHTML = '📘 등록된 근거 자료에 일치하는 내용만 안내합니다. 개정 여부를 실시간 확인하지 않으므로 중요한 결정 전에는 <a href="https://www.law.go.kr/" target="_blank" rel="noopener">국가법령정보센터</a>에서 현행 조문을 확인해 주세요.';
+  var sourceStatus=document.getElementById('asofBar');
+  sourceStatus.innerHTML='📘 <b>법제처 API 연결 상태 확인 중</b> · 등록 법령·지침·안내서 기준으로 안내합니다.';
+  if(window.HondiLawAPI){
+    window.HondiLawAPI.health().then(function(status){
+      sourceStatus.innerHTML=(status.law
+        ? '🟢 <b>법제처 API 연결됨</b> · 조문을 지정하면 기존 법령 검색과 동일한 Worker로 원문을 확인합니다.'
+        : '⚪ <b>법제처 API 미연결</b> · 등록 자료를 안내하지만 실시간 법령 검증은 수행하지 않습니다.')+
+        ' <a href="https://www.law.go.kr/" target="_blank" rel="noopener noreferrer">국가법령정보센터 원문</a>';
+    }).catch(function(){
+      sourceStatus.textContent='법제처 API 상태를 확인하지 못했습니다. 등록 자료 기반 안내만 가능합니다.';
+    });
+  }else{
+    sourceStatus.textContent='법제처 API가 연결되어 있지 않습니다. 등록 자료 기반으로만 안내합니다.';
+  }
 
   [
     '안녕하세요! 저는 <b>요망진 간세</b>입니다. 등록된 법령·지침·질의응답 근거에 따라 안내합니다.',
