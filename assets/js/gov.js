@@ -26,20 +26,11 @@
   ];
   var here = (location.pathname.split('/').pop() || 'index.html').toLowerCase() || 'index.html';
   var cur = NAV.filter(function (n) { return n.h === here; })[0];
-  /* Single shared final design system; avoid stacks of overlapping legacy themes. */
-  if (!document.querySelector('link[data-frameco-design]')) {
-    var siteStyle=document.createElement('link');
-    siteStyle.rel='stylesheet';
-    siteStyle.href='assets/css/frameco-2026.css?v=20261119-contrast-brand-8';
-    siteStyle.setAttribute('data-frameco-design','2026');
-    document.head.appendChild(siteStyle);
-  }
-
-  /* Single final educational layout layer. Loaded once on every subpage. */
+  /* Unified educational theme only; never reload obsolete theme layers. */
   if (!document.querySelector('link[data-edu-responsive]')) {
     var eduTheme=document.createElement('link');
     eduTheme.rel='stylesheet';
-    eduTheme.href='assets/css/edu1035-responsive.css?v=20261120-1';
+    eduTheme.href='assets/css/edu1035-responsive.css?v=20261120-final-2';
     eduTheme.setAttribute('data-edu-responsive','2026');
     document.head.appendChild(eduTheme);
   }
