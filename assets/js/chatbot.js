@@ -772,7 +772,101 @@
     }
     return false;
   }
+  /* STRICT EVIDENCE GATE (2026-11): all question paths must pass here.
+     No generative model is used. Q&A answers are quoted from the registered
+     2025-12 source; KB excerpts require explicit article-level metadata.
+     Never interpret absent facts, invent exceptions, or imply live verification. */
+  var EVIDENCE_FALLBACK = {
+    unclear:'질문하신 내용의 의도를 정확히 이해하지 못했습니다. 관련 업무나 구체적인 상황을 조금 더 자세히 말씀해 주시겠어요?',
+    insufficient:'질문하신 상황은 적용 대상과 구체적인 조건에 따라 법적 기준이 달라질 수 있습니다. [조건 A]와 [조건 B] 중 어떤 경우에 해당하시는지 알려주시면 정확히 안내해 드리겠습니다.',
+    unavailable:'죄송합니다. 해당 사안에 대해서는 명확한 법적 근거나 지침 내용을 확인할 수 없어 정확한 답변이 어렵습니다. 구체적인 유권해석이나 실무 적용은 개인정보보호위원회(또는 담당 정보보호팀)에 문의하시기 바랍니다.'
+  };
+  function evidenceReply(category, detail) {
+    var msg=EVIDENCE_FALLBACK[category]||EVIDENCE_FALLBACK.unavailable;
+    if(category==='insufficient' && detail) msg=msg.replace('[조건 A]와 [조건 B]',detail);
+    return '<p class="friendly-answer">'+esc(msg)+'</p>'+
+      '<p class="note-x">※ 답변은 법률 자문이 아닌 일반 안내입니다. 검증 가능한 근거 없이 법 적용을 단정하지 않습니다.</p>';
+  }
+  function evidenceRefs(refs){
+    return (refs||[]).map(function(x){return String(x||'').trim();})
+      .filter(function(x){return /(?:제\s*\d+조(?:의\d+)?(?:\s*제\d+항)?|제\s*\d+항)/.test(x);});
+  }
+  function qaExact(q){
+    var n=qaNorm(q).replace(/(해주세요|알려주세요|설명해주세요|에대해|궁금합니다|궁금해요)$/,'');
+    if(n.length<6)return null;
+    var hits=QA.filter(function(it){return qaNorm(it.q).replace(/(인가요|하나요|나요|합니까)$/,'')===n || qaNorm(it.q)===n;});
+    return hits.length===1?hits[0]:null;
+  }
+  function kbExactTopic(q){
+    var n=qaNorm(q);
+    var simple=n.replace(/(에대해|란|이란|은|는|무엇인가요|뭔가요|무엇인가|알려주세요|설명해주세요|설명해줘|알려줘|정의|뜻|의미|기준|개념|관련법령|관련조문|법적근거|요약)+$/g,'');
+    var candidates=KB.filter(function(it){
+      var t=qaNorm(it.title).replace(/\([^)]*\)/g,'');
+      var keys=(it.kw||[]).filter(function(k){return qaNorm(k).length>=3&&!/^(정의|개념|유형|방법|처리자|개인정보)$/.test(qaNorm(k));});
+      return t===n||t===simple||keys.some(function(k){return qaNorm(k)===simple;});
+    });
+    if(candidates.length!==1)return null;
+    var item=candidates[0];
+    var laws=(item.laws||[]).filter(function(l){return l&&l.n&&/제\s*\d+조(?:의\d+)?/.test(l.n);});
+    return laws.length?{item:item,laws:laws}:null;
+  }
+  function isVagueCase(q){
+    var x=String(q||'');
+    var asksDecision=/(가능|해도|받아도|제공해도|수집해도|위법|적법|처벌|과태료|위반|허용|의무|해야|보관기간|언제까지|몇일|며칠|열람|신청|공개|제공|이용|수집|삭제)/.test(x);
+    var contextual=/(우리|회사|기관|학교|병원|어린이집|보험|경찰|공무원|민간|공공|직원|고객|주민|CCTV|영상|민감|건강|주민등록|고유식별|여권|대리인|가족|위탁)/i.test(x);
+    return asksDecision&&contextual;
+  }
+  function strictAnswer(q){
+    var original=String(q||'').trim(), normalized=qaNorm(original);
+    if(!original||normalized.length<2||/^[^가-힣a-zA-Z0-9]+$/.test(original)||
+       /^(뭐|응|그거|아니|어쩌라고|모름|몰라|ㅎ+|ㅇ+)$/.test(normalized)){
+      return add('bot',evidenceReply('unclear'),null,'질문 이해 확인');
+    }
+    var qa=qaExact(original);
+    if(qa){
+      var laws=evidenceRefs(qa.laws||[]);
+      if(!laws.length)return add('bot',evidenceReply('unavailable'),null,'근거 확인 불가');
+      var raw=[qa.lead].concat(qa.bullets||[]).concat(qa.notes||[]);
+      var body=raw.filter(Boolean).slice(0,7).map(function(x){return '<p class="friendly-answer">'+esc(x)+'</p>';}).join('');
+      var rulings=(qa.rulings||[]).length?'<p class="note-x">등록 자료의 결정·판례: '+esc(qa.rulings.join(' · '))+'</p>':'';
+      return add('bot',
+        '<p class="friendly-lead">등록된 질의응답 자료에서 해당 질문을 확인했습니다.</p>'+
+        body+
+        '<p class="friendly-src"><b>근거:</b> 「개인정보 보호법」 '+esc(laws.join(' · '))+'</p>'+
+        '<p class="note-x">자료: 개인정보보호위원회 「개인정보 질의응답 모음집」(2025. 12.) 제'+esc(qa.no)+'문항. 원문과 현행 개정 여부는 별도 확인이 필요합니다.</p>'+
+        rulings+
+        '<p class="note-x">※ 법률 자문이 아닌 일반 안내입니다.</p>',
+        null,'검증 자료 기반 답변');
+    }
+    if(isVagueCase(original)){
+      var category='공공기관인지 민간기업인지';
+      var info='일반 개인정보인지 민감정보·고유식별정보인지';
+      return add('bot',evidenceReply('insufficient',category+' 또는 '+info),null,'적용 조건 확인');
+    }
+    var kb=kbExactTopic(original);
+    if(kb){
+      var t=kb.item;
+      var body=(t.sum2||[]).slice(0,2).map(function(x){return '<p class="friendly-answer">'+esc(plain(x))+'</p>';}).join('');
+      if(!body)body='<p class="friendly-answer">'+esc(plain(t.intro||t.title))+'</p>';
+      var legalNames=kb.laws.map(function(l){return l.n;});
+      var anchors=kb.laws.filter(function(l){return /^https:\/\/www\.law\.go\.kr\//.test(l.u||'');})
+        .map(function(l){return '<a href="'+esc(l.u)+'" target="_blank" rel="noopener noreferrer">'+esc(l.n)+' 원문 보기</a>';}).join(' · ');
+      return add('bot',
+        '<p class="friendly-lead">등록된 법령 요약 자료에서 확인한 내용입니다.</p>'+
+        body+
+        '<p class="friendly-src"><b>관련 법령·조항:</b> '+esc(legalNames.join(' · '))+'</p>'+
+        (anchors?'<p class="note-x">'+anchors+'</p>':'')+
+        '<p class="note-x">※ 등록 자료 기반 일반 안내이며, 현행 법령 개정 여부와 구체적 적용은 별도 확인이 필요합니다.</p>',
+        null,'조문 근거 기반 답변');
+    }
+    if(normalized.length<5 || /^(그럼|그러면|어떤|어떻게|왜|왜요|이것|저것|설명|방법)$/.test(normalized)){
+      return add('bot',evidenceReply('unclear'),null,'질문 이해 확인');
+    }
+    return add('bot',evidenceReply('unavailable'),null,'근거 확인 불가');
+  }
+
   function answer(q) {
+    return strictAnswer(q);
     if(directQuestion(q)) return;
     if(baseDefinition(q)) return;
     var e = match(q);
@@ -860,6 +954,7 @@
   chat.addEventListener('click', function (ev) {
     var b = ev.target.closest && ev.target.closest('.t5-b'); if (!b) return;
     var tid = b.dataset.t5, forId = b.dataset.for;
+    return ask(((KB.filter(function(x){return x.id===forId;})[0]||{}).title||'해당 주제')+' 법적 근거를 알려주세요.');
     var e = (window.CHATKB || []).filter(function (x) { return x.id === forId; })[0] || lastTopic;
     if (!e) return;
     if (tid === 'quiz') {
