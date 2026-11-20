@@ -401,3 +401,42 @@ body.chat-expanded:has(#chat) #chat{height:max(1050px,95dvh)!important}
  body:has(#chat) #chat{height:calc(100dvh - 220px)!important;min-height:480px!important;scrollbar-gutter:auto}
 }
 @media(prefers-reduced-motion:reduce){html{scroll-behavior:auto!important}}
+
+
+/* Shared subpage component polish — educational portal, not the former portfolio UI. */
+body:not(.academy-home){background:var(--edu-bg)!important;color:var(--edu-text)!important}
+body:not(.academy-home) :where(.sp-wrap,.pc-wrap,.pchk,.portal,.g-main,.lesson,.wrap){min-width:0;max-width:min(100%,1250px)}
+body:not(.academy-home) :where(.sp-head,.g-page-h){padding-block:26px 23px;border-bottom:1px solid var(--edu-border)}
+body:not(.academy-home) :where(.sp-head,.g-page-h) h1{font-size:clamp(26px,3.1vw,42px)!important;line-height:1.3!important;letter-spacing:-.045em;color:var(--edu-text)!important}
+body:not(.academy-home) :where(.sp-head,.g-page-h) p{font-size:14px;line-height:1.8;color:var(--edu-secondary)}
+body:not(.academy-home) :where(.panel,.card,.mini,.table-wrap,.teach,.faq-accordion){min-width:0;max-width:100%;border-color:var(--edu-border)!important;border-radius:11px!important;box-shadow:0 3px 16px rgba(6,65,48,.035)}
+body:not(.academy-home) :where(input,textarea,select){background:var(--edu-surface);color:var(--edu-text);border:1px solid var(--edu-border);border-radius:7px;accent-color:var(--edu-primary)}
+body:not(.academy-home) :where(input,textarea,select)::placeholder{color:var(--edu-secondary);opacity:.92}
+body:not(.academy-home) :where(input,textarea,select):focus{border-color:var(--edu-primary)}
+body:not(.academy-home) :where(.btn.primary,button.primary,.primary-btn){background:#087e72!important;color:#fff!important;border-color:#087e72!important;border-radius:8px!important}
+body:not(.academy-home) :where(.btn.primary,button.primary,.primary-btn):hover{background:#046a61!important;color:#fff!important}
+body:not(.academy-home) :where(table){width:100%;border-collapse:collapse}
+body:not(.academy-home) :where(th){background:var(--edu-tint);color:var(--edu-text)}
+body:not(.academy-home) :where(td){color:var(--edu-text);border-color:var(--edu-border)}
+body:not(.academy-home) :where(.table-wrap){overflow-x:auto;scrollbar-width:thin}
+body:not(.academy-home) :where(a){overflow-wrap:break-word}
+html[data-theme="dark"] body:not(.academy-home) :where(.panel,.card,.mini,.teach,.table-wrap,.dt,.faq-accordion){background:var(--edu-surface);color:var(--edu-text)!important;border-color:var(--edu-border)!important}
+html[data-theme="dark"] body:not(.academy-home) :where(.panel,.card,.mini,.teach,.dt,.faq-accordion) :where(h1,h2,h3,h4,p,li,label){color:var(--edu-text)}
+html[data-theme="dark"] body:has(#chat) #chat{background:var(--edu-tint);border-color:var(--edu-border)}
+html[data-theme="dark"] body:has(#chat) #chat .msg.bot .bubble{background:#254138!important;color:#edf8f1!important;border-color:#537c66}
+html[data-theme="dark"] body:has(#chat) #chat .msg.me .bubble{background:#356454!important;color:#fff!important}
+html[data-theme="dark"] body:has(#chat) #chat .bubble :where(p,li,span,strong,h2,h3){color:inherit}
+html[data-theme="dark"] body:has(#chat) .barrow{background:var(--edu-surface);border-color:var(--edu-border)}
+html[data-theme="dark"] body:has(#chat) .chip-q{background:var(--edu-surface);color:var(--edu-text);border-color:var(--edu-border)}
+/* Never collapse a complex editor or data table just to fit its parent. */
+@media(max-width:750px){
+ body:not(.academy-home) :where(.sp-wrap,.pc-wrap,.pchk,.portal,.g-main,.lesson){width:calc(100% - 20px)!important;margin-inline:auto}
+ body:not(.academy-home) :where(.table-wrap){overflow-x:auto}
+ body:not(.academy-home) :where(.sp-head,.g-page-h) h1{font-size:clamp(24px,6vw,35px)!important}
+ .g-head .g-brand .tx>.g-brand-ko{font-size:clamp(12px,3.15vw,17px)!important}
+}
+@media(max-width:420px){
+ .g-head .g-brand .tx>span{display:none}
+ .g-head .g-brand .tx>.g-brand-ko{font-size:12px!important}
+ .g-home-direct,.g-install-direct{padding:6px 6px!important}
+}
