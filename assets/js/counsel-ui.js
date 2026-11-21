@@ -555,8 +555,11 @@
   applyMode(true);
   addMsg('bot', GREET[mode](uniqN));
 
-  var qp = null; try { qp = new URLSearchParams(W.location.search).get('q'); } catch (e) { }
-  var start = qp ? healthP.then(function () { ask(qp.slice(0, 200)); }) : Promise.resolve();
+  var qp = null, tp = null; try { var sp = new URLSearchParams(W.location.search); qp = sp.get('q'); tp = sp.get('topic'); } catch (e) { }
+  // ?topic=<주제 ID> 는 온보딩 페이지 등에서 특정 주제 카드를 바로 여는 데 씁니다(없는 ID는 무시)
+  var tpc = tp && (W.COUNSEL_TOPICS || []).filter(function (t) { return t.id === tp; })[0];
+  var start = tpc ? healthP.then(function () { ask((qp || tpc.title).slice(0, 200), tpc.id); })
+    : qp ? healthP.then(function () { ask(qp.slice(0, 200)); }) : Promise.resolve();
   // 개인정보 분야 자료를 미리 받아 두어 첫 답변을 빠르게 합니다
   start.then(function () { var idle = W.requestIdleCallback || function (f) { setTimeout(f, 1200); }; idle(function () { loadShard(2).catch(function () { }); }); });
 })();
