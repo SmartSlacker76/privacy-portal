@@ -1,0 +1,329 @@
+/* 요망진 간세 상담 화면 — 근거형 상담 엔진(counsel-engine.js)의 결과를
+ * 💡 핵심 요약 / 📖 개념·근거 / ✅ 실무 / ⚖ 사례·처벌 / 🧭 다음 단계 구조로 보여 줍니다.
+ * 법제처 원문은 Worker(/law)로만 조회하며 인증키(OC)는 브라우저에 두지 않습니다.
+ */
+(function () {
+  'use strict';
+  var W = window, D = document;
+  var CAT = W.LIB_CATALOG || { docs: [], cats: {} };
+  var Engine = W.CounselEngine;
+  var engine = new Engine({ topics: W.COUNSEL_TOPICS, lexicon: W.COUNSEL_LEXICON, stop: W.COUNSEL_STOP, compare: W.COUNSEL_COMPARE, catalog: CAT });
+  var docById = {}; CAT.docs.forEach(function (d) { docById[d.id] = d; });
+  var DATA_VER = '20261121-1';
+  var LAW = W.HondiLawAPI || null;
+  var lawOn = false, aiOn = false;
+  var chat = D.getElementById('chat'), form = D.getElementById('form'), input = D.getElementById('q');
+
+  /* ---------- 작은 도구 ---------- */
+  function esc(s) { return String(s == null ? '' : s).replace(/[&<>"']/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]; }); }
+  function stripExt(n) { return String(n || '').replace(/\.(pdf|zip|hwp|hwpx)$/i, '').replace(/_/g, ' '); }
+  function short(n, max) { n = stripExt(n); return n.length > max ? n.slice(0, max - 1) + '…' : n; }
+  function yearText(d) { return d && d.year && d.year !== '미표기' ? d.year : '발행연도 미표기'; }
+  function docBadge(id, page) {
+    var d = docById[id]; if (!d) return '';
+    var title = stripExt(d.name) + ' · ' + yearText(d) + (page ? ' · ' + page + '쪽' : '') + ' · ' + (d.pub || '');
+    return '<span class="cs-ref" title="' + esc(title) + '">📄 ' + esc(short(d.name, 34)) + ' <em>(' + esc(yearText(d)) + (page ? ', p.' + esc(page) : '') + ')</em></span>';
+  }
+  /* 카드 문장 속 "D55 p32" 같은 내부 표기를 파일명·연도 배지로 바꿉니다 */
+  function refText(s) {
+    var out = esc(s).replace(/\bD(\d{2}) ?p(\d+(?:[~∼\-]\d+)?)((?:, ?p?\d+(?:[~∼\-]\d+)?)*)/g, function (m, n, p, more) {
+      var id = 'D' + n; if (!docById[id]) return m;
+      return '\u0001' + docBadge(id, p + (more ? more.replace(/ ?p/g, '') : '')) + '\u0002';
+    }).replace(/\bD(\d{2})\b/g, function (m, n) { var id = 'D' + n; return docById[id] ? '\u0001' + docBadge(id) + '\u0002' : m; });
+    // "(D55 p32)"처럼 배지만 감싼 괄호는 지우고, 문장 속 괄호는 그대로 둡니다
+    return out.replace(/\(\s*\u0001([^\u0002]*)\u0002\s*\)/g, '$1').replace(/[\u0001\u0002]/g, '');
+  }
+  function termRegexes(terms) {
+    return (terms || []).filter(function (t) { return t && t.length >= 2; }).slice(0, 8).map(function (t) {
+      return new RegExp(t.split('').map(function (c) { return c.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'); }).join('\\s*'), 'gi');
+    });
+  }
+  function snippet(text, terms, len) {
+    len = len || 260; text = String(text || '');
+    var res = termRegexes(terms), at = -1;
+    res.forEach(function (re) { re.lastIndex = 0; var m = re.exec(text); if (m && (at < 0 || m.index < at)) at = m.index; });
+    var start = Math.max(0, (at < 0 ? 0 : at) - 70), cut = text.slice(start, start + len);
+    var out = esc(cut);
+    res.forEach(function (re) { var r2 = new RegExp(re.source, 'gi'); out = out.replace(r2, function (m) { return '<mark>' + m + '</mark>'; }); });
+    return (start > 0 ? '… ' : '') + out + (start + len < text.length ? ' …' : '');
+  }
+  function lawName(l) { return '「' + l.n + '」 제' + l.jo + '조' + (l.b ? '의' + l.b : ''); }
+  function lawLink(l) { return LAW ? LAW.link({ kind: l.k || '법령', name: l.n, jo: l.jo, branch: l.b || 0 }) : 'https://www.law.go.kr/'; }
+  function store(k, v) { try { if (v === undefined) return W.localStorage.getItem(k); W.localStorage.setItem(k, v); } catch (e) { return null; } }
+
+  /* ---------- 말풍선 ---------- */
+  function scrollEnd() { chat.scrollTop = chat.scrollHeight; }
+  function addMsg(who, html, wide) {
+    var m = D.createElement('div'); m.className = 'msg ' + who + (wide ? ' wide' : '');
+    m.innerHTML = (who === 'bot' ? '<div class="av" aria-hidden="true">🐴</div>' : '') + '<div class="bubble">' + html + '</div>';
+    chat.appendChild(m); scrollEnd(); return m.querySelector('.bubble');
+  }
+  function chipsHtml(list, cls) {
+    return '<div class="cs-chips">' + list.map(function (c) {
+      return '<button type="button" class="chip-q ' + (cls || '') + '" data-q="' + esc(c.q || c) + '"' + (c.topic ? ' data-topic="' + esc(c.topic) + '"' : '') + '>' + esc(c.label || c) + '</button>';
+    }).join('') + '</div>';
+  }
+
+  /* ---------- 자료 조각(shard) 지연 로딩 ---------- */
+  var shardP = {};
+  function loadShard(n) {
+    if (!shardP[n]) shardP[n] = fetch('assets/data/library/shard-' + n + '.json?v=' + DATA_VER, { credentials: 'same-origin' })
+      .then(function (r) { if (!r.ok) throw Error('shard ' + n); return r.json(); })
+      .then(function (j) { engine.addShard(n, j); return true; })
+      .catch(function (e) { delete shardP[n]; throw e; });
+    return shardP[n];
+  }
+  function ensureShards(q) {
+    var u = engine.understand(q);
+    var need = engine.shardsFor(u).filter(function (n) { return !engine.loadedShards[n]; });
+    return Promise.all(need.map(loadShard));
+  }
+
+  /* ---------- 섹션 그리기 ---------- */
+  function sec(icon, title, body, cls) { return body ? '<section class="cs-sec ' + (cls || '') + '"><h3>' + icon + ' ' + esc(title) + '</h3>' + body + '</section>' : ''; }
+  function list(items, ordered, fmt) {
+    if (!items || !items.length) return '';
+    var t = ordered ? 'ol' : 'ul';
+    return '<' + t + ' class="cs-list">' + items.map(function (x) { return '<li>' + (fmt ? fmt(x) : refText(x)) + '</li>'; }).join('') + '</' + t + '>';
+  }
+  function tableHtml(tb) {
+    if (!tb || !tb.rows) return '';
+    return '<div class="cs-tablewrap"><table class="cs-table"><thead><tr>' + tb.head.map(function (h) { return '<th scope="col">' + esc(h) + '</th>'; }).join('') + '</tr></thead><tbody>' +
+      tb.rows.map(function (r) { return '<tr>' + r.map(function (c, i) { return i === 0 ? '<th scope="row">' + esc(c) + '</th>' : '<td>' + refText(c) + '</td>'; }).join('') + '</tr>'; }).join('') + '</tbody></table></div>';
+  }
+  function lawsHtml(laws) {
+    if (!laws || !laws.length) return '';
+    return '<ul class="cs-laws">' + laws.map(function (l, i) {
+      var key = [l.k || '법령', l.n, l.jo, l.b || 0].join('|');
+      return '<li data-law="' + esc(key) + '"><b>' + esc(lawName(l)) + '</b>' + (l.label ? ' <span class="cs-muted">' + esc(l.label) + '</span>' : '') +
+        (l.from ? ' <span class="cs-muted">· 인용 위치 </span>' + docBadge(l.from, l.page) : '') +
+        '<span class="cs-lawbtns">' + (lawOn ? '<button type="button" class="cs-lawget" data-i="' + i + '">법제처 현행 원문 보기</button>' : '') +
+        '<a href="' + esc(lawLink(l)) + '" target="_blank" rel="noopener noreferrer">국가법령정보센터 ↗</a></span><div class="cs-lawbody" hidden></div></li>';
+    }).join('') + '</ul>' + (lawOn ? '' : '<p class="cs-muted cs-small">법제처 실시간 조회가 연결되지 않아 원문 바로가기 링크로 안내합니다.</p>');
+  }
+  function refsHtml(refs) {
+    if (!refs || !refs.length) return '';
+    var by = {}, order = [];
+    refs.forEach(function (r) { if (!by[r.d]) { by[r.d] = []; order.push(r.d); } if (by[r.d].indexOf(r.p) < 0) by[r.d].push(r.p); });
+    return '<ul class="cs-list cs-refs">' + order.map(function (id) {
+      var d = docById[id]; if (!d) return '';
+      return '<li><b>' + esc(stripExt(d.name)) + '</b> <span class="cs-muted">(' + esc(yearText(d)) + ' · ' + esc(d.pub || '') + ')</span> — ' + by[id].map(function (p) { return p + '쪽'; }).join(', ') + '</li>';
+    }).join('') + '</ul>';
+  }
+  function passagesHtml(ps, terms, title, open) {
+    if (!ps || !ps.length) return '';
+    return '<details class="cs-pass"' + (open ? ' open' : '') + '><summary>' + esc(title) + ' (' + ps.length + ')</summary>' + ps.map(function (p) {
+      return '<blockquote class="cs-q">' + snippet(p.text, terms, 320) + '<footer>' + docBadge(p.doc, p.page) + '</footer></blockquote>';
+    }).join('') + '</details>';
+  }
+  function caseHtml(ps, terms) {
+    return ps.map(function (p) { return '<blockquote class="cs-q cs-case">' + snippet(p.text, terms, 240) + '<footer>' + docBadge(p.doc, p.page) + '</footer></blockquote>'; }).join('');
+  }
+  function penaltyHtml(pen, hl) {
+    if (!pen) return '';
+    var rows = [['행정적 처분 (과태료·과징금 등)', pen.admin], ['법적 처벌 (형벌)', pen.crim], ['공무원 징계', pen.disc]].filter(function (r) { return r[1] && r[1].length; });
+    if (!rows.length) return '';
+    return '<div class="cs-pen' + (hl ? ' hl' : '') + '">' + rows.map(function (r) { return '<div class="cs-pen-row"><b>' + esc(r[0]) + '</b>' + list(r[1]) + '</div>'; }).join('') + '</div>';
+  }
+  function nextHtml(asks, cond, related, q) {
+    var h = '';
+    if (cond) {
+      var base = q.replace(/\s+/g, ' ').trim();
+      var strip = function (x) { return x.replace(/\(.*?\)/g, '').trim(); };
+      h += '<div class="cs-cond"><p>' + esc(cond.text) + '</p>' + chipsHtml([{ label: cond.a, q: base + ' ' + strip(cond.a) }, { label: cond.b, q: base + ' ' + strip(cond.b) }]) + '</div>';
+    }
+    if (asks && asks.length) h += '<p class="cs-sub">함께 생각해 볼 질문</p>' + list(asks.slice(0, 2), false, esc);
+    if (related && related.length) h += '<p class="cs-sub">이어서 보면 좋은 주제</p>' + chipsHtml(related.filter(Boolean).map(function (t) { return { label: t.title, q: t.title, topic: t.id }; }));
+    return h;
+  }
+
+  function renderTopic(a, q) {
+    var t = a.topic, terms = a.u.terms;
+    var head = '<div class="cs-head"><span class="cs-cat">' + esc(CAT.cats[t.cat] || '') + '</span><span class="cs-topic">' + esc(t.title) + '</span></div>';
+    var s0 = '<section class="cs-sec cs-sum"><h3>💡 핵심 요약</h3>' + t.core.map(function (c) { return '<p>' + refText(c) + '</p>'; }).join('') + '</section>';
+    var s1 = '<p>' + refText(t.concept) + '</p>' + tableHtml(t.table) +
+      (t.laws && t.laws.length ? '<p class="cs-sub">법령·행정규칙</p>' + lawsHtml(t.laws) : '') +
+      (t.refs && t.refs.length ? '<p class="cs-sub">지침·안내서 근거</p>' + refsHtml(t.refs) : '');
+    var s2 = (t.check && t.check.length ? '<p class="cs-sub">체크할 사항 (To-Do, 순서대로)</p>' + list(t.check, true) : '') +
+      (t.caution && t.caution.length ? '<p class="cs-sub">유의할 사항 (Don\'t)</p>' + list(t.caution) : '');
+    var s3 = '<p class="cs-sub">위반·침해·분쟁 사례 (자료 원문)</p>' + (a.cases.length ? caseHtml(a.cases, Engine.tokens(t.cq || '', []).map(Engine.compact).concat(terms)) : '<p class="cs-muted">첨부 자료에서 이 주제와 직접 맞는 사례 원문을 찾지 못했습니다.</p>') +
+      '<p class="cs-sub">잘된 사례</p>' + (a.good.length ? caseHtml(a.good, terms) : '<p class="cs-muted">첨부 자료에서 이 주제의 우수사례는 확인되지 않았습니다.</p>') +
+      '<p class="cs-sub">처벌·처분 기준</p>' + (penaltyHtml(t.penalty, a.wantPenalty) || '<p class="cs-muted">첨부 자료에서 이 주제의 처벌 기준 표를 확인하지 못했습니다. 법제처 원문을 확인하세요.</p>');
+    var rel = (a.related || []).filter(Boolean);
+    if (!rel.length) rel = (W.COUNSEL_TOPICS || []).filter(function (x) { return x.id !== t.id && (x.docs || []).some(function (d) { return (t.docs || []).indexOf(d) >= 0; }); }).slice(0, 3);
+    var s4 = nextHtml(t.ask, a.cond, rel, q);
+    return head + s0 + sec('📖', '1. 개념 및 법령/규칙 근거', s1) + sec('✅', '2. 실무 가이드', s2) + sec('⚖', '3. 실제 사례 및 처벌 기준', s3, a.wantPenalty ? 'hl' : '') + sec('🧭', '4. 다음 단계 안내', s4) +
+      passagesHtml(a.passages, terms, '원문 근거 발췌');
+  }
+
+  function sentList(ss) { return list(ss, false, function (x) { return esc(x.s) + ' ' + docBadge(x.doc, x.page); }); }
+  function renderSearch(a, q) {
+    var terms = a.u.terms;
+    var head = '<div class="cs-head"><span class="cs-cat">자료 원문 검색</span><span class="cs-topic">준비된 주제 카드가 없어, 첨부 자료에서 찾은 문장으로 답합니다</span></div>';
+    var s0 = '<section class="cs-sec cs-sum"><h3>💡 핵심 요약</h3>' + a.core.map(function (x) { return '<p>' + esc(x.s) + ' ' + docBadge(x.doc, x.page) + '</p>'; }).join('') + '</section>';
+    var docs = []; a.passages.forEach(function (p) { if (docs.indexOf(p.doc) < 0) docs.push(p.doc); });
+    var s1 = (a.concept.length ? sentList(a.concept) : '') + (a.laws.length ? '<p class="cs-sub">자료에 인용된 법령·행정규칙</p>' + lawsHtml(a.laws) : '') +
+      '<p class="cs-sub">근거 자료</p>' + refsHtml(a.passages.map(function (p) { return { d: p.doc, p: p.page }; }));
+    var s2 = (a.check.length ? '<p class="cs-sub">체크할 사항</p>' + sentList(a.check) : '') + (a.caution.length ? '<p class="cs-sub">유의할 사항</p>' + sentList(a.caution) : '');
+    var s3 = (a.cases.length ? '<p class="cs-sub">관련 사례 (자료 원문)</p>' + caseHtml(a.cases, terms) : '') + (a.penalty.length ? '<p class="cs-sub">처벌·처분 관련 문장</p>' + sentList(a.penalty) : '');
+    if (!s3) s3 = '<p class="cs-muted">첨부 자료에서 이 질문과 맞는 사례·처벌 기준 문장을 찾지 못했습니다.</p>';
+    return head + s0 + sec('📖', '1. 개념 및 법령/규칙 근거', s1) + sec('✅', '2. 실무 가이드', s2 || '<p class="cs-muted">자료에서 절차 문장을 찾지 못했습니다. 아래 원문 발췌를 확인하세요.</p>') +
+      sec('⚖', '3. 실제 사례 및 처벌 기준', s3) + sec('🧭', '4. 다음 단계 안내', nextHtml(a.ask, null, null, q)) + passagesHtml(a.passages, terms, '원문 근거 발췌', true);
+  }
+
+  function metaTable(d) {
+    var rows = [['파일명', d.file], ['카테고리', CAT.cats[d.cat]], ['발행연도', yearText(d) + (d.ybasis ? ' (' + d.ybasis + ')' : '')], ['발행기관', d.pub], ['주요 대상', d.aud], ['매체(자료 유형)', d.media], ['쪽수', d.pages ? d.pages + '쪽' : '-'], ['추출 방식', d.parse]];
+    if (d.dupOf) rows.push(['비고', '동일 파일이 ' + (docById[d.dupOf] ? docById[d.dupOf].file : d.dupOf) + '로도 있어 한 번만 색인했습니다.']);
+    if (d.forms) rows.push(['포함 서식', d.forms.join(', ')]);
+    return '<div class="cs-tablewrap"><table class="cs-table cs-meta"><tbody>' + rows.map(function (r) { return '<tr><th scope="row">' + esc(r[0]) + '</th><td>' + esc(r[1] || '-') + '</td></tr>'; }).join('') + '</tbody></table></div>';
+  }
+  function renderDoc(a, q) {
+    var d = a.doc;
+    return '<div class="cs-head"><span class="cs-cat">자료 안내</span><span class="cs-topic">' + esc(stripExt(d.name)) + '</span></div>' + metaTable(d) +
+      passagesHtml(a.passages, a.u.terms, '질문과 가까운 본문', true) +
+      (a.related && a.related.filter(Boolean).length ? '<p class="cs-sub">관련 주제</p>' + chipsHtml(a.related.filter(Boolean).map(function (t) { return { label: t.title, q: t.title, topic: t.id }; })) : '');
+  }
+
+  function renderCatalog() {
+    var opts = Object.keys(CAT.cats).map(function (k) { return '<option value="' + k + '">' + esc(CAT.cats[k]) + '</option>'; }).join('');
+    var uniq = CAT.docs.filter(function (d) { return !d.dupOf; }).length;
+    return '<div class="cs-head"><span class="cs-cat">참고자료 목록</span><span class="cs-topic">첨부 자료 ' + CAT.docs.length + '건 (중복 1건 제외 ' + uniq + '종) · 기준일 ' + esc(CAT.asof) + '</span></div>' +
+      '<div class="cs-catbar"><select class="cs-catsel" aria-label="카테고리"><option value="">전체 카테고리</option>' + opts + '</select><input class="cs-catq" type="search" placeholder="파일명·기관·키워드로 거르기" aria-label="자료 거르기"></div>' +
+      '<div class="cs-tablewrap cs-catlist"></div>';
+  }
+  function fillCatalog(root) {
+    var sel = root.querySelector('.cs-catsel'), fq = root.querySelector('.cs-catq'), box = root.querySelector('.cs-catlist');
+    function draw() {
+      var c = sel.value, t = Engine.compact(fq.value || '');
+      var rows = CAT.docs.filter(function (d) { return (!c || String(d.cat) === c) && (!t || Engine.compact([d.name, d.pub, d.aud, d.media, d.tags, d.year].join(' ')).indexOf(t) >= 0); });
+      box.innerHTML = '<table class="cs-table cs-cattable"><thead><tr><th>파일명</th><th>발행연도</th><th>주요 대상</th><th>매체</th></tr></thead><tbody>' + rows.map(function (d) {
+        return '<tr><td><button type="button" class="cs-doclink" data-q="' + esc(stripExt(d.name)) + ' 자료">' + esc(stripExt(d.name)) + '</button><div class="cs-muted cs-small">' + esc(d.pub || '') + ' · ' + esc(CAT.cats[d.cat] || '') + (d.dupOf ? ' · 중복본' : '') + '</div></td><td>' + esc(yearText(d)) + '</td><td>' + esc(d.aud || '') + '</td><td>' + esc(d.media || '') + '</td></tr>';
+      }).join('') + '</tbody></table><p class="cs-muted cs-small">' + rows.length + '건</p>';
+    }
+    sel.addEventListener('change', draw); fq.addEventListener('input', draw); draw();
+  }
+
+  /* ---------- 법제처 원문 ---------- */
+  var lawCache = {};
+  function fetchLaw(li) {
+    var key = li.getAttribute('data-law'), body = li.querySelector('.cs-lawbody'), btn = li.querySelector('.cs-lawget');
+    if (!LAW || !body) return;
+    var p = key.split('|'), arg = { kind: p[0], name: p[1], jo: Number(p[2]), branch: Number(p[3]) };
+    body.hidden = false; body.innerHTML = '<span class="cs-muted">법제처에서 현행 조문을 불러오는 중…</span>';
+    if (btn) btn.disabled = true;
+    var pr = lawCache[key] || (lawCache[key] = LAW.article(arg));
+    pr.then(function (r) {
+      body.innerHTML = '<div class="cs-lawtext">' + esc(r.content).replace(/\n/g, '<br>') + '</div><p class="cs-muted cs-small">출처: ' + esc(r.source) + ' · 조회 시점 현행 원문</p>';
+      if (btn) btn.textContent = '현행 원문 확인됨';
+    }).catch(function () {
+      delete lawCache[key];
+      body.innerHTML = '<span class="cs-muted">법제처 원문을 지금 불러오지 못했습니다. 오른쪽 국가법령정보센터 링크로 확인하세요.</span>';
+      if (btn) btn.disabled = false;
+    });
+  }
+
+  /* ---------- 선택형 AI 정리(근거 범위 안에서만) ---------- */
+  function evidenceOf(a) {
+    var ev = [];
+    function add(ref, text) { if (text) ev.push({ ref: ref, text: String(text).slice(0, 700) }); }
+    if (a.kind === 'topic') {
+      var t = a.topic;
+      t.core.forEach(function (c) { add('주제카드:' + t.title, c); });
+      add('개념', t.concept);
+      (t.check || []).forEach(function (c) { add('체크', c); });
+      (t.caution || []).forEach(function (c) { add('유의', c); });
+      ['admin', 'crim', 'disc'].forEach(function (k) { ((t.penalty || {})[k] || []).forEach(function (c) { add('처벌', c); }); });
+    } else if (a.kind === 'search') {
+      a.core.concat(a.check, a.caution, a.penalty).forEach(function (x) { add((docById[x.doc] || {}).name + ' p.' + x.page, x.s); });
+    }
+    (a.passages || []).slice(0, 3).forEach(function (p) { add(stripExt((docById[p.doc] || {}).name) + ' p.' + p.page, p.text); });
+    return ev.slice(0, 18);
+  }
+  function aiRewrite(a, q, bubble) {
+    if (!aiOn || (a.kind !== 'topic' && a.kind !== 'search') || !LAW || !LAW.origin()) return;
+    var box = D.createElement('div'); box.className = 'cs-ai'; box.innerHTML = '<p class="cs-sub">🤖 AI 정리 (아래 근거 문장 안에서만 다시 쓴 참고용 요약)</p><p class="cs-muted">정리하는 중…</p>';
+    bubble.insertBefore(box, bubble.children[1] || null);
+    fetch(LAW.origin() + '/chat', { method: 'POST', credentials: 'omit', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ q: q.slice(0, 300), evidence: evidenceOf(a) }), signal: AbortSignal.timeout(20000) })
+      .then(function (r) { if (!r.ok) throw Error('status ' + r.status); return r.json(); })
+      .then(function (j) {
+        if (!j || !j.ok || !j.text) throw Error('empty');
+        box.innerHTML = '<p class="cs-sub">🤖 AI 정리 (근거 문장 안에서만 다시 쓴 참고용 요약 · 판단은 아래 근거로)</p><div class="cs-aitext">' + esc(j.text).replace(/\n/g, '<br>') + '</div>';
+      })
+      .catch(function () { box.innerHTML = '<p class="cs-muted cs-small">AI 정리를 지금 사용할 수 없어 근거형 답변만 보여 드립니다.</p>'; });
+  }
+
+  /* ---------- 질문 처리 ---------- */
+  var busy = false;
+  function ask(q, topicId) {
+    q = String(q || '').trim(); if (!q || busy) return;
+    busy = true;
+    addMsg('me', esc(q));
+    var wait = addMsg('bot', '<span class="cs-muted">관련 자료를 찾는 중…</span>');
+    var holder = wait.parentNode;
+    ensureShards(q).catch(function () { return null; }).then(function () {
+      var a;
+      try { a = topicId ? engine.answerTopic(topicId) : engine.answer(q); } catch (e) { a = { kind: 'fallback', reason: 'unclear', text: Engine.FALLBACK.unclear }; }
+      var html, wide = true;
+      if (a.kind === 'topic') html = renderTopic(a, q);
+      else if (a.kind === 'search') html = renderSearch(a, q);
+      else if (a.kind === 'doc') html = renderDoc(a, q);
+      else if (a.kind === 'catalog') html = renderCatalog();
+      else { wide = false; html = '<p>' + esc(a.text) + '</p>' + (a.reason === 'unclear' ? '<p class="cs-sub">이렇게 물어보셔도 됩니다</p>' + chipsHtml(['개인정보 파기 방법', '이동형 vs 고정형', '유출 신고 기한', '망분리', '자료 목록']) : ''); }
+      html += '<p class="cs-disc">이 답변은 첨부 자료와 법령에 근거한 일반 안내이며 법률 자문이 아닙니다. 자료와 현행 법령이 다르면 현행 법령을 따르고, 구체적 해석은 개인정보보호위원회(또는 담당 정보보호팀)에 문의하세요.</p>';
+      wait.innerHTML = html;
+      holder.classList.toggle('wide', wide);
+      if (a.kind === 'catalog') fillCatalog(wait);
+      if (lawOn) { var first = wait.querySelector('.cs-laws li'); if (first) fetchLaw(first); }
+      aiRewrite(a, q, wait);
+      chat.scrollTop = Math.max(0, holder.offsetTop - chat.offsetTop - 8);
+      busy = false;
+    });
+  }
+
+  chat.addEventListener('click', function (ev) {
+    var b = ev.target.closest('button'); if (!b) return;
+    if (b.classList.contains('cs-lawget')) { fetchLaw(b.closest('li')); return; }
+    if (b.hasAttribute('data-q')) ask(b.getAttribute('data-q'), b.getAttribute('data-topic'));
+  });
+  form.addEventListener('submit', function (ev) { ev.preventDefault(); var v = input.value; input.value = ''; ask(v); });
+  var chipsBox = D.getElementById('chips');
+  if (chipsBox) {
+    chipsBox.innerHTML = chipsHtml(['이동형 vs 고정형', '블랙박스', '파기', '유출', '위탁', '망분리', 'USB', '챗GPT 써도 되나요', '접속기록 얼마나 보관', '영향평가 대상', '자료 목록']);
+    chipsBox.addEventListener('click', function (ev) { var b = ev.target.closest('button[data-q]'); if (b) ask(b.getAttribute('data-q')); });
+  }
+  var exp = D.getElementById('chatExpand');
+  if (exp) exp.addEventListener('click', function () {
+    var on = D.body.classList.toggle('chat-expanded'); exp.setAttribute('aria-pressed', String(on));
+    exp.textContent = on ? '↙ 기본 크기로 보기' : '↗ 답변창 더 크게 보기';
+  });
+
+  /* ---------- 상태 표시 · 시작 ---------- */
+  var bar = D.getElementById('asofBar');
+  var uniqN = CAT.docs.filter(function (d) { return !d.dupOf; }).length;
+  function drawBar(state) {
+    if (!bar) return;
+    bar.innerHTML = '자료 기준일 ' + esc(CAT.asof) + ' · 참고자료 ' + uniqN + '종(5개 분야) · 법제처 법령·행정규칙: ' + esc(state) +
+      (aiAvail ? ' · <label class="cs-aitoggle"><input type="checkbox" id="aiToggle"' + (aiOn ? ' checked' : '') + '> AI 정리 함께 보기</label>' : '');
+    var t = D.getElementById('aiToggle');
+    if (t) t.addEventListener('change', function () { aiOn = t.checked; store('counsel-ai', aiOn ? '1' : '0'); });
+  }
+  var aiAvail = false;
+  drawBar(LAW && LAW.enabled() ? '연결 확인 중…' : '바로가기 링크 모드');
+  var healthP = (LAW && LAW.enabled())
+    ? fetch(LAW.origin() + '/health', { credentials: 'omit', cache: 'no-store', signal: AbortSignal.timeout(6500) }).then(function (r) { return r.ok ? r.json() : {}; }).catch(function () { return {}; })
+    : Promise.resolve({});
+  healthP.then(function (h) {
+    lawOn = !!(h && h.ok && h.law === true);
+    aiAvail = !!(h && h.ok && h.ai === true);
+    aiOn = aiAvail && store('counsel-ai') === '1';
+    drawBar(lawOn ? '실시간 조회 연결됨' : (LAW && LAW.enabled() ? '연결 안 됨(바로가기 링크로 안내)' : '바로가기 링크 모드'));
+  });
+
+  addMsg('bot', '<p class="greet"><b>안녕하세요, 처음 업무를 맡으셨군요.</b> 개인정보 보호·사이버보안·정보보안 실무를 첨부 자료 ' + uniqN + '종과 법령 근거로 안내하는 사수입니다.</p>' +
+    '<p class="cs-muted">"파기", "블랙박스"처럼 단어 하나만 써도 되고, "외주 주는데 주민번호 넘겨도 돼?"처럼 편하게 물어보셔도 됩니다. "자료 목록"이라고 쓰면 참고자료 목록을 보여 드립니다.</p>');
+
+  var qp = null; try { qp = new URLSearchParams(W.location.search).get('q'); } catch (e) { }
+  var start = qp ? healthP.then(function () { ask(qp.slice(0, 200)); }) : Promise.resolve();
+  // 개인정보 분야 자료를 미리 받아 두어 첫 답변을 빠르게 합니다
+  start.then(function () { var idle = W.requestIdleCallback || function (f) { setTimeout(f, 1200); }; idle(function () { loadShard(2).catch(function () { }); }); });
+})();

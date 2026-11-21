@@ -1,7 +1,30 @@
-/* Public law and policy gateway. Administrative and generative routes are closed. */
+/* Public law and policy gateway. Administrative routes are closed.
+ * The optional /chat route only rewrites evidence the browser already holds; it is off unless the AI and CHAT_RATE bindings exist. */
 const DRF = 'https://www.law.go.kr/DRF';
 const UA = 'privacy-edu-worker';
-const publicPaths = new Set(['/', '/health', '/law', '/fetch']);
+const publicPaths = new Set(['/', '/health', '/law', '/fetch', '/chat']);
+const CHAT_MODEL = '@cf/meta/llama-3.3-70b-instruct-fp8-fast';
+const CHAT_SYSTEM = [
+  '너는 공공기관 개인정보 보호·정보보안 업무를 처음 맡은 직원을 돕는 상담 사수다.',
+  '반드시 사용자 메시지의 [근거] 목록에 있는 문장만 사용해 한국어로 짧게 다시 정리한다.',
+  '근거에 없는 법 조항, 숫자, 기한, 금액, 예외, 사례를 새로 만들거나 추론하지 않는다.',
+  '각 문장 끝에 사용한 근거 번호를 [1]처럼 붙인다.',
+  '근거로 답할 수 없으면 "제공된 자료만으로는 정리하기 어렵습니다."라고만 답한다.',
+  '형식: 핵심 2줄, 이어서 해야 할 일 3개 이내. 법률 자문이 아닌 일반 안내 어조를 유지한다.'
+].join('\n');
+
+function chatInput(body) {
+  if (!body || typeof body.q !== 'string' || !Array.isArray(body.evidence)) return null;
+  const q = body.q.trim();
+  if (!q || q.length > 300 || body.evidence.length < 1 || body.evidence.length > 20) return null;
+  const evidence = [];
+  for (const e of body.evidence) {
+    if (!e || typeof e.text !== 'string' || (e.ref != null && typeof e.ref !== 'string')) return null;
+    const text = e.text.trim().slice(0, 800);
+    if (text) evidence.push({ ref: String(e.ref || '').slice(0, 120), text });
+  }
+  return evidence.length ? { q, evidence } : null;
+}
 
 function configuredUrl(value) {
   try {
@@ -85,12 +108,33 @@ export default {
       }
       if (!publicPaths.has(path)) return deny('route_denied', 404);
       if (origin && origin !== env.ALLOWED_ORIGIN) return deny('origin_denied', 403);
+      if (path === '/chat') {
+        if (!env.AI || !env.CHAT_RATE) return deny('chat_disabled', 404);
+        if (!origin || !cors['Access-Control-Allow-Origin']) return deny('chat_origin_denied', 403);
+        if (request.method === 'OPTIONS') {
+          return new Response(null, { status: 204, headers: { ...headers, 'Access-Control-Allow-Methods': 'POST, OPTIONS', 'Access-Control-Allow-Headers': 'Content-Type', 'Access-Control-Max-Age': '600' } });
+        }
+        if (request.method !== 'POST') return deny('chat_method_denied', 405);
+        if (request.headers.get('content-type')?.split(';')[0].trim() !== 'application/json') return json({ ok: false }, 415);
+        if (!(await allowRate(request, env.CHAT_RATE))) return deny('chat_rate_denied', 429);
+        let input;
+        try { input = chatInput(JSON.parse(await cappedBody(request, 24576))); }
+        catch { input = null; }
+        if (!input) return deny('chat_input_denied', 400);
+        const evidence = input.evidence.map((e, i) => `[${i + 1}] ${e.ref ? '(' + e.ref + ') ' : ''}${e.text}`).join('\n');
+        const result = await env.AI.run(env.CHAT_MODEL || CHAT_MODEL, {
+          messages: [{ role: 'system', content: CHAT_SYSTEM }, { role: 'user', content: `[질문]\n${input.q}\n\n[근거]\n${evidence}` }],
+          max_tokens: 600, temperature: 0.1
+        });
+        const text = String(result?.response || '').trim().slice(0, 3000);
+        return text ? json({ ok: true, text }) : json({ ok: false }, 502);
+      }
       if (request.method === 'OPTIONS' && cors['Access-Control-Allow-Origin']) {
         return new Response(null, { status: 204, headers: { ...headers, 'Access-Control-Allow-Methods': 'GET, OPTIONS' } });
       }
       if (request.method !== 'GET') return deny('method_denied', 405);
 
-      if (path === '/health' || path === '/') return json({ ok: true, law: Boolean(env.LAW_OC), fetch: Boolean(allowed.size && env.POLICY_RATE), fetchPolicy: 'explicit-urls-v1' });
+      if (path === '/health' || path === '/') return json({ ok: true, law: Boolean(env.LAW_OC), fetch: Boolean(allowed.size && env.POLICY_RATE), fetchPolicy: 'explicit-urls-v1', ai: Boolean(env.AI && env.CHAT_RATE) });
 
       if (path === '/law') {
         if (!env.LAW_OC) return json({ ok: false, error: '조문 조회 서비스를 사용할 수 없습니다.' }, 503);
