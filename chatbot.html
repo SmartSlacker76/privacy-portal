@@ -246,6 +246,26 @@ html[data-theme="dark"] .cs-lawbtns a,html[data-theme="dark"] .cs-lawbtns button
 html[data-theme="dark"] .cs-sub,html[data-theme="dark"] .cs-doclink{color:#b9d0e2}
 html[data-theme="dark"] .cs-q mark{background:#6b5a24}
 @media(max-width:640px){.cs-table{font-size:12px}.cs-topic{font-size:14px}}
+.mode-sw{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:4px 0 8px}
+.mode-sw button{font:inherit;text-align:left;cursor:pointer;border:1px solid #c9d7e0;background:#fff;color:var(--ink);border-radius:12px;padding:9px 12px;display:flex;flex-direction:column;gap:2px}
+.mode-sw button b{font-size:14px}.mode-sw button span{font-size:11.5px;color:var(--muted)}
+.mode-sw button[aria-pressed="true"]{border:2px solid #607e94;background:#eef3f7}
+.mode-sw button:focus-visible{outline:3px solid #6b8ba4;outline-offset:2px}
+.msg.bot.cz .bubble{max-width:62ch}
+.cz-lead{margin:0 0 6px;font-weight:700;line-height:1.75}
+.cz-list{margin:4px 0;padding-left:0;list-style:none}.cz-list li{margin:4px 0;line-height:1.75;padding-left:1.1em;text-indent:-1.1em}.cz-list li::before{content:"• ";color:#607e94;font-weight:800}
+.cz-src{margin:8px 0 0;font-size:11.5px;color:var(--muted);line-height:1.6}.cz-src a{color:#2f5a7a}
+.cz-acts{display:flex;flex-direction:column;gap:6px;margin:10px 0 4px}
+.cz-act,.cz-act:visited{display:block;text-align:center;font-weight:800;font-size:13.5px;text-decoration:none!important;color:#fff!important;background:#607e94;border-radius:10px;padding:11px 12px;min-height:44px;box-sizing:border-box}
+.cz-act:hover,.cz-act:focus-visible{background:#45607a;outline:3px solid #b9d0e2;outline-offset:1px}
+.cz-act+.cz-act,.cz-act+.cz-act:visited{background:#fff;color:#2f5a7a!important;border:1px solid #c9d7e0}
+.cz-list b{color:#45607a;margin-right:4px}
+html[data-theme="dark"] .cz-act+.cz-act{background:#1f2a44;color:#e6edf2!important;border-color:#41566b}
+.cz-warn{background:#fff4e5;border:1px solid #f0d2a6;border-radius:8px;padding:7px 10px;font-size:12.5px;margin:0 0 8px}
+.cz-cond{border:1px dashed #607e94;border-radius:8px;padding:7px 10px;margin:8px 0;background:#f6f9fb}.cz-cond p{margin:0 0 4px}
+html[data-theme="dark"] .mode-sw button{background:#1f2a44;border-color:#41566b}html[data-theme="dark"] .mode-sw button[aria-pressed="true"]{background:#2c4157;border-color:#b9d0e2}
+html[data-theme="dark"] .cz-warn{background:#3a3428;border-color:#5b4d36}html[data-theme="dark"] .cz-cond{background:#263a4e}
+@media(max-width:640px){.mode-sw button span{font-size:11px}}
 </style><link data-edu-responsive="2026" rel="stylesheet" href="assets/css/edu1035-responsive.css?v=20261120-contrast-4"></head>
 <body>
 <div class="sp-wrap">
@@ -255,6 +275,10 @@ html[data-theme="dark"] .cs-q mark{background:#6b5a24}
     <p class="lead">공공기관에서 개인정보 보호·사이버보안·정보보안 업무를 처음 맡은 분을 위한 사수입니다. 단어 하나, 짧은 문장, 편한 말투 어느 것이든 질문해 보세요.</p>
   </div>
 
+  <div class="mode-sw" role="group" aria-label="상담 대상 선택">
+    <button type="button" data-mode="staff" aria-pressed="true"><b>공무원용</b><span>초임 담당자 · 5단계 상세 답변</span></button>
+    <button type="button" data-mode="citizen" aria-pressed="false"><b>시민용</b><span>쉬운 말 · 핵심 먼저 · 4줄 안내</span></button>
+  </div>
   <p class="asof-bar" id="asofBar"></p>
   <div class="chips" id="chips"></div>
   <div class="chat-view-tools"><button id="chatExpand" type="button" aria-pressed="false" aria-controls="chat">↗ 답변창 더 크게 보기</button></div>
@@ -266,13 +290,14 @@ html[data-theme="dark"] .cs-q mark{background:#6b5a24}
   <p class="notice" style="margin-top:14px">안내서와 법령·행정규칙의 내용이 다르면 현행 법령·행정규칙을 적용하세요. 기관별 결재권자와 내부 절차는 해당 기관의 규정을 확인하세요.</p>
 </div>
 
-<script src="assets/config.js"></script>
+<script src="assets/config.js?v=20261121-2"></script>
 <script src="assets/js/law-api-client.js?v=20261120-shared-1"></script>
 <script src="assets/data/library/catalog.js?v=20261121-1"></script>
-<script src="assets/data/counsel-lexicon.js?v=20261121-1"></script>
+<script src="assets/data/counsel-lexicon.js?v=20261121-3"></script>
 <script src="assets/data/counsel-topics.js?v=20261121-1"></script>
+<script src="assets/data/counsel-citizen.js?v=20261121-5"></script>
 <script src="assets/js/counsel-engine.js?v=20261121-1"></script>
-<script src="assets/js/counsel-ui.js?v=20261121-1"></script>
+<script src="assets/js/counsel-ui.js?v=20261121-5"></script>
 <script src="assets/js/gov.js?v=20261120-jeju-nav-2"></script>
 </body>
 </html>

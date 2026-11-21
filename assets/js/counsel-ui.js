@@ -252,29 +252,164 @@
       .catch(function () { box.innerHTML = '<p class="cs-muted cs-small">AI 정리를 지금 사용할 수 없어 근거형 답변만 보여 드립니다.</p>'; });
   }
 
+  /* ---------- 시민용 모드: 해요체 · 핵심 먼저 · 4줄 이내 ---------- */
+  var CITIZEN_FALLBACK = '정확한 법령 검토와 개별 확인을 위해 담당 부서 연결이 필요한 내용이에요. 아래 공식 민원 창구로 문의해 주시면 담당자가 자세히 안내해 드릴게요.';
+  var CITIZEN_UNCLEAR = '질문하신 내용을 정확히 이해하지 못했어요. 어떤 상황인지 조금 더 자세히 알려주시겠어요?';
+  var DESK = W.COUNSEL_DESKS || {};
+  var CZ = W.COUNSEL_CITIZEN || {};
+  var FAQ = W.COUNSEL_CITIZEN_FAQ || [];
+  var AGENCY = (W.APP_CONFIG || {}).AGENCY || {};
+  var SENSITIVE = [
+    [/01[016789][\s-]?\d{3,4}[\s-]?\d{4}/g, '전화번호'],
+    [/\d{6}\s?-?\s?[1-8]\d{6}/g, '주민등록번호'],
+    [/\d{2,6}-\d{2,6}-\d{2,8}/g, '계좌·카드번호'],
+    [/\b\d{11,16}\b/g, '계좌·카드번호'],
+    [/(비밀번호|비번|패스워드|password|pw)\s*(은|는|:|=)?\s*\S{4,}/gi, '비밀번호']
+  ];
+  function maskSensitive(q) {
+    var kinds = [];
+    SENSITIVE.forEach(function (r) { q = q.replace(r[0], function () { if (kinds.indexOf(r[1]) < 0) kinds.push(r[1]); return '[가림]'; }); });
+    return { q: q, kinds: kinds };
+  }
+  var INDIVIDUAL = /(제|저의|내|나의|우리)\s?(민원|신청|신고|사건|건).{0,10}(처리|진행|상태|결과|언제|어떻게 ?됐)|처리\s?(상태|현황)|진행\s?상황|처분\s?결과|(제|내|저)\s?(경우|사건).{0,12}(처벌|과태료|벌금|위법|불법|소송|이길|받나|되나)/;
+  /* 합니다체 문장 끝을 해요체로 바꿉니다(뜻은 그대로 두고 어미만 바꿈) */
+  var END = '(?=[^가-힣]|$)';
+  function hj(c) { var x = c.charCodeAt(0) - 0xAC00; return x < 0 || x > 11171 ? null : { i: Math.floor(x / 588), v: Math.floor((x % 588) / 28), f: x % 28 }; }
+  function hc(i, v, f) { return String.fromCharCode(0xAC00 + i * 588 + v * 28 + f); }
+  function bright(v) { return v === 0 || v === 8 || v === 2 || v === 9; } // ㅏ ㅗ ㅑ ㅘ
+  function irr(s) {
+    var IRR = { '만듭니다': '만들어요', '압니다': '알아요', '삽니다': '살아요', '엽니다': '열어요', '겁니다': '걸어요', '놉니다': '놀아요', '늡니다': '늘어요',
+      '다릅니다': '달라요', '아닙니다': '아니에요', '고릅니다': '골라요', '부릅니다': '불러요', '빠릅니다': '빨라요', '오릅니다': '올라요', '모릅니다': '몰라요', '따릅니다': '따라요', '치릅니다': '치러요',
+      '쉽습니다': '쉬워요', '어렵습니다': '어려워요', '가깝습니다': '가까워요', '무겁습니다': '무거워요', '가볍습니다': '가벼워요', '새롭습니다': '새로워요', '고맙습니다': '고마워요' };
+    return s.replace(new RegExp('(' + Object.keys(IRR).join('|') + ')' + END, 'g'), function (m) { return IRR[m]; });
+  }
+  function haeyo(s) {
+    s = irr(String(s || ''))
+      .replace(new RegExp('됩니다' + END, 'g'), '돼요').replace(new RegExp('합니다' + END, 'g'), '해요')
+      .replace(new RegExp('([가-힣])입니다' + END, 'g'), function (m, c) { var h = hj(c); return c + (h && h.f ? '이에요' : '예요'); })
+      .replace(new RegExp('([가-힣])습니다' + END, 'g'), function (m, c) { var h = hj(c); return c + (h && bright(h.v) ? '아요' : '어요'); });
+    // ㄹ 탈락 동사는 따로 바꿉니다(만듭니다 → 만들어요)
+    // 받침 ㅂ + 니다 (예: 거칩니다 → 거쳐요, 봅니다 → 봐요, 줍니다 → 줘요)
+    return s.replace(new RegExp('([가-힣])니다' + END, 'g'), function (m, c) {
+      var h = hj(c); if (!h || h.f !== 17) return m;
+      var v = h.v, out;
+      if (v === 20) out = h.i === 11 ? hc(h.i, 6, 0) : hc(h.i, 6, 0);           // ㅣ → ㅕ (치→쳐, 기→겨)
+      else if (v === 8) out = hc(h.i, 9, 0);                                     // ㅗ → ㅘ
+      else if (v === 13) out = hc(h.i, 14, 0);                                   // ㅜ → ㅝ
+      else if (v === 18) out = hc(h.i, 4, 0);                                    // ㅡ → ㅓ
+      else out = hc(h.i, v, 0);                                                  // ㅏ ㅓ ㅐ ㅔ ㅚ 등
+      return out + '요';
+    });
+  }
+  function plain(s) {
+    s = String(s || '').replace(/\s*[—-]\s*D\d{2} p[\d~∼\-, p]+$/, '')
+      .replace(/,\s*D\d{2}(?: ?p[\d~∼\-]+(?:, ?p?[\d~∼\-]+)*)?\s*\)/g, ')')
+      .replace(/\(\s*D\d{2}(?: ?p[\d~∼\-]+(?:, ?p?[\d~∼\-]+)*)?\s*\)/g, '')
+      .replace(/\bD\d{2}(?: ?p[\d~∼\-]+)?/g, '').replace(/\(\s*\)/g, '').replace(/\s{2,}/g, ' ').replace(/\s+([.,])/g, '$1').trim();
+    return haeyo(s);
+  }
+  function firstSentence(s) { var m = String(s || '').match(/^.+?(?:다|요)\.(?=\s|$)/); return m ? m[0] : String(s || ''); }
+  function actButtons(keys, laws) {
+    var h = [];
+    (keys || []).forEach(function (k) {
+      var d = DESK[k]; if (!d) return;
+      if (d.agency) {
+        var g = AGENCY[d.agency] || {}; if (!g.dept || !(g.tel || g.url)) return;
+        d = { label: g.dept + (g.tel ? ' ' + g.tel : ''), tel: g.tel, url: g.url };
+      }
+      if (d.tel) h.push('<a class="cz-act cz-tel" href="tel:' + esc(String(d.tel).replace(/[^0-9+]/g, '')) + '">전화 ' + esc(d.label) + '</a>');
+      else if (d.url) h.push('<a class="cz-act" href="' + esc(d.url) + '" target="_blank" rel="noopener noreferrer">' + esc(d.label) + ' 바로가기</a>');
+    });
+    (laws || []).slice(0, 1).forEach(function (l) { h.push('<a class="cz-act" href="' + esc(lawLink(l)) + '" target="_blank" rel="noopener noreferrer">' + esc(lawName(l)) + ' 원문 보기</a>'); });
+    return h.length ? '<div class="cz-acts">' + h.join('') + '</div>' : '';
+  }
+  function deskHtml() { return actButtons(['agencyPrivacy', 'kisa', 'kopico', 'police182', 'portal']); }
+  function czSources(refs, laws) {
+    var parts = [];
+    (laws || []).slice(0, 2).forEach(function (l) { parts.push('<a href="' + esc(lawLink(l)) + '" target="_blank" rel="noopener noreferrer">' + esc(lawName(l)) + '</a>'); });
+    var seen = {};
+    (refs || []).forEach(function (r) { if (r.faq) { parts.push('운영 기관 제공 FAQ'); return; } var d = docById[r.d]; if (!d || seen[r.d] || Object.keys(seen).length >= 2) return; seen[r.d] = 1; var nmS = short(d.name, 30); parts.push(esc(nmS) + (nmS.indexOf(String(d.year).slice(0, 4)) >= 0 ? '' : '(' + esc(yearText(d)) + ')')); });
+    return parts.length ? '<p class="cz-src">근거: ' + parts.join(' · ') + '</p>' : '';
+  }
+  function cardHtml(card, laws) {
+    return '<p class="cz-lead">' + esc(card.lead) + '</p><ul class="cz-list">' + card.items.slice(0, 3).map(function (it) { return '<li><b>' + esc(it[0]) + '</b> ' + esc(it[1]) + '</li>'; }).join('') + '</ul>' +
+      actButtons(card.act, laws || []) + czSources(card.refs, []);
+  }
+  function matchFaq(q) { for (var i = 0; i < FAQ.length; i++) if (FAQ[i].match.test(q)) return FAQ[i]; return null; }
+  function renderCitizen(a, q) {
+    var more = W.COUNSEL_MODE_LOCK ? '' : chipsHtml([{ label: '공무원용 5단계 상세 답변 보기', q: q, topic: a.kind === 'topic' ? a.topic.id : '' }], 'cz-more');
+    var card = a.kind === 'topic' && CZ[a.topic.id];
+    if (card && (!card.when || card.when.test(q))) return cardHtml(card, card.law ? [card.law] : a.topic.laws) + more;
+    var lead, bullets = [], refs = [], laws = [], extra = '';
+    if (a.kind === 'topic') {
+      var t = a.topic;
+      lead = plain(t.core[0]);
+      var cs = firstSentence(t.concept);
+      bullets = [t.core[1], /^(법|시행령|고시) 제|^「/.test(cs) ? '' : cs].map(plain).filter(Boolean);
+      if (bullets.length < 2) bullets = bullets.concat((t.caution || []).map(plain));
+      refs = t.refs; laws = t.laws;
+      if (a.cond) extra = '<div class="cz-cond"><p>질문하신 상황은 대상과 조건에 따라 기준이 달라질 수 있어요. [' + esc(a.cond.a) + ']와 [' + esc(a.cond.b) + '] 중 어느 쪽인지 알려주시면 정확히 안내해 드릴게요.</p>' +
+        chipsHtml([{ label: a.cond.a, q: q + ' ' + a.cond.a.replace(/\(.*?\)/g, '') }, { label: a.cond.b, q: q + ' ' + a.cond.b.replace(/\(.*?\)/g, '') }]) + '</div>';
+    } else if (a.kind === 'search') {
+      lead = plain(a.core[0] && a.core[0].s);
+      bullets = a.core.slice(1).concat(a.check).map(function (x) { return plain(x.s); }).filter(Boolean);
+      refs = a.passages.map(function (p) { return { d: p.doc, p: p.page }; }); laws = a.laws;
+    }
+    var uniq = []; bullets.forEach(function (b) { if (b !== lead && uniq.indexOf(b) < 0) uniq.push(b); });
+    uniq = uniq.slice(0, 3);
+    while (uniq.length && (lead + uniq.join('')).length > 200) uniq.pop(); // 모바일 한눈 분량(200자) 유지
+    return '<p class="cz-lead">' + esc(lead) + '</p>' + (uniq.length ? '<ul class="cz-list">' + uniq.map(function (b) { return '<li>' + esc(b) + '</li>'; }).join('') + '</ul>' : '') +
+      extra + actButtons(['kisa'], laws) + czSources(refs, []) + more;
+  }
+  function citizenFallback(text, masked) {
+    return '<p>' + esc(text) + '</p>' + (text === CITIZEN_FALLBACK ? deskHtml() : '') + (masked ? '' : '');
+  }
+
+  /* ---------- 모드 ---------- */
+  var mode = 'staff';
+  try { var mq = new URLSearchParams(W.location.search).get('mode'); if (mq === 'citizen' || mq === 'staff') mode = mq; else if (store('counsel-mode') === 'citizen') mode = 'citizen'; } catch (e) { }
+  if (W.COUNSEL_MODE_LOCK) mode = W.COUNSEL_MODE_LOCK;
+
   /* ---------- 질문 처리 ---------- */
   var busy = false;
-  function ask(q, topicId) {
+  function ask(q, topicId, forceMode) {
     q = String(q || '').trim(); if (!q || busy) return;
+    var m = forceMode || mode;
     busy = true;
+    var ms = maskSensitive(q); q = ms.q;
     addMsg('me', esc(q));
-    var wait = addMsg('bot', '<span class="cs-muted">관련 자료를 찾는 중…</span>');
+    var wait = addMsg('bot', '<span class="cs-muted">' + (m === 'citizen' ? '관련 안내를 찾고 있어요…' : '관련 자료를 찾는 중…') + '</span>');
     var holder = wait.parentNode;
+    var warn = ms.kinds.length ? '<p class="cz-warn">' + esc(ms.kinds.join('·')) + '처럼 보이는 내용은 화면에서 가렸어요. 상담에는 주민등록번호, 계좌번호, 비밀번호, 전화번호가 필요하지 않으니 입력하지 마세요.</p>' : '';
     ensureShards(q).catch(function () { return null; }).then(function () {
       var a;
       try { a = topicId ? engine.answerTopic(topicId) : engine.answer(q); } catch (e) { a = { kind: 'fallback', reason: 'unclear', text: Engine.FALLBACK.unclear }; }
       var html, wide = true;
-      if (a.kind === 'topic') html = renderTopic(a, q);
-      else if (a.kind === 'search') html = renderSearch(a, q);
-      else if (a.kind === 'doc') html = renderDoc(a, q);
-      else if (a.kind === 'catalog') html = renderCatalog();
-      else { wide = false; html = '<p>' + esc(a.text) + '</p>' + (a.reason === 'unclear' ? '<p class="cs-sub">이렇게 물어보셔도 됩니다</p>' + chipsHtml(['개인정보 파기 방법', '이동형 vs 고정형', '유출 신고 기한', '망분리', '자료 목록']) : ''); }
-      html += '<p class="cs-disc">이 답변은 첨부 자료와 법령에 근거한 일반 안내이며 법률 자문이 아닙니다. 자료와 현행 법령이 다르면 현행 법령을 따르고, 구체적 해석은 개인정보보호위원회(또는 담당 정보보호팀)에 문의하세요.</p>';
+      if (m === 'citizen') {
+        wide = false;
+        var faq = !topicId && matchFaq(q);
+        if (!topicId && INDIVIDUAL.test(q)) html = citizenFallback(CITIZEN_FALLBACK);
+        else if (faq) html = cardHtml(faq, faq.law ? [faq.law] : []);
+        else if (a.kind === 'topic' || a.kind === 'search') html = renderCitizen(a, q);
+        else if (a.kind === 'catalog') { html = renderCatalog(); wide = true; }
+        else if (a.kind === 'doc') { html = '<p class="cz-lead">「' + esc(stripExt(a.doc.name)) + '」(' + esc(yearText(a.doc)) + ', ' + esc(a.doc.pub || '') + ') 자료를 말씀하시는 것 같아요.</p><ul class="cz-list"><li>' + esc(a.doc.aud || '') + '을(를) 위한 ' + esc(a.doc.media || '자료') + '예요.</li></ul>'; }
+        else if (a.reason === 'unclear') html = citizenFallback(CITIZEN_UNCLEAR) + chipsHtml(['CCTV 영상 보고 싶어요', '개인정보 유출 문자를 받았어요', '내 개인정보 삭제 요청']);
+        else html = citizenFallback(CITIZEN_FALLBACK);
+        html = warn + html + '<p class="cs-disc">공식 지침과 법령 안내서에 근거한 일반 안내예요. 개별 사건의 법적 판단이나 처분 결과는 담당 기관에서 확인해 주세요.</p>';
+      } else {
+        if (a.kind === 'topic') html = renderTopic(a, q);
+        else if (a.kind === 'search') html = renderSearch(a, q);
+        else if (a.kind === 'doc') html = renderDoc(a, q);
+        else if (a.kind === 'catalog') html = renderCatalog();
+        else { wide = false; html = '<p>' + esc(a.text) + '</p>' + (a.reason === 'unclear' ? '<p class="cs-sub">이렇게 물어보셔도 됩니다</p>' + chipsHtml(['개인정보 파기 방법', '이동형 vs 고정형', '유출 신고 기한', '망분리', '자료 목록']) : ''); }
+        html = warn + html + '<p class="cs-disc">이 답변은 첨부 자료와 법령에 근거한 일반 안내이며 법률 자문이 아닙니다. 자료와 현행 법령이 다르면 현행 법령을 따르고, 구체적 해석은 개인정보보호위원회(또는 담당 정보보호팀)에 문의하세요.</p>';
+      }
       wait.innerHTML = html;
       holder.classList.toggle('wide', wide);
+      holder.classList.toggle('cz', m === 'citizen');
       if (a.kind === 'catalog') fillCatalog(wait);
-      if (lawOn) { var first = wait.querySelector('.cs-laws li'); if (first) fetchLaw(first); }
-      aiRewrite(a, q, wait);
+      if (m !== 'citizen' && lawOn) { var first = wait.querySelector('.cs-laws li'); if (first) fetchLaw(first); }
+      if (m !== 'citizen') aiRewrite(a, q, wait);
       chat.scrollTop = Math.max(0, holder.offsetTop - chat.offsetTop - 8);
       busy = false;
     });
@@ -283,14 +418,36 @@
   chat.addEventListener('click', function (ev) {
     var b = ev.target.closest('button'); if (!b) return;
     if (b.classList.contains('cs-lawget')) { fetchLaw(b.closest('li')); return; }
+    if (b.classList.contains('cz-more')) { ask(b.getAttribute('data-q'), b.getAttribute('data-topic') || null, 'staff'); return; }
     if (b.hasAttribute('data-q')) ask(b.getAttribute('data-q'), b.getAttribute('data-topic'));
   });
   form.addEventListener('submit', function (ev) { ev.preventDefault(); var v = input.value; input.value = ''; ask(v); });
   var chipsBox = D.getElementById('chips');
-  if (chipsBox) {
-    chipsBox.innerHTML = chipsHtml(['이동형 vs 고정형', '블랙박스', '파기', '유출', '위탁', '망분리', 'USB', '챗GPT 써도 되나요', '접속기록 얼마나 보관', '영향평가 대상', '자료 목록']);
-    chipsBox.addEventListener('click', function (ev) { var b = ev.target.closest('button[data-q]'); if (b) ask(b.getAttribute('data-q')); });
+  var CHIPS = {
+    staff: ['이동형 vs 고정형', '블랙박스', '파기', '유출', '위탁', '망분리', 'USB', '챗GPT 써도 되나요', '접속기록 얼마나 보관', '영향평가 대상', '자료 목록'],
+    citizen: ['CCTV 영상 보고 싶어요', '개인정보 유출 문자를 받았어요', '내 개인정보 삭제 요청', '블랙박스 촬영', '아이 개인정보 동의', '개인정보 처리방침이 뭐예요']
+  };
+  var GREET = {
+    staff: function (n) { return '<p class="greet"><b>안녕하세요, 처음 업무를 맡으셨군요.</b> 개인정보 보호·사이버보안·정보보안 실무를 첨부 자료 ' + n + '종과 법령 근거로 안내하는 사수입니다.</p><p class="cs-muted">"파기", "블랙박스"처럼 단어 하나만 써도 되고, "외주 주는데 주민번호 넘겨도 돼?"처럼 편하게 물어보셔도 됩니다. "자료 목록"이라고 쓰면 참고자료 목록을 보여 드립니다.</p>'; },
+    citizen: function () { return '<p class="greet"><b>안녕하세요, 요망진 간세예요.</b> 개인정보나 보안 관련 규정을 쉽게 풀어서 안내해 드릴게요.</p><p class="cs-muted">궁금한 점을 편하게 적어 주세요. 상담에는 주민등록번호, 계좌번호, 비밀번호, 전화번호가 필요하지 않으니 입력하지 마세요.</p>'; }
+  };
+  var lead = D.querySelector('.sp-head .lead');
+  var LEADS = {
+    staff: '공공기관에서 개인정보 보호·사이버보안·정보보안 업무를 처음 맡은 분을 위한 사수입니다. 단어 하나, 짧은 문장, 편한 말투 어느 것이든 질문해 보세요.',
+    citizen: '개인정보와 보안 관련 규정을 쉬운 말로 안내해 드려요. 핵심 답을 먼저 알려 드리고, 개별 사건은 공식 민원 창구로 연결해 드려요.'
+  };
+  function applyMode(first) {
+    if (chipsBox) chipsBox.innerHTML = chipsHtml(CHIPS[mode]);
+    if (lead) lead.textContent = LEADS[mode];
+    input.placeholder = mode === 'citizen' ? '예: CCTV에 찍힌 제 영상을 볼 수 있나요?' : '예: 블랙박스 / 위탁 파기 / 외주 주는데 주민번호 넘겨도 돼?';
+    D.querySelectorAll('.mode-sw button').forEach(function (b) { var on = b.getAttribute('data-mode') === mode; b.setAttribute('aria-pressed', String(on)); });
+    D.body.setAttribute('data-counsel-mode', mode);
+    if (!first) addMsg('bot', GREET[mode](uniqN));
   }
+  if (chipsBox) chipsBox.addEventListener('click', function (ev) { var b = ev.target.closest('button[data-q]'); if (b) ask(b.getAttribute('data-q')); });
+  D.querySelectorAll('.mode-sw button').forEach(function (b) {
+    b.addEventListener('click', function () { var m = b.getAttribute('data-mode'); if (m === mode || W.COUNSEL_MODE_LOCK) return; mode = m; store('counsel-mode', m); applyMode(false); });
+  });
   var exp = D.getElementById('chatExpand');
   if (exp) exp.addEventListener('click', function () {
     var on = D.body.classList.toggle('chat-expanded'); exp.setAttribute('aria-pressed', String(on));
@@ -319,8 +476,8 @@
     drawBar(lawOn ? '실시간 조회 연결됨' : (LAW && LAW.enabled() ? '연결 안 됨(바로가기 링크로 안내)' : '바로가기 링크 모드'));
   });
 
-  addMsg('bot', '<p class="greet"><b>안녕하세요, 처음 업무를 맡으셨군요.</b> 개인정보 보호·사이버보안·정보보안 실무를 첨부 자료 ' + uniqN + '종과 법령 근거로 안내하는 사수입니다.</p>' +
-    '<p class="cs-muted">"파기", "블랙박스"처럼 단어 하나만 써도 되고, "외주 주는데 주민번호 넘겨도 돼?"처럼 편하게 물어보셔도 됩니다. "자료 목록"이라고 쓰면 참고자료 목록을 보여 드립니다.</p>');
+  applyMode(true);
+  addMsg('bot', GREET[mode](uniqN));
 
   var qp = null; try { qp = new URLSearchParams(W.location.search).get('q'); } catch (e) { }
   var start = qp ? healthP.then(function () { ask(qp.slice(0, 200)); }) : Promise.resolve();
