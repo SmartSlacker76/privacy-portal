@@ -2,12 +2,12 @@
 <html lang="ko">
 <head>
 <meta charset="utf-8">
-<meta http-equiv="Content-Security-Policy" content="object-src 'none'; base-uri 'none'; form-action 'none'; script-src 'self'; style-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net https://fonts.googleapis.com; font-src 'self' https://cdn.jsdelivr.net https://fonts.gstatic.com; img-src 'self' data:; connect-src 'self'; frame-src 'none';">
+<meta http-equiv="Content-Security-Policy" content="object-src 'none'; base-uri 'none'; form-action 'none'; script-src 'self'; style-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net https://fonts.googleapis.com; font-src 'self' https://cdn.jsdelivr.net https://fonts.gstatic.com; img-src 'self' data:; connect-src 'self' https://privacy-agent.seowipo-soc.workers.dev; frame-src 'none';">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css">
 <script src="assets/js/theme.js"></script>
-<title>요망진 간세 · 개인정보 보호 챗봇 · 혼디지킴이</title>
-<meta name="description" content="개인정보 보호에 관한 궁금증을 물어보면 근거 조문과 함께 답해주는 규칙 기반 챗봇입니다.">
+<title>요망진 간세 · 정보보호 상담 챗봇 · 혼디지킴이</title>
+<meta name="description" content="개인정보 보호·사이버보안·정보보안 실무를 참고자료 63종과 법제처 법령·행정규칙 근거로 안내하는 근거형 상담 챗봇입니다.">
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700&display=swap">
 <link rel="stylesheet" href="assets/css/style.css">
@@ -189,32 +189,126 @@ html[data-theme="dark"] .msg.bot .warm-lead,html[data-theme="dark"] .msg.bot .fr
 html[data-theme="dark"] .cctv-disclosure-more .dt{background:#263a4e;border-color:#516578}
 html[data-theme="dark"] .cctv-disclosure-more .dt>summary{color:#ecedea}
 html[data-theme="dark"] .cctv-disclosure-more .dt .dt-in{border-color:#516578}
+<style>
+/* 근거형 상담 답변 (counsel-ui.js) */
+.msg.bot.wide{max-width:100%}
+.msg.bot.wide .bubble{flex:1;min-width:0}
+.cs-head{display:flex;flex-wrap:wrap;align-items:baseline;gap:6px 10px;margin:0 0 10px}
+.cs-cat{font-size:11px;font-weight:700;color:#607e94;border:1px solid #dce7ec;border-radius:20px;padding:2px 9px}
+.cs-topic{font-size:15px;font-weight:800;color:var(--ink)}
+.cs-sec{margin:12px 0 0;padding-top:10px;border-top:1px solid var(--line)}
+.cs-sec h3{font-size:14.5px;margin:0 0 7px;font-weight:800}
+.cs-sum{border-top:0;padding:10px 13px;background:#f3f7fa;border-left:3px solid #607e94;border-radius:8px}
+.cs-sum p{margin:0;font-weight:600;line-height:1.75}.cs-sum p+p{margin-top:6px}
+.cs-sec.hl{background:#fff8ec;border-radius:8px;padding:10px 12px;border:1px solid #f0dcb8}
+.cs-sub{font-size:12.5px;font-weight:800;color:#45607a;margin:11px 0 4px}
+.cs-list{margin:4px 0 4px;padding-left:20px}.cs-list li{margin:5px 0;line-height:1.75}
+.cs-muted{color:var(--muted)}.cs-small{font-size:11.5px}
+.cs-ref{display:inline-block;font-size:11px;line-height:1.5;color:#45607a;background:#eef3f7;border:1px solid #dce7ec;border-radius:6px;padding:0 6px;margin:1px 2px;white-space:normal;cursor:help}
+.cs-ref em{font-style:normal;color:var(--muted)}
+.cs-tablewrap{overflow-x:auto;margin:8px 0;-webkit-overflow-scrolling:touch}
+.cs-table{border-collapse:collapse;width:100%;font-size:12.5px;line-height:1.65;min-width:520px}
+.cs-table th,.cs-table td{border:1px solid #dce7ec;padding:7px 9px;vertical-align:top;text-align:left}
+.cs-table thead th{background:#eef3f7;font-weight:800}
+.cs-table tbody th{background:#f7f9fb;font-weight:700;white-space:nowrap}
+.cs-meta{min-width:0}.cs-meta th{width:120px}
+.cs-laws{list-style:none;padding:0;margin:4px 0}
+.cs-laws li{border:1px solid #dce7ec;border-radius:8px;padding:8px 10px;margin:6px 0;line-height:1.6}
+.cs-lawbtns{display:flex;flex-wrap:wrap;gap:6px;margin-top:6px}
+.cs-lawbtns a,.cs-lawbtns button{font:inherit;font-size:11.5px;font-weight:700;color:#45607a;background:#fff;border:1px solid #c9d7e0;border-radius:7px;padding:3px 9px;text-decoration:none;cursor:pointer}
+.cs-lawbtns button:disabled{opacity:.7;cursor:default}
+.cs-lawbody{margin-top:7px;font-size:12.5px}
+.cs-lawtext{max-height:260px;overflow:auto;background:#f7f9fb;border-left:3px solid #607e94;padding:8px 10px;border-radius:6px;line-height:1.75}
+.cs-q{margin:7px 0;padding:8px 11px;border-left:3px solid #c9d7e0;background:#f9fbfc;border-radius:6px;font-size:12.5px;line-height:1.75}
+.cs-q footer{margin-top:4px}
+.cs-q mark{background:#fff0c2;color:inherit;padding:0 1px;border-radius:2px}
+.cs-case{border-left-color:#d6a76a}
+.cs-pen{display:grid;gap:6px}.cs-pen-row{border:1px solid #ecdcc4;background:#fffaf2;border-radius:8px;padding:6px 10px}
+.cs-pen-row>b{font-size:12.5px}
+.cs-cond{border:1px dashed #607e94;border-radius:8px;padding:8px 11px;background:#f6f9fb}
+.cs-cond p{margin:0 0 4px}
+.cs-chips{display:flex;flex-wrap:wrap;gap:6px;margin:6px 0}
+details.cs-pass{margin-top:12px;border:1px solid var(--line);border-radius:9px;padding:0 11px}
+details.cs-pass>summary{cursor:pointer;font-size:12.5px;font-weight:800;color:#45607a;padding:9px 0}
+.cs-disc{margin:12px 0 0;font-size:11px;color:var(--muted);line-height:1.6;border-top:1px dashed var(--line);padding-top:8px}
+.cs-catbar{display:flex;flex-wrap:wrap;gap:6px;margin:6px 0}
+.cs-catbar select,.cs-catbar input{font:inherit;font-size:12.5px;padding:7px 9px;border:1px solid #c9d7e0;border-radius:8px;background:#fff;color:var(--ink);flex:1 1 200px;min-width:0}
+.cs-catlist{max-height:440px;overflow:auto}
+.cs-doclink{font:inherit;font-weight:700;text-align:left;background:none;border:0;padding:0;color:#2f5a7a;cursor:pointer;text-decoration:underline}
+.cs-ai{border:1px solid #c9d7e0;border-radius:8px;padding:8px 11px;margin:6px 0 10px;background:#f8f6ff}
+.cs-aitoggle{white-space:nowrap;cursor:pointer}
+html[data-theme="dark"] .cs-sum,html[data-theme="dark"] .cs-cond{background:#263a4e}
+html[data-theme="dark"] .cs-sec.hl,html[data-theme="dark"] .cs-pen-row{background:#3a3428;border-color:#5b4d36}
+html[data-theme="dark"] .cs-q,html[data-theme="dark"] .cs-lawtext,html[data-theme="dark"] .cs-table tbody th{background:#22344a}
+html[data-theme="dark"] .cs-table thead th,html[data-theme="dark"] .cs-ref{background:#2c4157;color:#e6edf2}
+html[data-theme="dark"] .cs-table th,html[data-theme="dark"] .cs-table td,html[data-theme="dark"] .cs-laws li{border-color:#41566b}
+html[data-theme="dark"] .cs-lawbtns a,html[data-theme="dark"] .cs-lawbtns button,html[data-theme="dark"] .cs-catbar select,html[data-theme="dark"] .cs-catbar input{background:#1f2a44;color:#e6edf2;border-color:#41566b}
+html[data-theme="dark"] .cs-sub,html[data-theme="dark"] .cs-doclink{color:#b9d0e2}
+html[data-theme="dark"] .cs-q mark{background:#6b5a24}
+@media(max-width:640px){.cs-table{font-size:12px}.cs-topic{font-size:14px}}
+.mode-sw{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:4px 0 8px}
+.mode-sw button{font:inherit;text-align:left;cursor:pointer;border:1px solid #c9d7e0;background:#fff;color:var(--ink);border-radius:12px;padding:9px 12px;display:flex;flex-direction:column;gap:2px}
+.mode-sw button b{font-size:14px}.mode-sw button span{font-size:11.5px;color:var(--muted)}
+.mode-sw button[aria-pressed="true"]{border:2px solid #607e94;background:#eef3f7}
+.mode-sw button:focus-visible{outline:3px solid #6b8ba4;outline-offset:2px}
+.msg.bot.cz .bubble{max-width:62ch}
+.cz-lead{margin:0 0 6px;font-weight:700;line-height:1.75}
+.cz-list{margin:4px 0;padding-left:0;list-style:none}.cz-list li{margin:4px 0;line-height:1.75;padding-left:1.1em;text-indent:-1.1em}.cz-list li::before{content:"• ";color:#607e94;font-weight:800}
+.cz-src{margin:8px 0 0;font-size:11.5px;color:var(--muted);line-height:1.6}.cz-src a{color:#2f5a7a}
+.cz-acts{display:flex;flex-direction:column;gap:6px;margin:10px 0 4px}
+.cz-act,.cz-act:visited{display:block;text-align:center;font-weight:800;font-size:13.5px;text-decoration:none!important;color:#fff!important;background:#607e94;border-radius:10px;padding:11px 12px;min-height:44px;box-sizing:border-box}
+.cz-act:hover,.cz-act:focus-visible{background:#45607a;outline:3px solid #b9d0e2;outline-offset:1px}
+.cz-act+.cz-act,.cz-act+.cz-act:visited{background:#fff;color:#2f5a7a!important;border:1px solid #c9d7e0}
+.cz-list b{color:#45607a;margin-right:4px}
+html[data-theme="dark"] .cz-act+.cz-act{background:#1f2a44;color:#e6edf2!important;border-color:#41566b}
+.cz-warn{background:#fff4e5;border:1px solid #f0d2a6;border-radius:8px;padding:7px 10px;font-size:12.5px;margin:0 0 8px}
+.cz-cond{border:1px dashed #607e94;border-radius:8px;padding:7px 10px;margin:8px 0;background:#f6f9fb}.cz-cond p{margin:0 0 4px}
+html[data-theme="dark"] .mode-sw button{background:#1f2a44;border-color:#41566b}html[data-theme="dark"] .mode-sw button[aria-pressed="true"]{background:#2c4157;border-color:#b9d0e2}
+html[data-theme="dark"] .cz-warn{background:#3a3428;border-color:#5b4d36}html[data-theme="dark"] .cz-cond{background:#263a4e}
+@media(max-width:640px){.mode-sw button span{font-size:11px}}
+.cs-cite{font:inherit;color:#2f5a7a;background:none;border:0;padding:0;margin:0;cursor:pointer;text-decoration:underline;text-decoration-style:dotted;text-underline-offset:3px;text-align:left}
+.cs-cite:hover,.cs-cite:focus-visible{color:#1d3d57;text-decoration-style:solid;outline:2px solid #b9d0e2;outline-offset:1px;border-radius:3px}
+.cs-cite.cz-act{color:#2f5a7a!important;text-decoration:none;text-align:center;width:100%}
+.cs-cite.cz-cite{font-size:11.5px}
+.cs-lawtitle{margin:2px 0 6px}.cs-lawtext.cs-hl{border-left-color:#d6a76a;background:#fffaf2}
+.cs-lawlink{font-weight:700;color:#2f5a7a}
+html[data-theme="dark"] .cs-cite,html[data-theme="dark"] .cs-lawlink{color:#b9d0e2}html[data-theme="dark"] .cs-lawtext.cs-hl{background:#3a3428}
+.ob-link{margin:0 0 10px;font-size:13px}.ob-link a{color:#2f5a7a;font-weight:700;text-decoration:none;border-bottom:1px dotted #607e94}
+html[data-theme="dark"] .ob-link a{color:#b9d0e2}
+body[data-counsel-mode="citizen"] .ob-link{display:none}
 </style><link data-edu-responsive="2026" rel="stylesheet" href="assets/css/edu1035-responsive.css?v=20261120-contrast-4"></head>
 <body>
 <div class="sp-wrap">
-  <div class="sp-top"><a class="back" href="index.html">← 혼디지킴이 포털</a><span class="brand">요망진 간세 · 개인정보 보호 챗봇</span></div>
+  <div class="sp-top"><a class="back" href="index.html">← 혼디지킴이 포털</a><span class="brand">요망진 간세 · 정보보호 상담 챗봇</span></div>
   <div class="sp-head">
-    <h1>요망진 간세 · 개인정보 보호 챗봇</h1>
-    <p class="lead">공공기관 개인정보 보호 멘토입니다. 수집·제공·위탁·파기·유출 대응 등 처음 맡은 업무를 질문해 보세요.</p>
+    <h1>요망진 간세 · 정보보호 상담 챗봇</h1>
+    <p class="lead">공공기관에서 개인정보 보호·사이버보안·정보보안 업무를 처음 맡은 분을 위한 사수입니다. 단어 하나, 짧은 문장, 편한 말투 어느 것이든 질문해 보세요.</p>
   </div>
 
+  <p class="ob-link"><a href="onboarding.html">처음 맡으셨나요? 신규 직원 온보딩: 직무별 상황 · 실행 플레이북 · 오늘의 퀴즈 →</a></p>
+  <div class="mode-sw" role="group" aria-label="상담 대상 선택">
+    <button type="button" data-mode="staff" aria-pressed="true"><b>공무원용</b><span>초임 담당자 · 5단계 상세 답변</span></button>
+    <button type="button" data-mode="citizen" aria-pressed="false"><b>시민용</b><span>쉬운 말 · 핵심 먼저 · 4줄 안내</span></button>
+  </div>
   <p class="asof-bar" id="asofBar"></p>
   <div class="chips" id="chips"></div>
   <div class="chat-view-tools"><button id="chatExpand" type="button" aria-pressed="false" aria-controls="chat">↗ 답변창 더 크게 보기</button></div>
   <div class="chat" id="chat" aria-live="polite"></div>
   <form class="barrow" id="form" autocomplete="off">
-    <input type="text" id="q" placeholder="예: 개인정보의 안전성 확보조치 기준 제8조" aria-label="질문 입력">
+    <input type="text" id="q" placeholder="예: 블랙박스 / 위탁 파기 / 외주 주는데 주민번호 넘겨도 돼?" maxlength="200" aria-label="질문 입력">
     <button class="btn primary" type="submit">보내기</button>
   </form>
   <p class="notice" style="margin-top:14px">안내서와 법령·행정규칙의 내용이 다르면 현행 법령·행정규칙을 적용하세요. 기관별 결재권자와 내부 절차는 해당 기관의 규정을 확인하세요.</p>
 </div>
 
-<script src="assets/config.js"></script>
+<script src="assets/config.js?v=20261121-2"></script>
 <script src="assets/js/law-api-client.js?v=20261120-shared-1"></script>
-<script src="assets/js/law.js"></script>
-<script src="assets/data/qa-collection.js"></script><script src="assets/data/chatbot-kb.js"></script>
-<script src="assets/data/chatbot-qna.js"></script>
-<script src="assets/js/chatbot.js?v=20261120-mentor-1"></script>
+<script src="assets/data/library/catalog.js?v=20261121-1"></script>
+<script src="assets/data/counsel-lexicon.js?v=20261121-5"></script>
+<script src="assets/data/counsel-topics.js?v=20261121-3"></script>
+<script src="assets/data/counsel-citizen.js?v=20261121-6"></script>
+<script src="assets/js/counsel-engine.js?v=20261121-1"></script>
+<script src="assets/js/counsel-ui.js?v=20261121-8"></script>
 <script src="assets/js/gov.js?v=20261120-jeju-nav-2"></script>
 </body>
 </html>

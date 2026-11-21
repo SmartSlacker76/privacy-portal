@@ -1,0 +1,112 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta http-equiv="Content-Security-Policy" content="object-src 'none'; base-uri 'none'; form-action 'none'; script-src 'self'; style-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net https://fonts.googleapis.com; font-src 'self' https://cdn.jsdelivr.net https://fonts.gstatic.com; img-src 'self' data:; connect-src 'self' https://privacy-agent.seowipo-soc.workers.dev; frame-src 'none';">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css">
+<script src="assets/js/theme.js"></script>
+<title>신규 직원 온보딩 · 요망진 간세 · 혼디지킴이</title>
+<meta name="description" content="개인정보 보호·사이버보안 업무를 처음 맡은 공무원이 직무별 상황, 실행 플레이북, 오늘의 상황 퀴즈로 실무를 익히는 온보딩 페이지입니다.">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700&display=swap">
+<link rel="stylesheet" href="assets/css/style.css">
+<link rel="stylesheet" href="assets/css/gov.css">
+<link rel="stylesheet" href="assets/css/academy.css">
+<style>
+.ob-wrap{max-width:900px}
+.sp-head h1{font-size:clamp(23px,3vw,32px)}.sp-head .lead{font-size:13.5px;line-height:1.7;margin:5px 0 12px}
+.ob-nav{display:flex;flex-wrap:wrap;gap:6px;margin:0 0 14px;position:sticky;top:0;z-index:2;background:var(--bg,#fff);padding:6px 0}
+.ob-nav a{font-size:12.5px;font-weight:700;color:#2f5a7a;text-decoration:none;border:1px solid #dce7ec;border-radius:20px;padding:6px 12px;background:#fff}
+.ob-nav a:hover,.ob-nav a:focus-visible{border-color:#607e94;background:#f3f7fa}
+.ob-sec{margin:0 0 22px;scroll-margin-top:52px}
+.ob-sec>h2{font-size:18px;margin:0 0 10px;font-weight:800}
+.ob-card{border:1px solid #dce7ec;border-radius:12px;background:#fff;padding:14px 16px;margin:10px 0}
+.ob-card h3{font-size:15px;margin:2px 0 8px;font-weight:800;display:flex;flex-wrap:wrap;gap:6px 10px;align-items:baseline}
+.ob-muted{color:var(--muted,#5f6b76);font-size:12.5px;line-height:1.7;margin:4px 0 8px}
+.ob-sub{font-size:12.5px;font-weight:800;color:#45607a;margin:14px 0 6px}
+.ob-roles,.ob-tabs{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:8px}
+.ob-roles button,.ob-tabs button{font:inherit;text-align:left;cursor:pointer;border:1px solid #dce7ec;background:#fff;border-radius:11px;padding:10px 12px;color:var(--ink,#1f2a44);min-height:44px}
+.ob-roles button b,.ob-tabs button b{display:block;font-size:14px}
+.ob-roles button span,.ob-tabs button span{display:block;font-size:11.5px;color:var(--muted,#5f6b76);line-height:1.5;margin-top:2px}
+.ob-roles button[aria-pressed="true"],.ob-tabs button[aria-selected="true"]{border-color:#607e94;background:#eef3f7;box-shadow:inset 0 0 0 1px #607e94}
+.ob-roles button:focus-visible,.ob-tabs button:focus-visible,.ob-cases button:focus-visible,.ob-opt:focus-visible{outline:3px solid #b9d0e2;outline-offset:1px}
+.ob-tips{margin:4px 0;padding-left:20px}.ob-tips li{margin:8px 0;line-height:1.75;font-size:13.5px}
+.ob-asks{display:flex;flex-wrap:wrap;gap:6px}
+.ob-ask{font-size:12.5px;padding:7px 11px;border:1px solid #dce7ec;border-radius:20px;background:#f7f9fb;color:#2f5a7a;text-decoration:none;font-weight:600}
+.ob-ask:hover,.ob-ask:focus-visible{border-color:#607e94;background:#eef3f7}
+.ob-steps{list-style:none;margin:6px 0;padding:0;counter-reset:st}
+.ob-step{border:1px solid #e3eaee;border-radius:9px;padding:9px 11px;margin:6px 0;counter-increment:st;background:#fff}
+.ob-step label{display:flex;gap:10px;align-items:flex-start;cursor:pointer;font-size:13.5px;line-height:1.7}
+.ob-step label::before{content:counter(st);flex:0 0 auto;width:22px;height:22px;border-radius:50%;background:#eef3f7;color:#45607a;font-size:12px;font-weight:800;display:grid;place-items:center;margin-top:2px}
+.ob-step input{width:18px;height:18px;margin:4px 0 0;flex:0 0 auto;accent-color:#607e94}
+.ob-step.on{background:#f3f8f4;border-color:#cfe0d4}.ob-step.on label>span{color:#4b5b52}
+.ob-basis{margin:5px 0 0 0;font-size:11.5px;line-height:1.8;color:var(--muted,#5f6b76)}
+.ob-step .ob-basis{margin-left:60px}
+.ob-basis-k{font-weight:800;color:#45607a;margin-right:2px}
+.ob-ref{display:inline-block;font-size:11px;line-height:1.5;color:#45607a;background:#eef3f7;border:1px solid #dce7ec;border-radius:6px;padding:0 6px;margin:1px 2px;cursor:help}
+.ob-ref em{font-style:normal;color:var(--muted,#5f6b76)}
+.ob-cite{font:inherit;font-size:11.5px;color:#2f5a7a;background:none;border:0;padding:0;margin:0 3px 0 0;cursor:pointer;text-decoration:underline;text-decoration-style:dotted;text-underline-offset:3px;text-align:left}
+.ob-cite:hover,.ob-cite:focus-visible{color:#1d3d57;text-decoration-style:solid;outline:2px solid #b9d0e2;border-radius:3px}
+.ob-law{margin:7px 0 2px;border-left:3px solid #607e94;background:#f7f9fb;border-radius:6px;padding:8px 10px;font-size:12.5px;line-height:1.75}
+.ob-step .ob-law{margin-left:60px}
+.ob-law-t{margin:0 0 4px;display:flex;justify-content:space-between;gap:8px}
+.ob-law-x{font:inherit;font-size:11px;border:1px solid #c9d7e0;background:#fff;border-radius:6px;padding:0 8px;cursor:pointer}
+.ob-law-hl{background:#fffaf2;border-left:3px solid #d6a76a;padding:6px 8px;border-radius:4px;margin-bottom:6px}
+.ob-law details summary{cursor:pointer;font-weight:700;color:#45607a}
+.ob-law a{color:#2f5a7a;font-weight:700}
+.ob-meter{font-size:11.5px;font-weight:700;color:#45607a;background:#eef3f7;border-radius:20px;padding:1px 9px}
+.ob-when{margin:0 0 10px;font-size:13px;line-height:1.7}.ob-when b{color:#45607a;margin-right:6px}
+.ob-cases{display:flex;flex-wrap:wrap;gap:6px;margin:0 0 10px}
+.ob-cases button{font:inherit;font-size:13px;font-weight:700;cursor:pointer;border:1px solid #dce7ec;background:#fff;border-radius:20px;padding:8px 13px;min-height:40px;color:var(--ink,#1f2a44)}
+.ob-cases button[aria-pressed="true"]{background:#607e94;color:#fff;border-color:#607e94}
+.ob-dont{margin:4px 0;padding-left:0;list-style:none}.ob-dont li{margin:5px 0;line-height:1.7;font-size:13px;padding-left:1.3em;text-indent:-1.3em}
+.ob-dont li::before{content:"✕ ";color:#b4534a;font-weight:800}
+.ob-report{border:1px dashed #607e94;border-radius:10px;padding:4px 12px 8px;margin:12px 0;background:#f6f9fb}
+.ob-rlist{margin:4px 0;padding-left:18px}.ob-rlist li{margin:6px 0;line-height:1.7;font-size:13px}
+.ob-rlist a{color:#2f5a7a;font-weight:700}
+.ob-foot{margin:12px 0 0;font-size:12.5px;display:flex;flex-wrap:wrap;align-items:center;gap:8px}
+.ob-reset,.ob-more{font:inherit;font-size:12px;border:1px solid #c9d7e0;background:#fff;border-radius:8px;padding:5px 11px;cursor:pointer;color:#45607a}
+.ob-more{font-size:13px;font-weight:700;padding:9px 14px}
+.ob-qt{margin:0 0 9px;font-size:14px;font-weight:700;line-height:1.7}
+.ob-qt span{display:inline-block;margin-right:6px;padding:0 8px;border-radius:999px;background:#eef3f7;color:#45607a;font-size:12px}
+.ob-opts{display:grid;gap:7px}
+.ob-opt{font:inherit;font-size:13.5px;text-align:left;cursor:pointer;border:1px solid #dce7ec;background:#fff;border-radius:10px;padding:10px 12px;min-height:44px;color:var(--ink,#1f2a44)}
+.ob-opt:hover:not(:disabled){border-color:#607e94;background:#f3f7fa}
+.ob-opt:disabled{cursor:default;opacity:1}
+.ob-opt.good{border-color:#4f8a63;background:#eef7f1;font-weight:700}.ob-opt.good::before{content:"정답 · ";color:#3b6f4d}
+.ob-opt.miss{border-color:#c98078;background:#fbf0ee}.ob-opt.miss::before{content:"내 선택 · ";color:#a2463d}
+.ob-ex{margin-top:10px;padding:9px 11px;border-radius:8px;font-size:13px;line-height:1.75}
+.ob-ex.good{background:#f3f8f4;border:1px solid #cfe0d4}.ob-ex.miss{background:#fff8ec;border:1px solid #f0dcb8}
+html[data-theme="dark"] .ob-card,html[data-theme="dark"] .ob-step,html[data-theme="dark"] .ob-roles button,html[data-theme="dark"] .ob-tabs button,html[data-theme="dark"] .ob-opt,html[data-theme="dark"] .ob-cases button,html[data-theme="dark"] .ob-nav a,html[data-theme="dark"] .ob-reset,html[data-theme="dark"] .ob-more,html[data-theme="dark"] .ob-law-x{background:#1f2a44;color:#e6edf2;border-color:#41566b}
+html[data-theme="dark"] .ob-roles button[aria-pressed="true"],html[data-theme="dark"] .ob-tabs button[aria-selected="true"]{background:#2c4157;border-color:#b9d0e2}
+html[data-theme="dark"] .ob-cases button[aria-pressed="true"]{background:#607e94}
+html[data-theme="dark"] .ob-step.on,html[data-theme="dark"] .ob-ex.good,html[data-theme="dark"] .ob-opt.good{background:#24402f}
+html[data-theme="dark"] .ob-ex.miss,html[data-theme="dark"] .ob-opt.miss,html[data-theme="dark"] .ob-law-hl{background:#3a3428}
+html[data-theme="dark"] .ob-law,html[data-theme="dark"] .ob-report,html[data-theme="dark"] .ob-ref,html[data-theme="dark"] .ob-meter,html[data-theme="dark"] .ob-ask,html[data-theme="dark"] .ob-step label::before{background:#22344a;color:#e6edf2;border-color:#41566b}
+html[data-theme="dark"] .ob-cite,html[data-theme="dark"] .ob-law a,html[data-theme="dark"] .ob-rlist a,html[data-theme="dark"] .ob-nav a{color:#b9d0e2}
+html[data-theme="dark"] .ob-nav{background:#16202f}
+@media(max-width:640px){.ob-step .ob-basis,.ob-step .ob-law{margin-left:0}.ob-card{padding:12px}.ob-roles,.ob-tabs{grid-template-columns:1fr 1fr}}
+</style><link data-edu-responsive="2026" rel="stylesheet" href="assets/css/edu1035-responsive.css?v=20261120-contrast-4"></head>
+<body>
+<div class="sp-wrap ob-wrap">
+  <div class="sp-top"><a class="back" href="chatbot.html">← 상담 챗봇</a><span class="brand">요망진 간세 · 신규 직원 온보딩</span></div>
+  <div class="sp-head">
+    <h1>신규 직원 온보딩</h1>
+    <p class="lead">개인정보 보호·사이버보안 업무를 처음 맡았다면 여기서 시작하세요. 직무를 고르고, 첫날 행동수칙을 확인하고, 상황별 플레이북을 따라 하며, 하루 두 문제로 감을 익힙니다.</p>
+  </div>
+  <nav class="ob-nav" aria-label="온보딩 순서"><a href="#s-role">1 내 직무</a><a href="#s-code">2 첫날 행동수칙</a><a href="#s-play">3 실행 플레이북</a><a href="#s-quiz">4 오늘의 퀴즈</a></nav>
+  <section id="s-role" class="ob-sec"><h2>1. 내 직무 고르기</h2><div id="obRole"></div></section>
+  <section id="s-code" class="ob-sec"><h2>2. 첫날 행동수칙</h2><div id="obCode"></div></section>
+  <section id="s-play" class="ob-sec"><h2>3. 실행 플레이북</h2><div id="obPlay"></div></section>
+  <section id="s-quiz" class="ob-sec"><h2>4. 오늘의 상황 퀴즈</h2><div id="obQuiz"></div></section>
+  <p class="notice" style="margin-top:14px">모든 단계와 해설은 첨부 안내서와 법령·행정규칙 조문에만 근거합니다. 안내서와 현행 법령·행정규칙이 다르면 현행 법령·행정규칙을 적용하세요. 체크 표시와 퀴즈 기록은 이 기기의 브라우저에만 저장되며 어디로도 전송되지 않습니다.</p>
+</div>
+<script src="assets/config.js?v=20261121-2"></script>
+<script src="assets/js/law-api-client.js?v=20261120-shared-1"></script>
+<script src="assets/data/library/catalog.js?v=20261121-1"></script>
+<script src="assets/data/onboarding.js?v=20261121-1"></script>
+<script src="assets/js/onboarding-ui.js?v=20261121-1"></script>
+<script src="assets/js/gov.js?v=20261120-jeju-nav-2"></script>
+</body>
+</html>
