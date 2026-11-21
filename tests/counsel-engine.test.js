@@ -20,7 +20,7 @@ function expectKind(q, kind) { const a = e.answer(q); const ok = a.kind === kind
 // 단어 / 단어+단어 / 단어+문장 / 은어
 [['파기', 'destroy'], ['유출', 'breach'], ['위탁', 'outsourcing'], ['망분리', 'n2sf'], ['USB', 'usb'], ['CCTV', 'cctv'], ['씨씨티비 안내판', 'cctv'],
  ['용역 파기', 'outsourcing'], ['외주 주는데 엑셀로 주민번호 넘겨도 돼?', 'rrn'], ['챗GPT 써도 되나요', 'genai-use'], ['메일 잘못 보냈어요 개인정보', 'breach'],
- ['접속기록 얼마나 보관', 'access-log'], ['비번 저장 어떻게', 'encrypt'], ['퇴직자 계정 정리', 'access'], ['경찰이 영상 달래요', 'purpose-out'],
+ ['접속기록 얼마나 보관', 'access-log'], ['비번 저장 어떻게', 'encrypt'], ['퇴직자 계정 정리', 'access'], ['경찰이 영상 달래요', 'cctv-police'], ['경찰이 cctv영상', 'cctv-police'], ['수사기관 cctv 제공', 'cctv-police'],
  ['14세 미만 동의', 'child'], ['개인정보 처리방침 어디에 올려', 'policy'], ['영향평가 대상', 'pia'], ['보호책임자 지정 요건', 'cpo'], ['호기심으로 조회하면 처벌', 'discipline'],
  ['SQL 인젝션 막는 법', 'secure-coding'], ['보안성 검토 언제', 'security-review'], ['클라우드 도입', 'cloud'], ['랜섬웨어 걸렸어요', 'incident'], ['프롬프트 인젝션', 'ai-security'],
  ['IP카메라 비밀번호', 'ipcam'], ['로봇청소기', 'iot'], ['가명처리', 'pseudonym'], ['지문 인식 출입', 'biometric'], ['민감정보', 'sensitive'], ['아이 개인정보 동의', 'child'], ['CCTV 영상 보고 싶어요', 'cctv'], ['개인정보 유출 문자를 받았어요', 'breach'], ['내 개인정보 삭제 요청', 'rights'], ['CCTV 영상 보관기간', 'cctv'], ['cctv 보관 며칠', 'cctv']].forEach(([q, id]) => expectTopic(q, id));

@@ -422,7 +422,7 @@
       bullets = [t.core[1], /^(법|시행령|고시) 제|^「/.test(cs) ? '' : cs].map(plain).filter(Boolean);
       if (bullets.length < 2) bullets = bullets.concat((t.caution || []).map(plain));
       refs = t.refs; laws = t.laws;
-      if (a.cond) extra = '<div class="cz-cond"><p>질문하신 상황은 대상과 조건에 따라 기준이 달라질 수 있어요. [' + esc(a.cond.a) + ']와 [' + esc(a.cond.b) + '] 중 어느 쪽인지 알려주시면 정확히 안내해 드릴게요.</p>' +
+      if (a.cond) extra = '<div class="cz-cond"><p>질문하신 상황은 대상과 조건에 따라 기준이 달라질 수 있어요. [' + esc(a.cond.a) + '] 또는 [' + esc(a.cond.b) + '] 중 어느 쪽인지 알려주시면 정확히 안내해 드릴게요.</p>' +
         chipsHtml([{ label: a.cond.a, q: q + ' ' + a.cond.a.replace(/\(.*?\)/g, '') }, { label: a.cond.b, q: q + ' ' + a.cond.b.replace(/\(.*?\)/g, '') }]) + '</div>';
     } else if (a.kind === 'search') {
       lead = plain(a.core[0] && a.core[0].s);
