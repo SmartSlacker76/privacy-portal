@@ -21,7 +21,7 @@ for (const q of ['CCTV 안내판', '개인정보 유출 문자를 받았어요']
 assert.deepStrictEqual(f.maskSensitive('제 번호 010-1234-5678 이에요').kinds, ['전화번호']);
 // 시민용 카드: 본문(첫 줄 + 가운데 줄) 200자 이내, 가운데 2~3줄, 이모티콘 없음, 결론은 '~하실 수 있어요'
 global.window = {}; require(path.join(__dirname, '..', 'assets/data/counsel-citizen.js'));
-const cards = Object.values(window.COUNSEL_CITIZEN).concat(window.COUNSEL_CITIZEN_FAQ);
+const cards = [].concat(...Object.values(window.COUNSEL_CITIZEN)).concat(window.COUNSEL_CITIZEN_FAQ);
 const EMOJI = /[\u{1F300}-\u{1FAFF}\u{2600}-\u{27BF}]/u;
 for (const c of cards) {
   const body = c.lead + c.items.map(i => i[0] + ' ' + i[1]).join('');

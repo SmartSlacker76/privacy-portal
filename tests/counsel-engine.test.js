@@ -23,7 +23,7 @@ function expectKind(q, kind) { const a = e.answer(q); const ok = a.kind === kind
  ['접속기록 얼마나 보관', 'access-log'], ['비번 저장 어떻게', 'encrypt'], ['퇴직자 계정 정리', 'access'], ['경찰이 영상 달래요', 'purpose-out'],
  ['14세 미만 동의', 'child'], ['개인정보 처리방침 어디에 올려', 'policy'], ['영향평가 대상', 'pia'], ['보호책임자 지정 요건', 'cpo'], ['호기심으로 조회하면 처벌', 'discipline'],
  ['SQL 인젝션 막는 법', 'secure-coding'], ['보안성 검토 언제', 'security-review'], ['클라우드 도입', 'cloud'], ['랜섬웨어 걸렸어요', 'incident'], ['프롬프트 인젝션', 'ai-security'],
- ['IP카메라 비밀번호', 'ipcam'], ['로봇청소기', 'iot'], ['가명처리', 'pseudonym'], ['지문 인식 출입', 'biometric'], ['민감정보', 'sensitive'], ['아이 개인정보 동의', 'child'], ['CCTV 영상 보고 싶어요', 'cctv'], ['개인정보 유출 문자를 받았어요', 'breach'], ['내 개인정보 삭제 요청', 'rights']].forEach(([q, id]) => expectTopic(q, id));
+ ['IP카메라 비밀번호', 'ipcam'], ['로봇청소기', 'iot'], ['가명처리', 'pseudonym'], ['지문 인식 출입', 'biometric'], ['민감정보', 'sensitive'], ['아이 개인정보 동의', 'child'], ['CCTV 영상 보고 싶어요', 'cctv'], ['개인정보 유출 문자를 받았어요', 'breach'], ['내 개인정보 삭제 요청', 'rights'], ['CCTV 영상 보관기간', 'cctv'], ['cctv 보관 며칠', 'cctv']].forEach(([q, id]) => expectTopic(q, id));
 expectKind('ㅁㄴㅇㄹ', 'unclear');
 expectKind('자료 목록 보여줘', 'catalog');
 const cmp = e.answer('이동형 vs 고정형');
