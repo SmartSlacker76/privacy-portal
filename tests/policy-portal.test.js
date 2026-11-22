@@ -79,7 +79,7 @@ test('/law-summary returns only a checked 3-line summary, never the raw article'
   global.fetch = async (u) => {
     const s = String(u);
     if (s.includes('lawSearch.do')) return new Response(JSON.stringify({ LawSearch: { law: [{ 법령명한글: '개인정보 보호법', 법령일련번호: '1', 현행연혁코드: '현행' }] } }));
-    return new Response(JSON.stringify({ 법령: { 조문: { 조문단위: [{ 조문번호: '15', 조문가지번호: '0', 조문제목: '개인정보의 수집ㆍ이용', 조문내용: '제15조(개인정보의 수집ㆍ이용)', 항: [{ 항내용: raw }] }] } } }));
+    return new Response(JSON.stringify({ 법령: { 조문: { 조문단위: [{ 조문번호: '15', 조문가지번호: '0', 조문여부: '전문', 조문내용: '제3장 개인정보의 처리' }, { 조문번호: '15', 조문가지번호: '0', 조문여부: '조문', 조문제목: '개인정보의 수집ㆍ이용', 조문내용: '제15조(개인정보의 수집ㆍ이용)', 항: [{ 항내용: raw }] }] } } }));
   };
   let reply = '동의 등 법이 정한 근거가 있을 때만 개인정보를 모을 수 있어요.\n모은 목적 안에서만 써야 해요.\n동의를 받을 때는 알려야 할 사항을 먼저 알려야 해요.';
   let calls = 0;
@@ -91,6 +91,7 @@ test('/law-summary returns only a checked 3-line summary, never the raw article'
     const j = await ok.json();
     assert.equal(j.ok, true);
     assert.equal(j.cite, '개인정보 보호법 제15조 제1항');
+    assert.equal(j.article, '개인정보 보호법 제15조(개인정보의 수집ㆍ이용)', 'chapter heading units are skipped');
     assert.equal(j.summary.length, 3);
     assert.equal(j.content, undefined, 'raw article must not be returned');
     assert(!JSON.stringify(j).includes('다음 각 호의 어느 하나에 해당하는 경우에는'));
