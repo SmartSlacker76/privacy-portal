@@ -1,5 +1,10 @@
 /* Public law and policy gateway. Administrative routes are closed.
- * The optional /chat route only rewrites evidence the browser already holds; it is off unless the AI and CHAT_RATE bindings exist. */
+ * The optional /chat route only rewrites evidence the browser already holds; it is off unless the AI and CHAT_RATE bindings exist.
+ * /mcp also serves the privacy-policy checker tools (rules engine shared with the web app: assets/policy/rules.js + engine.js).
+ * Deploy with `npx wrangler deploy` from this folder so the two shared files are bundled. */
+import './policy-globals.js';
+import '../assets/policy/rules.js';
+import '../assets/policy/engine.js';
 const DRF = 'https://www.law.go.kr/DRF';
 const UA = 'privacy-edu-worker';
 const publicPaths = new Set(['/', '/health', '/law', '/law-summary', '/fetch', '/chat']);
@@ -145,16 +150,20 @@ export default {
     const json = (value, status = 200) => new Response(JSON.stringify(value), { status, headers: { ...headers, 'Content-Type': 'application/json; charset=utf-8' } });
     const deny = (event, status) => { audit(event, request, status); return json({ ok: false }, status); };
     const allowed = new Set(String(env.POLICY_FETCH_URLS || '').split(/\s+/).map(configuredUrl).filter(Boolean));
+    const hosts = fetchHosts(env.POLICY_FETCH_HOSTS);
+    const fetchOk = (href) => allowed.has(href) || hostAllowed(href, hosts);
 
     try {
       if (path === '/mcp') {
         if (request.method !== 'POST' || origin) return deny('mcp_method_or_origin_denied', 404);
-        if (!env.MCP_TOKEN) return deny('mcp_disabled', 404);
-        if (!(await tokenMatches(request, env.MCP_TOKEN))) return deny('mcp_auth_denied', 401);
+        // 토큰(MCP_TOKEN)이 기본입니다. 토큰 헤더를 넣을 수 없는 AI 앱 커넥터용으로만 MCP_PUBLIC="true"를 명시해 열 수 있습니다.
+        const open = env.MCP_PUBLIC === 'true';
+        if (!env.MCP_TOKEN && !open) return deny('mcp_disabled', 404);
+        if (!open && !(await tokenMatches(request, env.MCP_TOKEN))) return deny('mcp_auth_denied', 401);
         if (!(await allowRate(request, env.MCP_RATE))) return deny('mcp_rate_denied', 429);
         if (request.headers.get('content-type')?.split(';')[0].trim() !== 'application/json') return json({ ok: false }, 415);
         let rpc;
-        try { rpc = JSON.parse(await cappedBody(request, 16384)); }
+        try { rpc = JSON.parse(await cappedBody(request, 400000)); }
         catch { return deny('mcp_input_denied', 400); }
         if (!rpc || rpc.jsonrpc !== '2.0' || Array.isArray(rpc) || !['number', 'string', 'undefined'].includes(typeof rpc.id) || String(rpc.id).length > 128) {
           return deny('mcp_input_denied', 400);
@@ -190,7 +199,7 @@ export default {
       }
       if (request.method !== 'GET') return deny('method_denied', 405);
 
-      if (path === '/health' || path === '/') return json({ ok: true, law: Boolean(env.LAW_OC), fetch: Boolean(allowed.size && env.POLICY_RATE), fetchPolicy: 'explicit-urls-v1', ai: Boolean(env.AI && env.CHAT_RATE), summary: Boolean(env.LAW_OC && env.AI && env.LAW_RATE) });
+      if (path === '/health' || path === '/') return json({ ok: true, law: Boolean(env.LAW_OC), fetch: Boolean((allowed.size || hosts.length) && env.POLICY_RATE), fetchPolicy: 'explicit-urls-v1', ai: Boolean(env.AI && env.CHAT_RATE), summary: Boolean(env.LAW_OC && env.AI && env.LAW_RATE), mcp: Boolean(env.MCP_RATE && (env.MCP_TOKEN || env.MCP_PUBLIC === 'true')), rules: RULES_VER });
 
       if (path === '/law-summary') {
         if (!env.LAW_OC || !env.AI || !env.LAW_RATE) return json({ ok: false, error: '조문 요약 서비스를 사용할 수 없습니다.' }, 503);
@@ -220,6 +229,16 @@ export default {
 
       if (path === '/law') {
         if (!env.LAW_OC) return json({ ok: false, error: '조문 조회 서비스를 사용할 수 없습니다.' }, 503);
+        // 매개변수 없는 /law: 처리방침 점검기가 쓰는 「개인정보 보호법」·시행령 현행 시행일(하루 캐시)
+        if (!url.searchParams.has('name')) {
+          const key = new URL('/cache/law-status', url.origin).href;
+          const hit = await caches.default.match(key);
+          if (hit) return new Response(hit.body, { headers: { ...headers, 'Content-Type': 'application/json; charset=utf-8' } });
+          if (!(await allowRate(request, env.LAW_RATE))) return deny('law_rate_denied', 429);
+          const out = await lawStatus(env);
+          if (out.ok) await caches.default.put(key, new Response(JSON.stringify(out), { headers: { 'Cache-Control': 'public, max-age=86400' } }));
+          return json(out, out.ok ? 200 : 502);
+        }
         const input = lawInput(url.searchParams.get('kind') || '법령', url.searchParams.get('name'), url.searchParams.get('jo') || '', url.searchParams.get('branch') || '0');
         if (!input) return deny('law_input_denied', 400);
         const key = new URL('/cache/law', url.origin);
@@ -236,13 +255,11 @@ export default {
 
       const raw = url.searchParams.get('url') || '';
       const target = raw.length <= 2048 ? configuredUrl(raw) : null;
-      if (!target || !allowed.has(target)) return deny('fetch_target_denied', 403);
+      if (!target || !fetchOk(target)) return deny('fetch_target_denied', 403);
       if (!(await allowRate(request, env.POLICY_RATE))) return deny('fetch_rate_denied', 429);
-      const response = await fetch(target, { redirect: 'error', signal: AbortSignal.timeout(10000), headers: { 'User-Agent': UA, 'Accept': 'text/html,application/xhtml+xml,text/plain' } });
-      if (!response.ok || !/^(text\/(html|plain)|application\/xhtml\+xml)\b/i.test(response.headers.get('content-type') || '')) {
-        return json({ ok: false, error: '공개 처리방침을 읽지 못했습니다.' }, 502);
-      }
-      const text = htmlToText(await cappedBody(response, 1500000)).slice(0, 300000);
+      const page = await fetchPage(target, fetchOk);
+      if (!page.ok) return json({ ok: false, error: page.error || '공개 처리방침을 읽지 못했습니다.' }, page.status || 502);
+      const text = htmlToText(page.html).slice(0, 300000);
       return text.length > 200 ? json({ ok: true, text }) : json({ ok: false, error: '본문을 직접 붙여넣어 주세요.' }, 422);
     } catch (e) {
       const stage = /^[a-z_]{3,40}$/.test(e && e.message) ? e.message : 'gateway_error';
@@ -285,26 +302,250 @@ async function lookup(env, { kind, name, jo, branch }) {
   }
 }
 
+/* ---------- 처리방침 가져오기: 허용 목록 · 리디렉션 매 단계 재검사(최대 3회) · 문자셋(EUC-KR 등) 보존 ---------- */
+function fetchHosts(value) {
+  return String(value || '').split(/\s+/).map((h) => h.trim().toLowerCase().replace(/^\*?\./, '')).filter((h) => /^(?:[a-z0-9-]+\.)*[a-z0-9-]+\.[a-z]{2,}$/.test(h));
+}
+function hostAllowed(href, hosts) {
+  if (!hosts.length) return false;
+  const h = new URL(href).hostname.toLowerCase();
+  return hosts.some((x) => h === x || h.endsWith('.' + x));
+}
+/* MCP 도구용: 공개 인터넷의 http/https(80/443) 주소만 허용(SSRF 방지) */
+function safeUrl(s) {
+  let u;
+  try { u = new URL(s); } catch { return null; }
+  if (!/^https?:$/.test(u.protocol) || u.username || u.password) return null;
+  if (u.port && !['80', '443'].includes(u.port)) return null;
+  const h = u.hostname.toLowerCase();
+  if (h.includes(':') || h.startsWith('[')) return null;
+  if (!h.includes('.') || /(^|\.)(localhost|local|internal|intranet|home|lan|corp)$/.test(h)) return null;
+  if (/^\d+$/.test(h) || /^0x/i.test(h) || /^[\d.]+$/.test(h)) return null;
+  u.hash = '';
+  return u.href;
+}
+async function fetchPage(href, allow) {
+  let cur = href, res;
+  for (let hop = 0; ; hop++) {
+    try { res = await fetch(cur, { redirect: 'manual', signal: AbortSignal.timeout(10000), headers: { 'User-Agent': UA, 'Accept': 'text/html,application/xhtml+xml,text/plain' } }); }
+    catch { return { ok: false, status: 502, error: '처리방침 페이지에 연결하지 못했습니다.' }; }
+    const loc = res.status >= 300 && res.status < 400 ? res.headers.get('location') : null;
+    if (!loc) break;
+    let next = null;
+    try { next = new URL(loc, cur).href; } catch { /* invalid */ }
+    if (hop >= 3 || !next || !allow(next)) return { ok: false, status: 403, error: '허용되지 않은 주소로 이동(리디렉션)하려 해서 멈췄습니다.' };
+    cur = next;
+  }
+  const ct = (res.headers.get('content-type') || '').toLowerCase();
+  if (!res.ok || !/^(text\/(html|plain)|application\/xhtml\+xml)\b/.test(ct)) return { ok: false, status: 502, error: '공개 처리방침을 읽지 못했습니다.' };
+  let buf;
+  try { buf = await cappedBytes(res, 3000000); } catch { return { ok: false, status: 413, error: '문서가 너무 큽니다.' }; }
+  return { ok: true, html: decodeHtml(buf, ct) };
+}
+async function cappedBytes(message, max) {
+  if (!message.body || Number(message.headers.get('content-length')) > max) throw Error('body size');
+  const reader = message.body.getReader();
+  const chunks = [];
+  let length = 0;
+  try {
+    for (;;) {
+      const { done, value } = await reader.read();
+      if (done) break;
+      length += value.length;
+      if (length > max) throw Error('body size');
+      chunks.push(value);
+    }
+  } finally { await reader.cancel(); }
+  return new Uint8Array(await new Blob(chunks).arrayBuffer());
+}
+function decodeHtml(buf, ct) {
+  let cs = (ct.match(/charset=["']?([\w-]+)/) || [])[1];
+  if (!cs) cs = (new TextDecoder('utf-8').decode(buf.slice(0, 4096)).match(/charset=["']?([\w-]+)/i) || [])[1];
+  cs = (cs || 'utf-8').toLowerCase();
+  if (/ks_c_5601|ksc5601|cp949|x-windows-949/.test(cs)) cs = 'euc-kr';
+  try { return new TextDecoder(cs).decode(buf); } catch { return new TextDecoder('utf-8').decode(buf); }
+}
+
+/* ---------- 「개인정보 보호법」·시행령 현행 시행일(처리방침 점검기 · get_law_status) ---------- */
+async function lawStatus(env) {
+  try {
+    const d = await drf('lawSearch.do', { OC: env.LAW_OC, target: 'law', query: '개인정보 보호법', display: '20' });
+    // 법제처 응답의 상세 링크에는 OC가 들어 있으므로 돌려주지 않습니다
+    const all = asArray(d && d.LawSearch && d.LawSearch.law).map((x) => ({ name: x['법령명한글'], effective: String(x['시행일자'] || ''), promulgated: String(x['공포일자'] || ''), no: String(x['공포번호'] || ''), link: 'https://www.law.go.kr/법령/' + encodeURIComponent(String(x['법령명한글'] || '').replace(/\s/g, '')) }));
+    const pick = (n) => all.filter((x) => x.name === n).sort((a, b) => b.effective.localeCompare(a.effective))[0] || null;
+    const law = pick('개인정보 보호법');
+    return law ? { ok: true, law, decree: pick('개인정보 보호법 시행령'), checkedAt: new Date().toISOString() } : { ok: false, error: '법령 없음', stage: 'not_found' };
+  } catch (e) {
+    const stage = /^drf_[a-z0-9_]+$/.test(e && e.message) ? e.message : 'drf_error';
+    return { ok: false, error: '법제처 조회에 실패했습니다.', stage };
+  }
+}
+
+/* ---------- MCP: 처리방침 점검 도구(규칙 엔진, 토큰 0) + 조문 조회 + 등록 Q&A ---------- */
+const RULES = globalThis.RULES;
+const PE = globalThis.PrivacyEngine;
+const RULES_VER = (RULES && RULES.meta && RULES.meta.version) || '';
+const MCP_VERSIONS = ['2025-06-18', '2025-03-26', '2024-11-05'];
+const ORG_TYPES = ['private', 'public', 'travel', 'senior', 'realty'];
+const ST_KO = { good: '충족', warn: '일부 미흡', bad: '누락', na: '해당여부 확인' };
+const policyInput = (extra = {}) => ({
+  type: 'object',
+  properties: {
+    org: { type: 'string', description: '기관명', maxLength: 60 },
+    url: { type: 'string', description: '개인정보 처리방침 주소(http/https). text와 둘 중 하나 필수', maxLength: 2048 },
+    text: { type: 'string', description: '처리방침 본문(주소로 불러오기가 안 될 때)', maxLength: 300000 },
+    org_type: { type: 'string', enum: ORG_TYPES, default: 'private', description: 'private(민간) · public(공공기관) · travel(여행업) · senior(노인복지관) · realty(공인중개사)' },
+    ...extra
+  },
+  required: ['org']
+});
+const POLICY_TOOLS = [
+  { name: 'check_privacy_policy', title: '개인정보 처리방침 적정성 점검', description: '기관의 개인정보 처리방침(주소 또는 본문)을 「개인정보 보호법」·개인정보보호위원회 작성지침 등 기준으로 점검하고 점수, 미흡한 부분, 개선 방법, 근거를 돌려줍니다. 개인정보는 *** 로 비식별 처리됩니다.', inputSchema: policyInput({ detail: { type: 'string', enum: ['summary', 'full'], default: 'summary', description: 'summary: 미흡 항목 요약 / full: 작성 예시까지 포함' } }), annotations: { readOnlyHint: true, openWorldHint: true } },
+  { name: 'generate_improved_policy', title: '개선된 개인정보 처리방침(안) 생성', description: '점검 결과를 반영해 충족 조항은 유지하고, 미흡 조항은 보완하고, 빠진 조항은 신설한 개인정보 처리방침(안) 전문을 돌려줍니다(비식별). ○○ 부분은 기관이 실제 내용으로 채웁니다.', inputSchema: policyInput(), annotations: { readOnlyHint: true, openWorldHint: true } },
+  { name: 'generate_comparison_table', title: '신구대조표 생성', description: '현행 처리방침과 개선안을 조항별로 비교한 신구대조표(현행 · 개정안 · 비고(사유))를 표로 돌려줍니다(비식별).', inputSchema: policyInput({ changed_only: { type: 'boolean', default: true, description: 'true면 바뀐 조항만' } }), annotations: { readOnlyHint: true, openWorldHint: true } },
+  { name: 'generate_ai_service_policy', title: '생성형 AI 서비스 개인정보 처리방침(안)', description: '생성형 AI(챗봇·AI 비서, 외부 AI API 연동) 서비스용 개인정보 처리방침(안)을 작성지침(2026.4.) 부록1과 생성형 AI 안내서(2025.8.) 기준 예시로 만들어 줍니다.', inputSchema: { type: 'object', properties: { org: { type: 'string', description: '기관명', maxLength: 60 } }, required: ['org'] }, annotations: { readOnlyHint: true } },
+  { name: 'get_improvement_example', title: '항목별 개선 예시', description: '점검 항목 번호(예: 2, 18, G7)의 작성 예시, 개선 방법, 근거 조문을 돌려줍니다.', inputSchema: { type: 'object', properties: { item_id: { type: 'string', description: '항목 번호(1~31 또는 G1~G10)', maxLength: 8 }, org: { type: 'string', description: '예시에 넣을 기관명', maxLength: 60 } }, required: ['item_id'] }, annotations: { readOnlyHint: true } },
+  { name: 'list_criteria', title: '점검 기준 목록', description: '점검 항목(필수·해당시·권장)과 근거 자료 목록을 돌려줍니다.', inputSchema: { type: 'object', properties: { org_type: { type: 'string', enum: ORG_TYPES, default: 'private' } } }, annotations: { readOnlyHint: true } },
+  { name: 'get_easy_policy_facts', title: '쉬운 처리방침용 핵심 사실', description: '어린이·청소년·어르신용 쉬운 처리방침을 쓰기 위한 핵심 사실(수집 항목, 목적, 보유기간, 제공·위탁 여부, 문의처)을 비식별 상태로 짧게 뽑아 줍니다.', inputSchema: policyInput(), annotations: { readOnlyHint: true, openWorldHint: true } },
+  { name: 'get_law_status', title: '개인정보 보호법 최신 시행일', description: '법제처 Open API로 「개인정보 보호법」·시행령의 현행 시행일을 확인하고, 점검 규칙이 최신인지 알려 줍니다.', inputSchema: { type: 'object', properties: {} }, annotations: { readOnlyHint: true, openWorldHint: true } }
+];
+
 async function mcp(rpc, env) {
   const id = rpc.id ?? null;
   const ok = (result) => ({ jsonrpc: '2.0', id, result });
   const error = (code, message) => ({ jsonrpc: '2.0', id, error: { code, message } });
-  if (rpc.method === 'initialize') return ok({ protocolVersion: '2024-11-05', capabilities: { tools: {} }, serverInfo: { name: 'privacy-law-mcp', version: '2.0.0' } });
-  if (rpc.method === 'notifications/initialized') return null;
-  if (rpc.method === 'tools/list') return ok({ tools: [tool, qnaTool] });
+  const p = rpc.params && typeof rpc.params === 'object' ? rpc.params : {};
+  if (rpc.method === 'initialize') {
+    return ok({
+      protocolVersion: MCP_VERSIONS.includes(p.protocolVersion) ? p.protocolVersion : MCP_VERSIONS[0],
+      capabilities: { tools: { listChanged: false } },
+      serverInfo: { name: 'privacy-policy-checker', title: '개인정보 처리방침 점검 · 법령 조회', version: RULES_VER || '2.0.0' },
+      instructions: '기관명과 처리방침 주소로 check_privacy_policy를 먼저 호출하세요. 개선안 전문은 generate_improved_policy, 신구대조표는 generate_comparison_table, 생성형 AI 서비스용 처리방침은 generate_ai_service_policy, 항목별 개선 문구는 get_improvement_example, 쉬운 처리방침은 get_easy_policy_facts, 조문은 lookup_law_article로 확인하세요. 결과는 자동 점검이며 법률 자문이 아닙니다.'
+    });
+  }
+  if (typeof rpc.method === 'string' && rpc.method.startsWith('notifications/')) return null;
+  if (rpc.method === 'ping') return ok({});
+  if (rpc.method === 'tools/list') return ok({ tools: [...(RULES && PE ? POLICY_TOOLS : []), tool, qnaTool] });
   if (rpc.method !== 'tools/call') return error(-32601, 'Method not found');
-  const args = rpc.params?.arguments || {};
-  if (rpc.params?.name === qnaTool.name) {
+  const args = p.arguments && typeof p.arguments === 'object' ? p.arguments : {};
+  if (p.name === qnaTool.name) {
     if (typeof args.question !== 'string' || args.question.length > 300) return error(-32602, 'Invalid parameters');
     const q = args.question.toLowerCase().replace(/\s/g, '');
     const entry = KB.map((item) => ({ item, score: item.kw.filter((word) => q.includes(word)).length })).sort((a, b) => b.score - a.score)[0];
     return ok({ content: [{ type: 'text', text: entry.score ? entry.item.a + '\n근거: ' + entry.item.src : '등록된 주제로 질문해 주세요.' }] });
   }
-  if (rpc.params?.name !== tool.name) return error(-32601, 'Method not found');
-  const input = lawInput(args.kind || '법령', args.name, args.jo, args.branch ?? 0);
-  if (!input || !env.LAW_OC) return error(-32602, 'Invalid parameters or service unavailable');
-  const found = await lookup(env, input);
-  return ok({ content: [{ type: 'text', text: found.ok ? [found.article, found.content, found.source].join('\n\n') : '조회 실패' }], isError: !found.ok });
+  if (p.name === tool.name) {
+    const input = lawInput(args.kind || '법령', args.name, String(args.jo ?? ''), String(args.branch ?? 0));
+    if (!input || !env.LAW_OC) return error(-32602, 'Invalid parameters or service unavailable');
+    const found = await lookup(env, input);
+    return ok({ content: [{ type: 'text', text: found.ok ? [found.article, found.content, found.source].join('\n\n') : '조회 실패' }], isError: !found.ok });
+  }
+  if (!RULES || !PE || !POLICY_TOOLS.some((t) => t.name === p.name)) return error(-32601, 'Method not found');
+  try { return ok(await runPolicyTool(p.name, args, env)); }
+  catch (e) {
+    console.warn(JSON.stringify({ event: 'mcp_tool_failed', tool: p.name }));
+    return ok(toolText('도구 실행 중 오류가 발생했습니다: ' + (e && e.userMsg ? e.userMsg : '처리 중 오류'), true));
+  }
+}
+function userErr(msg) { const e = new Error(msg); e.userMsg = msg; return e; }
+function toolText(text, isError) { return { content: [{ type: 'text', text }], isError: !!isError }; }
+const str = (v, n) => (typeof v === 'string' ? v.slice(0, n) : '');
+
+async function loadPolicyText(args) {
+  let text = str(args.text, 300000);
+  if (!text) {
+    const target = safeUrl(str(args.url, 2048));
+    if (!target) throw userErr('공개된 http/https 처리방침 주소(url) 또는 본문(text)을 주세요.');
+    const page = await fetchPage(target, (href) => Boolean(safeUrl(href)));
+    if (!page.ok) throw userErr(page.error + ' 본문(text)을 직접 넣어 주세요.');
+    text = PE.htmlToTextBasic(page.html);
+  } else if (/<html|<body|<div/i.test(text)) text = PE.htmlToTextBasic(text);
+  if (text.length < 300) throw userErr('불러온 내용이 너무 짧습니다. 처리방침 본문(text)을 직접 넣어 주세요.');
+  return PE.mask(text.slice(0, 300000));
+}
+
+async function runPolicyTool(name, a, env) {
+  const R = RULES;
+  const org = str(a.org, 60).replace(/[<>\u0000-\u001f]/g, '') || '○○기관';
+  const type = ORG_TYPES.includes(a.org_type) ? a.org_type : 'private';
+  if (name === 'check_privacy_policy') {
+    const A = PE.analyze(await loadPolicyText(a), org, type);
+    const full = a.detail === 'full';
+    const issues = A.all.filter((r) => r.status === 'warn' || r.status === 'bad');
+    const L = [];
+    L.push('# 개인정보 처리방침 적정성 점검 보고서', `- 기관명: ${org}${A.industry ? ' (' + A.industry + ')' : type === 'public' ? ' (공공기관)' : ''}`,
+      `- 종합: **${A.score}점/100 (${A.grade.t})** — 충족 ${A.count.good} · 일부 미흡 ${A.count.warn} · 누락 ${A.count.bad} · 해당여부 확인 ${A.count.na}`,
+      `- 기준: 「개인정보 보호법」(${R.meta.lawEffective} 시행) 등 ${R.meta.refs.length}종 · 규칙 v${R.meta.version} · 개인정보는 *** 처리`, '', `## 미흡·누락 항목 (${issues.length}건)`);
+    issues.forEach((r) => {
+      L.push(`### ${r.global ? r.id : r.id + '.'} ${r.title} — ${ST_KO[r.status]} (${r.level})`);
+      if (r.excerpt) L.push(`- 현행 내용: ${r.excerpt.replace(/\s+/g, ' ').slice(0, full ? 400 : 160)}`);
+      L.push(`- 미흡한 부분: ${r.missing.map((x) => x.t).join(' / ')}`);
+      L.push(`- 개선 방법: ${r.missing.map((x) => x.fix).join(' ')}`);
+      if (full && r.example) L.push(`- 작성 예시:\n${r.example.split('\n').map((x) => '  > ' + x).join('\n')}`);
+      L.push(`- 근거: ${r.basis.join(', ')}${r.page ? ' (' + r.page + ')' : ''}`);
+    });
+    const na = A.all.filter((r) => r.status === 'na' && !r.global);
+    if (na.length) L.push('', `## 해당 여부 확인 필요 (${na.length}건)`, na.map((r) => r.id + '. ' + r.title).join(' · '));
+    if (!full) L.push('', '※ 작성 예시는 detail="full" 또는 get_improvement_example(item_id)로 볼 수 있습니다.');
+    L.push('※ 자동 점검 결과이며 법률 자문이 아닙니다.');
+    return toolText(L.join('\n'));
+  }
+  if (name === 'generate_improved_policy') {
+    const A = PE.analyze(await loadPolicyText(a), org, type);
+    const out = PE.improvedPolicy(A, org);
+    const n = out.filter((x) => x.tag).length;
+    return toolText(`# 개선사항을 반영한 개인정보 처리방침(안)\n- 기관명: ${org} · 현행 점수 ${A.score}점(${A.grade.t}) · 보완·신설 조항 ${n}개\n- [보완]·[신설] 표시 조항을 확인하고, ○○ 부분은 실제 처리 현황으로 채우세요. 개인정보는 *** 처리됨.\n\n` + PE.improvedText(out).slice(0, 60000) + '\n\n※ 자동 생성 초안이며 법률 자문이 아닙니다. 게시 전 개인정보 보호책임자의 검토가 필요합니다.');
+  }
+  if (name === 'generate_comparison_table') {
+    const A = PE.analyze(await loadPolicyText(a), org, type);
+    let rows = PE.comparisonRows(A, PE.improvedPolicy(A, org), org);
+    if (a.changed_only !== false) rows = rows.filter((r) => r.kind);
+    return toolText(PE.comparisonText(rows, org).slice(0, 40000) + '\n\n※ [신설]·[보완]·[정비] 조항만 표시(changed_only=false로 전체 보기). 웹앱의 ‘신구대조표’ 탭에서 가로 PDF로 내려받을 수 있습니다.');
+  }
+  if (name === 'generate_ai_service_policy') {
+    return toolText('# 생성형 AI 서비스 개인정보 처리방침(안)\n※ 작성지침(2026.4.) 부록1 기준 예시입니다. (예시) 행과 ○○는 실제 서비스에 맞게 고치세요.\n\n' + PE.improvedText(PE.aiPolicy(org)));
+  }
+  if (name === 'get_improvement_example') {
+    const id = str(a.item_id, 8).trim().toUpperCase();
+    const all = R.items.concat(Object.values(R.industry || {}).flatMap((x) => x.items), R.global);
+    const it = all.find((x) => String(x.id).toUpperCase() === id);
+    if (!it) throw userErr('항목 번호를 찾을 수 없습니다. list_criteria로 번호를 확인하세요.');
+    const fixes = (it.checks || [{ t: it.title, fix: it.fix }]).map((c) => `- ${c.t}: ${c.fix}`).join('\n');
+    return toolText(`# ${it.id} ${it.title} (${it.level})\n## 점검 내용과 개선 방법\n${fixes}\n## 작성 예시\n${(it.example || '').replace(/\{ORG\}/g, org)}\n## 근거\n${(it.basis || []).join(', ')}${it.page ? ' (' + it.page + ')' : ''}`);
+  }
+  if (name === 'list_criteria') {
+    const items = R.items.filter((x) => !x.public || type === 'public').concat(R.industry && R.industry[type] ? R.industry[type].items : []);
+    const L = ['# 점검 기준 (규칙 v' + R.meta.version + ')', '| 번호 | 항목 | 구분 | 주요 근거 |', '|---|---|---|---|'];
+    items.concat(R.global).forEach((x) => L.push(`| ${x.id} | ${x.title} | ${x.level} | ${(x.basis || [])[0] || ''} |`));
+    L.push('', '## 근거 자료', R.meta.refs.map((x) => '- ' + x).join('\n'));
+    return toolText(L.join('\n'));
+  }
+  if (name === 'get_easy_policy_facts') {
+    const text = await loadPolicyText(a);
+    const A = PE.analyze(text, org, type);
+    const sec = (id) => { const r = A.results.find((x) => x.id === id); return r ? (r.full || '') : ''; };
+    const has = (id) => { const r = A.results.find((x) => x.id === id); return !!(r && r.found); };
+    const facts = {
+      org, type,
+      fields: ((R.dict && R.dict.fields) || []).filter((f) => text.includes(f.replace(/\(.*\)/, ''))).slice(0, 10),
+      purposes: sec(2).split('\n').slice(1, 7).map((x) => x.slice(0, 60)),
+      periods: [...new Set(sec(5).match(/(\d+\s*(년|개월|일)|회원\s*탈퇴\s*시까지|목적\s*달성\s*시까지|동의\s*철회\s*시까지)/g) || [])].slice(0, 5),
+      thirdParty: has(7), outsource: has(9), abroad: has(10), cookie: has(14), child: has(4), cctv: has(21), ai: has(26), transfer: has(25),
+      contact: (sec(18).match(/(?:담당\s*부서|부서명?)\s*[:：]?\s*([가-힣A-Za-z0-9]{2,15}(?:과|팀|실|센터|부|국|처))/) || [])[1] || '개인정보 보호 담당부서',
+      help: '개인정보침해 신고센터 118, 개인정보 분쟁조정위원회 1833-6972'
+    };
+    return toolText('# 쉬운 처리방침용 핵심 사실(비식별)\n```json\n' + JSON.stringify(facts, null, 1) + '\n```\n작성 안내: 어린이(14세 미만)는 "~해요"체·짧은 문장·생활 예시, 청소년(15~18세)은 핵심 용어+괄호 설명·권리 행사 방법, 어르신(65세 이상)은 합쇼체·전화 문의 강조로 6~9개 질문형 카드로 쓰세요. 없는 사실은 지어내지 마세요.');
+  }
+  if (name === 'get_law_status') {
+    if (!env.LAW_OC) return toolText(`법제처 API가 설정되지 않았습니다. 점검 규칙 기준 시행일: ${R.meta.lawEffective} (https://www.law.go.kr/법령/개인정보보호법 에서 확인)`);
+    const d = await lawStatus(env);
+    if (!d.ok) return toolText('법제처 조회에 실패했습니다(' + d.stage + ').', true);
+    const fmt = (x) => x && x.length === 8 ? `${x.slice(0, 4)}-${x.slice(4, 6)}-${x.slice(6)}` : x;
+    const eff = d.law.effective;
+    const newer = eff && eff > String(R.meta.lawEffective).replace(/-/g, '');
+    return toolText(`- 개인정보 보호법 현행 시행일: ${fmt(eff)} (공포 ${fmt(d.law.promulgated)})\n- 시행령 시행일: ${fmt(d.decree && d.decree.effective)}\n- 점검 규칙 반영 시행일: ${R.meta.lawEffective} → ${newer ? '⚠ 규칙보다 새 법령이 있습니다. rules.js 갱신이 필요합니다.' : '✔ 최신 반영'}`);
+  }
+  throw userErr('알 수 없는 도구');
 }
 
 async function drf(path, params) {

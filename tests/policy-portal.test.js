@@ -2,6 +2,9 @@ const test = require('node:test');
 const assert = require('node:assert/strict');
 const fs = require('node:fs');
 const vm = require('node:vm');
+const { pathToFileURL } = require('node:url');
+/* worker.js imports the shared policy rules engine, so load it from its file path (not a data: URL) */
+const loadWorker = async () => (await import(pathToFileURL('worker/worker.js').href)).default;
 
 test('six house styles distinguish CCTV from a drone', () => {
   const sandbox = { window: {} };
@@ -23,8 +26,7 @@ test('six house styles distinguish CCTV from a drone', () => {
 });
 
 test('Worker blocks closed routes, foreign origins and unconfigured MCP', async () => {
-  const source = fs.readFileSync('worker/worker.js', 'utf8');
-  const { default: worker } = await import('data:text/javascript,' + encodeURIComponent(source));
+  const worker = await loadWorker();
   const url = 'https://worker.example';
   const env = { ALLOWED_ORIGIN: 'https://portal.example' };
   for (const path of ['/openapi.json', '/ai', '/admin', '/conversations', '/files']) {
@@ -34,7 +36,10 @@ test('Worker blocks closed routes, foreign origins and unconfigured MCP', async 
   assert.equal(blockedOrigin.status, 403);
   assert.equal(blockedOrigin.headers.get('Access-Control-Allow-Origin'), null);
   const status = await worker.fetch(new Request(url + '/health', { headers: { Origin: env.ALLOWED_ORIGIN } }), env);
-  assert.deepEqual(await status.json(), { ok: true, law: false, fetch: false, fetchPolicy: 'explicit-urls-v1', ai: false, summary: false });
+  const health = await status.json();
+  assert.match(health.rules, /^\d{4}\.\d+\.\d+$/);
+  delete health.rules;
+  assert.deepEqual(health, { ok: true, law: false, fetch: false, fetchPolicy: 'explicit-urls-v1', ai: false, summary: false, mcp: false });
   // /chat stays closed unless both the AI and CHAT_RATE bindings exist
   const chatReq = () => new Request(url + '/chat', { method: 'POST', headers: { Origin: env.ALLOWED_ORIGIN, 'content-type': 'application/json' }, body: '{"q":"x","evidence":[{"text":"y"}]}' });
   assert.equal((await worker.fetch(chatReq(), env)).status, 404);
@@ -46,8 +51,7 @@ test('Worker blocks closed routes, foreign origins and unconfigured MCP', async 
 });
 
 test('Optional /chat route rewrites only supplied evidence and requires the allowed origin', async () => {
-  const source = fs.readFileSync('worker/worker.js', 'utf8');
-  const { default: worker } = await import('data:text/javascript,' + encodeURIComponent(source));
+  const worker = await loadWorker();
   const url = 'https://worker.example';
   let seen = null;
   const env = { ALLOWED_ORIGIN: 'https://portal.example', CHAT_RATE: { limit: async () => ({ success: true }) }, AI: { run: async (model, input) => { seen = input; return { response: '정리 [1]' }; } } };
@@ -66,8 +70,7 @@ test('Optional /chat route rewrites only supplied evidence and requires the allo
 });
 
 test('/law-summary returns only a checked 3-line summary, never the raw article', async () => {
-  const source = fs.readFileSync('worker/worker.js', 'utf8');
-  const { default: worker } = await import('data:text/javascript,' + encodeURIComponent(source));
+  const worker = await loadWorker();
   const url = 'https://worker.example';
   const raw = '① 개인정보처리자는 다음 각 호의 어느 하나에 해당하는 경우에는 개인정보를 수집할 수 있으며 그 수집 목적의 범위에서 이용할 수 있다.\n1. 정보주체의 동의를 받은 경우\n② 개인정보처리자는 제1항제1호에 따른 동의를 받을 때에는 다음 각 호의 사항을 정보주체에게 알려야 한다.';
   const store = new Map();
@@ -106,8 +109,7 @@ test('/law-summary returns only a checked 3-line summary, never the raw article'
 });
 
 test('/chat drops evidence that looks like raw article text', async () => {
-  const source = fs.readFileSync('worker/worker.js', 'utf8');
-  const { default: worker } = await import('data:text/javascript,' + encodeURIComponent(source));
+  const worker = await loadWorker();
   let seen = null;
   const env = { ALLOWED_ORIGIN: 'https://portal.example', CHAT_RATE: { limit: async () => ({ success: true }) }, AI: { run: async (m, input) => { seen = input; return { response: 'ok [1]' }; } } };
   const body = JSON.stringify({ q: '수집', evidence: [{ ref: '요약', text: '근거가 있을 때만 모을 수 있어요.' }, { ref: '원문', text: '제15조(개인정보의 수집ㆍ이용) ① 개인정보처리자는 ② 동의를' }] });
@@ -118,8 +120,7 @@ test('/chat drops evidence that looks like raw article text', async () => {
 });
 
 test('law lookup failures report a safe stage code instead of a bare 502', async () => {
-  const source = fs.readFileSync('worker/worker.js', 'utf8');
-  const { default: worker } = await import('data:text/javascript,' + encodeURIComponent(source));
+  const worker = await loadWorker();
   const store = new Map();
   global.caches = { default: { match: async () => undefined, put: async () => {} } };
   const realFetch = global.fetch;
@@ -134,4 +135,68 @@ test('law lookup failures report a safe stage code instead of a bare 502', async
     const r = await worker.fetch(new Request('https://w.example/law?kind=법령&name=개인정보 보호법&jo=15&branch=0', { headers: { 'CF-Connecting-IP': '203.0.113.1' } }), { ...env, LAW_RATE: { limit: async () => { throw new Error('bad binding'); } } });
     assert.equal(r.status, 502); assert.equal((await r.json()).stage, 'rate_limiter_error');
   } finally { global.fetch = realFetch; delete global.caches; }
+});
+
+test('MCP restores the privacy-policy checker tools from the shared rules engine', async () => {
+  const worker = await loadWorker();
+  const rate = { limit: async () => ({ success: true }) };
+  const call = (env, body, auth) => worker.fetch(new Request('https://w.example/mcp', { method: 'POST', headers: { 'content-type': 'application/json', 'CF-Connecting-IP': '203.0.113.1', ...(auth ? { Authorization: 'Bearer ' + auth } : {}) }, body: JSON.stringify(body) }), env);
+  const token = 't'.repeat(40);
+  const env = { MCP_TOKEN: token, MCP_RATE: rate };
+  assert.equal((await call(env, { jsonrpc: '2.0', id: 1, method: 'tools/list' })).status, 401);
+  const list = await (await call(env, { jsonrpc: '2.0', id: 1, method: 'tools/list' }, token)).json();
+  const names = list.result.tools.map((t) => t.name);
+  for (const n of ['check_privacy_policy', 'generate_improved_policy', 'generate_comparison_table', 'generate_ai_service_policy', 'get_improvement_example', 'list_criteria', 'get_easy_policy_facts', 'get_law_status', 'lookup_law_article', 'get_privacy_answer']) assert(names.includes(n), n);
+  // MCP_PUBLIC opens tokenless access only when stated explicitly, and still needs MCP_RATE
+  const pub = { MCP_PUBLIC: 'true', MCP_RATE: rate };
+  assert.equal((await call({ MCP_PUBLIC: 'true' }, { jsonrpc: '2.0', id: 1, method: 'ping' })).status, 429);
+  const init = await (await call(pub, { jsonrpc: '2.0', id: 1, method: 'initialize', params: { protocolVersion: '2025-03-26' } })).json();
+  assert.equal(init.result.protocolVersion, '2025-03-26');
+  const policy = '개인정보 처리방침\n제1조(개인정보의 처리 목적) ○○시청은 민원 처리를 위해 개인정보를 처리합니다. 담당자 홍길동 010-1234-5678\n' + '제2조(처리하는 개인정보 항목) 성명, 연락처를 처리합니다.\n'.repeat(10);
+  const checked = await (await call(pub, { jsonrpc: '2.0', id: 2, method: 'tools/call', params: { name: 'check_privacy_policy', arguments: { org: '○○시청', org_type: 'public', text: policy } } })).json();
+  const report = checked.result.content[0].text;
+  assert.match(report, /적정성 점검 보고서/);
+  assert.match(report, /\d+점\/100/);
+  assert(!report.includes('010-1234-5678'), 'phone numbers are masked');
+  const crit = await (await call(pub, { jsonrpc: '2.0', id: 3, method: 'tools/call', params: { name: 'list_criteria', arguments: {} } })).json();
+  assert.match(crit.result.content[0].text, /점검 기준 \(규칙 v/);
+  // private addresses are refused before any fetch
+  const local = await (await call(pub, { jsonrpc: '2.0', id: 4, method: 'tools/call', params: { name: 'check_privacy_policy', arguments: { org: 'x', url: 'http://127.0.0.1/admin' } } })).json();
+  assert.equal(local.result.isError, true);
+});
+
+test('/law without parameters returns the privacy-act effective dates for the policy checker', async () => {
+  const worker = await loadWorker();
+  global.caches = { default: { match: async () => undefined, put: async () => {} } };
+  const realFetch = global.fetch;
+  global.fetch = async () => new Response(JSON.stringify({ LawSearch: { law: [
+    { 법령명한글: '개인정보 보호법', 시행일자: '20251002', 공포일자: '20250401', 공포번호: '1', 법령상세링크: '/DRF/lawService.do?OC=secret-oc' },
+    { 법령명한글: '개인정보 보호법 시행령', 시행일자: '20251002', 공포일자: '20250930', 공포번호: '2' }] } }));
+  try {
+    const r = await worker.fetch(new Request('https://w.example/law', { headers: { 'CF-Connecting-IP': '203.0.113.1' } }), { LAW_OC: 'secret-oc', LAW_RATE: { limit: async () => ({ success: true }) } });
+    const j = await r.json();
+    assert.equal(j.law.effective, '20251002');
+    assert.equal(j.decree.name, '개인정보 보호법 시행령');
+    assert(!JSON.stringify(j).includes('secret-oc'));
+  } finally { global.fetch = realFetch; delete global.caches; }
+});
+
+test('/fetch accepts approved host suffixes, re-checks every redirect and keeps EUC-KR text', async () => {
+  const worker = await loadWorker();
+  const realFetch = global.fetch;
+  const env = { POLICY_FETCH_HOSTS: 'go.kr', POLICY_RATE: { limit: async () => ({ success: true }) } };
+  const get = (u) => worker.fetch(new Request('https://w.example/fetch?url=' + encodeURIComponent(u), { headers: { 'CF-Connecting-IP': '203.0.113.1' } }), env);
+  const body = new Uint8Array([...new TextEncoder().encode('<html><body><p>')].concat(Array(300).fill([0xb0, 0xb3]).flat(), [...new TextEncoder().encode('</p></body></html>')]));
+  try {
+    assert.equal((await get('https://evil.example/privacy')).status, 403);
+    assert.equal((await get('https://notgo.kr.evil.example/')).status, 403);
+    global.fetch = async (u) => String(u).includes('/old') ? new Response(null, { status: 302, headers: { Location: 'https://www.jeju.go.kr/privacy' } }) : new Response(body, { headers: { 'content-type': 'text/html; charset=euc-kr' } });
+    const ok = await (await get('https://www.jeju.go.kr/old')).json();
+    assert.equal(ok.ok, true);
+    assert(ok.text.startsWith('개개'), 'EUC-KR is decoded');
+    global.fetch = async () => new Response(null, { status: 302, headers: { Location: 'https://evil.example/' } });
+    assert.equal((await get('https://www.jeju.go.kr/old')).status, 403);
+    const health = await (await worker.fetch(new Request('https://w.example/health'), env)).json();
+    assert.equal(health.fetch, true);
+  } finally { global.fetch = realFetch; }
 });
