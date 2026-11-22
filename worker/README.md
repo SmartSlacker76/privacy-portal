@@ -8,15 +8,17 @@ Cloudflare Worker 운영 계정에서 worker.js를 갱신합니다. GitHub Pages
 | LAW_OC | 법제처 OC. Worker Secret으로 관리 |
 | LAW_RATE | IP별 법령 조회 Rate Limit 바인딩. 예시 분당 30회 |
 | POLICY_FETCH_URLS | 승인된 공개 HTTPS 처리방침 전체 URL을 공백으로 구분 |
+| POLICY_FETCH_HOSTS | (선택) 처리방침을 불러올 수 있는 HTTPS 호스트 뒷부분을 공백으로 구분. 예: `go.kr` → `www.jeju.go.kr` 등 하위 주소 허용. 리디렉션은 매 단계 다시 검사(최대 3회) |
 | POLICY_RATE | IP별 공개 자료 가져오기 Rate Limit 바인딩. 예시 분당 10회 |
 | MCP_TOKEN | MCP 운영 시에만 서버용 고엔트로피 비밀을 Secret으로 등록 |
+| MCP_PUBLIC | (선택) `"true"`로 적으면 토큰 없이 MCP 접속 허용(토큰 헤더를 넣을 수 없는 AI 앱 커스텀 커넥터용). `MCP_RATE`가 있어야 열립니다 |
 | MCP_RATE | MCP 운영 시에만 IP별 Rate Limit 바인딩을 적용. 예시 분당 20회 |
 | AI | (선택) Workers AI 바인딩. 챗봇의 "AI 정리 함께 보기"를 켤 때만 추가 |
 | CHAT_RATE | (선택) `/chat` 전용 IP별 Rate Limit 바인딩. 예시 분당 6회. `AI`와 둘 다 있어야 `/chat`이 열립니다 |
 | CHAT_MODEL | (선택) Workers AI 모델 이름. 비우면 `@cf/meta/llama-3.3-70b-instruct-fp8-fast` |
 | SUMMARY_MODEL | (선택) `/law-summary` 요약 변환기 모델. 비우면 CHAT_MODEL과 같은 모델 |
 
-- 기관이 통제하는 공개 페이지로 허용 목록을 구성합니다. 리디렉션은 차단합니다. 허용 목록이 비어 있으면 브라우저 직접 조회, 본문 붙여넣기와 파일 가져오기를 사용합니다.
+- 기관이 통제하는 공개 페이지로 허용 목록을 구성합니다. 허용 목록 밖으로 가는 리디렉션은 차단합니다. EUC-KR 페이지도 글자가 깨지지 않게 읽습니다. 허용 목록이 비어 있으면 브라우저 직접 조회, 본문 붙여넣기와 파일 가져오기를 사용합니다.
 - [Rate Limiting binding](https://developers.cloudflare.com/workers/runtime-apis/bindings/rate-limit/)에 따라 바인딩마다 계정에서 사용하지 않는 숫자 네임스페이스를 할당합니다. Cloudflare 위치별로 호출 제한이 적용되므로 계정 사용량도 모니터링합니다.
 - 관리, 공개 API 명세, 파일 경로는 거부합니다. `/chat`은 `AI`·`CHAT_RATE` 바인딩이 모두 있고 요청 Origin이 `ALLOWED_ORIGIN`과 같을 때만 열리며, 브라우저가 보낸 근거 문장(최대 20개, 본문 24KB)만 다시 정리합니다. 바인딩을 넣지 않으면 기존처럼 닫혀 있습니다. MCP는 비밀과 호출 제한을 함께 설정한 경우에만 사용합니다.
 - 기존 운영 경로, 라우팅, 배포 버전, Secrets, MCP 사용 여부를 확인합니다. 스테이징에서 허용된 오리진·URL과 승인된 이용 흐름을 먼저 확인합니다.
@@ -63,3 +65,14 @@ Cloudflare Worker 운영 계정에서 worker.js를 갱신합니다. GitHub Pages
 ## '간세' 캐릭터 톤
 
 `/chat`의 시스템 지시는 `GANSE_PERSONA`(친근함 · 솔직함 · 핵심 위주 · 클릭형 상세 안내 · 소크라테스식 역질문)로 시작합니다. 톤을 바꾸려면 이 상수만 고치면 됩니다.
+
+## 처리방침 점검 MCP 도구와 배포 방법
+
+`/mcp`는 웹 점검기와 같은 규칙 엔진(`assets/policy/rules.js` + `assets/policy/engine.js`)을 함께 묶어 아래 도구를 제공합니다(규칙 기반, AI 토큰 0).
+
+`check_privacy_policy` · `generate_improved_policy` · `generate_comparison_table` · `generate_ai_service_policy` · `get_improvement_example` · `list_criteria` · `get_easy_policy_facts` · `get_law_status` · `lookup_law_article` · `get_privacy_answer`
+
+- 두 공용 파일을 함께 묶어야 하므로 **`worker` 폴더에서 `npx wrangler deploy`로 배포**합니다(대시보드 코드 편집기에 worker.js만 붙여넣으면 점검 도구가 빠집니다). 압축을 풀 때 `assets/policy/` 폴더가 `worker/`와 같은 위치에 있어야 합니다.
+- `/health`의 `rules`에 규칙 버전이, `mcp: true`면 MCP가 열렸다는 뜻입니다.
+- 매개변수 없는 `GET /law`는 「개인정보 보호법」·시행령 현행 시행일을 돌려줍니다(점검기 상단 표시용, 하루 캐시, OC가 든 링크는 제외).
+- 예전 Worker의 `/ai`(Anthropic API 직접 호출)는 지금 화면에서 쓰지 않아 되살리지 않았습니다. AI 기능은 Workers AI 바인딩(`AI`)의 `/chat`·`/law-summary`를 씁니다.
