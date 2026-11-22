@@ -208,7 +208,7 @@ export default {
         if (!input || !/^\d{1,2}$/.test(hangRaw) || Number(hangRaw) > 20) return deny('summary_input_denied', 400);
         const hang = Number(hangRaw);
         const key = new URL('/cache/law-summary', url.origin);
-        key.search = new URLSearchParams({ ...input, hang, v: '1' }).toString();
+        key.search = new URLSearchParams({ ...input, hang, v: '2' }).toString();
         const hit = await caches.default.match(key.href);
         if (hit) return new Response(hit.body, { headers: { ...headers, 'Content-Type': 'application/json; charset=utf-8' } });
         if (!(await allowRate(request, env.LAW_RATE))) return deny('law_rate_denied', 429);
@@ -242,7 +242,7 @@ export default {
         const input = lawInput(url.searchParams.get('kind') || '법령', url.searchParams.get('name'), url.searchParams.get('jo') || '', url.searchParams.get('branch') || '0');
         if (!input) return deny('law_input_denied', 400);
         const key = new URL('/cache/law', url.origin);
-        key.search = new URLSearchParams(input).toString();
+        key.search = new URLSearchParams({ ...input, v: '2' }).toString();
         const hit = await caches.default.match(key.href);
         if (hit) return new Response(hit.body, { headers: { ...headers, 'Content-Type': 'application/json; charset=utf-8' } });
         if (!(await allowRate(request, env.LAW_RATE))) return deny('law_rate_denied', 429);
@@ -570,7 +570,7 @@ async function fetchLaw(oc, name, jo, branch) {
   const body = await drf('lawService.do', { OC: oc, target: 'law', MST: String(mst) });
   const units = asArray(body && body['법령'] && body['법령']['조문'] && body['법령']['조문']['조문단위']);
   const label = '제' + jo + '조' + (branch ? '의' + branch : '');
-  const art = units.find(u => String(u['조문번호']) === String(jo) && String(u['조문가지번호'] || 0) === String(branch || 0));
+  const art = pickArticle(units, jo, branch);
   const title = pick['법령명한글'] || name;
   if (!art || !joText(art).trim()) return { ok: false, error: '요청한 조문 원문을 확인하지 못했습니다.' };
   return { ok: true, article: title + ' ' + label + (art['조문제목'] ? '(' + art['조문제목'] + ')' : ''), content: joText(art), source: '법제처 국가법령정보 Open API · 현행' };
@@ -586,12 +586,17 @@ async function fetchAdmrul(oc, name, jo, branch) {
   const body = await drf('lawService.do', { OC: oc, target: 'admrul', ID: String(id) });
   const units = asArray(body && body['AdmRulService'] && body['AdmRulService']['조문'] && body['AdmRulService']['조문']['조문단위']);
   const label = '제' + jo + '조' + (branch ? '의' + branch : '');
-  const art = units.find(u => String(u['조문번호']) === String(jo) && String(u['조문가지번호'] || 0) === String(branch || 0));
+  const art = pickArticle(units, jo, branch);
   const title = pick['행정규칙명'] || name;
   if (art && joText(art).trim()) return { ok: true, article: title + ' ' + label, content: joText(art), source: '법제처 국가법령정보 Open API · 행정규칙' };
   return { ok: false, error: '요청한 행정규칙 조문의 본문을 확인하지 못했습니다.' };
 }
 
+/* 법제처 본문에는 장·절 제목(조문여부 '전문')도 다음 조문과 같은 번호로 들어 있어 실제 조문만 고릅니다 */
+function pickArticle(units, jo, branch) {
+  const same = units.filter(u => String(u['조문번호']) === String(jo) && String(u['조문가지번호'] || 0) === String(branch || 0));
+  return same.find(u => u['조문여부'] === '조문') || same.find(u => u['조문여부'] !== '전문' && asArray(u['항']).length) || same.find(u => u['조문여부'] !== '전문') || null;
+}
 function joText(art) {
   let s = (art['조문내용'] || '').trim();
   const hangs = asArray(art['항']);
