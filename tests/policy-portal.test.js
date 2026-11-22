@@ -116,3 +116,22 @@ test('/chat drops evidence that looks like raw article text', async () => {
   assert(!seen.messages[1].content.includes('제15조('));
   assert.match(seen.messages[1].content, /\[1\] \(요약\)/);
 });
+
+test('law lookup failures report a safe stage code instead of a bare 502', async () => {
+  const source = fs.readFileSync('worker/worker.js', 'utf8');
+  const { default: worker } = await import('data:text/javascript,' + encodeURIComponent(source));
+  const store = new Map();
+  global.caches = { default: { match: async () => undefined, put: async () => {} } };
+  const realFetch = global.fetch;
+  const env = { ALLOWED_ORIGIN: 'https://portal.example', LAW_OC: 'secret-oc', LAW_RATE: { limit: async () => ({ success: true }) } };
+  const get = () => worker.fetch(new Request('https://w.example/law?kind=법령&name=개인정보 보호법&jo=15&branch=0', { headers: { 'CF-Connecting-IP': '203.0.113.1' } }), env);
+  try {
+    global.fetch = async () => new Response('<html>OC 인증 실패: 등록되지 않은 IP</html>', { status: 200 });
+    let j = await (await get()).json();
+    assert.equal(j.ok, false); assert.equal(j.stage, 'drf_auth'); assert(!JSON.stringify(j).includes('secret-oc'));
+    global.fetch = async () => { throw new TypeError('network down'); };
+    j = await (await get()).json(); assert.equal(j.stage, 'drf_network');
+    const r = await worker.fetch(new Request('https://w.example/law?kind=법령&name=개인정보 보호법&jo=15&branch=0', { headers: { 'CF-Connecting-IP': '203.0.113.1' } }), { ...env, LAW_RATE: { limit: async () => { throw new Error('bad binding'); } } });
+    assert.equal(r.status, 502); assert.equal((await r.json()).stage, 'rate_limiter_error');
+  } finally { global.fetch = realFetch; delete global.caches; }
+});

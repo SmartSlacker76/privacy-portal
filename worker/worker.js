@@ -130,7 +130,9 @@ async function tokenMatches(request, token) {
 
 async function allowRate(request, limiter) {
   const key = request.headers.get('CF-Connecting-IP');
-  return !!(key && limiter && (await limiter.limit({ key })).success);
+  if (!key || !limiter) return false;
+  try { return !!(await limiter.limit({ key })).success; }
+  catch { throw new Error('rate_limiter_error'); }
 }
 
 export default {
@@ -202,12 +204,13 @@ export default {
         if (hit) return new Response(hit.body, { headers: { ...headers, 'Content-Type': 'application/json; charset=utf-8' } });
         if (!(await allowRate(request, env.LAW_RATE))) return deny('law_rate_denied', 429);
         const found = await lookup(env, input);
-        if (!found.ok) return json({ ok: false, error: '조문을 확인하지 못해 요약하지 않았습니다.' }, 502);
+        if (!found.ok) return json({ ok: false, error: '조문을 확인하지 못해 요약하지 않았습니다.', stage: found.stage || 'not_found' }, 502);
         const part = paragraphOf(found.content, hang);
-        const result = await env.AI.run(env.SUMMARY_MODEL || env.CHAT_MODEL || CHAT_MODEL, {
+        let result;
+        try { result = await env.AI.run(env.SUMMARY_MODEL || env.CHAT_MODEL || CHAT_MODEL, {
           messages: [{ role: 'system', content: SUMMARY_SYSTEM }, { role: 'user', content: `[조문] ${found.article}${hang && part !== found.content ? ' 제' + hang + '항' : ''}\n${part.slice(0, 6000)}` }],
           max_tokens: 300, temperature: 0
-        });
+        }); } catch { return json({ ok: false, error: '요약 모델을 호출하지 못했습니다.', stage: 'ai_error' }, 502); }
         const lines = checkSummary(result?.response, part);
         if (!lines) { audit('summary_rejected', request, 502); return json({ ok: false, error: '요약 검증을 통과하지 못했습니다.' }, 502); }
         const out = { ok: true, article: found.article, cite: citeLabel(input.name, input.jo, input.branch, hang && part !== found.content ? hang : 0), summary: lines, source: found.source + ' → 3줄 요약(원문 미포함)' };
@@ -241,8 +244,10 @@ export default {
       }
       const text = htmlToText(await cappedBody(response, 1500000)).slice(0, 300000);
       return text.length > 200 ? json({ ok: true, text }) : json({ ok: false, error: '본문을 직접 붙여넣어 주세요.' }, 422);
-    } catch {
-      return deny('gateway_error', 502);
+    } catch (e) {
+      const stage = /^[a-z_]{3,40}$/.test(e && e.message) ? e.message : 'gateway_error';
+      audit(stage, request, 502);
+      return json({ ok: false, stage }, 502);
     }
   }
 };
@@ -269,8 +274,15 @@ const tool = {
   }
 };
 
-function lookup(env, { kind, name, jo, branch }) {
-  return kind === '행정규칙' ? fetchAdmrul(env.LAW_OC, name, jo, branch) : fetchLaw(env.LAW_OC, name, jo, branch);
+/* 법제처 조회 실패를 502 일반 오류 대신 원인 코드(비밀값 미포함)로 돌려줍니다 */
+async function lookup(env, { kind, name, jo, branch }) {
+  try {
+    return await (kind === '행정규칙' ? fetchAdmrul(env.LAW_OC, name, jo, branch) : fetchLaw(env.LAW_OC, name, jo, branch));
+  } catch (e) {
+    const stage = /^drf_[a-z0-9_]+$/.test(e && e.message) ? e.message : 'drf_error';
+    console.warn(JSON.stringify({ event: 'law_lookup_failed', stage }));
+    return { ok: false, error: '법제처 조회에 실패했습니다.', stage };
+  }
 }
 
 async function mcp(rpc, env) {
@@ -297,10 +309,14 @@ async function mcp(rpc, env) {
 
 async function drf(path, params) {
   const q = new URLSearchParams({ type: 'JSON', ...params });
-  const r = await fetch(`${DRF}/${path}?${q}`, { redirect: 'error', signal: AbortSignal.timeout(8000), headers: { 'User-Agent': UA } });
-  if (!r.ok) throw new Error('DRF ' + r.status);
+  // 법제처가 http↔https·호스트를 바꿔 리디렉션하는 경우가 있어 law.go.kr 안에서만 따라갑니다
+  let r;
+  try { r = await fetch(`${DRF}/${path}?${q}`, { redirect: 'follow', signal: AbortSignal.timeout(8000), headers: { 'User-Agent': UA, 'Accept': 'application/json' } }); }
+  catch (e) { throw new Error(e && e.name === 'TimeoutError' ? 'drf_timeout' : 'drf_network'); }
+  if (!/(^|\.)law\.go\.kr$/i.test(new URL(r.url || DRF).hostname)) throw new Error('drf_redirect');
+  if (!r.ok) throw new Error('drf_status_' + r.status);
   const t = await r.text();
-  try { return JSON.parse(t); } catch (e) { throw new Error('DRF 비정상 응답'); }
+  try { return JSON.parse(t); } catch (e) { throw new Error(/OC|인증|등록|권한|IP/.test(t.slice(0, 2000)) ? 'drf_auth' : 'drf_not_json'); }
 }
 
 // 법률·시행령: 검색으로 MST(법령일련번호)를 찾고, 본문에서 해당 조문을 추출
