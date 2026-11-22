@@ -246,7 +246,7 @@ html[data-theme="dark"] .cs-lawbtns a,html[data-theme="dark"] .cs-lawbtns button
 html[data-theme="dark"] .cs-sub,html[data-theme="dark"] .cs-doclink{color:#b9d0e2}
 html[data-theme="dark"] .cs-q mark{background:#6b5a24}
 @media(max-width:640px){.cs-table{font-size:12px}.cs-topic{font-size:14px}}
-.mode-sw{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:4px 0 8px}
+.mode-sw{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin:4px 0 8px}
 .mode-sw button{font:inherit;text-align:left;cursor:pointer;border:1px solid #c9d7e0;background:#fff;color:var(--ink);border-radius:12px;padding:9px 12px;display:flex;flex-direction:column;gap:2px}
 .mode-sw button b{font-size:14px}.mode-sw button span{font-size:11.5px;color:var(--muted)}
 .mode-sw button[aria-pressed="true"]{border:2px solid #607e94;background:#eef3f7}
@@ -276,6 +276,50 @@ html[data-theme="dark"] .cs-cite,html[data-theme="dark"] .cs-lawlink{color:#b9d0
 .ob-link{margin:0 0 10px;font-size:13px}.ob-link a{color:#2f5a7a;font-weight:700;text-decoration:none;border-bottom:1px dotted #607e94}
 html[data-theme="dark"] .ob-link a{color:#b9d0e2}
 body[data-counsel-mode="citizen"] .ob-link{display:none}
+/* AI 실무 코치: 3단 레이어 */
+.co-s1{background:#f3f7fa;border-left:4px solid #607e94;border-radius:10px;padding:11px 13px;margin:0 0 10px}
+.co-head{display:flex;flex-wrap:wrap;align-items:center;gap:6px 8px;margin:0 0 6px}
+.co-badge{display:inline-block;font-size:13px;font-weight:800;border-radius:999px;padding:3px 11px;color:#fff;background:#607e94}
+.co-v-ok{background:#2f7a55}.co-v-cond{background:#a8641b}.co-v-bad{background:#b3261e}.co-v-chk{background:#5b6b7a}.co-v-must{background:#2f5a7a}
+.co-topic{font-size:14.5px;font-weight:800;color:var(--ink)}
+.co-type{font-size:10.5px;color:var(--muted);border:1px solid #dce7ec;border-radius:20px;padding:1px 7px}
+.co-why{margin:0;font-weight:600;line-height:1.75}
+.co-warn{margin:7px 0 0;background:#fff4e5;border:1px solid #f0d2a6;border-radius:8px;padding:6px 10px;font-size:13px;line-height:1.65}
+.co-s2{margin:0 0 10px}.co-lab{margin:0 0 6px;font-size:11.5px;font-weight:700;color:var(--muted)}
+details.co-acc{border:1px solid #d8e1df;border-radius:10px;background:#fff;margin:0 0 6px;overflow:hidden}
+details.co-acc>summary{cursor:pointer;list-style:none;padding:11px 36px 11px 13px;font-size:13.5px;font-weight:700;color:#314c59;position:relative;min-height:44px;box-sizing:border-box}
+details.co-acc>summary::-webkit-details-marker{display:none}
+details.co-acc>summary:after{content:"+";position:absolute;right:13px;top:7px;font-size:22px;font-weight:400}
+details.co-acc[open]>summary:after{content:"−"}
+details.co-acc>summary:focus-visible{outline:3px solid #6b8ba4;outline-offset:-3px}
+.co-acc-in{padding:4px 13px 12px;border-top:1px solid #e1e8e6;font-size:13px}
+.co-chk .chk-i{margin:7px 0}
+.co-laws{list-style:none;padding:0;margin:6px 0}.co-law{border:1px solid #dce7ec;border-radius:8px;padding:8px 10px;margin:6px 0}
+.co-lname{margin:0 0 4px}.co-lsum p{margin:2px 0;line-height:1.7}.co-cite{margin:4px 0 0;font-size:12px;color:#45607a;font-weight:700}
+.co-s3{border-top:1px dashed var(--line);padding-top:8px}
+.co-sub{margin:10px 0 5px;font-size:13px;font-weight:800;color:#45607a}
+.co-chips .chip-q{min-height:36px;text-align:left}
+.co-ox{border:1px solid #c9d7e0;border-radius:10px;padding:9px 11px;background:#f9fbfc;margin:6px 0}
+.co-ox-q{margin:0;line-height:1.7}.co-ox-q>b{display:inline-block;margin-right:6px;padding:0 8px;border-radius:999px;background:#eef3f7;color:#2f5a7a;font-size:12px}
+.co-ox-pick{display:flex;align-items:center;gap:8px;margin-top:7px;flex-wrap:wrap}
+.co-ox-b{font:inherit;font-size:15px;font-weight:800;width:48px;height:40px;border:1px solid #c9d7e0;border-radius:9px;background:#fff;color:#34445e;cursor:pointer}
+.co-ox-b:hover{border-color:#607e94}.co-ox-b.sel{background:#607e94;border-color:#607e94;color:#fff}.co-ox-b:disabled{cursor:default}
+.co-ox-vd .good{color:#2f7a55;font-weight:800}.co-ox-vd .miss{color:#b3261e;font-weight:800}
+.co-ox-a{margin-top:8px;border-top:1px dashed var(--line);padding-top:7px;font-size:12.5px;line-height:1.7}.co-ox-a p{margin:0 0 4px}
+.co-btns{display:flex;flex-direction:column;gap:6px;margin:12px 0 2px}
+.co-btn,.co-btn:visited{display:block;box-sizing:border-box;width:100%;min-height:44px;text-align:center;font:inherit;font-size:13.5px;font-weight:800;text-decoration:none!important;border-radius:10px;padding:11px 12px;cursor:pointer;border:1px solid #c9d7e0;background:#fff;color:#2f5a7a!important}
+.co-btn.co-quiz{background:#607e94;border-color:#607e94;color:#fff!important}
+.co-btn.co-esc{background:#fff4f2;border-color:#e8b4ad;color:#8a2b20!important}
+.co-btn:focus-visible{outline:3px solid #b9d0e2;outline-offset:1px}
+.co-calm{margin:0 0 9px;font-weight:700;line-height:1.75}
+.co-probe{border:1px solid #dce7ec;border-radius:10px;padding:8px 11px;margin:0 0 7px;background:#fff}.co-pq{margin:0 0 2px;line-height:1.7}
+.co-esc-l .cz-act{margin-top:6px}
+html[data-theme="dark"] .co-s1{background:#263a4e}html[data-theme="dark"] .co-warn{background:#3a3428;border-color:#5b4d36}
+html[data-theme="dark"] details.co-acc,html[data-theme="dark"] .co-probe,html[data-theme="dark"] .co-ox,html[data-theme="dark"] .co-btn{background:#1f2a44;border-color:#41566b;color:#e6edf2!important}
+html[data-theme="dark"] details.co-acc>summary,html[data-theme="dark"] .co-sub,html[data-theme="dark"] .co-cite{color:#b9d0e2}
+html[data-theme="dark"] .co-btn.co-quiz{background:#45607a}html[data-theme="dark"] .co-btn.co-esc{background:#3a2a28;border-color:#7a4a44}
+html[data-theme="dark"] .co-ox-b{background:#22344a;color:#e6edf2;border-color:#41566b}
+@media(max-width:640px){.mode-sw{grid-template-columns:1fr}.mode-sw button{flex-direction:row;align-items:baseline;gap:8px}}
 </style><link data-edu-responsive="2026" rel="stylesheet" href="assets/css/edu1035-responsive.css?v=20261120-contrast-4"></head>
 <body>
 <div class="sp-wrap">
@@ -287,7 +331,8 @@ body[data-counsel-mode="citizen"] .ob-link{display:none}
 
   <p class="ob-link"><a href="onboarding.html">처음 맡으셨나요? 신규 직원 온보딩: 직무별 상황 · 실행 플레이북 · 오늘의 퀴즈 →</a></p>
   <div class="mode-sw" role="group" aria-label="상담 대상 선택">
-    <button type="button" data-mode="staff" aria-pressed="true"><b>공무원용</b><span>초임 담당자 · 5단계 상세 답변</span></button>
+    <button type="button" data-mode="coach" aria-pressed="true"><b>AI 실무 코치</b><span>신규 직원 · 결론 먼저 · 역질문·OX 퀴즈</span></button>
+    <button type="button" data-mode="staff" aria-pressed="false"><b>공무원용</b><span>초임 담당자 · 5단계 상세 답변</span></button>
     <button type="button" data-mode="citizen" aria-pressed="false"><b>시민용</b><span>쉬운 말 · 핵심 먼저 · 4줄 안내</span></button>
   </div>
   <p class="asof-bar" id="asofBar"></p>
@@ -302,13 +347,16 @@ body[data-counsel-mode="citizen"] .ob-link{display:none}
 </div>
 
 <script src="assets/config.js?v=20261121-2"></script>
-<script src="assets/js/law-api-client.js?v=20261120-shared-1"></script>
+<script src="assets/js/law-api-client.js?v=20261122-summary-1"></script>
 <script src="assets/data/library/catalog.js?v=20261121-1"></script>
 <script src="assets/data/counsel-lexicon.js?v=20261121-5"></script>
 <script src="assets/data/counsel-topics.js?v=20261121-3"></script>
 <script src="assets/data/counsel-citizen.js?v=20261121-6"></script>
 <script src="assets/js/counsel-engine.js?v=20261121-1"></script>
-<script src="assets/js/counsel-ui.js?v=20261121-8"></script>
+<script src="assets/data/law-summary.js?v=20261122-1"></script>
+<script src="assets/data/counsel-coach.js?v=20261122-1"></script>
+<script src="assets/js/counsel-coach-core.js?v=20261122-1"></script>
+<script src="assets/js/counsel-ui.js?v=20261122-1"></script>
 <script src="assets/js/gov.js?v=20261120-jeju-nav-2"></script>
 </body>
 </html>

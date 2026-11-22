@@ -47,5 +47,21 @@
       return {ok:true,kind:v.kind,name:v.name,article:String(data.article||''),content:content,source:String(data.source||'법제처 국가법령정보 공동활용 API'),url:link(v)};
     }finally{clearTimeout(timer)}
   }
-  window.HondiLawAPI=Object.freeze({origin:origin,enabled:function(){return !!origin()},health:health,article:article,link:link});
+  /* 원문 대신 Worker가 3줄로 요약·검증한 결과만 받습니다(원문 텍스트는 응답에 없음) */
+  async function summary(params){
+    var v=input(params);if(!v)throw Error('invalid-input');
+    var hang=Number(params.hang||0);if(!Number.isInteger(hang)||hang<0||hang>20)hang=0;
+    var base=origin();if(!base)throw Error('not-configured');
+    var controller=new AbortController();
+    var timer=setTimeout(function(){controller.abort()},15000);
+    try{
+      var response=await fetch(base+'/law-summary?'+new URLSearchParams({kind:v.kind,name:v.name,jo:v.jo,branch:v.branch,hang:hang}),{credentials:'omit',cache:'no-store',signal:controller.signal});
+      if(!response.ok)throw Error('worker-status-'+response.status);
+      var data=await response.json();
+      var lines=Array.isArray(data&&data.summary)?data.summary.map(String).filter(Boolean).slice(0,3):[];
+      if(!data||data.ok!==true||!lines.length)throw Error('unverified');
+      return {ok:true,cite:String(data.cite||''),article:String(data.article||''),summary:lines,source:String(data.source||''),url:link(v)};
+    }finally{clearTimeout(timer)}
+  }
+  window.HondiLawAPI=Object.freeze({origin:origin,enabled:function(){return !!origin()},health:health,article:article,summary:summary,link:link});
 })();

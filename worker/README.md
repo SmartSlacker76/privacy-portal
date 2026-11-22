@@ -14,6 +14,7 @@ Cloudflare Worker 운영 계정에서 worker.js를 갱신합니다. GitHub Pages
 | AI | (선택) Workers AI 바인딩. 챗봇의 "AI 정리 함께 보기"를 켤 때만 추가 |
 | CHAT_RATE | (선택) `/chat` 전용 IP별 Rate Limit 바인딩. 예시 분당 6회. `AI`와 둘 다 있어야 `/chat`이 열립니다 |
 | CHAT_MODEL | (선택) Workers AI 모델 이름. 비우면 `@cf/meta/llama-3.3-70b-instruct-fp8-fast` |
+| SUMMARY_MODEL | (선택) `/law-summary` 요약 변환기 모델. 비우면 CHAT_MODEL과 같은 모델 |
 
 - 기관이 통제하는 공개 페이지로 허용 목록을 구성합니다. 리디렉션은 차단합니다. 허용 목록이 비어 있으면 브라우저 직접 조회, 본문 붙여넣기와 파일 가져오기를 사용합니다.
 - [Rate Limiting binding](https://developers.cloudflare.com/workers/runtime-apis/bindings/rate-limit/)에 따라 바인딩마다 계정에서 사용하지 않는 숫자 네임스페이스를 할당합니다. Cloudflare 위치별로 호출 제한이 적용되므로 계정 사용량도 모니터링합니다.
@@ -46,3 +47,19 @@ Cloudflare Worker 운영 계정에서 worker.js를 갱신합니다. GitHub Pages
 4. 챗봇 상단 상태줄에 **AI 정리 함께 보기** 체크박스가 나타나면, 켠 사용자에게만 근거형 답변 위에 AI 정리가 추가로 표시됩니다.
 
 끄려면 `AI` 또는 `CHAT_RATE` 바인딩을 제거하면 됩니다. Workers AI 사용량은 계정 요금에 포함되므로 사용량을 모니터링합니다.
+
+
+## 법제처 원문 → 3줄 요약 변환기(`/law-summary`)
+
+챗봇 답변에 조문 원문이 섞이지 않도록, Worker가 법제처 API 응답을 받은 **직후** 요약 변환기 프롬프트(`SUMMARY_SYSTEM`)를 한 번 거친 결과만 돌려줍니다.
+
+- 요청: `GET /law-summary?kind=법령&name=개인정보 보호법&jo=15&branch=0&hang=1`
+- 응답: `{ ok, article, cite: "개인정보 보호법 제15조 제1항", summary: [3줄], source }` — **원문(`content`)은 응답에 넣지 않습니다.**
+- 검증: 3줄 이내·줄당 120자 이내, 원문에 없는 숫자가 있으면 거부, 원문을 40자 이상 그대로 옮기면 거부. 통과분만 7일 캐시합니다. 실패하면 챗봇은 저장소의 요약표(`assets/data/law-summary.js`)·주제 카드 문장으로 대신 보여 줍니다.
+- 필요 바인딩: `LAW_OC` + `AI` + `LAW_RATE`. 셋이 모두 있어야 `/health`의 `summary: true`가 되고 챗봇이 이 경로를 씁니다.
+- `/chat`(AI 정리)에는 요약만 근거로 넘기며, 원문처럼 보이는 근거(`제n조(` 로 시작하거나 ①② 항 기호가 2개 이상)는 서버에서 버립니다.
+- 조문 원문은 사용자가 "조문 원문 보기"를 눌렀을 때만 기존 `/law` 경로로 별도 말풍선에 표시합니다.
+
+## '간세' 캐릭터 톤
+
+`/chat`의 시스템 지시는 `GANSE_PERSONA`(친근함 · 솔직함 · 핵심 위주 · 클릭형 상세 안내 · 소크라테스식 역질문)로 시작합니다. 톤을 바꾸려면 이 상수만 고치면 됩니다.

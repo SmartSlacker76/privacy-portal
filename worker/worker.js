@@ -2,16 +2,69 @@
  * The optional /chat route only rewrites evidence the browser already holds; it is off unless the AI and CHAT_RATE bindings exist. */
 const DRF = 'https://www.law.go.kr/DRF';
 const UA = 'privacy-edu-worker';
-const publicPaths = new Set(['/', '/health', '/law', '/fetch', '/chat']);
+const publicPaths = new Set(['/', '/health', '/law', '/law-summary', '/fetch', '/chat']);
 const CHAT_MODEL = '@cf/meta/llama-3.3-70b-instruct-fp8-fast';
+/* '간세' 캐릭터 톤: 친근함 + 솔직함 + 핵심 위주 + 클릭형 상세 안내 + 소크라테스식 역질문 */
+const GANSE_PERSONA = [
+  '너는 AI 상담사 \'간세\'다. 사이버보안과 개인정보 보호 업무를 처음 맡은 공공기관 직원을 돕는다.',
+  '친근함: 다정한 해요체로 말하고, 처음이라 막막해하는 마음을 먼저 알아준다. 훈계하거나 겁주지 않는다.',
+  '솔직함: 근거에 없거나 확실하지 않으면 "제가 가진 자료로는 확실히 말씀드리기 어려워요"처럼 솔직히 말하고, 짐작으로 채우지 않는다.',
+  '핵심 위주: 결론(가능/조건부 가능/불가/확인 필요/필수)과 이유를 먼저 2줄 안에 말한다. 긴 설명은 하지 않는다.',
+  '클릭형 상세 안내: 절차·법령·양식의 자세한 내용은 화면의 "클릭하여 자세히 보기" 항목에서 확인하도록 짧게 안내한다.',
+  '소크라테스식 역질문: 끝에 사용자가 스스로 기준을 떠올리게 하는 질문을 한 개 던진다(예: "그 업체가 우리 일을 대신 하나요, 자기 목적으로 쓰나요?"). 답을 질문 속에 미리 말하지 않는다.'
+].join('\n');
 const CHAT_SYSTEM = [
-  '너는 공공기관 개인정보 보호·정보보안 업무를 처음 맡은 직원을 돕는 상담 사수다.',
+  GANSE_PERSONA,
   '반드시 사용자 메시지의 [근거] 목록에 있는 문장만 사용해 한국어로 짧게 다시 정리한다.',
   '근거에 없는 법 조항, 숫자, 기한, 금액, 예외, 사례를 새로 만들거나 추론하지 않는다.',
-  '각 문장 끝에 사용한 근거 번호를 [1]처럼 붙인다.',
+  '각 문장 끝에 사용한 근거 번호를 [1]처럼 붙인다. 역질문 문장에는 번호를 붙이지 않는다.',
   '근거로 답할 수 없으면 "제공된 자료만으로는 정리하기 어렵습니다."라고만 답한다.',
-  '형식: 핵심 2줄, 이어서 해야 할 일 3개 이내. 법률 자문이 아닌 일반 안내 어조를 유지한다.'
+  '형식: 핵심 2줄, 이어서 해야 할 일 3개 이내, 마지막에 역질문 1개. 법률 자문이 아닌 일반 안내 어조를 유지한다.',
+  '[근거]의 법령 항목은 원문이 아니라 미리 만든 3줄 요약이다. 조문 원문을 인용하거나 복원하지 않는다.'
 ].join('\n');
+
+/* 법제처 원문 → 3줄 요약 변환기. 원문은 이 단계에서만 쓰고, 챗봇 화면과 /chat 컨텍스트에는 요약만 넘깁니다. */
+const SUMMARY_SYSTEM = [
+  '너는 법령 조문을 개인정보 보호·정보보안 업무를 처음 맡은 공무원이 이해할 수 있게 바꾸는 요약 변환기다.',
+  '입력된 [조문]에 적힌 내용만 쓴다. 조문에 없는 조항 번호, 숫자, 기한, 금액, 예외, 해석을 만들거나 추론하지 않는다.',
+  '핵심 의무와 금지 사항만 쉬운 일상어로 정확히 3줄로 쓴다. 한 줄은 70자 이내의 완결된 문장이다.',
+  '조문 문장을 그대로 옮겨 적지 말고 쉬운 말로 바꾼다. 어려운 법률 용어에는 괄호로 쉬운 설명을 붙인다.',
+  '번호·기호·머리말·출처 표기 없이 요약 3줄만 출력한다.'
+].join('\n');
+const CIRCLED = '①②③④⑤⑥⑦⑧⑨⑩⑪⑫⑬⑭⑮⑯⑰⑱⑲⑳';
+
+function paragraphOf(text, hang) {
+  if (!hang || hang > 20) return text;
+  const a = text.indexOf(CIRCLED[hang - 1]);
+  if (a < 0) return text;
+  const b = hang < 20 ? text.indexOf(CIRCLED[hang], a + 1) : -1;
+  return text.slice(a, b > a ? b : undefined).trim();
+}
+
+/* 모델 출력 검사: 3줄 이내 · 줄 길이 · 원문에 없는 숫자 금지 · 원문 40자 이상 그대로 옮기기 금지 */
+function checkSummary(raw, source) {
+  const squash = (s) => String(s).replace(/[\s ]+/g, '');
+  const src = squash(source);
+  const nums = new Set(source.match(/\d+/g) || []);
+  const lines = String(raw || '').split(/\n+/).map((l) => l.replace(/^\s*(?:[-*•·▪◦]|\d+[.)]|[①-⑳])\s*/, '').trim()).filter(Boolean);
+  if (lines.length < 1 || lines.length > 3) return null;
+  for (const line of lines) {
+    if (line.length < 8 || line.length > 120) return null;
+    if ((line.match(/\d+/g) || []).some((n) => !nums.has(n))) return null;
+    const c = squash(line);
+    for (let i = 0; i + 40 <= c.length; i += 5) if (src.includes(c.slice(i, i + 40))) return null;
+  }
+  return lines;
+}
+
+function citeLabel(name, jo, branch, hang) {
+  return name + ' 제' + jo + '조' + (branch ? '의' + branch : '') + (hang ? ' 제' + hang + '항' : '');
+}
+
+/* 원문 형태로 보이는 근거는 /chat 컨텍스트에 넣지 않습니다(요약만 허용) */
+function rawLawLike(text) {
+  return /^\s*제\s?\d+조(?:의\s?\d+)?\s*\(/.test(text) || (text.match(/[①-⑳]/g) || []).length >= 2;
+}
 
 function chatInput(body) {
   if (!body || typeof body.q !== 'string' || !Array.isArray(body.evidence)) return null;
@@ -21,6 +74,7 @@ function chatInput(body) {
   for (const e of body.evidence) {
     if (!e || typeof e.text !== 'string' || (e.ref != null && typeof e.ref !== 'string')) return null;
     const text = e.text.trim().slice(0, 800);
+    if (rawLawLike(text)) continue;
     if (text) evidence.push({ ref: String(e.ref || '').slice(0, 120), text });
   }
   return evidence.length ? { q, evidence } : null;
@@ -134,7 +188,32 @@ export default {
       }
       if (request.method !== 'GET') return deny('method_denied', 405);
 
-      if (path === '/health' || path === '/') return json({ ok: true, law: Boolean(env.LAW_OC), fetch: Boolean(allowed.size && env.POLICY_RATE), fetchPolicy: 'explicit-urls-v1', ai: Boolean(env.AI && env.CHAT_RATE) });
+      if (path === '/health' || path === '/') return json({ ok: true, law: Boolean(env.LAW_OC), fetch: Boolean(allowed.size && env.POLICY_RATE), fetchPolicy: 'explicit-urls-v1', ai: Boolean(env.AI && env.CHAT_RATE), summary: Boolean(env.LAW_OC && env.AI && env.LAW_RATE) });
+
+      if (path === '/law-summary') {
+        if (!env.LAW_OC || !env.AI || !env.LAW_RATE) return json({ ok: false, error: '조문 요약 서비스를 사용할 수 없습니다.' }, 503);
+        const input = lawInput(url.searchParams.get('kind') || '법령', url.searchParams.get('name'), url.searchParams.get('jo') || '', url.searchParams.get('branch') || '0');
+        const hangRaw = url.searchParams.get('hang') || '0';
+        if (!input || !/^\d{1,2}$/.test(hangRaw) || Number(hangRaw) > 20) return deny('summary_input_denied', 400);
+        const hang = Number(hangRaw);
+        const key = new URL('/cache/law-summary', url.origin);
+        key.search = new URLSearchParams({ ...input, hang, v: '1' }).toString();
+        const hit = await caches.default.match(key.href);
+        if (hit) return new Response(hit.body, { headers: { ...headers, 'Content-Type': 'application/json; charset=utf-8' } });
+        if (!(await allowRate(request, env.LAW_RATE))) return deny('law_rate_denied', 429);
+        const found = await lookup(env, input);
+        if (!found.ok) return json({ ok: false, error: '조문을 확인하지 못해 요약하지 않았습니다.' }, 502);
+        const part = paragraphOf(found.content, hang);
+        const result = await env.AI.run(env.SUMMARY_MODEL || env.CHAT_MODEL || CHAT_MODEL, {
+          messages: [{ role: 'system', content: SUMMARY_SYSTEM }, { role: 'user', content: `[조문] ${found.article}${hang && part !== found.content ? ' 제' + hang + '항' : ''}\n${part.slice(0, 6000)}` }],
+          max_tokens: 300, temperature: 0
+        });
+        const lines = checkSummary(result?.response, part);
+        if (!lines) { audit('summary_rejected', request, 502); return json({ ok: false, error: '요약 검증을 통과하지 못했습니다.' }, 502); }
+        const out = { ok: true, article: found.article, cite: citeLabel(input.name, input.jo, input.branch, hang && part !== found.content ? hang : 0), summary: lines, source: found.source + ' → 3줄 요약(원문 미포함)' };
+        await caches.default.put(key.href, new Response(JSON.stringify(out), { headers: { 'Cache-Control': 'public, max-age=604800' } }));
+        return json(out);
+      }
 
       if (path === '/law') {
         if (!env.LAW_OC) return json({ ok: false, error: '조문 조회 서비스를 사용할 수 없습니다.' }, 503);
