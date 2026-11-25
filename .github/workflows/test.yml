@@ -1,10 +1,16 @@
 name: cipher-tests
 on: [push, pull_request]
+# 보안수칙(최소 권한): 테스트 작업은 저장소 읽기 권한만 받습니다
+permissions:
+  contents: read
 jobs:
   test:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
+      # 보안수칙(설치 버전 고정): 외부 Action은 태그 대신 커밋 SHA로 고정합니다(v4)
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+        with: { persist-credentials: false }
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020
         with: { node-version: 20 }
-      - run: node tests/ciphers.test.js
+      # 챗봇 Worker 보안 테스트(MCP 인증, 외부 통신 허용 목록, 중지 스위치, 마스킹)를 포함한 전체 테스트
+      - run: for f in tests/*.test.js; do echo "== $f"; node --test "$f" || exit 1; done

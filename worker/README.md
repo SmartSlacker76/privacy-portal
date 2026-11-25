@@ -8,10 +8,11 @@ Cloudflare Worker 운영 계정에서 worker.js를 갱신합니다. GitHub Pages
 | LAW_OC | 법제처 OC. Worker Secret으로 관리 |
 | LAW_RATE | IP별 법령 조회 Rate Limit 바인딩. 예시 분당 30회 |
 | POLICY_FETCH_URLS | 승인된 공개 HTTPS 처리방침 전체 URL을 공백으로 구분 |
-| POLICY_FETCH_HOSTS | (선택) 처리방침을 불러올 수 있는 HTTPS 호스트 뒷부분을 공백으로 구분. 예: `go.kr` → `www.jeju.go.kr` 등 하위 주소 허용. 리디렉션은 매 단계 다시 검사(최대 3회) |
+| POLICY_FETCH_HOSTS | (선택) 처리방침을 불러올 수 있는 HTTPS 호스트 뒷부분을 공백으로 구분. 예: `go.kr` → `www.jeju.go.kr` 등 하위 주소 허용. 리디렉션은 매 단계 다시 검사(최대 3회). MCP 처리방침 도구의 주소 불러오기도 이 허용 목록만 씁니다 |
 | POLICY_RATE | IP별 공개 자료 가져오기 Rate Limit 바인딩. 예시 분당 10회 |
 | MCP_TOKEN | MCP 운영 시에만 서버용 고엔트로피 비밀을 Secret으로 등록 |
-| MCP_PUBLIC | (선택) `"true"`로 적으면 토큰 없이 MCP 접속 허용(토큰 헤더를 넣을 수 없는 AI 앱 커스텀 커넥터용). `MCP_RATE`가 있어야 열립니다 |
+| (MCP 접속 주소) | 기본은 `POST /mcp` + `Authorization: Bearer <MCP_TOKEN>`. 헤더를 넣을 수 없는 AI 앱 커스텀 커넥터는 `/mcp/<MCP_TOKEN>` 비밀 주소를 씁니다. 토큰 없는 `MCP_PUBLIC` 모드는 보안수칙(외부 개방 시 인증 필수)에 따라 없앴습니다 |
+| AGENT_STOP | (긴급 중지) `"true"`로 바꾸면 재배포 없이 `/chat`·`/law-summary`·`/mcp`가 즉시 503으로 멈춥니다. `/health`의 `stopped`로 확인 |
 | MCP_RATE | MCP 운영 시에만 IP별 Rate Limit 바인딩을 적용. 예시 분당 20회 |
 | AI | (선택) Workers AI 바인딩. 챗봇의 "AI 정리 함께 보기"를 켤 때만 추가 |
 | CHAT_RATE | (선택) `/chat` 전용 IP별 Rate Limit 바인딩. 예시 분당 6회. `AI`와 둘 다 있어야 `/chat`이 열립니다 |
